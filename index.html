@@ -64,7 +64,7 @@
                   targetId: 'subheading',
                   orientation: 'bottom',
                   nextCallback: function() {
-                    alert('clicked next on step 1');
+                    document.getElementById('pageTitle').style.color = '#f00';
                   }
                 },
                 {
@@ -75,7 +75,7 @@
                   width: 320,
                   height: 480,
                   prevCallback: function() {
-                    alert('clicked prev on step 2');
+                    document.getElementById('pageTitle').style.color = '#000';
                   }
                 },
                 {
@@ -88,10 +88,7 @@
                   title: 'Python decorator',
                   content: 'Here\'s an example of a python decorator',
                   targetId: 'python',
-                  orientation: 'right',
-                  nextCallback: function() {
-                    alert('clicked next on step 4');
-                  }
+                  orientation: 'right'
                 },
                 {
                   title: 'Mission district',
