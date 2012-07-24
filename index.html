@@ -38,45 +38,40 @@
         <li>Welcome to my hopscotch test page</li>
         <li>Welcome to myWelcome to myWelcome to myWelcome to my Welcom   Welcom   Welcom   Welcom       Welcom    Welcome to my <a href="#" id="tooltiptest" title="hello tooltip">hopscotch</a> test page</li>
       </ul>
-      <div id="spiderman" class="img-container">
-        <img src="http://i.imgur.com/0O8k3.png">
+      <div class="img-container">
+        <img id="spiderman" src="http://i.imgur.com/0O8k3.png">
       </div>
-      <div id="python" class="img-container">
-        <img src="http://i.imgur.com/mIgyw.jpg">
+      <div class="img-container">
+        <img id="python" src="http://i.imgur.com/mIgyw.jpg">
       </div>
-      <div id="mission" class="img-container">
-        <img src="http://cdn.theatlanticcities.com/img/upload/2012/07/19/20120719-mission1/largest.jpg">
+      <div class="img-container">
+        <img id="mission" src="http://cdn.theatlanticcities.com/img/upload/2012/07/19/20120719-mission1/largest.jpg">
       </div>
     </div>
     <div id="debug">
       <input id="startBtn" type="button" value="Start">
-      <input id="prevStepBtn" type="button" value="Prev">
-      <input id="nextStepBtn" type="button" value="Next">
-      <input id="scrollTopBtn" type="button" value="Alert Scroll Top">
     </div>
-    <!--
     <script src="js/jquery-1.7.2.js"></script>
+    <!--
     <script src="bootstrap/js/bootstrap-tooltip.js""></script>
     <script src="bootstrap/js/bootstrap-popover.js""></script>
     -->
     <script src="js/hopscotch.js"></script>
     <script>
-      var hopscotch = hopscotchManager.getInstance();
-          /*
-          tours = [
+      var tours = [
             {
               id: 'hello-hopscotch',
               steps: [
                 {
                   title: 'Here\'s my first step.',
-                  content: 'Here is the content. Here is a <a href="http://www.google.com">link</a>.',
-                  targetSelector: '#subheading',
+                  content: 'Here is the content. Here is the content. Here is the content. Here is the content. Here is the content. Here is the content. Here is the content. Here is the content. Here is the content. Here is the content. Here is the content. Here is a <a href="http://www.google.com">link</a>.',
+                  targetId: 'subheading',
                   orientation: 'bottom'
                 },
                 {
                   title: 'Here\'s my second step.',
                   content: 'Here is the content.',
-                  targetSelector: '#my-list li',
+                  targetId: 'my-list',
                   orientation: 'top',
                   width: 320,
                   height: 480
@@ -84,55 +79,54 @@
                 {
                   title: 'Spider-man',
                   content: 'Here are some window cleaners dressed as spider-man',
-                  targetSelector: '#spiderman img',
-                  orientation: 'left'
+                  targetId: 'spiderman',
+                  orientation: 'bottom'
                 },
                 {
                   title: 'Python decorator',
                   content: 'Here\'s an example of a python decorator',
-                  targetSelector: '#python img',
+                  targetId: 'python',
                   orientation: 'right'
                 },
                 {
                   title: 'Mission district',
                   content: 'Some sort of sound heat map in the mission?',
-                  targetSelector: '#mission img',
-                  orientation: 'top',
-                  xOffset: 30
+                  targetId: 'mission',
+                  orientation: 'left'
                 }
               ]
             }
           ];
-      hopscotch.setOptions({
-        animate: true
+      hopscotch.configure({
+        animate: true,
+        showNavButtons: true
       });
-      //hopscotch.startTour(tours[0]);
       if (document.body.addEventListener) {
         document.getElementById('startBtn').addEventListener('click', function() {
           hopscotch.startTour(tours[0]);
         });
+        /*
         document.getElementById('prevStepBtn').addEventListener('click', function() {
           hopscotch.prevStep();
         });
         document.getElementById('nextStepBtn').addEventListener('click', function() {
           hopscotch.nextStep();
         });
+        */
       }
       else if (document.body.attachEvent) {
         document.getElementById('startBtn').attachEvent('onclick', function() {
           hopscotch.startTour(tours[0]);
         });
+        /*
         document.getElementById('prevStepBtn').attachEvent('onclick', function() {
           hopscotch.prevStep();
         });
         document.getElementById('nextStepBtn').attachEvent('onclick', function() {
           hopscotch.nextStep();
         });
-        document.getElementById('scrollTopBtn').attachEvent('onclick', function() {
-          alert(document.body.scrollTop);
-        });
+        */
       }
-      */
     </script>
     <!--
     <script>
