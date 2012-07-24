@@ -145,13 +145,41 @@
      * outside of the viewport. If it is, adjust the window scroll position
      * to bring it back into the viewport.
      */
-    adjustWindowScroll = function(top, left, boundingRect) {
-      console.log('top: ' + top);
-      console.log('left: ' + left);
-      console.log('bR.top: ' + boundingRect.top);
-      console.log('bR.left: ' + boundingRect.left);
-      console.log(utils.getScrollTop());
-      console.log(utils.getScrollLeft());
+    adjustWindowScroll = function(el, boundingRect) {
+      var bubbleTop    = utils.getPixelValue(el.style.top),
+          bubbleBottom = bubbleTop + el.offsetHeight,
+          windowTop    = utils.getScrollTop(),
+          windowBottom = windowTop + utils.getWindowHeight(),
+          endScrollVal = bubbleTop - 50,
+          direction    = (windowTop > bubbleTop) ? -1 : 1, // -1 means scrolling up, 1 means down
+          scrollIncr   = Math.abs(windowTop - bubbleTop) / 50,
+          scrollInt;
+
+      if (endScrollVal < 0) {
+        endScrollVal = 0;
+      }
+
+      if (bubbleTop < windowTop || bubbleBottom > windowBottom) {
+        scrollInt = setInterval(function() {
+          var scrollTop = utils.getScrollTop(),
+              scrollTarget = scrollTop + (direction * scrollIncr);
+
+          if ((direction > 0 && scrollTarget >= endScrollVal)
+              || direction < 0 && scrollTarget <= endScrollVal) {
+            // Overshot our target. Just manually set to equal the target
+            // and clear the interval
+            scrollTarget = endScrollVal;
+            clearInterval(scrollInt);
+          }
+
+          window.scrollTo(0, scrollTarget);
+
+          if (utils.getScrollTop() === scrollTop) {
+            // Couldn't scroll any further. Clear interval.
+            clearInterval(scrollInt);
+          }
+        }, 10);
+      }
     };
 
     this.init = function() {
@@ -301,7 +329,7 @@
       el.style.width = bubbleWidth + 'px';
       el.style.padding = bubblePadding + 'px';
 
-      adjustWindowScroll(top, left, boundingRect);
+      adjustWindowScroll(this.element, boundingRect);
     };
 
     /**
