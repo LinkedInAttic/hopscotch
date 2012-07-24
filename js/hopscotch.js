@@ -89,6 +89,7 @@
       }
     },
 
+    // Inspired by Python...
     getValueOrDefault: function(val, valDefault) {
       return typeof val !== 'undefined' ? val : valDefault;
     },
@@ -151,7 +152,10 @@
   };
 
   HopscotchBubble = function(opt) {
-    var createButton = function(id, text) {
+    var prevBtnCallback,
+        nextBtnCallback,
+
+    createButton = function(id, text) {
       var btnEl = document.createElement('input');
       btnEl.setAttribute('id', id);
       btnEl.setAttribute('type', 'button');
@@ -167,25 +171,35 @@
      * outside of the viewport. If it is, adjust the window scroll position
      * to bring it back into the viewport.
      */
-    adjustWindowScroll = function(el, boundingRect) {
-      var bubbleTop    = utils.getPixelValue(el.style.top),
-          bubbleBottom = bubbleTop + el.offsetHeight,
-          windowTop    = utils.getScrollTop(),
-          windowBottom = windowTop + utils.getWindowHeight(),
-          endScrollVal = bubbleTop - 50,
-          direction    = (windowTop > bubbleTop) ? -1 : 1, // -1 means scrolling up, 1 means down
-          scrollIncr   = Math.abs(windowTop - bubbleTop) / 45,
+    adjustWindowScroll    = function(el, boundingRect) {
+      var bubbleTop       = utils.getPixelValue(el.style.top),
+          bubbleBottom    = bubbleTop + el.offsetHeight,
+          targetElTop     = boundingRect.top + utils.getScrollTop(),
+          targetElBottom  = boundingRect.bottom + utils.getScrollTop(),
+          targetTop       = (bubbleTop < targetElTop) ? bubbleTop : targetElTop, // target whichever is higher
+          targetBottom    = (bubbleBottom > targetElBottom) ? bubbleBottom : targetElBottom, // whichever is lower
+          windowTop       = utils.getScrollTop(),
+          windowBottom    = windowTop + utils.getWindowHeight(),
+          endScrollVal    = targetTop - 50,
+          direction,
+          scrollIncr,
           scrollInt;
 
       if (endScrollVal < 0) {
         endScrollVal = 0;
       }
 
-      if (bubbleTop < windowTop || bubbleBottom > windowBottom) {
+      if (targetTop >= windowTop && targetTop <= windowTop + 50) {
+        return;
+      }
+
+      if (targetTop < windowTop || targetBottom > windowBottom) {
         // 45 * 10 == 450ms scroll duration
         // make it slightly less than CSS transition duration because of
         // setInterval overhead.
         // To increase or decrease duration, change the divisor of scrollIncr.
+        direction = (windowTop > targetTop) ? -1 : 1; // -1 means scrolling up, 1 means down
+        scrollIncr = Math.abs(windowTop - targetTop) / 45;
         scrollInt = setInterval(function() {
           var scrollTop = utils.getScrollTop(),
               scrollTarget = scrollTop + (direction * scrollIncr);
@@ -208,8 +222,9 @@
       }
     };
 
+
     this.init = function() {
-      var el           = document.createElement('div');
+      var el = document.createElement('div');
 
       this.element     = el;
       this.containerEl = document.createElement('div');
@@ -246,9 +261,15 @@
       this.buttonsEl = buttonsEl;
 
       utils.addClickListener(this.prevBtnEl, function(evt) {
+        if (prevBtnCallback) {
+          prevBtnCallback();
+        }
         context.hopscotch.prevStep();
       });
       utils.addClickListener(this.nextBtnEl, function(evt) {
+        if (nextBtnCallback) {
+          nextBtnCallback();
+        }
         context.hopscotch.nextStep();
       });
 
@@ -262,6 +283,7 @@
 
       closeBtnEl.setAttribute('id', 'hopscotch-bubble-close');
       closeBtnEl.setAttribute('href', '#');
+      closeBtnEl.setAttribute('title', 'Close');
       closeBtnEl.innerHTML = 'x';
 
       utils.addClickListener(closeBtnEl, function(evt) {
@@ -291,6 +313,11 @@
       setTimeout(function() {
         self.setPosition(step);
       }, 10);
+
+      // Set or clear new nav callbacks
+      prevBtnCallback = step.prevCallback;
+      nextBtnCallback = step.nextCallback;
+
       return this;
     };
 
