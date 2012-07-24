@@ -3,18 +3,14 @@
  * Thoughts:
  * =========
  *
- * Require jQuery only when browser is IE<8?
- * support > 1 bubble at a time?
+ * support > 1 bubble at a time? gahhhhhhhhh
  * offset for steps, to allow for manual position correction
  *
  * TODO:
  * =====
- * scrollTo
- * - If target or bubble is offscreen
- * need to factor in pageXOffset as well
  * event listener for window resize? (to reposition bubble);
- * close button
  * test css conflicts on different sites
+ * improve auto-scrolling?
  *
  */
 
@@ -31,6 +27,14 @@
     return;
   }
 
+  /**
+   * utils
+   * =====
+   * A set of utility functions, mostly for standardizing to manipulate
+   * and extract information from the DOM. Basically these are things I
+   * would normally use jQuery for, but I don't want to require it for
+   * this framework.
+   */
   utils = {
     /**
      * addClass
@@ -125,6 +129,24 @@
       else {
         return document.documentElement.clientWidth;
       }
+    },
+
+    addClickListener: function(el, fn, prvtDefault) {
+      if (el.addEventListener) {
+        el.addEventListener('click', fn);
+      }
+      else {
+        el.attachEvent('onclick', fn);
+      }
+    },
+
+    evtPreventDefault: function(evt) {
+      if (evt.preventDefault) {
+        evt.preventDefault();
+      }
+      else if (event) {
+        event.returnValue = false;
+      }
     }
   };
 
@@ -152,7 +174,7 @@
           windowBottom = windowTop + utils.getWindowHeight(),
           endScrollVal = bubbleTop - 50,
           direction    = (windowTop > bubbleTop) ? -1 : 1, // -1 means scrolling up, 1 means down
-          scrollIncr   = Math.abs(windowTop - bubbleTop) / 50,
+          scrollIncr   = Math.abs(windowTop - bubbleTop) / 45,
           scrollInt;
 
       if (endScrollVal < 0) {
@@ -160,6 +182,10 @@
       }
 
       if (bubbleTop < windowTop || bubbleBottom > windowBottom) {
+        // 45 * 10 == 450ms scroll duration
+        // make it slightly less than CSS transition duration because of
+        // setInterval overhead.
+        // To increase or decrease duration, change the divisor of scrollIncr.
         scrollInt = setInterval(function() {
           var scrollTop = utils.getScrollTop(),
               scrollTarget = scrollTop + (direction * scrollIncr);
@@ -183,21 +209,29 @@
     };
 
     this.init = function() {
-      var el         = document.createElement('div');
+      var el           = document.createElement('div');
 
-      this.element   = el;
-      this.titleEl   = document.createElement('h3');
-      this.contentEl = document.createElement('p');
+      this.element     = el;
+      this.containerEl = document.createElement('div');
+      this.titleEl     = document.createElement('h3');
+      this.contentEl   = document.createElement('p');
 
       el.setAttribute('id', 'hopscotch-bubble');
-      el.appendChild(this.titleEl);
-      el.appendChild(this.contentEl);
+      this.containerEl.setAttribute('id', 'hopscotch-bubble-container');
+      this.containerEl.appendChild(this.titleEl);
+      this.containerEl.appendChild(this.contentEl);
+      el.appendChild(this.containerEl);
 
       if (this.showNavButtons) {
         this.initNavButtons();
       }
 
+      if (this.showCloseButton) {
+        this.initCloseButton();
+      }
+
       document.body.appendChild(el);
+      return this;
     };
 
     this.initNavButtons = function() {
@@ -211,16 +245,32 @@
       buttonsEl.appendChild(this.nextBtnEl);
       this.buttonsEl = buttonsEl;
 
-      if (hasAddEventListener) {
-        this.prevBtnEl.addEventListener('click', function() {
-          context.hopscotch.prevStep();
-        });
-        this.nextBtnEl.addEventListener('click', function() {
-          context.hopscotch.nextStep();
-        });
-      }
+      utils.addClickListener(this.prevBtnEl, function(evt) {
+        context.hopscotch.prevStep();
+      });
+      utils.addClickListener(this.nextBtnEl, function(evt) {
+        context.hopscotch.nextStep();
+      });
 
-      this.element.appendChild(buttonsEl);
+      this.containerEl.appendChild(buttonsEl);
+      return this;
+    };
+
+    this.initCloseButton = function() {
+      var closeBtnEl = document.createElement('a'),
+          self = this;
+
+      closeBtnEl.setAttribute('id', 'hopscotch-bubble-close');
+      closeBtnEl.setAttribute('href', '#');
+      closeBtnEl.innerHTML = 'x';
+
+      utils.addClickListener(closeBtnEl, function(evt) {
+        context.hopscotch.cancelTour();
+        utils.evtPreventDefault(evt);
+      });
+
+      this.containerEl.appendChild(closeBtnEl);
+      return this;
     };
 
     this.renderStep = function(step, btnToHide) {
@@ -241,6 +291,7 @@
       setTimeout(function() {
         self.setPosition(step);
       }, 10);
+      return this;
     };
 
     this.setTitle = function(titleStr) {
@@ -251,6 +302,7 @@
       else {
         utils.addClass(this.titleEl, 'hide');
       }
+      return this;
     };
 
     this.setContent = function(contentStr) {
@@ -263,10 +315,17 @@
       else {
         utils.addClass(this.contentEl, 'hide');
       }
+      return this;
+    };
+
+    this.show = function() {
+      utils.removeClass(this.element, 'hide');
+      return this;
     };
 
     this.hide = function() {
       utils.addClass(this.element, 'hide');
+      return this;
     };
 
     /**
@@ -326,8 +385,8 @@
 
       el.style.top = top + 'px';
       el.style.left = left + 'px';
-      el.style.width = bubbleWidth + 'px';
-      el.style.padding = bubblePadding + 'px';
+      this.containerEl.style.width = bubbleWidth + 'px';
+      this.containerEl.style.padding = bubblePadding + 'px';
 
       adjustWindowScroll(this.element, boundingRect);
     };
@@ -353,6 +412,7 @@
 
     this.defaultWidth = utils.getValueOrDefault(opt.bubbleWidth, 280);
     this.defaultPadding = utils.getValueOrDefault(opt.bubblePadding, 20);
+    this.showCloseButton = typeof opt.showCloseButton !== 'undefined' ? opt.showCloseButton : true;
     this.showNavButtons = opt.showNavButtons;
 
     this.init();
@@ -402,7 +462,7 @@
       this.showStep(this.currStepIdx);
       if (opt.animate) {
         setTimeout(function() {
-          getBubble().initAnimate();
+          getBubble().show().initAnimate();
         }, 50);
       }
     };
@@ -448,6 +508,19 @@
       else {
         this.showStep(++this.currStepIdx);
       }
+    };
+
+    /**
+     * cancelTour
+     * ==========
+     * Cancels out of an active tour. No state is preserved.
+     */
+    this.cancelTour = function() {
+      if (this._currTour) {
+        this._currTour = null;
+      }
+      this.currStepIdx = -1;
+      getBubble().hide();
     };
 
     this.configure = function(options) {

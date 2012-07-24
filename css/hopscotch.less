@@ -5,7 +5,6 @@
 div#hopscotch-bubble {
   background-color: #fff;
   border: 1px solid #000;
-  padding: 20px;
   position: absolute;
   z-index: 999999;
 
@@ -13,7 +12,22 @@ div#hopscotch-bubble {
     .transition('top, left', @anim-duration, ease-in-out);
   }
 
+  &.hide {
+    display: none;
+  }
+
   .round-corners;
+
+  #hopscotch-bubble-container {
+    padding: 20px;
+    position: relative;
+  }
+
+  #hopscotch-bubble-close {
+    position: absolute;
+    top: 0;
+    right: 0;
+  }
 
   .hopscotch-nav-button {
     &.hide {
