@@ -15,7 +15,7 @@
         background-color: #fff;
         border: 5px solid #000;
         padding: 20px;
-        position: fixed;
+        position: absolute;
         top: 0;
         right: 0;
       }
@@ -32,7 +32,7 @@
         <li>Welcome to my hopscotch test page</li>
         <li>Welcome to my hopscotch test page</li>
         <li>Welcome to my hopscotch test page</li>
-        <li>Welcome to myWelcome to myWelcome to myWelcome to my Welcom   Welcom   Welcom   Welcom       Welcom    Welcome to my <a href="#" id="tooltiptest" title="hello tooltip">hopscotch</a> test page</li>
+        <li>Welcome to my <a href="#" id="tooltiptest" title="hello tooltip">hopscotch</a> test page</li>
       </ul>
       <div class="img-container">
         <img id="spiderman" src="http://i.imgur.com/0O8k3.png">
@@ -47,8 +47,8 @@
     <div id="debug">
       <input id="startBtn" type="button" value="Start">
     </div>
-    <!--
     <script src="js/jquery-1.7.2.js"></script>
+    <!--
     <script src="bootstrap/js/bootstrap-tooltip.js""></script>
     <script src="bootstrap/js/bootstrap-popover.js""></script>
     -->
@@ -59,8 +59,8 @@
               id: 'hello-hopscotch',
               steps: [
                 {
-                  title: 'Here\'s my first step.',
-                  content: 'Here is the content. Here is the content. Here is the content. Here is the content. Here is the content. Here is the content. Here is the content. Here is the content. Here is the content. Here is the content. Here is the content. Here is a <a href="http://www.google.com">link</a>.',
+                  title: 'Welcome to the Hopscotch Demo Page!',
+                  content: 'Hey there! Welcome to the Hopscotch Demo Page! Please excuse our dust; this is still a work in progress. To proceed, click the next button below. (And as you do, watch the title of the page turn red!!!)',
                   targetId: 'subheading',
                   orientation: 'bottom',
                   nextCallback: function() {
@@ -68,10 +68,10 @@
                   }
                 },
                 {
-                  title: 'Here\'s my second step.',
-                  content: 'Here is the content.',
-                  targetId: 'my-list',
-                  orientation: 'top',
+                  title: 'Debug controls',
+                  content: 'Here\'s the debug controls. Well, I guess I should say the debug control. It\'s just the start button, in case you need to X out of the tour at some point, you can come back here to start it back up again.',
+                  targetId: 'debug',
+                  orientation: 'left',
                   width: 320,
                   height: 480,
                   prevCallback: function() {
@@ -80,21 +80,24 @@
                 },
                 {
                   title: 'Spider-man',
-                  content: 'Here are some window cleaners dressed as spider-man',
+                  content: 'Here are some window cleaners dressed as Spider-man. Did you see the new Spider-man movie? It was pretty awesome, especially the part where Spider-man is fighting the Lizard on the bridge. I\'m pretty sure it\'s still showing. Why don\'t you <a href="http://www.fandango.com/theamazingspiderman_126975/movieoverview" target="_new">buy some tickets</a>?',
                   targetId: 'spiderman',
-                  orientation: 'bottom'
+                  orientation: 'bottom',
+                  width: 500
                 },
                 {
                   title: 'Python decorator',
-                  content: 'Here\'s an example of a python decorator',
+                  content: 'Whoa, did you notice that the page just scrolled? If you didn\'t, you aren\'t very observant. (Or you have a very tall monitor)',
                   targetId: 'python',
                   orientation: 'right'
                 },
                 {
                   title: 'Mission district',
-                  content: 'Some sort of sound heat map in the mission?',
+                  content: 'Some sort of sound heat map in the mission? Did you notice that this bubble isn\'t completely aligned with this image? That\'s because I\'m using xOffset and yOffset options, which are available if you need to make slight positioning adjustments! Hopscotch has never been more fun!',
                   targetId: 'mission',
-                  orientation: 'left'
+                  orientation: 'top',
+                  xOffset: 100,
+                  yOffset: -20
                 }
               ]
             }

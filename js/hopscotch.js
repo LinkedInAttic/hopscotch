@@ -12,15 +12,16 @@
  * test css conflicts on different sites
  * improve auto-scrolling?
  *
+ * position screws up when you align it with a position:fixed element
+ *
  */
 
 (function() {
   var Hopscotch,
       HopscotchBubble,
       utils,
-      context             = (typeof window !== 'undefined') ? window : exports,
-      hasAddEventListener = typeof document.body.addEventListener !== 'undefined',
-      hasJquery           = (typeof jQuery !== 'undefined');
+      context             = (typeof window !== 'undefined') ? window : exports;
+      //hasJquery           = (typeof jQuery !== 'undefined');
 
   if (context.hopscotch) {
     // Hopscotch already exists.
@@ -204,8 +205,8 @@
           var scrollTop = utils.getScrollTop(),
               scrollTarget = scrollTop + (direction * scrollIncr);
 
-          if ((direction > 0 && scrollTarget >= endScrollVal)
-              || direction < 0 && scrollTarget <= endScrollVal) {
+          if ((direction > 0 && scrollTarget >= endScrollVal) ||
+              direction < 0 && scrollTarget <= endScrollVal) {
             // Overshot our target. Just manually set to equal the target
             // and clear the interval
             scrollTarget = endScrollVal;
@@ -229,11 +230,14 @@
       this.element     = el;
       this.containerEl = document.createElement('div');
       this.titleEl     = document.createElement('h3');
+      this.numberEl    = document.createElement('span');
       this.contentEl   = document.createElement('p');
 
       el.setAttribute('id', 'hopscotch-bubble');
       this.containerEl.setAttribute('id', 'hopscotch-bubble-container');
+      this.numberEl.setAttribute('id', 'hopscotch-bubble-number');
       this.containerEl.appendChild(this.titleEl);
+      this.containerEl.appendChild(this.numberEl);
       this.containerEl.appendChild(this.contentEl);
       el.appendChild(this.containerEl);
 
@@ -278,8 +282,7 @@
     };
 
     this.initCloseButton = function() {
-      var closeBtnEl = document.createElement('a'),
-          self = this;
+      var closeBtnEl = document.createElement('a');
 
       closeBtnEl.setAttribute('id', 'hopscotch-bubble-close');
       closeBtnEl.setAttribute('href', '#');
@@ -295,10 +298,11 @@
       return this;
     };
 
-    this.renderStep = function(step, btnToHide) {
+    this.renderStep = function(step, idx, btnToHide) {
       var self = this;
       if (step.title) { this.setTitle(step.title); }
       if (step.content) { this.setContent(step.content); }
+      this.setNum(idx);
 
       utils.removeClass(this.prevBtnEl, 'hide');
       utils.removeClass(this.nextBtnEl, 'hide');
@@ -343,6 +347,10 @@
         utils.addClass(this.contentEl, 'hide');
       }
       return this;
+    };
+
+    this.setNum = function(idx) {
+      this.numberEl.innerHTML = idx+1;
     };
 
     this.show = function() {
@@ -483,7 +491,6 @@
     };
 
     this.startTour = function(tour) {
-      var self = this;
       this._currTour = tour;
       this.currStepIdx = 0;
       this.showStep(this.currStepIdx);
@@ -511,7 +518,7 @@
       else if (stepIdx === numTourSteps - 1) {
         btnToHide = 'next';
       }
-      getBubble().renderStep(step, btnToHide);
+      getBubble().renderStep(step, stepIdx, btnToHide);
     };
 
     this.prevStep = function() {
