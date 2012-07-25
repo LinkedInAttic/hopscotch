@@ -1,6 +1,7 @@
 @import "util.less";
 
 @anim-duration: .5s;
+@bubble-corner-radius: 10px;
 
 div#hopscotch-bubble {
   background-color: #fff;
@@ -16,7 +17,7 @@ div#hopscotch-bubble {
     display: none;
   }
 
-  .round-corners;
+  .round-corners(@bubble-corner-radius);
 
   #hopscotch-bubble-container {
     padding: 20px;
@@ -33,6 +34,48 @@ div#hopscotch-bubble {
     float: left;
     font-size: 48px;
     padding: 25px;
+  }
+
+  #hopscotch-bubble-arrow {
+    @arrowWidth: 20px;
+    @arrowColor: #000;
+    position: absolute;
+
+    width: 0;
+    height: 0;
+
+    &.up {
+      border-bottom: @arrowWidth solid @arrowColor;
+      border-left: @arrowWidth solid transparent;
+      border-right: @arrowWidth solid transparent;
+
+      top: @arrowWidth * (-1);
+      left: @bubble-corner-radius;
+    }
+    &.down {
+      border-top: @arrowWidth solid @arrowColor;
+      border-left: @arrowWidth solid transparent;
+      border-right: @arrowWidth solid transparent;
+
+      bottom: @arrowWidth * (-1);
+      left: @bubble-corner-radius;
+    }
+    &.left {
+      border-right: @arrowWidth solid @arrowColor;
+      border-top: @arrowWidth solid transparent;
+      border-bottom: @arrowWidth solid transparent;
+
+      top: @bubble-corner-radius;
+      left: @arrowWidth * (-1);
+    }
+    &.right {
+      border-left: @arrowWidth solid @arrowColor;
+      border-top: @arrowWidth solid transparent;
+      border-bottom: @arrowWidth solid transparent;
+
+      top: @bubble-corner-radius;
+      right: @arrowWidth * (-1);
+    }
   }
 
   .hopscotch-nav-button {

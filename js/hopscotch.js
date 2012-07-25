@@ -4,7 +4,6 @@
  * =========
  *
  * support > 1 bubble at a time? gahhhhhhhhh
- * offset for steps, to allow for manual position correction
  *
  * TODO:
  * =====
@@ -149,12 +148,18 @@
       else if (event) {
         event.returnValue = false;
       }
+    },
+
+    throwOrientationException: function(orientation) {
+      throw "Invalid bubble orientation: " + orientation + ". Valid orientations are: top, bottom, left, right.";
     }
   };
 
   HopscotchBubble = function(opt) {
     var prevBtnCallback,
         nextBtnCallback,
+        arrowWidth = 20,  // if you adjust these values, make sure
+        arrowHeight = 20, // to adjust it in the css as well
 
     createButton = function(id, text) {
       var btnEl = document.createElement('input');
@@ -172,7 +177,7 @@
      * outside of the viewport. If it is, adjust the window scroll position
      * to bring it back into the viewport.
      */
-    adjustWindowScroll    = function(el, boundingRect) {
+    adjustWindowScroll = function(el, boundingRect) {
       var bubbleTop       = utils.getPixelValue(el.style.top),
           bubbleBottom    = bubbleTop + el.offsetHeight,
           targetElTop     = boundingRect.top + utils.getScrollTop(),
@@ -181,7 +186,7 @@
           targetBottom    = (bubbleBottom > targetElBottom) ? bubbleBottom : targetElBottom, // whichever is lower
           windowTop       = utils.getScrollTop(),
           windowBottom    = windowTop + utils.getWindowHeight(),
-          endScrollVal    = targetTop - 50,
+          endScrollVal    = targetTop - 50, // This is our final target scroll value.
           direction,
           scrollIncr,
           scrollInt;
@@ -195,34 +200,38 @@
       }
 
       if (targetTop < windowTop || targetBottom > windowBottom) {
-        // 45 * 10 == 450ms scroll duration
-        // make it slightly less than CSS transition duration because of
-        // setInterval overhead.
-        // To increase or decrease duration, change the divisor of scrollIncr.
-        direction = (windowTop > targetTop) ? -1 : 1; // -1 means scrolling up, 1 means down
-        scrollIncr = Math.abs(windowTop - targetTop) / 45;
-        scrollInt = setInterval(function() {
-          var scrollTop = utils.getScrollTop(),
-              scrollTarget = scrollTop + (direction * scrollIncr);
+        if (opt.smoothScroll) {
+          // 48 * 10 == 480ms scroll duration
+          // make it slightly less than CSS transition duration because of
+          // setInterval overhead.
+          // To increase or decrease duration, change the divisor of scrollIncr.
+          direction = (windowTop > targetTop) ? -1 : 1; // -1 means scrolling up, 1 means down
+          scrollIncr = Math.abs(windowTop - targetTop) / 48;
+          scrollInt = setInterval(function() {
+            var scrollTop = utils.getScrollTop(),
+                scrollTarget = scrollTop + (direction * scrollIncr);
 
-          if ((direction > 0 && scrollTarget >= endScrollVal) ||
-              direction < 0 && scrollTarget <= endScrollVal) {
-            // Overshot our target. Just manually set to equal the target
-            // and clear the interval
-            scrollTarget = endScrollVal;
-            clearInterval(scrollInt);
-          }
+            if ((direction > 0 && scrollTarget >= endScrollVal) ||
+                direction < 0 && scrollTarget <= endScrollVal) {
+              // Overshot our target. Just manually set to equal the target
+              // and clear the interval
+              scrollTarget = endScrollVal;
+              clearInterval(scrollInt);
+            }
 
-          window.scrollTo(0, scrollTarget);
+            window.scrollTo(0, scrollTarget);
 
-          if (utils.getScrollTop() === scrollTop) {
-            // Couldn't scroll any further. Clear interval.
-            clearInterval(scrollInt);
-          }
-        }, 10);
+            if (utils.getScrollTop() === scrollTop) {
+              // Couldn't scroll any further. Clear interval.
+              clearInterval(scrollInt);
+            }
+          }, 10);
+        }
+        else {
+          window.scrollTo(0, endScrollVal);
+        }
       }
     };
-
 
     this.init = function() {
       var el = document.createElement('div');
@@ -241,13 +250,15 @@
       this.containerEl.appendChild(this.contentEl);
       el.appendChild(this.containerEl);
 
-      if (this.showNavButtons) {
+      if (opt.showNavButtons) {
         this.initNavButtons();
       }
 
-      if (this.showCloseButton) {
+      if (opt.showCloseButton) {
         this.initCloseButton();
       }
+
+      this.initArrow();
 
       document.body.appendChild(el);
       return this;
@@ -290,12 +301,18 @@
       closeBtnEl.innerHTML = 'x';
 
       utils.addClickListener(closeBtnEl, function(evt) {
-        context.hopscotch.cancelTour();
+        context.hopscotch.endTour();
         utils.evtPreventDefault(evt);
       });
 
       this.containerEl.appendChild(closeBtnEl);
       return this;
+    };
+
+    this.initArrow = function() {
+      this.arrowEl = document.createElement('div');
+      this.arrowEl.setAttribute('id', 'hopscotch-bubble-arrow');
+      this.containerEl.appendChild(this.arrowEl);
     };
 
     this.renderStep = function(step, idx, btnToHide) {
@@ -313,10 +330,12 @@
         utils.addClass(this.nextBtnEl, 'hide');
       }
 
+      this.setArrow(step.orientation);
+
       // Timeout to get correct height of bubble.
       setTimeout(function() {
         self.setPosition(step);
-      }, 10);
+      }, 5);
 
       // Set or clear new nav callbacks
       prevBtnCallback = step.prevCallback;
@@ -353,6 +372,27 @@
       this.numberEl.innerHTML = idx+1;
     };
 
+    this.setArrow = function(orientation) {
+      // Whatever the orientation is, we want to arrow to appear
+      // "opposite" of the orientation. E.g., a top orientation
+      // requires a bottom arrow.
+      if (orientation === 'top') {
+        this.arrowEl.className = 'down';
+      }
+      else if (orientation === 'bottom') {
+        this.arrowEl.className = 'up';
+      }
+      else if (orientation === 'left') {
+        this.arrowEl.className = 'right';
+      }
+      else if (orientation === 'right') {
+        this.arrowEl.className = 'left';
+      }
+      else {
+        utils.throwOrientationException(orientation);
+      }
+    };
+
     this.show = function() {
       utils.removeClass(this.element, 'hide');
       return this;
@@ -380,30 +420,30 @@
           targetEl = document.getElementById(step.targetId),
           el = this.element;
 
-      bubbleWidth = utils.getPixelValue(step.width) || this.defaultWidth;
-      bubblePadding = utils.getValueOrDefault(step.padding, 10);
+      bubbleWidth = utils.getPixelValue(step.width) || opt.bubbleWidth;
+      bubblePadding = utils.getValueOrDefault(step.padding, opt.bubblePadding);
 
       // SET POSITION
       boundingRect = targetEl.getBoundingClientRect();
       if (step.orientation === 'top') {
         bubbleHeight = el.offsetHeight;
-        top = (boundingRect.top - bubbleHeight);
+        top = (boundingRect.top - bubbleHeight) - arrowHeight;
         left = boundingRect.left;
       }
       else if (step.orientation === 'bottom') {
-        top = boundingRect.bottom;
+        top = boundingRect.bottom + arrowHeight;
         left = boundingRect.left;
       }
       else if (step.orientation === 'left') {
         top = boundingRect.top;
-        left = boundingRect.left - bubbleWidth - 2*bubblePadding;
+        left = boundingRect.left - bubbleWidth - 2*bubblePadding - arrowWidth;
       }
       else if (step.orientation === 'right') {
         top = boundingRect.top;
-        left = boundingRect.right;
+        left = boundingRect.right + arrowWidth;
       }
       else {
-        throw "Invalid bubble orientation: " + step.orientation + ". Valid orientations are: top, bottom, left, right.";
+        utils.throwOrientationException(step.orientation);
       }
 
       // SET OFFSETS
@@ -445,10 +485,6 @@
       utils.addClass(this.element, 'animate');
     };
 
-    this.defaultWidth = utils.getValueOrDefault(opt.bubbleWidth, 280);
-    this.defaultPadding = utils.getValueOrDefault(opt.bubblePadding, 20);
-    this.showCloseButton = typeof opt.showCloseButton !== 'undefined' ? opt.showCloseButton : true;
-    this.showNavButtons = opt.showNavButtons;
 
     this.init();
   };
@@ -491,12 +527,15 @@
     };
 
     this.startTour = function(tour) {
+      var bubble;
       this._currTour = tour;
-      this.currStepIdx = 0;
-      this.showStep(this.currStepIdx);
+      this.currStepNum = 0;
+      this.showStep(this.currStepNum);
+      bubble = getBubble().show();
+
       if (opt.animate) {
         setTimeout(function() {
-          getBubble().show().initAnimate();
+          bubble.initAnimate();
         }, 50);
       }
     };
@@ -511,7 +550,7 @@
       }
 
       // Update bubble for current step
-      this.currStepIdx = stepIdx;
+      this.currStepNum = stepIdx;
       if (stepIdx === 0) {
         btnToHide = 'prev';
       }
@@ -522,12 +561,12 @@
     };
 
     this.prevStep = function() {
-      if (this.currStepIdx <= 0) {
+      if (this.currStepNum <= 0) {
         // TODO: all done!
         alert('at the first step. can\'t go back any further.');
       }
       else {
-        this.showStep(--this.currStepIdx);
+        this.showStep(--this.currStepNum);
       }
     };
 
@@ -535,30 +574,50 @@
       if (!this._currTour) {
         throw "No tour was selected prior to calling nextStep!";
       }
-      if (this.currStepIdx >= this._currTour.steps.length-1) {
+      if (this.currStepNum >= this._currTour.steps.length-1) {
         // TODO: all done!
         alert('all done!');
       }
       else {
-        this.showStep(++this.currStepIdx);
+        this.showStep(++this.currStepNum);
       }
     };
 
     /**
-     * cancelTour
+     * endTour
      * ==========
      * Cancels out of an active tour. No state is preserved.
      */
-    this.cancelTour = function() {
+    this.endTour = function() {
       if (this._currTour) {
         this._currTour = null;
       }
-      this.currStepIdx = -1;
+      this.currStepNum = -1;
       getBubble().hide();
     };
 
+    /**
+     * configure
+     * =========
+     * VALID OPTIONS INCLUDE...
+     * bubbleWidth:     Boolean - Default bubble width. Defaults to 280.
+     * bubblePadding:   Boolean - Default bubble padding. Defaults to 10.
+     * animate:         Boolean - should the tour bubble animate between steps?
+     *                            Defaults to FALSE.
+     * smoothScroll:    Boolean - should the page scroll smoothly to the next
+     *                            step? Defaults to TRUE.
+     * showCloseButton: Boolean - should the tour bubble show a close button?
+     *                            Defaults to TRUE.
+     * showNavButtons:  Boolean - should the bubble have Next and Previous
+     *                            buttons? Defaults to FALSE.
+     */
     this.configure = function(options) {
       opt = options;
+      opt.animate         = utils.getValueOrDefault(opt.animate, true);
+      opt.smoothScroll    = utils.getValueOrDefault(opt.smoothScroll, true);
+      opt.showCloseButton = utils.getValueOrDefault(opt.showCloseButton, true);
+      opt.bubbleWidth     = utils.getValueOrDefault(opt.bubbleWidth, 280);
+      opt.bubblePadding   = utils.getValueOrDefault(opt.bubblePadding, 10);
     };
   };
 
