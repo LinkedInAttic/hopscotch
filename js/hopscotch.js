@@ -4,6 +4,7 @@
  * =========
  *
  * support > 1 bubble at a time? gahhhhhhhhh
+ * "center" option (for block-level elements that span width of document)
  *
  * TODO:
  * =====
@@ -13,16 +14,23 @@
  *
  * position screws up when you align it with a position:fixed element
  *
+ * http://daneden.me/animate/ for bounce animation
+ *
  */
 
 (function() {
   var Hopscotch,
       HopscotchBubble,
       utils,
-      context             = (typeof window !== 'undefined') ? window : exports;
-      //hasJquery           = (typeof jQuery !== 'undefined');
+      hasJquery         = (typeof jQuery !== 'undefined'),
+      docStyle          = document.body.style,
+      hasCssTransitions = (typeof docStyle.MozTransition !== 'undefined' ||
+                           typeof docStyle.MsTransition !== 'undefined' ||
+                           typeof docStyle.webkitTransition !== 'undefined' ||
+                           typeof docStyle.OTransition !== 'undefined' ||
+                           typeof docStyle.transition !== 'undefined');
 
-  if (context.hopscotch) {
+  if (window.hopscotch) {
     // Hopscotch already exists.
     return;
   }
@@ -90,7 +98,7 @@
     },
 
     // Inspired by Python...
-    getValueOrDefault: function(val, valDefault) {
+    getValOrDefault: function(val, valDefault) {
       return typeof val !== 'undefined' ? val : valDefault;
     },
 
@@ -152,14 +160,21 @@
 
     throwOrientationException: function(orientation) {
       throw "Invalid bubble orientation: " + orientation + ". Valid orientations are: top, bottom, left, right.";
+    },
+
+    extend: function(obj1, obj2) {
+      var prop;
+      for (prop in obj2) {
+        if (obj2.hasOwnProperty(prop)) {
+          obj1[prop] = obj2[prop];
+        }
+      }
     }
   };
 
   HopscotchBubble = function(opt) {
     var prevBtnCallback,
         nextBtnCallback,
-        arrowWidth = 20,  // if you adjust these values, make sure
-        arrowHeight = 20, // to adjust it in the css as well
 
     createButton = function(id, text) {
       var btnEl = document.createElement('input');
@@ -177,9 +192,9 @@
      * outside of the viewport. If it is, adjust the window scroll position
      * to bring it back into the viewport.
      */
-    adjustWindowScroll = function(el, boundingRect) {
-      var bubbleTop       = utils.getPixelValue(el.style.top),
-          bubbleBottom    = bubbleTop + el.offsetHeight,
+    adjustWindowScroll = function(elTop, elHeight, boundingRect) {
+      var bubbleTop       = utils.getPixelValue(elTop),
+          bubbleBottom    = bubbleTop + elHeight,
           targetElTop     = boundingRect.top + utils.getScrollTop(),
           targetElBottom  = boundingRect.bottom + utils.getScrollTop(),
           targetTop       = (bubbleTop < targetElTop) ? bubbleTop : targetElTop, // target whichever is higher
@@ -190,6 +205,12 @@
           direction,
           scrollIncr,
           scrollInt;
+
+      // Leverage jQuery if it's present for scrolling
+      if (hasJquery) {
+        $('body, html').animate({ scrollTop: endScrollVal });
+        return;
+      }
 
       if (endScrollVal < 0) {
         endScrollVal = 0;
@@ -206,7 +227,7 @@
           // setInterval overhead.
           // To increase or decrease duration, change the divisor of scrollIncr.
           direction = (windowTop > targetTop) ? -1 : 1; // -1 means scrolling up, 1 means down
-          scrollIncr = Math.abs(windowTop - targetTop) / 48;
+          scrollIncr = Math.abs(windowTop - targetTop) / 50;
           scrollInt = setInterval(function() {
             var scrollTop = utils.getScrollTop(),
                 scrollTarget = scrollTop + (direction * scrollIncr);
@@ -250,9 +271,7 @@
       this.containerEl.appendChild(this.contentEl);
       el.appendChild(this.containerEl);
 
-      if (opt.showNavButtons) {
-        this.initNavButtons();
-      }
+      this.initNavButtons();
 
       if (opt.showCloseButton) {
         this.initCloseButton();
@@ -269,24 +288,30 @@
 
       this.prevBtnEl = createButton('hopscotch-prev', 'Prev');
       this.nextBtnEl = createButton('hopscotch-next', 'Next');
+      this.doneBtnEl = createButton('hopscotch-done', 'Done');
+      utils.addClass(this.doneBtnEl, 'hide');
 
-      buttonsEl.setAttribute('id', 'hopscotch-actions');
       buttonsEl.appendChild(this.prevBtnEl);
       buttonsEl.appendChild(this.nextBtnEl);
-      this.buttonsEl = buttonsEl;
+      buttonsEl.appendChild(this.doneBtnEl);
 
+      // Attach click listeners
       utils.addClickListener(this.prevBtnEl, function(evt) {
         if (prevBtnCallback) {
           prevBtnCallback();
         }
-        context.hopscotch.prevStep();
+        window.hopscotch.prevStep();
       });
       utils.addClickListener(this.nextBtnEl, function(evt) {
         if (nextBtnCallback) {
           nextBtnCallback();
         }
-        context.hopscotch.nextStep();
+        window.hopscotch.nextStep();
       });
+      utils.addClickListener(this.doneBtnEl, window.hopscotch.endTour);
+
+      buttonsEl.setAttribute('id', 'hopscotch-actions');
+      this.buttonsEl = buttonsEl;
 
       this.containerEl.appendChild(buttonsEl);
       return this;
@@ -301,7 +326,7 @@
       closeBtnEl.innerHTML = 'x';
 
       utils.addClickListener(closeBtnEl, function(evt) {
-        context.hopscotch.endTour();
+        window.hopscotch.endTour();
         utils.evtPreventDefault(evt);
       });
 
@@ -315,27 +340,41 @@
       this.containerEl.appendChild(this.arrowEl);
     };
 
-    this.renderStep = function(step, idx, btnToHide) {
-      var self = this;
+    this.renderStep = function(step, idx, isLast) {
+      var self = this,
+          bubbleWidth,
+          bubblePadding;
+
       if (step.title) { this.setTitle(step.title); }
       if (step.content) { this.setContent(step.content); }
       this.setNum(idx);
 
-      utils.removeClass(this.prevBtnEl, 'hide');
-      utils.removeClass(this.nextBtnEl, 'hide');
-      if (btnToHide === 'prev') {
-        utils.addClass(this.prevBtnEl, 'hide');
+      this.showPrevButton(this.prevBtnEl && idx > 0);
+      this.showNextButton(this.nextBtnEl && !isLast);
+      if (isLast) {
+        utils.removeClass(this.doneBtnEl, 'hide');
       }
-      else if (btnToHide === 'next') {
-        utils.addClass(this.nextBtnEl, 'hide');
+      else {
+        utils.addClass(this.doneBtnEl, 'hide');
       }
 
       this.setArrow(step.orientation);
 
-      // Timeout to get correct height of bubble.
-      setTimeout(function() {
-        self.setPosition(step);
-      }, 5);
+      bubbleWidth = utils.getPixelValue(step.width) || opt.bubbleWidth;
+      bubblePadding = utils.getValOrDefault(step.padding, opt.bubblePadding);
+      this.containerEl.style.width = bubbleWidth + 'px';
+      this.containerEl.style.padding = bubblePadding + 'px';
+
+      if (step.orientation === 'top') {
+        // Timeout to get correct height of bubble.
+        setTimeout(function() {
+          self.setPosition(step);
+        }, 5);
+      }
+      else {
+        // Don't care about height for the other orientations.
+        this.setPosition(step);
+      }
 
       // Set or clear new nav callbacks
       prevBtnCallback = step.prevCallback;
@@ -394,13 +433,50 @@
     };
 
     this.show = function() {
+      var self = this;
+      if (opt.animate) {
+        setTimeout(function() {
+          utils.addClass(self.element, 'animate');
+        }, 50);
+      }
       utils.removeClass(this.element, 'hide');
       return this;
     };
 
     this.hide = function() {
       utils.addClass(this.element, 'hide');
+      utils.removeClass(this.element, 'animate');
       return this;
+    };
+
+    this.showPrevButton = function(show, permanent) {
+      var classname = 'hide';
+
+      if (permanent) {
+        // permanent is a flag that indicates we should always/never show the button
+        classname = 'hide-all';
+      }
+      if (typeof show === 'undefined') {
+        show = true;
+      }
+
+      if (show) { utils.removeClass(this.prevBtnEl, classname); }
+      else { utils.addClass(this.prevBtnEl, classname); }
+    };
+
+    this.showNextButton = function(show, permanent) {
+      var classname = 'hide';
+
+      if (permanent) {
+        // permanent is a flag that indicates we should always/never show the button
+        classname = 'hide-all';
+      }
+      if (typeof show === 'undefined') {
+        show = true;
+      }
+
+      if (show) { utils.removeClass(this.nextBtnEl, classname); }
+      else { utils.addClass(this.nextBtnEl, classname); }
     };
 
     /**
@@ -421,29 +497,40 @@
           el = this.element;
 
       bubbleWidth = utils.getPixelValue(step.width) || opt.bubbleWidth;
-      bubblePadding = utils.getValueOrDefault(step.padding, opt.bubblePadding);
+      bubblePadding = utils.getValOrDefault(step.padding, opt.bubblePadding);
 
       // SET POSITION
       boundingRect = targetEl.getBoundingClientRect();
       if (step.orientation === 'top') {
         bubbleHeight = el.offsetHeight;
-        top = (boundingRect.top - bubbleHeight) - arrowHeight;
+        top = (boundingRect.top - bubbleHeight) - opt.arrowWidth;
         left = boundingRect.left;
       }
       else if (step.orientation === 'bottom') {
-        top = boundingRect.bottom + arrowHeight;
+        top = boundingRect.bottom + opt.arrowWidth;
         left = boundingRect.left;
       }
       else if (step.orientation === 'left') {
         top = boundingRect.top;
-        left = boundingRect.left - bubbleWidth - 2*bubblePadding - arrowWidth;
+        left = boundingRect.left - bubbleWidth - 2*bubblePadding - opt.arrowWidth;
       }
       else if (step.orientation === 'right') {
         top = boundingRect.top;
-        left = boundingRect.right + arrowWidth;
+        left = boundingRect.right + opt.arrowWidth;
       }
       else {
         utils.throwOrientationException(step.orientation);
+      }
+
+      if (!step.arrowOffset) {
+        this.arrowEl.style.top = '';
+        this.arrowEl.style.left = '';
+      }
+      else if (step.orientation === 'top' || step.orientation === 'bottom') {
+        this.arrowEl.style.left = step.arrowOffset + 'px';
+      }
+      else if (step.orientation === 'left' || step.orientation === 'right') {
+        this.arrowEl.style.top = step.arrowOffset + 'px';
       }
 
       // SET OFFSETS
@@ -458,22 +545,28 @@
       top += utils.getScrollTop();
       left += utils.getScrollLeft();
 
-      el.style.top = top + 'px';
-      el.style.left = left + 'px';
-      this.containerEl.style.width = bubbleWidth + 'px';
-      this.containerEl.style.padding = bubblePadding + 'px';
+      if (!hasCssTransitions && hasJquery && opt.animate) {
+        $(el).animate({
+          top: top + 'px',
+          left: left + 'px'
+        });
+      }
+      else { // hasCssTransitions || !hasJquery || !opt.animate
+        el.style.top = top + 'px';
+        el.style.left = left + 'px';
+      }
 
-      adjustWindowScroll(this.element, boundingRect);
+      adjustWindowScroll(top, el.offsetHeight, boundingRect);
     };
 
     /**
      * initAnimate
      * ===========
-     * This function exists due to how Chrome handles CSS transitions. Most
-     * other browsers will not animate a transition until the element exists
-     * on the page. Chrome treats DOM elements as starting from the (0, 0)
-     * position, and will animate from the upper left corner on creation of
-     * the DOM element. (e.g., if you create a new DOM element using
+     * This function exists due to how Chrome handles initial CSS transitions.
+     * Most other browsers will not animate a transition until the element
+     * exists on the page. Chrome treats DOM elements as starting from the
+     * (0, 0) position, and will animate from the upper left corner on creation
+     * of the DOM element. (e.g., if you create a new DOM element using
      * Javascript and specify CSS top: 100px, left: 50px, then append the
      * DOM element to the document.body, it will create it at 0, 0 and then
      * animate it to 50, 100)
@@ -482,7 +575,10 @@
      * only after the element is created.
      */
     this.initAnimate = function() {
-      utils.addClass(this.element, 'animate');
+      var self = this;
+      setTimeout(function() {
+        utils.addClass(self.element, 'animate');
+      }, 50);
     };
 
 
@@ -492,12 +588,13 @@
   Hopscotch = function() {
     var bubble,
         opt,
+        currTour,
 
     /**
      * getBubble
      * ==========
-     * Retrieves the "singleton" bubble div or creates it
-     * if it doesn't exist yet.
+     * Retrieves the "singleton" bubble div or creates it if it doesn't
+     * exist yet.
      */
     getBubble = function() {
       if (!bubble) {
@@ -507,14 +604,31 @@
       return bubble;
     };
 
-    // PUBLIC METHODS
     /**
-     * loadTours
-     * =========
-     * Accepts an array of tours defined as JSON objects.
+     * loadTour
+     * ========
+     * Loads, but does not display, tour. (Give the developer a chance to
+     * override tour-specified configuration options before displaying)
      */
-    this.loadTours = function(tours) {
-      this._tours = tours;
+    this.loadTour = function(tour) {
+      var tmpOpt = {},
+          bubble;
+      currTour = tour;
+
+      // Set tour-specific configurations
+      for (prop in tour) {
+        if (tour.hasOwnProperty(prop) &&
+            prop !== 'id' &&
+            prop !== 'steps') {
+          tmpOpt[prop] = tour[prop];
+        }
+      }
+      this.configure(tmpOpt);
+
+      // Initialize whether to show or hide nav buttons
+      bubble = getBubble();
+      bubble.showPrevButton(opt.showPrevButton, true);
+      bubble.showNextButton(opt.showNextButton, true);
     };
 
     this.getTourById = function(id) {
@@ -526,38 +640,32 @@
       }
     };
 
-    this.startTour = function(tour) {
+    this.startTour = function() {
       var bubble;
-      this._currTour = tour;
+      if (!currTour) {
+        throw "Need to load a tour before you start it!";
+      }
       this.currStepNum = 0;
       this.showStep(this.currStepNum);
       bubble = getBubble().show();
 
       if (opt.animate) {
-        setTimeout(function() {
-          bubble.initAnimate();
-        }, 50);
+        bubble.initAnimate();
       }
     };
 
     this.showStep = function(stepIdx) {
-      var step = this._currTour.steps[stepIdx],
-          numTourSteps = this._currTour.steps.length,
+      var step = currTour.steps[stepIdx],
+          numTourSteps = currTour.steps.length,
           btnToHide = null;
 
-      if (!this._currTour) {
+      if (!currTour) {
         throw "No tour currently selected!";
       }
 
       // Update bubble for current step
       this.currStepNum = stepIdx;
-      if (stepIdx === 0) {
-        btnToHide = 'prev';
-      }
-      else if (stepIdx === numTourSteps - 1) {
-        btnToHide = 'next';
-      }
-      getBubble().renderStep(step, stepIdx, btnToHide);
+      getBubble().renderStep(step, stepIdx, (stepIdx === numTourSteps - 1));
     };
 
     this.prevStep = function() {
@@ -571,10 +679,10 @@
     };
 
     this.nextStep = function() {
-      if (!this._currTour) {
+      if (!currTour) {
         throw "No tour was selected prior to calling nextStep!";
       }
-      if (this.currStepNum >= this._currTour.steps.length-1) {
+      if (this.currStepNum >= currTour.steps.length-1) {
         // TODO: all done!
         alert('all done!');
       }
@@ -589,10 +697,9 @@
      * Cancels out of an active tour. No state is preserved.
      */
     this.endTour = function() {
-      if (this._currTour) {
-        this._currTour = null;
+      if (currTour) {
+        currTour = null;
       }
-      this.currStepNum = -1;
       getBubble().hide();
     };
 
@@ -600,26 +707,38 @@
      * configure
      * =========
      * VALID OPTIONS INCLUDE...
-     * bubbleWidth:     Boolean - Default bubble width. Defaults to 280.
-     * bubblePadding:   Boolean - Default bubble padding. Defaults to 10.
+     * bubbleWidth:     Number  - Default bubble width. Defaults to 280.
+     * bubblePadding:   Number  - Default bubble padding. Defaults to 10.
      * animate:         Boolean - should the tour bubble animate between steps?
      *                            Defaults to FALSE.
      * smoothScroll:    Boolean - should the page scroll smoothly to the next
      *                            step? Defaults to TRUE.
      * showCloseButton: Boolean - should the tour bubble show a close button?
      *                            Defaults to TRUE.
-     * showNavButtons:  Boolean - should the bubble have Next and Previous
-     *                            buttons? Defaults to FALSE.
+     * showPrevButton:  Boolean - should the bubble have the Previous button?
+     *                            Defaults to FALSE.
+     * showNextButton:  Boolean - should the bubble have the Next button?
+     *                            Defaults to TRUE.
+     * arrowWidth:      Number  - Default arrow width. (space between the bubble
+     *                            and the targetEl) Need to provide the option to
+     *                            set this here in case developer wants to use own
+     *                            CSS. Defaults to 20.
      */
     this.configure = function(options) {
-      opt = options;
-      opt.animate         = utils.getValueOrDefault(opt.animate, true);
-      opt.smoothScroll    = utils.getValueOrDefault(opt.smoothScroll, true);
-      opt.showCloseButton = utils.getValueOrDefault(opt.showCloseButton, true);
-      opt.bubbleWidth     = utils.getValueOrDefault(opt.bubbleWidth, 280);
-      opt.bubblePadding   = utils.getValueOrDefault(opt.bubblePadding, 10);
+      if (!opt) {
+        opt = {};
+      }
+      utils.extend(opt, options);
+      opt.animate         = utils.getValOrDefault(opt.animate, false);
+      opt.smoothScroll    = utils.getValOrDefault(opt.smoothScroll, true);
+      opt.showCloseButton = utils.getValOrDefault(opt.showCloseButton, true);
+      opt.bubbleWidth     = utils.getValOrDefault(opt.bubbleWidth, 280);
+      opt.bubblePadding   = utils.getValOrDefault(opt.bubblePadding, 10);
+      opt.showPrevButton  = utils.getValOrDefault(opt.showPrevButton, false);
+      opt.showNextButton  = utils.getValOrDefault(opt.showNextButton, true);
+      opt.arrowWidth      = utils.getValOrDefault(opt.arrowWidth, 20);
     };
   };
 
-  context.hopscotch = new Hopscotch();
+  window.hopscotch = new Hopscotch();
 }());
