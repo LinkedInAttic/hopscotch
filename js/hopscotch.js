@@ -13,6 +13,9 @@
  * improve auto-scrolling?
  *
  * position screws up when you align it with a position:fixed element
+ * delay for displaying a step
+ *
+ * onShow, onHide callbacks?
  *
  * http://daneden.me/animate/ for bounce animation
  *
@@ -169,12 +172,43 @@
           obj1[prop] = obj2[prop];
         }
       }
+    },
+
+    // The following three cookie-related functions are borrowed from
+    // http://www.quirksmode.org/js/cookies.html
+    createCookie: function(name,value,days) {
+      if (days) {
+        var date = new Date();
+        date.setTime(date.getTime()+(days*24*60*60*1000));
+        var expires = "; expires="+date.toGMTString();
+      }
+      else var expires = "";
+      document.cookie = name+"="+value+expires+"; path=/";
+    },
+
+    readCookie: function(name) {
+      var nameEQ = name + "=";
+      var ca = document.cookie.split(';');
+      for(var i=0;i < ca.length;i++) {
+        var c = ca[i];
+        while (c.charAt(0)==' ') c = c.substring(1,c.length);
+        if (c.indexOf(nameEQ) == 0) return c.substring(nameEQ.length,c.length);
+      }
+      return null;
+    },
+
+    eraseCookie: function(name) {
+      createCookie(name,"",-1);
     }
   };
 
   HopscotchBubble = function(opt) {
     var prevBtnCallback,
         nextBtnCallback,
+        winResizeTimeout,
+        currStep,
+        cooldownActive = false, // for updating after window resize
+        isShowing = false,
 
     createButton = function(id, text) {
       var btnEl = document.createElement('input');
@@ -193,22 +227,39 @@
      * to bring it back into the viewport.
      */
     adjustWindowScroll = function(elTop, elHeight, boundingRect) {
-      var bubbleTop       = utils.getPixelValue(elTop),
-          bubbleBottom    = bubbleTop + elHeight,
-          targetElTop     = boundingRect.top + utils.getScrollTop(),
-          targetElBottom  = boundingRect.bottom + utils.getScrollTop(),
-          targetTop       = (bubbleTop < targetElTop) ? bubbleTop : targetElTop, // target whichever is higher
-          targetBottom    = (bubbleBottom > targetElBottom) ? bubbleBottom : targetElBottom, // whichever is lower
-          windowTop       = utils.getScrollTop(),
-          windowBottom    = windowTop + utils.getWindowHeight(),
-          endScrollVal    = targetTop - 50, // This is our final target scroll value.
+      var bubbleTop      = utils.getPixelValue(elTop),
+          bubbleBottom   = bubbleTop + elHeight,
+          targetElTop    = boundingRect.top + utils.getScrollTop(),
+          targetElBottom = boundingRect.bottom + utils.getScrollTop(),
+          targetTop      = (bubbleTop < targetElTop) ? bubbleTop : targetElTop, // target whichever is higher
+          targetBottom   = (bubbleBottom > targetElBottom) ? bubbleBottom : targetElBottom, // whichever is lower
+          windowTop      = utils.getScrollTop(),
+          windowBottom   = windowTop + utils.getWindowHeight(),
+          endScrollVal   = targetTop - 50, // This is our final target scroll value.
+          scrollDur      = opt.scrollDuration,
+          scrollEl,
+          yuiAnim,
+          yuiEase,
           direction,
           scrollIncr,
           scrollInt;
 
       // Leverage jQuery if it's present for scrolling
       if (hasJquery) {
-        $('body, html').animate({ scrollTop: endScrollVal });
+        $('body, html').animate({ scrollTop: endScrollVal }, scrollDur);
+        return;
+      }
+      else if (typeof YAHOO             !== 'undefined' &&
+               typeof YAHOO.env         !== 'undefined' &&
+               typeof YAHOO.env.ua      !== 'undefined' &&
+               typeof YAHOO.util        !== 'undefined' &&
+               typeof YAHOO.util.Scroll !== 'undefined') {
+        scrollEl = YAHOO.env.ua.webkit ? document.body : document.documentElement;
+        yuiEase = YAHOO.util.Easing ? YAHOO.util.Easing.easeOut : undefined;
+        yuiAnim = new YAHOO.util.Scroll(scrollEl, {
+          scroll: { to: [0, endScrollVal] }
+        }, scrollDur/1000, yuiEase);
+        yuiAnim.animate();
         return;
       }
 
@@ -227,7 +278,7 @@
           // setInterval overhead.
           // To increase or decrease duration, change the divisor of scrollIncr.
           direction = (windowTop > targetTop) ? -1 : 1; // -1 means scrolling up, 1 means down
-          scrollIncr = Math.abs(windowTop - targetTop) / 50;
+          scrollIncr = Math.abs(windowTop - targetTop) / (scrollDur/10);
           scrollInt = setInterval(function() {
             var scrollTop = utils.getScrollTop(),
                 scrollTarget = scrollTop + (direction * scrollIncr);
@@ -279,6 +330,8 @@
 
       this.initArrow();
 
+      window.onresize = this.handleWinResize.bind(this);
+
       document.body.appendChild(el);
       return this;
     };
@@ -286,7 +339,7 @@
     this.initNavButtons = function() {
       var buttonsEl  = document.createElement('div');
 
-      this.prevBtnEl = createButton('hopscotch-prev', 'Prev');
+      this.prevBtnEl = createButton('hopscotch-prev', 'Back');
       this.nextBtnEl = createButton('hopscotch-next', 'Next');
       this.doneBtnEl = createButton('hopscotch-done', 'Done');
       utils.addClass(this.doneBtnEl, 'hide');
@@ -345,6 +398,8 @@
           bubbleWidth,
           bubblePadding;
 
+      currStep = step;
+
       if (step.title) { this.setTitle(step.title); }
       if (step.content) { this.setContent(step.content); }
       this.setNum(idx);
@@ -360,13 +415,14 @@
 
       this.setArrow(step.orientation);
 
+      // Set dimensions
       bubbleWidth = utils.getPixelValue(step.width) || opt.bubbleWidth;
       bubblePadding = utils.getValOrDefault(step.padding, opt.bubblePadding);
       this.containerEl.style.width = bubbleWidth + 'px';
       this.containerEl.style.padding = bubblePadding + 'px';
 
       if (step.orientation === 'top') {
-        // Timeout to get correct height of bubble.
+        // Timeout to get correct height of bubble for positioning.
         setTimeout(function() {
           self.setPosition(step);
         }, 5);
@@ -385,7 +441,7 @@
 
     this.setTitle = function(titleStr) {
       if (titleStr) {
-        this.titleEl.textContent = titleStr;
+        this.titleEl.innerHTML = titleStr;
         utils.removeClass(this.titleEl, 'hide');
       }
       else {
@@ -440,12 +496,14 @@
         }, 50);
       }
       utils.removeClass(this.element, 'hide');
+      isShowing = true;
       return this;
     };
 
     this.hide = function() {
       utils.addClass(this.element, 'hide');
       utils.removeClass(this.element, 'animate');
+      isShowing = false;
       return this;
     };
 
@@ -477,6 +535,20 @@
 
       if (show) { utils.removeClass(this.nextBtnEl, classname); }
       else { utils.addClass(this.nextBtnEl, classname); }
+    };
+
+    this.handleWinResize = function() {
+      var self = this;
+
+      if (cooldownActive || !isShowing) {
+        return;
+      }
+      cooldownActive = true;
+      winResizeTimeout = setTimeout(function() {
+        // currStep should never be null
+        self.setPosition(currStep);
+        cooldownActive = false;
+      }, 40);
     };
 
     /**
@@ -580,7 +652,6 @@
         utils.addClass(self.element, 'animate');
       }, 50);
     };
-
 
     this.init();
   };
@@ -713,6 +784,8 @@
      *                            Defaults to FALSE.
      * smoothScroll:    Boolean - should the page scroll smoothly to the next
      *                            step? Defaults to TRUE.
+     * scrollDuration:  Number  - Duration of page scroll. Only relevant when
+     *                            smoothScroll is set to true. Defaults to 1000ms.
      * showCloseButton: Boolean - should the tour bubble show a close button?
      *                            Defaults to TRUE.
      * showPrevButton:  Boolean - should the bubble have the Previous button?
@@ -731,6 +804,7 @@
       utils.extend(opt, options);
       opt.animate         = utils.getValOrDefault(opt.animate, false);
       opt.smoothScroll    = utils.getValOrDefault(opt.smoothScroll, true);
+      opt.scrollDuration  = utils.getValOrDefault(opt.scrollDuration, 1000);
       opt.showCloseButton = utils.getValOrDefault(opt.showCloseButton, true);
       opt.bubbleWidth     = utils.getValOrDefault(opt.bubbleWidth, 280);
       opt.bubblePadding   = utils.getValOrDefault(opt.bubblePadding, 10);
