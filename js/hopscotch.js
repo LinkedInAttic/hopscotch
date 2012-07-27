@@ -16,6 +16,9 @@
  * delay for displaying a step
  *
  * onShow, onHide callbacks?
+ * support horizontal smooth scroll????????
+ *
+ * in addition to targetId, do we want to support specifying targetEl directly?
  *
  * http://daneden.me/animate/ for bounce animation
  *
@@ -56,7 +59,11 @@
       var domClasses,
           i, len;
 
-      if (domEl.className.length === 0) {
+      if (hasJquery) {
+        $(domEl).addClass(classToAdd);
+      }
+
+      else if (domEl.className.length === 0) {
         domEl.className = classToAdd;
       }
       else {
@@ -72,9 +79,14 @@
     },
 
     removeClass: function(domEl, classToRemove) {
-      var domClasses = domEl.className.split(' '),
-          i, len;
+      var domClasses, i, len;
 
+      if (hasJquery) {
+        $(domEl).removeClass(classToRemove);
+        return;
+      }
+
+      domClasses = domEl.className.split(' ');
       for (i = 0, len = domClasses.length; i < len; ++i) {
         if (domClasses[i] === classToRemove) {
           break;
@@ -93,10 +105,8 @@
           return 0;
         case 'string':
           return parseInt(val, 10); 
-        case 'number':
-          return val;
         default:
-          throw 'Invalid pixel value: ' + typeof val + '!';
+          return val;
       }
     },
 
@@ -161,10 +171,6 @@
       }
     },
 
-    throwOrientationException: function(orientation) {
-      throw "Invalid bubble orientation: " + orientation + ". Valid orientations are: top, bottom, left, right.";
-    },
-
     extend: function(obj1, obj2) {
       var prop;
       for (prop in obj2) {
@@ -198,16 +204,14 @@
     },
 
     eraseCookie: function(name) {
-      createCookie(name,"",-1);
+      this.createCookie(name,"",-1);
     }
   };
 
   HopscotchBubble = function(opt) {
     var prevBtnCallback,
         nextBtnCallback,
-        winResizeTimeout,
         currStep,
-        cooldownActive = false, // for updating after window resize
         isShowing = false,
 
     createButton = function(id, text) {
@@ -217,92 +221,6 @@
       btnEl.setAttribute('value', text);
       utils.addClass(btnEl, 'hopscotch-nav-button');
       return btnEl;
-    },
-
-    /**
-     * adjustWindowScroll
-     * ==================
-     * Checks if the bubble or target element is partially or completely
-     * outside of the viewport. If it is, adjust the window scroll position
-     * to bring it back into the viewport.
-     */
-    adjustWindowScroll = function(elTop, elHeight, boundingRect) {
-      var bubbleTop      = utils.getPixelValue(elTop),
-          bubbleBottom   = bubbleTop + elHeight,
-          targetElTop    = boundingRect.top + utils.getScrollTop(),
-          targetElBottom = boundingRect.bottom + utils.getScrollTop(),
-          targetTop      = (bubbleTop < targetElTop) ? bubbleTop : targetElTop, // target whichever is higher
-          targetBottom   = (bubbleBottom > targetElBottom) ? bubbleBottom : targetElBottom, // whichever is lower
-          windowTop      = utils.getScrollTop(),
-          windowBottom   = windowTop + utils.getWindowHeight(),
-          endScrollVal   = targetTop - 50, // This is our final target scroll value.
-          scrollDur      = opt.scrollDuration,
-          scrollEl,
-          yuiAnim,
-          yuiEase,
-          direction,
-          scrollIncr,
-          scrollInt;
-
-      // Leverage jQuery if it's present for scrolling
-      if (hasJquery) {
-        $('body, html').animate({ scrollTop: endScrollVal }, scrollDur);
-        return;
-      }
-      else if (typeof YAHOO             !== 'undefined' &&
-               typeof YAHOO.env         !== 'undefined' &&
-               typeof YAHOO.env.ua      !== 'undefined' &&
-               typeof YAHOO.util        !== 'undefined' &&
-               typeof YAHOO.util.Scroll !== 'undefined') {
-        scrollEl = YAHOO.env.ua.webkit ? document.body : document.documentElement;
-        yuiEase = YAHOO.util.Easing ? YAHOO.util.Easing.easeOut : undefined;
-        yuiAnim = new YAHOO.util.Scroll(scrollEl, {
-          scroll: { to: [0, endScrollVal] }
-        }, scrollDur/1000, yuiEase);
-        yuiAnim.animate();
-        return;
-      }
-
-      if (endScrollVal < 0) {
-        endScrollVal = 0;
-      }
-
-      if (targetTop >= windowTop && targetTop <= windowTop + 50) {
-        return;
-      }
-
-      if (targetTop < windowTop || targetBottom > windowBottom) {
-        if (opt.smoothScroll) {
-          // 48 * 10 == 480ms scroll duration
-          // make it slightly less than CSS transition duration because of
-          // setInterval overhead.
-          // To increase or decrease duration, change the divisor of scrollIncr.
-          direction = (windowTop > targetTop) ? -1 : 1; // -1 means scrolling up, 1 means down
-          scrollIncr = Math.abs(windowTop - targetTop) / (scrollDur/10);
-          scrollInt = setInterval(function() {
-            var scrollTop = utils.getScrollTop(),
-                scrollTarget = scrollTop + (direction * scrollIncr);
-
-            if ((direction > 0 && scrollTarget >= endScrollVal) ||
-                direction < 0 && scrollTarget <= endScrollVal) {
-              // Overshot our target. Just manually set to equal the target
-              // and clear the interval
-              scrollTarget = endScrollVal;
-              clearInterval(scrollInt);
-            }
-
-            window.scrollTo(0, scrollTarget);
-
-            if (utils.getScrollTop() === scrollTop) {
-              // Couldn't scroll any further. Clear interval.
-              clearInterval(scrollInt);
-            }
-          }, 10);
-        }
-        else {
-          window.scrollTo(0, endScrollVal);
-        }
-      }
     };
 
     this.init = function() {
@@ -324,7 +242,7 @@
 
       this.initNavButtons();
 
-      if (opt.showCloseButton) {
+      if (opt && opt.showCloseButton) {
         this.initCloseButton();
       }
 
@@ -393,8 +311,10 @@
       this.containerEl.appendChild(this.arrowEl);
     };
 
-    this.renderStep = function(step, idx, isLast) {
+    this.renderStep = function(step, idx, isLast, callback) {
       var self = this,
+          showNext = (typeof step.showNextBtn === 'undefined' || step.showNextBtn),
+          showPrev = (typeof step.showPrev === 'undefined' || step.showPrev),
           bubbleWidth,
           bubblePadding;
 
@@ -404,8 +324,8 @@
       if (step.content) { this.setContent(step.content); }
       this.setNum(idx);
 
-      this.showPrevButton(this.prevBtnEl && idx > 0);
-      this.showNextButton(this.nextBtnEl && !isLast);
+      this.showPrevButton(this.prevBtnEl && showPrev && idx > 0);
+      this.showNextButton(this.nextBtnEl && showNext && !isLast);
       if (isLast) {
         utils.removeClass(this.doneBtnEl, 'hide');
       }
@@ -425,11 +345,13 @@
         // Timeout to get correct height of bubble for positioning.
         setTimeout(function() {
           self.setPosition(step);
+          if (callback) { callback(); }
         }, 5);
       }
       else {
         // Don't care about height for the other orientations.
         this.setPosition(step);
+        if (callback) { callback(); }
       }
 
       // Set or clear new nav callbacks
@@ -483,9 +405,6 @@
       else if (orientation === 'right') {
         this.arrowEl.className = 'left';
       }
-      else {
-        utils.throwOrientationException(orientation);
-      }
     };
 
     this.show = function() {
@@ -538,14 +457,16 @@
     };
 
     this.handleWinResize = function() {
-      var self = this;
+      var self = this,
+          cooldownActive = false, // for updating after window resize
+          winResizeTimeout;
 
       if (cooldownActive || !isShowing) {
         return;
       }
       cooldownActive = true;
       winResizeTimeout = setTimeout(function() {
-        // currStep should never be null
+        // currStep should not be null
         self.setPosition(currStep);
         cooldownActive = false;
       }, 40);
@@ -590,9 +511,6 @@
         top = boundingRect.top;
         left = boundingRect.right + opt.arrowWidth;
       }
-      else {
-        utils.throwOrientationException(step.orientation);
-      }
 
       if (!step.arrowOffset) {
         this.arrowEl.style.top = '';
@@ -627,8 +545,6 @@
         el.style.top = top + 'px';
         el.style.left = left + 'px';
       }
-
-      adjustWindowScroll(top, el.offsetHeight, boundingRect);
     };
 
     /**
@@ -656,10 +572,13 @@
     this.init();
   };
 
-  Hopscotch = function() {
+  Hopscotch = function(initOptions) {
     var bubble,
         opt,
         currTour,
+        currStep,
+        cookieTourId,
+        cookieTourStep,
 
     /**
      * getBubble
@@ -673,6 +592,118 @@
       }
 
       return bubble;
+    },
+
+    getCurrStep = function() {
+      return currTour.steps[currStepNum];
+    },
+
+    /**
+     * adjustWindowScroll
+     * ==================
+     * Checks if the bubble or target element is partially or completely
+     * outside of the viewport. If it is, adjust the window scroll position
+     * to bring it back into the viewport.
+     */
+    adjustWindowScroll = function() {
+      var bubbleEl       = getBubble().element,
+          bubbleTop      = utils.getPixelValue(bubbleEl.style.top),
+          bubbleBottom   = bubbleTop + utils.getPixelValue(bubbleEl.offsetHeight),
+          targetEl       = document.getElementById(getCurrStep().targetId),
+          targetBounds   = targetEl.getBoundingClientRect(),
+          targetElTop    = targetBounds.top + utils.getScrollTop(),
+          targetElBottom = targetBounds.bottom + utils.getScrollTop(),
+          targetTop      = (bubbleTop < targetElTop) ? bubbleTop : targetElTop, // target whichever is higher
+          targetBottom   = (bubbleBottom > targetElBottom) ? bubbleBottom : targetElBottom, // whichever is lower
+          windowTop      = utils.getScrollTop(),
+          windowBottom   = windowTop + utils.getWindowHeight(),
+          scrollToVal    = targetTop - 50, // This is our final target scroll value.
+          scrollEl,
+          yuiAnim,
+          yuiEase,
+          direction,
+          scrollIncr,
+          scrollInt;
+
+      // Leverage jQuery if it's present for scrolling
+      if (hasJquery) {
+        $('body, html').animate({ scrollTop: scrollToVal }, opt.scrollDuration);
+        return;
+      }
+      else if (typeof YAHOO             !== 'undefined' &&
+               typeof YAHOO.env         !== 'undefined' &&
+               typeof YAHOO.env.ua      !== 'undefined' &&
+               typeof YAHOO.util        !== 'undefined' &&
+               typeof YAHOO.util.Scroll !== 'undefined') {
+        scrollEl = YAHOO.env.ua.webkit ? document.body : document.documentElement;
+        yuiEase = YAHOO.util.Easing ? YAHOO.util.Easing.easeOut : undefined;
+        yuiAnim = new YAHOO.util.Scroll(scrollEl, {
+          scroll: { to: [0, scrollToVal] }
+        }, opt.scrollDuration/1000, yuiEase);
+        yuiAnim.animate();
+        return;
+      }
+
+      if (scrollToVal < 0) {
+        scrollToVal = 0;
+      }
+
+      if (targetTop >= windowTop && targetTop <= windowTop + 50) {
+        return;
+      }
+
+      if (targetTop < windowTop || targetBottom > windowBottom) {
+        if (opt.smoothScroll) {
+          // 48 * 10 == 480ms scroll duration
+          // make it slightly less than CSS transition duration because of
+          // setInterval overhead.
+          // To increase or decrease duration, change the divisor of scrollIncr.
+          direction = (windowTop > targetTop) ? -1 : 1; // -1 means scrolling up, 1 means down
+          scrollIncr = Math.abs(windowTop - targetTop) / (opt.scrollDuration/10);
+          scrollInt = setInterval(function() {
+            var scrollTop = utils.getScrollTop(),
+                scrollTarget = scrollTop + (direction * scrollIncr);
+
+            if ((direction > 0 && scrollTarget >= scrollToVal) ||
+                direction < 0 && scrollTarget <= scrollToVal) {
+              // Overshot our target. Just manually set to equal the target
+              // and clear the interval
+              scrollTarget = scrollToVal;
+              clearInterval(scrollInt);
+            }
+
+            window.scrollTo(0, scrollTarget);
+
+            if (utils.getScrollTop() === scrollTop) {
+              // Couldn't scroll any further. Clear interval.
+              clearInterval(scrollInt);
+            }
+          }, 10);
+        }
+        else {
+          window.scrollTo(0, scrollToVal);
+        }
+      }
+    };
+
+    this.init = function() {
+      var tourState,
+          tourPair;
+
+      if (initOptions) {
+        this.configure(initOptions);
+      }
+
+      tourState = utils.readCookie('hopscotch.tour.next');
+      if (tourState) {
+        tourPair      = tourState.split(':');
+        cookieTourId   = tourPair[0]; // selecting tour is not supported by this framework.
+        cookieTourStep = parseInt(tourPair[1], 10);
+        if (tourPair.length > 2 && tourPair[2] === 'mp') {
+          // multipage... increment tour step by 1
+          ++cookieTourStep;
+        }
+      }
     };
 
     /**
@@ -702,6 +733,7 @@
       bubble.showNextButton(opt.showNextButton, true);
     };
 
+    /*
     this.getTourById = function(id) {
       var i, len;
       for (i=0, len=this._tours.length; i<len; ++i) {
@@ -710,55 +742,64 @@
         }
       }
     };
+    */
 
     this.startTour = function() {
       var bubble;
       if (!currTour) {
         throw "Need to load a tour before you start it!";
       }
-      this.currStepNum = 0;
-      this.showStep(this.currStepNum);
+
+      // Check if we are resuming state.
+      if (currTour.id === cookieTourId && typeof cookieTourStep !== 'undefined') {
+        currStepNum = cookieTourStep;
+        if (!document.getElementById(currTour.steps[currStepNum].targetId)) {
+          // May have just refreshed the page. Previous step should work. (but don't change cookie)
+          --currStepNum;
+        }
+      }
+      else {
+        currStepNum = 0;
+      }
+
+      this.showStep(currStepNum);
       bubble = getBubble().show();
 
       if (opt.animate) {
         bubble.initAnimate();
       }
+      this.isActive = true;
     };
 
     this.showStep = function(stepIdx) {
-      var step = currTour.steps[stepIdx],
+      var step         = currTour.steps[stepIdx],
           numTourSteps = currTour.steps.length,
-          btnToHide = null;
+          btnToHide    = null,
+          cookieVal    = currTour.id + ':' + stepIdx;
 
       if (!currTour) {
         throw "No tour currently selected!";
       }
 
       // Update bubble for current step
-      this.currStepNum = stepIdx;
-      getBubble().renderStep(step, stepIdx, (stepIdx === numTourSteps - 1));
+      currStepNum = stepIdx;
+      getBubble().renderStep(step, stepIdx, (stepIdx === numTourSteps - 1), adjustWindowScroll);
+
+      if (step.multiPage) {
+        cookieVal += ':mp';
+      }
+      utils.createCookie('hopscotch.tour.next', cookieVal, 7);
     };
 
     this.prevStep = function() {
-      if (this.currStepNum <= 0) {
-        // TODO: all done!
-        alert('at the first step. can\'t go back any further.');
-      }
-      else {
-        this.showStep(--this.currStepNum);
+      if (currStepNum > 0) {
+        this.showStep(--currStepNum);
       }
     };
 
     this.nextStep = function() {
-      if (!currTour) {
-        throw "No tour was selected prior to calling nextStep!";
-      }
-      if (this.currStepNum >= currTour.steps.length-1) {
-        // TODO: all done!
-        alert('all done!');
-      }
-      else {
-        this.showStep(++this.currStepNum);
+      if (currStepNum < currTour.steps.length-1) {
+        this.showStep(++currStepNum);
       }
     };
 
@@ -768,10 +809,10 @@
      * Cancels out of an active tour. No state is preserved.
      */
     this.endTour = function() {
-      if (currTour) {
-        currTour = null;
-      }
       getBubble().hide();
+      currStepNum = cookieTourStep = 0;
+      utils.eraseCookie('hopscotch.tour.next');
+      this.isActive = false;
     };
 
     /**
@@ -786,7 +827,7 @@
      *                            step? Defaults to TRUE.
      * scrollDuration:  Number  - Duration of page scroll. Only relevant when
      *                            smoothScroll is set to true. Defaults to 1000ms.
-     * showCloseButton: Boolean - should the tour bubble show a close button?
+     * showCloseButton: Boolean - should the tour bubble show a close (X) button?
      *                            Defaults to TRUE.
      * showPrevButton:  Boolean - should the bubble have the Previous button?
      *                            Defaults to FALSE.
@@ -811,6 +852,15 @@
       opt.showPrevButton  = utils.getValOrDefault(opt.showPrevButton, false);
       opt.showNextButton  = utils.getValOrDefault(opt.showNextButton, true);
       opt.arrowWidth      = utils.getValOrDefault(opt.arrowWidth, 20);
+    };
+
+    this.init(initOptions);
+
+    // DEBUG
+    // =====
+    // REMOVE THIS LATER!!!
+    this.clearCookie = function() {
+      utils.eraseCookie('hopscotch.tour.next');
     };
   };
 
