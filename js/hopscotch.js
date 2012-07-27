@@ -22,6 +22,8 @@
  *
  * how to i18n the step numbers?
  *
+ * every-step callback
+ *
  * http://daneden.me/animate/ for bounce animation
  *
  */
@@ -113,7 +115,7 @@
     },
 
     // Inspired by Python...
-    getValOrDefault: function(val, valDefault) {
+    valOrDefault: function(val, valDefault) {
       return typeof val !== 'undefined' ? val : valDefault;
     },
 
@@ -210,6 +212,14 @@
     }
   };
 
+  HopscotchI18N = {
+    stepNums: null,
+    nextBtn: 'Next',
+    prevBtn: 'Back',
+    doneBtn: 'Done',
+    closeTooltip: 'Close'
+  };
+
   HopscotchBubble = function(opt) {
     var prevBtnCallback,
         nextBtnCallback,
@@ -223,24 +233,43 @@
       btnEl.setAttribute('value', text);
       utils.addClass(btnEl, 'hopscotch-nav-button');
       return btnEl;
+    },
+
+    showButton = function(btnEl, show, permanent) {
+      var classname = 'hide';
+
+      if (permanent) {
+        // permanent is a flag that indicates we should never show the button
+        classname = 'hide-all';
+      }
+      if (typeof show === 'undefined') {
+        show = true;
+      }
+
+      if (show) { utils.removeClass(btnEl, classname); }
+      else { utils.addClass(btnEl, classname); }
     };
 
     this.init = function() {
-      var el = document.createElement('div');
+      var el             = document.createElement('div'),
+          containerEl    = document.createElement('div'),
+          self           = this,
+          cooldownActive = false, // for updating after window resize
+          winResizeTimeout;
 
       this.element     = el;
-      this.containerEl = document.createElement('div');
+      this.containerEl = containerEl;
       this.titleEl     = document.createElement('h3');
       this.numberEl    = document.createElement('span');
       this.contentEl   = document.createElement('p');
 
       el.setAttribute('id', 'hopscotch-bubble');
-      this.containerEl.setAttribute('id', 'hopscotch-bubble-container');
+      containerEl.setAttribute('id', 'hopscotch-bubble-container');
       this.numberEl.setAttribute('id', 'hopscotch-bubble-number');
-      this.containerEl.appendChild(this.titleEl);
-      this.containerEl.appendChild(this.numberEl);
-      this.containerEl.appendChild(this.contentEl);
-      el.appendChild(this.containerEl);
+      containerEl.appendChild(this.titleEl);
+      containerEl.appendChild(this.numberEl);
+      containerEl.appendChild(this.contentEl);
+      el.appendChild(containerEl);
 
       this.initNavButtons();
 
@@ -250,7 +279,20 @@
 
       this.initArrow();
 
-      window.onresize = this.handleWinResize.bind(this);
+      // Not pretty, but IE doesn't support Function.bind(), so I'm
+      // relying on closures to keep a handle of "this".
+      // Reset position of bubble when window is resized
+      window.onresize = function() {
+        if (cooldownActive || !isShowing) {
+          return;
+        }
+        cooldownActive = true;
+        winResizeTimeout = setTimeout(function() {
+          // currStep should not be null
+          self.setPosition(currStep);
+          cooldownActive = false;
+        }, 200);
+      };
 
       document.body.appendChild(el);
       return this;
@@ -259,9 +301,9 @@
     this.initNavButtons = function() {
       var buttonsEl  = document.createElement('div');
 
-      this.prevBtnEl = createButton('hopscotch-prev', 'Back');
-      this.nextBtnEl = createButton('hopscotch-next', 'Next');
-      this.doneBtnEl = createButton('hopscotch-done', 'Done');
+      this.prevBtnEl = createButton('hopscotch-prev', HopscotchI18N.prevBtn);
+      this.nextBtnEl = createButton('hopscotch-next', HopscotchI18N.nextBtn);
+      this.doneBtnEl = createButton('hopscotch-done', HopscotchI18N.doneBtn);
       utils.addClass(this.doneBtnEl, 'hide');
 
       buttonsEl.appendChild(this.prevBtnEl);
@@ -295,7 +337,7 @@
 
       closeBtnEl.setAttribute('id', 'hopscotch-bubble-close');
       closeBtnEl.setAttribute('href', '#');
-      closeBtnEl.setAttribute('title', 'Close');
+      closeBtnEl.setAttribute('title', HopscotchI18N.closeTooltip);
       closeBtnEl.innerHTML = 'x';
 
       utils.addClickListener(closeBtnEl, function(evt) {
@@ -303,6 +345,7 @@
         utils.evtPreventDefault(evt);
       });
 
+      this.closeBtnEl = closeBtnEl;
       this.containerEl.appendChild(closeBtnEl);
       return this;
     };
@@ -339,7 +382,7 @@
 
       // Set dimensions
       bubbleWidth = utils.getPixelValue(step.width) || opt.bubbleWidth;
-      bubblePadding = utils.getValOrDefault(step.padding, opt.bubblePadding);
+      bubblePadding = utils.valOrDefault(step.padding, opt.bubblePadding);
       this.containerEl.style.width = bubbleWidth + 'px';
       this.containerEl.style.padding = bubblePadding + 'px';
 
@@ -388,7 +431,13 @@
     };
 
     this.setNum = function(idx) {
-      this.numberEl.innerHTML = idx+1;
+      if (HopscotchI18N.stepNums && idx < HopscotchI18N.stepNums.length) {
+        idx = HopscotchI18N.stepNums[idx];
+      }
+      else {
+        idx = idx + 1;
+      }
+      this.numberEl.innerHTML = idx;
     };
 
     this.setArrow = function(orientation) {
@@ -429,49 +478,15 @@
     };
 
     this.showPrevButton = function(show, permanent) {
-      var classname = 'hide';
-
-      if (permanent) {
-        // permanent is a flag that indicates we should always/never show the button
-        classname = 'hide-all';
-      }
-      if (typeof show === 'undefined') {
-        show = true;
-      }
-
-      if (show) { utils.removeClass(this.prevBtnEl, classname); }
-      else { utils.addClass(this.prevBtnEl, classname); }
+      showButton(this.prevBtnEl, show, permanent);
     };
 
     this.showNextButton = function(show, permanent) {
-      var classname = 'hide';
-
-      if (permanent) {
-        // permanent is a flag that indicates we should always/never show the button
-        classname = 'hide-all';
-      }
-      if (typeof show === 'undefined') {
-        show = true;
-      }
-
-      if (show) { utils.removeClass(this.nextBtnEl, classname); }
-      else { utils.addClass(this.nextBtnEl, classname); }
+      showButton(this.nextBtnEl, show, permanent);
     };
 
-    this.handleWinResize = function() {
-      var self = this,
-          cooldownActive = false, // for updating after window resize
-          winResizeTimeout;
-
-      if (cooldownActive || !isShowing) {
-        return;
-      }
-      cooldownActive = true;
-      winResizeTimeout = setTimeout(function() {
-        // currStep should not be null
-        self.setPosition(currStep);
-        cooldownActive = false;
-      }, 40);
+    this.showCloseButton = function(show, permanent) {
+      showButton(this.closeBtnEl, show, permanent);
     };
 
     /**
@@ -492,7 +507,7 @@
           el = this.element;
 
       bubbleWidth = utils.getPixelValue(step.width) || opt.bubbleWidth;
-      bubblePadding = utils.getValOrDefault(step.padding, opt.bubblePadding);
+      bubblePadding = utils.valOrDefault(step.padding, opt.bubblePadding);
 
       // SET POSITION
       boundingRect = targetEl.getBoundingClientRect();
@@ -569,6 +584,10 @@
       setTimeout(function() {
         utils.addClass(self.element, 'animate');
       }, 50);
+    };
+
+    this.removeAnimate = function() {
+      utils.removeClass(this.element, 'animate');
     };
 
     this.init();
@@ -757,7 +776,14 @@
         currStepNum = cookieTourStep;
         if (!document.getElementById(currTour.steps[currStepNum].targetId)) {
           // May have just refreshed the page. Previous step should work. (but don't change cookie)
-          --currStepNum;
+          if (!document.getElementById(currTour.steps[--currStepNum].targetId)) {
+            // Previous target doesn't exist either. The user may have just
+            // clicked on a link that wasn't part of the tour. Let's just "end"
+            // the tour and depend on the cookie to pick the user back up where
+            // she left off.
+            this.endTour(false);
+            return;
+          }
         }
       }
       else {
@@ -800,6 +826,9 @@
     };
 
     this.nextStep = function() {
+      if (opt.allNextCallback) {
+        opt.allNextCallback(getCurrStep(), currStepNum);
+      }
       if (currStepNum < currTour.steps.length-1) {
         this.showStep(++currStepNum);
       }
@@ -810,10 +839,13 @@
      * ==========
      * Cancels out of an active tour. No state is preserved.
      */
-    this.endTour = function() {
+    this.endTour = function(clearCookie) {
+      clearCookie = utils.valOrDefault(clearCookie, true);
       getBubble().hide();
       currStepNum = cookieTourStep = 0;
-      utils.eraseCookie('hopscotch.tour.next');
+      if (clearCookie) {
+        utils.eraseCookie('hopscotch.tour.next');
+      }
       this.isActive = false;
     };
 
@@ -821,39 +853,66 @@
      * configure
      * =========
      * VALID OPTIONS INCLUDE...
-     * bubbleWidth:     Number  - Default bubble width. Defaults to 280.
-     * bubblePadding:   Number  - Default bubble padding. Defaults to 10.
-     * animate:         Boolean - should the tour bubble animate between steps?
-     *                            Defaults to FALSE.
-     * smoothScroll:    Boolean - should the page scroll smoothly to the next
-     *                            step? Defaults to TRUE.
-     * scrollDuration:  Number  - Duration of page scroll. Only relevant when
-     *                            smoothScroll is set to true. Defaults to 1000ms.
-     * showCloseButton: Boolean - should the tour bubble show a close (X) button?
-     *                            Defaults to TRUE.
-     * showPrevButton:  Boolean - should the bubble have the Previous button?
-     *                            Defaults to FALSE.
-     * showNextButton:  Boolean - should the bubble have the Next button?
-     *                            Defaults to TRUE.
-     * arrowWidth:      Number  - Default arrow width. (space between the bubble
-     *                            and the targetEl) Need to provide the option to
-     *                            set this here in case developer wants to use own
-     *                            CSS. Defaults to 20.
+     * bubbleWidth:     Number   - Default bubble width. Defaults to 280.
+     * bubblePadding:   Number   - Default bubble padding. Defaults to 10.
+     * animate:         Boolean  - should the tour bubble animate between steps?
+     *                             Defaults to FALSE.
+     * smoothScroll:    Boolean  - should the page scroll smoothly to the next
+     *                             step? Defaults to TRUE.
+     * scrollDuration:  Number   - Duration of page scroll. Only relevant when
+     *                             smoothScroll is set to true. Defaults to
+     *                             1000ms.
+     * showCloseButton: Boolean  - should the tour bubble show a close (X) button?
+     *                             Defaults to TRUE.
+     * showPrevButton:  Boolean  - should the bubble have the Previous button?
+     *                             Defaults to FALSE.
+     * showNextButton:  Boolean  - should the bubble have the Next button?
+     *                             Defaults to TRUE.
+     * arrowWidth:      Number   - Default arrow width. (space between the bubble
+     *                             and the targetEl) Need to provide the option
+     *                             to set this here in case developer wants to
+     *                             use own CSS. Defaults to 20.
+     * allNextCallback: Function - A callback to be invoked after every click on
+     *                             a "Next" button.
+     * i18n:            TODO
+     * stepNums:        Array<String> - This option is provided mainly just for i18n
+     *                             purposes. Provide a list of strings to be shown as
+     *                             the step number, based on index of array. Unicode
+     *                             characters are supported. (e.g., ['&#x4e00;',
+     *                             '&#x4e8c;', '&#x4e09;']) If there are more steps
+     *                             than provided numbers, Arabic numerals
+     *                             ('4', '5', '6', etc.) will be used as default.
      */
     this.configure = function(options) {
       if (!opt) {
         opt = {};
       }
       utils.extend(opt, options);
-      opt.animate         = utils.getValOrDefault(opt.animate, false);
-      opt.smoothScroll    = utils.getValOrDefault(opt.smoothScroll, true);
-      opt.scrollDuration  = utils.getValOrDefault(opt.scrollDuration, 1000);
-      opt.showCloseButton = utils.getValOrDefault(opt.showCloseButton, true);
-      opt.bubbleWidth     = utils.getValOrDefault(opt.bubbleWidth, 280);
-      opt.bubblePadding   = utils.getValOrDefault(opt.bubblePadding, 10);
-      opt.showPrevButton  = utils.getValOrDefault(opt.showPrevButton, false);
-      opt.showNextButton  = utils.getValOrDefault(opt.showNextButton, true);
-      opt.arrowWidth      = utils.getValOrDefault(opt.arrowWidth, 20);
+      opt.animate         = utils.valOrDefault(opt.animate, false);
+      opt.smoothScroll    = utils.valOrDefault(opt.smoothScroll, true);
+      opt.scrollDuration  = utils.valOrDefault(opt.scrollDuration, 1000);
+      opt.showCloseButton = utils.valOrDefault(opt.showCloseButton, true);
+      opt.bubbleWidth     = utils.valOrDefault(opt.bubbleWidth, 280);
+      opt.bubblePadding   = utils.valOrDefault(opt.bubblePadding, 10);
+      opt.showPrevButton  = utils.valOrDefault(opt.showPrevButton, false);
+      opt.showNextButton  = utils.valOrDefault(opt.showNextButton, true);
+      opt.arrowWidth      = utils.valOrDefault(opt.arrowWidth, 20);
+      opt.allNextCallback = utils.valOrDefault(opt.allNextCallback, null);
+
+      if (options) {
+        utils.extend(HopscotchI18N, options.i18n);
+      }
+
+      if (opt.animate) {
+        getBubble().initAnimate();
+      }
+      else {
+        getBubble().removeAnimate();
+      }
+
+      getBubble().showPrevButton(opt.showPrevButton, true)
+      getBubble().showNextButton(opt.showNextButton, true)
+      getBubble().showCloseButton(opt.showCloseButton, true)
     };
 
     this.init(initOptions);

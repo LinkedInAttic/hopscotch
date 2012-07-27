@@ -19,6 +19,9 @@
         top: 0;
         right: 0;
       }
+      #debug h3 {
+        margin: 10px 0;
+      }
       .img-container {
         text-align: center;
       }
@@ -45,9 +48,35 @@
       </div>
     </div>
     <div id="debug">
+      <h2>Debug controls</h2>
       <input id="startBtn" type="button" value="Start">
       <input id="endBtn" type="button" value="End">
       <input id="clearCookieBtn" type="button" value="Clear Cookie">
+      <h3>Tour Options</h3>
+      <label>
+        <input type="checkbox" id="animateCheck"> animate
+      </label>
+      <br/>
+      <label>
+        <input type="checkbox" id="smoothScrollCheck" checked=""> smoothScroll
+      </label>
+      <br/>
+      <label>
+        <input type="checkbox" id="showCloseButtonCheck"> showCloseButton
+      </label>
+      <br/>
+      <label>
+        <input type="checkbox" id="showPrevButtonCheck" checked=""> showPrevButton
+      </label>
+      <br/>
+      <label>
+        <input type="checkbox" id="showNextButtonCheck" checked=""> showNextButton
+      </label>
+      <br/>
+      <label>
+        <input type="checkbox" id="showAsianStepNumsCheck"> showAsianStepNums
+      </label>
+      <br/>
     </div>
     <!--
     <script src="js/yui/build/yahoo-dom-event/yahoo-dom-event.js"></script>
@@ -58,6 +87,7 @@
     -->
     <script src="js/hopscotch.js"></script>
     <script src="js/exampletour.js"></script>
+    <script src="js/debug.js"></script>
     <script>
       hopscotch.loadTour(tour);
       //hopscotch.clearCookie();

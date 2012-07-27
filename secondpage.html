@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <html>
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
@@ -9,14 +10,14 @@
     <h1>Second Test Page</h1>
     <div>
       <p>Please click to return to the <a id="firstpagelink" href="index.html">first page</a>. Also, I hope this picture of polar bears brightened your day.</p>
-      <img src="http://imgur.com/MZuiD.jpg">
-      <script src="js/hopscotch.js"></script>
-      <script src="js/exampletour.js"></script>
-      <script>
-        hopscotch.loadTour(tour);
-        //hopscotch.clearCookie();
-        hopscotch.startTour();
-      </script>
+      <img id="polarbears" src="http://imgur.com/MZuiD.jpg">
     </div>
+    <script src="js/exampletour.js"></script>
+    <script src="js/hopscotch.js"></script>
+    <script>
+      hopscotch.loadTour(tour);
+      //hopscotch.clearCookie();
+      hopscotch.startTour();
+    </script>
   </body>
 </html>
