@@ -36,6 +36,7 @@ var tour = {
           targetId: 'firstpagelink',
           orientation: 'bottom',
           showNextBtn: false,
+          showPrevBtn: false,
           multiPage: true // this indicates that next step will be on a different page
         },
         {
@@ -45,7 +46,8 @@ var tour = {
           orientation: 'bottom',
           width: 500,
           xOffset: -50,
-          arrowOffset: 400
+          arrowOffset: 400,
+          showPrevBtn: false
         },
         {
           title: 'Python decorator',

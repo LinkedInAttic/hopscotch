@@ -20,6 +20,8 @@
  *
  * in addition to targetId, do we want to support specifying targetEl directly?
  *
+ * how to i18n the step numbers?
+ *
  * http://daneden.me/animate/ for bounce animation
  *
  */
@@ -314,7 +316,7 @@
     this.renderStep = function(step, idx, isLast, callback) {
       var self = this,
           showNext = (typeof step.showNextBtn === 'undefined' || step.showNextBtn),
-          showPrev = (typeof step.showPrev === 'undefined' || step.showPrev),
+          showPrev = (typeof step.showPrevBtn === 'undefined' || step.showPrevBtn),
           bubbleWidth,
           bubblePadding;
 
