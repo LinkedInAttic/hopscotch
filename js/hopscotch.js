@@ -8,9 +8,9 @@
  *
  * TODO:
  * =====
- * event listener for window resize? (to reposition bubble);
  * test css conflicts on different sites
  * improve auto-scrolling?
+ * create hopscotch-jquery.js and hopscotch-yui.js?? blaarlkghiidsfffzp\09u93}%^*(!!
  *
  * position screws up when you align it with a position:fixed element
  * delay for displaying a step
@@ -20,10 +20,6 @@
  *
  * in addition to targetId, do we want to support specifying targetEl directly?
  *
- * how to i18n the step numbers?
- *
- * every-step callback
- *
  * http://daneden.me/animate/ for bounce animation
  *
  */
@@ -31,14 +27,17 @@
 (function() {
   var Hopscotch,
       HopscotchBubble,
+      HopscotchI18N,
       utils,
-      hasJquery         = (typeof jQuery !== 'undefined'),
+      undefinedStr      = 'undefined',
+      hasJquery         = (typeof window.jQuery !== undefinedStr),
+      hasLocalStorage   = (typeof window.localStorage !== undefinedStr),
       docStyle          = document.body.style,
-      hasCssTransitions = (typeof docStyle.MozTransition !== 'undefined' ||
-                           typeof docStyle.MsTransition !== 'undefined' ||
-                           typeof docStyle.webkitTransition !== 'undefined' ||
-                           typeof docStyle.OTransition !== 'undefined' ||
-                           typeof docStyle.transition !== 'undefined');
+      hasCssTransitions = (typeof docStyle.MozTransition    !== undefinedStr ||
+                           typeof docStyle.MsTransition     !== undefinedStr ||
+                           typeof docStyle.webkitTransition !== undefinedStr ||
+                           typeof docStyle.OTransition      !== undefinedStr ||
+                           typeof docStyle.transition       !== undefinedStr);
 
   if (window.hopscotch) {
     // Hopscotch already exists.
@@ -87,40 +86,36 @@
 
       if (hasJquery) {
         $(domEl).removeClass(classToRemove);
-        return;
       }
-
-      domClasses = domEl.className.split(' ');
-      for (i = 0, len = domClasses.length; i < len; ++i) {
-        if (domClasses[i] === classToRemove) {
-          break;
+      else {
+        domClasses = domEl.className.split(' ');
+        for (i = 0, len = domClasses.length; i < len; ++i) {
+          if (domClasses[i] === classToRemove) {
+            break;
+          }
         }
-      }
 
-      if (i < len) {
-        domClasses.splice(i, 1); // remove class from list
-        domEl.className = domClasses.join(' ');
+        if (i < len) {
+          domClasses.splice(i, 1); // remove class from list
+          domEl.className = domClasses.join(' ');
+        }
       }
     },
 
     getPixelValue: function(val) {
-      switch(typeof val) {
-        case 'undefined':
-          return 0;
-        case 'string':
-          return parseInt(val, 10); 
-        default:
-          return val;
-      }
+      var valType = typeof val;
+      if (valType === 'number') { return val; }
+      if (valType === 'string') { return parseInt(val, 10); }
+      return 0;
     },
 
     // Inspired by Python...
     valOrDefault: function(val, valDefault) {
-      return typeof val !== 'undefined' ? val : valDefault;
+      return typeof val !== undefinedStr ? val : valDefault;
     },
 
     getScrollTop: function() {
-      if (typeof window.pageYOffset !== 'undefined') {
+      if (typeof window.pageYOffset !== undefinedStr) {
         return window.pageYOffset;
       }
       else {
@@ -130,7 +125,7 @@
     },
 
     getScrollLeft: function() {
-      if (typeof window.pageXOffset !== 'undefined') {
+      if (typeof window.pageXOffset !== undefinedStr) {
         return window.pageXOffset;
       }
       else {
@@ -140,30 +135,15 @@
     },
 
     getWindowHeight: function() {
-      if (window.innerHeight) {
-        return window.innerHeight;
-      }
-      else {
-        return document.documentElement.clientHeight;
-      }
+      return window.innerHeight ? window.innerHeight : document.documentElement.clientHeight;
     },
 
     getWindowWidth: function() {
-      if (window.innerWidth) {
-        return window.innerWidth;
-      }
-      else {
-        return document.documentElement.clientWidth;
-      }
+      return window.innerWidth ? window.innerWidth : document.documentElement.clientWidth;
     },
 
-    addClickListener: function(el, fn, prvtDefault) {
-      if (el.addEventListener) {
-        el.addEventListener('click', fn);
-      }
-      else {
-        el.attachEvent('onclick', fn);
-      }
+    addClickListener: function(el, fn) {
+      return el.addEventListener ? el.addEventListener('click', fn) : el.attachEvent('onclick', fn);
     },
 
     evtPreventDefault: function(evt) {
@@ -184,31 +164,56 @@
       }
     },
 
-    // The following three cookie-related functions are borrowed from
+    // Tour session persistence for multi-page tours. Uses HTML5 localStorage if available, then
+    // falls back to using cookies.
+    //
+    // The following cookie-related logic is borrowed from:
     // http://www.quirksmode.org/js/cookies.html
-    createCookie: function(name,value,days) {
-      if (days) {
-        var date = new Date();
-        date.setTime(date.getTime()+(days*24*60*60*1000));
-        var expires = "; expires="+date.toGMTString();
+
+    setState: function(name,value,days) {
+      var expires = '',
+          userDataName,
+          date;
+
+      if (hasLocalStorage) {
+        localStorage.setItem(name, value);
       }
-      else var expires = "";
-      document.cookie = name+"="+value+expires+"; path=/";
+      else {
+        if (days) {
+          date = new Date();
+          date.setTime(date.getTime()+(days*24*60*60*1000));
+          expires = "; expires="+date.toGMTString();
+        }
+        document.cookie = name+"="+value+expires+"; path=/";
+      }
     },
 
-    readCookie: function(name) {
-      var nameEQ = name + "=";
-      var ca = document.cookie.split(';');
-      for(var i=0;i < ca.length;i++) {
-        var c = ca[i];
-        while (c.charAt(0)==' ') c = c.substring(1,c.length);
-        if (c.indexOf(nameEQ) == 0) return c.substring(nameEQ.length,c.length);
+    getState: function(name) {
+      var nameEQ = name + "=",
+          ca = document.cookie.split(';'),
+          i,
+          c;
+
+      if (hasLocalStorage) {
+        return localStorage.getItem(name);
       }
-      return null;
+      else {
+        for(var i=0;i < ca.length;i++) {
+          c = ca[i];
+          while (c.charAt(0)===' ') c = c.substring(1,c.length);
+          if (c.indexOf(nameEQ) === 0) return c.substring(nameEQ.length,c.length);
+        }
+        return null;
+      }
     },
 
-    eraseCookie: function(name) {
-      this.createCookie(name,"",-1);
+    clearState: function(name) {
+      if (hasLocalStorage) {
+        localStorage.removeItem(name);
+      }
+      else {
+        this.setState(name,"",-1);
+      }
     }
   };
 
@@ -242,12 +247,85 @@
         // permanent is a flag that indicates we should never show the button
         classname = 'hide-all';
       }
-      if (typeof show === 'undefined') {
+      if (typeof show === undefinedStr) {
         show = true;
       }
 
       if (show) { utils.removeClass(btnEl, classname); }
       else { utils.addClass(btnEl, classname); }
+    },
+
+    /**
+     * setPosition
+     * ===========
+     * Sets the position of the bubble using the bounding rectangle of the
+     * target element and the orientation and offset information specified by
+     * the step JSON.
+     */
+    setPosition = function(bubble, step) {
+      var bubbleWidth,
+          bubbleHeight,
+          bubblePadding,
+          boundingRect,
+          top,
+          left,
+          targetEl    = document.getElementById(step.targetId),
+          el          = bubble.element,
+          arrowEl     = bubble.arrowEl,
+          arrowOffset = utils.getPixelValue(step.arrowOffset);
+
+      bubbleWidth = utils.getPixelValue(step.width) || opt.bubbleWidth;
+      bubblePadding = utils.valOrDefault(step.padding, opt.bubblePadding);
+
+      // SET POSITION
+      boundingRect = targetEl.getBoundingClientRect();
+      if (step.orientation === 'top') {
+        bubbleHeight = el.offsetHeight;
+        top = (boundingRect.top - bubbleHeight) - opt.arrowWidth;
+        left = boundingRect.left;
+      }
+      else if (step.orientation === 'bottom') {
+        top = boundingRect.bottom + opt.arrowWidth;
+        left = boundingRect.left;
+      }
+      else if (step.orientation === 'left') {
+        top = boundingRect.top;
+        left = boundingRect.left - bubbleWidth - 2*bubblePadding - opt.arrowWidth;
+      }
+      else if (step.orientation === 'right') {
+        top = boundingRect.top;
+        left = boundingRect.right + opt.arrowWidth;
+      }
+
+      if (!arrowOffset) {
+        arrowEl.style.top = '';
+        arrowEl.style.left = '';
+      }
+      else if (step.orientation === 'top' || step.orientation === 'bottom') {
+        arrowEl.style.left = arrowOffset + 'px';
+      }
+      else if (step.orientation === 'left' || step.orientation === 'right') {
+        arrowEl.style.top = arrowOffset + 'px';
+      }
+
+      // SET OFFSETS
+      left += utils.getPixelValue(step.xOffset);
+      top += utils.getPixelValue(step.yOffset);
+
+      // ADJUST TOP FOR SCROLL POSITION
+      top += utils.getScrollTop();
+      left += utils.getScrollLeft();
+
+      if (!hasCssTransitions && hasJquery && opt.animate) {
+        $(el).animate({
+          top: top + 'px',
+          left: left + 'px'
+        });
+      }
+      else { // hasCssTransitions || !hasJquery || !opt.animate
+        el.style.top = top + 'px';
+        el.style.left = left + 'px';
+      }
     };
 
     this.init = function() {
@@ -289,7 +367,7 @@
         cooldownActive = true;
         winResizeTimeout = setTimeout(function() {
           // currStep should not be null
-          self.setPosition(currStep);
+          setPosition(self, currStep);
           cooldownActive = false;
         }, 200);
       };
@@ -357,9 +435,9 @@
     };
 
     this.renderStep = function(step, idx, isLast, callback) {
-      var self = this,
-          showNext = (typeof step.showNextBtn === 'undefined' || step.showNextBtn),
-          showPrev = (typeof step.showPrevBtn === 'undefined' || step.showPrevBtn),
+      var self     = this,
+          showNext = utils.valOrDefault(step.showNextButton, opt.showNextButton),
+          showPrev = utils.valOrDefault(step.showPrevButton, opt.showPrevButton),
           bubbleWidth,
           bubblePadding;
 
@@ -381,7 +459,7 @@
       this.setArrow(step.orientation);
 
       // Set dimensions
-      bubbleWidth = utils.getPixelValue(step.width) || opt.bubbleWidth;
+      bubbleWidth   = utils.getPixelValue(step.width) || opt.bubbleWidth;
       bubblePadding = utils.valOrDefault(step.padding, opt.bubblePadding);
       this.containerEl.style.width = bubbleWidth + 'px';
       this.containerEl.style.padding = bubblePadding + 'px';
@@ -389,13 +467,13 @@
       if (step.orientation === 'top') {
         // Timeout to get correct height of bubble for positioning.
         setTimeout(function() {
-          self.setPosition(step);
+          setPosition(self, step);
           if (callback) { callback(); }
         }, 5);
       }
       else {
         // Don't care about height for the other orientations.
-        this.setPosition(step);
+        setPosition(this, step);
         if (callback) { callback(); }
       }
 
@@ -489,80 +567,6 @@
       showButton(this.closeBtnEl, show, permanent);
     };
 
-    /**
-     * setPosition
-     * ===========
-     * Sets the position of the bubble using the bounding rectangle of the
-     * target element and the orientation and offset information specified by
-     * the step JSON.
-     */
-    this.setPosition = function(step) {
-      var bubbleWidth,
-          bubbleHeight,
-          bubblePadding,
-          boundingRect,
-          top,
-          left,
-          targetEl = document.getElementById(step.targetId),
-          el = this.element;
-
-      bubbleWidth = utils.getPixelValue(step.width) || opt.bubbleWidth;
-      bubblePadding = utils.valOrDefault(step.padding, opt.bubblePadding);
-
-      // SET POSITION
-      boundingRect = targetEl.getBoundingClientRect();
-      if (step.orientation === 'top') {
-        bubbleHeight = el.offsetHeight;
-        top = (boundingRect.top - bubbleHeight) - opt.arrowWidth;
-        left = boundingRect.left;
-      }
-      else if (step.orientation === 'bottom') {
-        top = boundingRect.bottom + opt.arrowWidth;
-        left = boundingRect.left;
-      }
-      else if (step.orientation === 'left') {
-        top = boundingRect.top;
-        left = boundingRect.left - bubbleWidth - 2*bubblePadding - opt.arrowWidth;
-      }
-      else if (step.orientation === 'right') {
-        top = boundingRect.top;
-        left = boundingRect.right + opt.arrowWidth;
-      }
-
-      if (!step.arrowOffset) {
-        this.arrowEl.style.top = '';
-        this.arrowEl.style.left = '';
-      }
-      else if (step.orientation === 'top' || step.orientation === 'bottom') {
-        this.arrowEl.style.left = step.arrowOffset + 'px';
-      }
-      else if (step.orientation === 'left' || step.orientation === 'right') {
-        this.arrowEl.style.top = step.arrowOffset + 'px';
-      }
-
-      // SET OFFSETS
-      if (step.xOffset) {
-        left += utils.getPixelValue(step.xOffset);
-      }
-      if (step.yOffset) {
-        top += utils.getPixelValue(step.yOffset);
-      }
-
-      // ADJUST TOP FOR SCROLL POSITION
-      top += utils.getScrollTop();
-      left += utils.getScrollLeft();
-
-      if (!hasCssTransitions && hasJquery && opt.animate) {
-        $(el).animate({
-          top: top + 'px',
-          left: left + 'px'
-        });
-      }
-      else { // hasCssTransitions || !hasJquery || !opt.animate
-        el.style.top = top + 'px';
-        el.style.left = left + 'px';
-      }
-    };
 
     /**
      * initAnimate
@@ -597,7 +601,7 @@
     var bubble,
         opt,
         currTour,
-        currStep,
+        currStepNum,
         cookieTourId,
         cookieTourStep,
 
@@ -611,7 +615,6 @@
       if (!bubble) {
         bubble = new HopscotchBubble(opt);
       }
-
       return bubble;
     },
 
@@ -651,11 +654,11 @@
         $('body, html').animate({ scrollTop: scrollToVal }, opt.scrollDuration);
         return;
       }
-      else if (typeof YAHOO             !== 'undefined' &&
-               typeof YAHOO.env         !== 'undefined' &&
-               typeof YAHOO.env.ua      !== 'undefined' &&
-               typeof YAHOO.util        !== 'undefined' &&
-               typeof YAHOO.util.Scroll !== 'undefined') {
+      else if (typeof YAHOO             !== undefinedStr &&
+               typeof YAHOO.env         !== undefinedStr &&
+               typeof YAHOO.env.ua      !== undefinedStr &&
+               typeof YAHOO.util        !== undefinedStr &&
+               typeof YAHOO.util.Scroll !== undefinedStr) {
         scrollEl = YAHOO.env.ua.webkit ? document.body : document.documentElement;
         yuiEase = YAHOO.util.Easing ? YAHOO.util.Easing.easeOut : undefined;
         yuiAnim = new YAHOO.util.Scroll(scrollEl, {
@@ -715,7 +718,7 @@
         this.configure(initOptions);
       }
 
-      tourState = utils.readCookie('hopscotch.tour.next');
+      tourState = utils.getState('hopscotch.tour.next');
       if (tourState) {
         tourPair      = tourState.split(':');
         cookieTourId   = tourPair[0]; // selecting tour is not supported by this framework.
@@ -735,7 +738,8 @@
      */
     this.loadTour = function(tour) {
       var tmpOpt = {},
-          bubble;
+          bubble,
+          prop;
       currTour = tour;
 
       // Set tour-specific configurations
@@ -772,11 +776,11 @@
       }
 
       // Check if we are resuming state.
-      if (currTour.id === cookieTourId && typeof cookieTourStep !== 'undefined') {
+      if (currTour.id === cookieTourId && typeof cookieTourStep !== undefinedStr) {
         currStepNum = cookieTourStep;
         if (!document.getElementById(currTour.steps[currStepNum].targetId)) {
           // May have just refreshed the page. Previous step should work. (but don't change cookie)
-          if (!document.getElementById(currTour.steps[--currStepNum].targetId)) {
+          if (currStepNum <= 0 || !document.getElementById(currTour.steps[--currStepNum].targetId)) {
             // Previous target doesn't exist either. The user may have just
             // clicked on a link that wasn't part of the tour. Let's just "end"
             // the tour and depend on the cookie to pick the user back up where
@@ -802,8 +806,8 @@
     this.showStep = function(stepIdx) {
       var step         = currTour.steps[stepIdx],
           numTourSteps = currTour.steps.length,
-          btnToHide    = null,
-          cookieVal    = currTour.id + ':' + stepIdx;
+          cookieVal    = currTour.id + ':' + stepIdx,
+          bubble       = getBubble();
 
       if (!currTour) {
         throw "No tour currently selected!";
@@ -811,12 +815,12 @@
 
       // Update bubble for current step
       currStepNum = stepIdx;
-      getBubble().renderStep(step, stepIdx, (stepIdx === numTourSteps - 1), adjustWindowScroll);
+      bubble.renderStep(step, stepIdx, (stepIdx === numTourSteps - 1), adjustWindowScroll);
 
       if (step.multiPage) {
         cookieVal += ':mp';
       }
-      utils.createCookie('hopscotch.tour.next', cookieVal, 7);
+      utils.setState('hopscotch.tour.next', cookieVal, 7);
     };
 
     this.prevStep = function() {
@@ -840,11 +844,12 @@
      * Cancels out of an active tour. No state is preserved.
      */
     this.endTour = function(clearCookie) {
+      var bubble = getBubble()
       clearCookie = utils.valOrDefault(clearCookie, true);
-      getBubble().hide();
+      bubble.hide();
       currStepNum = cookieTourStep = 0;
       if (clearCookie) {
-        utils.eraseCookie('hopscotch.tour.next');
+        utils.clearState('hopscotch.tour.next');
       }
       this.isActive = false;
     };
@@ -874,9 +879,10 @@
      *                             use own CSS. Defaults to 20.
      * allNextCallback: Function - A callback to be invoked after every click on
      *                             a "Next" button.
-     * i18n:            TODO
-     * stepNums:        Array<String> - This option is provided mainly just for i18n
-     *                             purposes. Provide a list of strings to be shown as
+     *
+     * i18n:            Object   - For i18n purposes. Allows you to change the
+     *                             text of button labels and step numbers.
+     * i18n.stepNums:   Array<String> - Provide a list of strings to be shown as
      *                             the step number, based on index of array. Unicode
      *                             characters are supported. (e.g., ['&#x4e00;',
      *                             '&#x4e8c;', '&#x4e09;']) If there are more steps
@@ -887,15 +893,16 @@
       if (!opt) {
         opt = {};
       }
+
       utils.extend(opt, options);
       opt.animate         = utils.valOrDefault(opt.animate, false);
       opt.smoothScroll    = utils.valOrDefault(opt.smoothScroll, true);
       opt.scrollDuration  = utils.valOrDefault(opt.scrollDuration, 1000);
       opt.showCloseButton = utils.valOrDefault(opt.showCloseButton, true);
-      opt.bubbleWidth     = utils.valOrDefault(opt.bubbleWidth, 280);
-      opt.bubblePadding   = utils.valOrDefault(opt.bubblePadding, 10);
       opt.showPrevButton  = utils.valOrDefault(opt.showPrevButton, false);
       opt.showNextButton  = utils.valOrDefault(opt.showNextButton, true);
+      opt.bubbleWidth     = utils.valOrDefault(opt.bubbleWidth, 280);
+      opt.bubblePadding   = utils.valOrDefault(opt.bubblePadding, 10);
       opt.arrowWidth      = utils.valOrDefault(opt.arrowWidth, 20);
       opt.allNextCallback = utils.valOrDefault(opt.allNextCallback, null);
 
@@ -910,9 +917,9 @@
         getBubble().removeAnimate();
       }
 
-      getBubble().showPrevButton(opt.showPrevButton, true)
-      getBubble().showNextButton(opt.showNextButton, true)
-      getBubble().showCloseButton(opt.showCloseButton, true)
+      getBubble().showPrevButton(opt.showPrevButton, true);
+      getBubble().showNextButton(opt.showNextButton, true);
+      getBubble().showCloseButton(opt.showCloseButton, true);
     };
 
     this.init(initOptions);
@@ -921,7 +928,7 @@
     // =====
     // REMOVE THIS LATER!!!
     this.clearCookie = function() {
-      utils.eraseCookie('hopscotch.tour.next');
+      utils.clearState('hopscotch.tour.next');
     };
   };
 

@@ -11,6 +11,15 @@ var i,
       'showNextButton'
     ],
 
+addClickListener = function(el, fn) {
+  if (el.addEventListener) {
+    el.addEventListener('click', fn);
+  }
+  else {
+    el.attachEvent('onclick', fn);
+  }
+},
+
 attachListenerForOption = function(checkbox, optionName) {
   var fn = function() {
     var options = {};
@@ -25,12 +34,14 @@ attachListenerForOption = function(checkbox, optionName) {
   }
 };
 
+// BOOLEAN CONTROLS
 for (i = 0, len = booleanControls.length; i < len; i++) {
   optionName = booleanControls[i];
   checkbox = document.getElementById(optionName + 'Check');
   attachListenerForOption(checkbox, optionName);
 }
 
+// SHOW ASIAN STEP NUMS
 (function() {
   var checkbox = document.getElementById('showAsianStepNumsCheck'),
   fn = function() {
@@ -54,4 +65,36 @@ for (i = 0, len = booleanControls.length; i < len; i++) {
   else {
     checkbox.attachEvent('onchange', fn);
   }
-}())
+}());
+
+// GO TO STEP NUM
+(function() {
+  var gotobtn  = document.getElementById('gotobtn');
+  addClickListener(gotobtn, function() {
+    var gototext = document.getElementById('gototext');
+    hopscotch.showStep(parseInt(gototext.value, 10)-1);
+  });
+
+  // ==========
+  // START TOUR
+  // ==========
+  addClickListener(document.getElementById('startBtn'), function() {
+    hopscotch.loadTour(tour);
+    hopscotch.startTour();
+  });
+
+  // ========
+  // END TOUR
+  // ========
+  addClickListener(document.getElementById('endBtn'), function() {
+    hopscotch.endTour();
+  });
+
+  // ============
+  // CLEAR COOKIE
+  // ============
+  addClickListener(document.getElementById('clearCookieBtn'), function() {
+    hopscotch.clearCookie();
+  });
+
+}());

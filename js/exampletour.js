@@ -35,7 +35,7 @@ var tour = {
           content: 'Are you ready? We\'re going to try hopping to another page and then back!!! Where we\'re going, we won\'t need roads... (Please click this link.)',
           targetId: 'secpagelink',
           orientation: 'bottom',
-          showNextBtn: false,
+          showNextButton: false,
           multiPage: true
         },
         {
@@ -43,26 +43,26 @@ var tour = {
           content: 'We made it!! Polar bears are very interesting creatures.',
           targetId: 'polarbears',
           orientation: 'right',
-          showPrevBtn: false
+          showPrevButton: false
         },
         {
           title: 'Returning to the first page',
           content: 'Time to go back home... Please click this link to return to the first page.',
           targetId: 'firstpagelink',
           orientation: 'bottom',
-          showNextBtn: false,
-          showPrevBtn: false,
+          showNextButton: false,
+          showPrevButton: false,
           multiPage: true // this indicates that next step will be on a different page
         },
         {
-          title: 'Spider-man',
-          content: 'Here are some window cleaners dressed as Spider-man. Did you see the new Spider-man movie? It was pretty awesome, especially the part where Spider-man is fighting the Lizard on the bridge. I\'m pretty sure it\'s still showing. Why don\'t you <a href="http://www.fandango.com/theamazingspiderman_126975/movieoverview" target="_new">buy some tickets</a>?',
-          targetId: 'spiderman',
+          title: 'Cool wave',
+          content: 'This is a colorful wave. Here is the the <a href="http://imgur.com/s632o" target="_new">page</a> where I found it.',
+          targetId: 'wave',
           orientation: 'bottom',
           width: 500,
           xOffset: -50,
           arrowOffset: 400,
-          showPrevBtn: false
+          showPrevButton: false
         },
         {
           title: 'Python decorator',
@@ -93,8 +93,8 @@ var tour = {
       },
       */
       i18n: {
-        nextBtn: 'Go to Next',
-        prevBtn: 'Go Back A Bit',
+        nextBtn: 'Forward',
+        prevBtn: 'Backward',
         stepNums: [
           '&#x4e00;',
           '&#x4e8c;',

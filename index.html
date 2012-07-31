@@ -38,7 +38,7 @@
         <li>Testing multi-page tours. Continue to the <a href="secondpage.html" id="secpagelink" title="hello tooltip">hopscotch</a> second page</li>
       </ul>
       <div class="img-container">
-        <img id="spiderman" src="http://i.imgur.com/0O8k3.png">
+        <img id="wave" src="http://i.imgur.com/s632o.jpg">
       </div>
       <div class="img-container">
         <img id="python" src="http://i.imgur.com/mIgyw.jpg">
@@ -77,6 +77,7 @@
         <input type="checkbox" id="showAsianStepNumsCheck"> showAsianStepNums
       </label>
       <br/>
+      <label>Go to step number: <input id="gototext" type="text" size="5"><input id="gotobtn" type="button" value="Go!"></label>
     </div>
     <!--
     <script src="js/yui/build/yahoo-dom-event/yahoo-dom-event.js"></script>
@@ -92,50 +93,6 @@
       hopscotch.loadTour(tour);
       //hopscotch.clearCookie();
       hopscotch.startTour();
-
-      // ==========
-      // START TOUR
-      // ==========
-      if (document.body.addEventListener) {
-        document.getElementById('startBtn').addEventListener('click', function() {
-          hopscotch.loadTour(tour);
-          hopscotch.startTour();
-        });
-      }
-      else if (document.body.attachEvent) {
-        document.getElementById('startBtn').attachEvent('onclick', function() {
-          hopscotch.loadTour(tour);
-          hopscotch.startTour();
-        });
-      }
-
-      // ========
-      // END TOUR
-      // ========
-      if (document.body.addEventListener) {
-        document.getElementById('endBtn').addEventListener('click', function() {
-          hopscotch.endTour();
-        });
-      }
-      else if (document.body.attachEvent) {
-        document.getElementById('endBtn').attachEvent('onclick', function() {
-          hopscotch.endTour();
-        });
-      }
-
-      // ============
-      // CLEAR COOKIE
-      // ============
-      if (document.body.addEventListener) {
-        document.getElementById('clearCookieBtn').addEventListener('click', function() {
-          hopscotch.clearCookie();
-        });
-      }
-      else if (document.body.attachEvent) {
-        document.getElementById('clearCookieBtn').attachEvent('onclick', function() {
-          hopscotch.clearCookie();
-        });
-      }
     </script>
   </body>
 </html>
