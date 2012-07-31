@@ -336,18 +336,21 @@
         }
       }
       else {
-        // Do the bouncing effect
         el.style.top = top + 'px';
         el.style.left = left + 'px';
-        bounceDelay = opt.smoothScroll ? opt.scrollDuration : 0;
 
-        setTimeout(function() {
-          utils.addClass(el, bounceDirection);
-        }, bounceDelay);
-        // Then remove it
-        setTimeout(function() {
-          utils.removeClass(el, bounceDirection);
-        }, bounceDelay + 2000); // bounce lasts 2 seconds
+        // Do the bouncing effect
+        if (bounce) {
+          bounceDelay = opt.smoothScroll ? opt.scrollDuration : 0;
+
+          setTimeout(function() {
+            utils.addClass(el, bounceDirection);
+          }, bounceDelay);
+          // Then remove it
+          setTimeout(function() {
+            utils.removeClass(el, bounceDirection);
+          }, bounceDelay + 2000); // bounce lasts 2 seconds
+        }
       }
     };
 
