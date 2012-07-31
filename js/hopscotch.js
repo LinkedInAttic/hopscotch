@@ -262,11 +262,13 @@
      * target element and the orientation and offset information specified by
      * the step JSON.
      */
-    setPosition = function(bubble, step) {
+    setPosition = function(bubble, step, bounce) {
       var bubbleWidth,
           bubbleHeight,
           bubblePadding,
           boundingRect,
+          bounceDelay,
+          bounceDirection,
           top,
           left,
           targetEl    = document.getElementById(step.targetId),
@@ -274,7 +276,8 @@
           arrowEl     = bubble.arrowEl,
           arrowOffset = utils.getPixelValue(step.arrowOffset);
 
-      bubbleWidth = utils.getPixelValue(step.width) || opt.bubbleWidth;
+      bounce        = utils.valOrDefault(bounce, true);
+      bubbleWidth   = utils.getPixelValue(step.width) || opt.bubbleWidth;
       bubblePadding = utils.valOrDefault(step.padding, opt.bubblePadding);
 
       // SET POSITION
@@ -283,18 +286,22 @@
         bubbleHeight = el.offsetHeight;
         top = (boundingRect.top - bubbleHeight) - opt.arrowWidth;
         left = boundingRect.left;
+        bounceDirection = 'bounce-down';
       }
       else if (step.orientation === 'bottom') {
         top = boundingRect.bottom + opt.arrowWidth;
         left = boundingRect.left;
+        bounceDirection = 'bounce-up';
       }
       else if (step.orientation === 'left') {
         top = boundingRect.top;
         left = boundingRect.left - bubbleWidth - 2*bubblePadding - opt.arrowWidth;
+        bounceDirection = 'bounce-right';
       }
       else if (step.orientation === 'right') {
         top = boundingRect.top;
         left = boundingRect.right + opt.arrowWidth;
+        bounceDirection = 'bounce-left';
       }
 
       if (!arrowOffset) {
@@ -316,15 +323,31 @@
       top += utils.getScrollTop();
       left += utils.getScrollLeft();
 
-      if (!hasCssTransitions && hasJquery && opt.animate) {
-        $(el).animate({
-          top: top + 'px',
-          left: left + 'px'
-        });
+      if (opt.animate) {
+        if (!hasCssTransitions && hasJquery && opt.animate) {
+          $(el).animate({
+            top: top + 'px',
+            left: left + 'px'
+          });
+        }
+        else { // hasCssTransitions || !hasJquery || !opt.animate
+          el.style.top = top + 'px';
+          el.style.left = left + 'px';
+        }
       }
-      else { // hasCssTransitions || !hasJquery || !opt.animate
+      else {
+        // Do the bouncing effect
         el.style.top = top + 'px';
         el.style.left = left + 'px';
+        bounceDelay = opt.smoothScroll ? opt.scrollDuration : 0;
+
+        setTimeout(function() {
+          utils.addClass(el, bounceDirection);
+        }, bounceDelay);
+        // Then remove it
+        setTimeout(function() {
+          utils.removeClass(el, bounceDirection);
+        }, bounceDelay + 2000); // bounce lasts 2 seconds
       }
     };
 
@@ -342,6 +365,7 @@
       this.contentEl   = document.createElement('p');
 
       el.setAttribute('id', 'hopscotch-bubble');
+      utils.addClass(el, 'animated');
       containerEl.setAttribute('id', 'hopscotch-bubble-container');
       this.numberEl.setAttribute('id', 'hopscotch-bubble-number');
       containerEl.appendChild(this.titleEl);
@@ -367,7 +391,7 @@
         cooldownActive = true;
         winResizeTimeout = setTimeout(function() {
           // currStep should not be null
-          setPosition(self, currStep);
+          setPosition(self, currStep, false);
           cooldownActive = false;
         }, 200);
       };

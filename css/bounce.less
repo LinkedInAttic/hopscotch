@@ -1,0 +1,170 @@
+/* This bounce file is an extension of http://daneden.me/animate/. Extended to
+ * add bouncing in different directions.
+ */
+
+@rest: 0;
+@first: 30px;
+@second: 15px;
+
+.animated {
+  -webkit-animation-fill-mode: both;
+  -moz-animation-fill-mode: both;
+  -ms-animation-fill-mode: both;
+  -o-animation-fill-mode: both;
+  animation-fill-mode: both;
+  -webkit-animation-duration: 1s;
+  -moz-animation-duration: 1s;
+  -ms-animation-duration: 1s;
+  -o-animation-duration: 1s;
+  animation-duration: 1s;
+}
+
+.animated.hinge {
+  -webkit-animation-duration: 2s;
+  -moz-animation-duration: 2s;
+  -ms-animation-duration: 2s;
+  -o-animation-duration: 2s;
+  animation-duration: 2s;
+}
+
+/* =========== */
+/* BOUNCE DOWN */
+/* =========== */
+@-moz-keyframes bounce-down {
+  0%, 20%, 50%, 80%, 100% { -moz-transform: translateY(@rest); }
+  40% { -moz-transform:translateY(@first*(-1)); }
+  60% { -moz-transform:translateY(@second*(-1)); }
+}
+
+@-o-keyframes bounce-down {
+  0%, 20%, 50%, 80%, 100% { -o-transform: translateY(@rest); }
+  40% { -o-transform:translateY(@first*(-1)); }
+  60% { -o-transform:translateY(@second*(-1)); }
+}
+
+@-webkit-keyframes bounce-down {
+  0%, 20%, 50%, 80%, 100% { -webkit-transform: translateY(@rest); }
+  40% { -webkit-transform:translateY(@first*(-1)); }
+  60% { -webkit-transform:translateY(@second*(-1)); }
+}
+
+@keyframes bounce-down {
+  0%, 20%, 50%, 80%, 100% { transform: translateY(@rest); }
+  40% { transform:translateY(@first*(-1)); }
+  60% { transform:translateY(@second*(-1)); }
+}
+
+/* ========== */
+/* BOUNCE UP */
+/* ========== */
+@-moz-keyframes bounce-up {
+  0%, 20%, 50%, 80%, 100% { -moz-transform: translateY(@rest); }
+  40% { -moz-transform:translateY(@first); }
+  60% { -moz-transform:translateY(@second); }
+}
+
+@-o-keyframes bounce-up {
+  0%, 20%, 50%, 80%, 100% { -o-transform: translateY(@rest); }
+  40% { -o-transform:translateY(@first); }
+  60% { -o-transform:translateY(@second); }
+}
+
+@-webkit-keyframes bounce-up {
+  0%, 20%, 50%, 80%, 100% { -webkit-transform: translateY(@rest); }
+  40% { -webkit-transform:translateY(@first); }
+  60% { -webkit-transform:translateY(@second); }
+}
+
+@keyframes bounce-up {
+  0%, 20%, 50%, 80%, 100% { transform: translateY(@rest); }
+  40% { transform:translateY(@first); }
+  60% { transform:translateY(@second); }
+}
+
+/* =========== */
+/* BOUNCE LEFT */
+/* =========== */
+@-moz-keyframes bounce-left {
+  0%, 20%, 50%, 80%, 100% { -moz-transform: translateX(@rest); }
+  40% { -moz-transform:translateX(@first); }
+  60% { -moz-transform:translateX(@second); }
+}
+
+@-o-keyframes bounce-left {
+  0%, 20%, 50%, 80%, 100% { -o-transform: translateX(@rest); }
+  40% { -o-transform:translateX(@first); }
+  60% { -o-transform:translateX(@second); }
+}
+
+@-webkit-keyframes bounce-left {
+  0%, 20%, 50%, 80%, 100% { -webkit-transform: translateX(@rest); }
+  40% { -webkit-transform:translateX(@first); }
+  60% { -webkit-transform:translateX(@second); }
+}
+
+@keyframes bounce-left {
+  0%, 20%, 50%, 80%, 100% { transform: translateX(@rest); }
+  40% { transform:translateX(@first); }
+  60% { transform:translateX(@second); }
+}
+
+/* ============ */
+/* BOUNCE RIGHT */
+/* ============ */
+@-moz-keyframes bounce-right {
+  0%, 20%, 50%, 80%, 100% { -moz-transform: translateX(@rest); }
+  40% { -moz-transform:translateX(@first*(-1)); }
+  60% { -moz-transform:translateX(@second*(-1)); }
+}
+
+@-o-keyframes bounce-right {
+  0%, 20%, 50%, 80%, 100% { -o-transform: translateX(@rest); }
+  40% { -o-transform:translateX(@first); }
+  60% { -o-transform:translateX(@second*(-1)); }
+}
+
+@-webkit-keyframes bounce-right {
+  0%, 20%, 50%, 80%, 100% { -webkit-transform: translateX(@rest); }
+  40% { -webkit-transform:translateX(@first); }
+  60% { -webkit-transform:translateX(@second*(-1)); }
+}
+
+@keyframes bounce-right {
+  0%, 20%, 50%, 80%, 100% { transform: translateX(@rest); }
+  40% { transform:translateX(@first); }
+  60% { transform:translateX(@second*(-1)); }
+}
+
+@down-name:  bounce-down;
+@up-name:    bounce-up;
+@left-name:  bounce-left;
+@right-name: bounce-right;
+
+.bounce-down {
+  -webkit-animation-name: @down-name;
+  -moz-animation-name:    @down-name;
+  -o-animation-name:      @down-name;
+  animation-name:         @down-name;
+}
+
+.bounce-up {
+  -webkit-animation-name: @up-name;
+  -moz-animation-name:    @up-name;
+  -o-animation-name:      @up-name;
+  animation-name:         @up-name;
+}
+
+.bounce-left {
+  -webkit-animation-name: @left-name;
+  -moz-animation-name:    @left-name;
+  -o-animation-name:      @left-name;
+  animation-name:         @left-name;
+}
+
+.bounce-right {
+  -webkit-animation-name: @right-name;
+  -moz-animation-name:    @right-name;
+  -o-animation-name:      @right-name;
+  animation-name:         @right-name;
+}
+
