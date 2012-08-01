@@ -57,6 +57,8 @@
      * addClass
      * ========
      * Adds a class to a DOM element.
+     * Note: does not support adding multiple classes at once yet, unless
+     * you're using jQuery.
      */
     addClass: function(domEl, classToAdd) {
       var domClasses,
@@ -81,24 +83,39 @@
       }
     },
 
+    /**
+     * removeClass
+     * ===========
+     * Remove a class from a DOM element.
+     * Note: this one DOES support removing multiple classes.
+     */
     removeClass: function(domEl, classToRemove) {
-      var domClasses, i, len;
+      var domClasses,
+          classesToRemove,
+          currClass,
+          i,
+          j,
+          toRemoveLen,
+          domClassLen;
 
       if (hasJquery) {
         $(domEl).removeClass(classToRemove);
       }
       else {
+        classesToRemove = classToRemove.split(' ');
         domClasses = domEl.className.split(' ');
-        for (i = 0, len = domClasses.length; i < len; ++i) {
-          if (domClasses[i] === classToRemove) {
-            break;
+        for (i = 0, toRemoveLen = classesToRemove.length; i < toRemoveLen; ++i) {
+          currClass = classesToRemove[i];
+          for (j = 0, domClassLen = domClasses.length; j < domClassLen; ++j) {
+            if (domClasses[j] === currClass) {
+              break;
+            }
+          }
+          if (j < len) {
+            domClasses.splice(j, 1); // remove class from list
           }
         }
-
-        if (i < len) {
-          domClasses.splice(i, 1); // remove class from list
-          domEl.className = domClasses.join(' ');
-        }
+        domEl.className = domClasses.join(' ');
       }
     },
 
@@ -279,6 +296,8 @@
       bounce        = utils.valOrDefault(bounce, true);
       bubbleWidth   = utils.getPixelValue(step.width) || opt.bubbleWidth;
       bubblePadding = utils.valOrDefault(step.padding, opt.bubblePadding);
+
+      utils.removeClass(el, 'bounce-down bounce-up bounce-left bounce-right');
 
       // SET POSITION
       boundingRect = targetEl.getBoundingClientRect();
@@ -505,8 +524,8 @@
       }
 
       // Set or clear new nav callbacks
-      prevBtnCallback = step.prevCallback;
-      nextBtnCallback = step.nextCallback;
+      prevBtnCallback = step.onPrev;
+      nextBtnCallback = step.onNext;
 
       return this;
     };
@@ -744,17 +763,6 @@
       if (initOptions) {
         this.configure(initOptions);
       }
-
-      tourState = utils.getState('hopscotch.tour.next');
-      if (tourState) {
-        tourPair      = tourState.split(':');
-        cookieTourId   = tourPair[0]; // selecting tour is not supported by this framework.
-        cookieTourStep = parseInt(tourPair[1], 10);
-        if (tourPair.length > 2 && tourPair[2] === 'mp') {
-          // multipage... increment tour step by 1
-          ++cookieTourStep;
-        }
-      }
     };
 
     /**
@@ -778,6 +786,18 @@
         }
       }
       this.configure(tmpOpt);
+
+      // Get existing tour state, if it exists.
+      tourState = utils.getState(opt.cookieName);
+      if (tourState) {
+        tourPair      = tourState.split(':');
+        cookieTourId   = tourPair[0]; // selecting tour is not supported by this framework.
+        cookieTourStep = parseInt(tourPair[1], 10);
+        if (tourPair.length > 2 && tourPair[2] === 'mp') {
+          // multipage... increment tour step by 1
+          ++cookieTourStep;
+        }
+      }
 
       // Initialize whether to show or hide nav buttons
       bubble = getBubble();
@@ -847,7 +867,7 @@
       if (step.multiPage) {
         cookieVal += ':mp';
       }
-      utils.setState('hopscotch.tour.next', cookieVal, 7);
+      utils.setState(opt.cookieName, cookieVal, 1);
     };
 
     this.prevStep = function() {
@@ -857,8 +877,8 @@
     };
 
     this.nextStep = function() {
-      if (opt.allNextCallback) {
-        opt.allNextCallback(getCurrStep(), currStepNum);
+      if (opt.onNext) {
+        opt.onNext(getCurrStep(), currStepNum);
       }
       if (currStepNum < currTour.steps.length-1) {
         this.showStep(++currStepNum);
@@ -876,7 +896,7 @@
       bubble.hide();
       currStepNum = cookieTourStep = 0;
       if (clearCookie) {
-        utils.clearState('hopscotch.tour.next');
+        utils.clearState(opt.cookieName);
       }
       this.isActive = false;
     };
@@ -904,6 +924,8 @@
      *                             and the targetEl) Need to provide the option
      *                             to set this here in case developer wants to
      *                             use own CSS. Defaults to 20.
+     * cookieName:      String   - Name for the cookie key. Defaults to
+     *                             'hopscotch.tour.state'.
      * allNextCallback: Function - A callback to be invoked after every click on
      *                             a "Next" button.
      *
@@ -931,7 +953,8 @@
       opt.bubbleWidth     = utils.valOrDefault(opt.bubbleWidth, 280);
       opt.bubblePadding   = utils.valOrDefault(opt.bubblePadding, 10);
       opt.arrowWidth      = utils.valOrDefault(opt.arrowWidth, 20);
-      opt.allNextCallback = utils.valOrDefault(opt.allNextCallback, null);
+      opt.onNext          = utils.valOrDefault(opt.onNext, null);
+      opt.cookieName      = utils.valOrDefault(opt.cookieName, 'hopscotch.tour.state');
 
       if (options) {
         utils.extend(HopscotchI18N, options.i18n);
@@ -955,7 +978,7 @@
     // =====
     // REMOVE THIS LATER!!!
     this.clearCookie = function() {
-      utils.clearState('hopscotch.tour.next');
+      utils.clearState(opt.cookieName);
     };
   };
 
