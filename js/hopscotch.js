@@ -30,6 +30,8 @@
       HopscotchI18N,
       utils,
       undefinedStr      = 'undefined',
+      windowLoaded      = false,
+      waitingToStart    = false,
       hasJquery         = (typeof window.jQuery !== undefinedStr),
       hasLocalStorage   = (typeof window.localStorage !== undefinedStr),
       docStyle          = document.body.style,
@@ -43,6 +45,14 @@
     // Hopscotch already exists.
     return;
   }
+
+  // don't start any tours until all assets are done loading.
+  window.addEventListener('load', function() {
+    windowLoaded = true;
+    if (waitingToStart) {
+      window.hopscotch.startTour();
+    }
+  });
 
   /**
    * utils
@@ -111,7 +121,7 @@
               break;
             }
           }
-          if (j < len) {
+          if (j < domClassLen) {
             domClasses.splice(j, 1); // remove class from list
           }
         }
@@ -818,8 +828,13 @@
 
     this.startTour = function() {
       var bubble;
+
       if (!currTour) {
         throw "Need to load a tour before you start it!";
+      }
+      if (!windowLoaded) {
+        waitingToStart = true;
+        return;
       }
 
       // Check if we are resuming state.
