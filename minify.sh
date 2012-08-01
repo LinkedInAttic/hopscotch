@@ -12,3 +12,7 @@ echo "hopscotch.js"
 java -jar /Users/gkoo/workspace/yuicompressor-2.4.7/build/yuicompressor-2.4.7.jar --type js js/hopscotch.js > js/hopscotch-min.js
 
 echo "Done minifying..."
+
+echo ""
+echo "Compiling LESS > CSS..."
+lessc -x css/hopscotch.less > css/hopscotch.css
