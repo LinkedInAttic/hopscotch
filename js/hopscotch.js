@@ -333,6 +333,7 @@
         bounceDirection = 'bounce-left';
       }
 
+      // SET (OR RESET) ARROW OFFSETS
       if (!arrowOffset) {
         arrowEl.style.top = '';
         arrowEl.style.left = '';
@@ -400,8 +401,8 @@
       utils.addClass(el, 'animated');
       containerEl.setAttribute('id', 'hopscotch-bubble-container');
       this.numberEl.setAttribute('id', 'hopscotch-bubble-number');
-      containerEl.appendChild(this.titleEl);
       containerEl.appendChild(this.numberEl);
+      containerEl.appendChild(this.titleEl);
       containerEl.appendChild(this.contentEl);
       el.appendChild(containerEl);
 
@@ -815,17 +816,6 @@
       bubble.showNextButton(opt.showNextButton, true);
     };
 
-    /*
-    this.getTourById = function(id) {
-      var i, len;
-      for (i=0, len=this._tours.length; i<len; ++i) {
-        if (this._tours[i].id === id) {
-          return this._tours[i];
-        }
-      }
-    };
-    */
-
     this.startTour = function() {
       var bubble;
 
@@ -944,7 +934,7 @@
      *                             use own CSS. Defaults to 20.
      * cookieName:      String   - Name for the cookie key. Defaults to
      *                             'hopscotch.tour.state'.
-     * allNextCallback: Function - A callback to be invoked after every click on
+     * onNext:          Function - A callback to be invoked after every click on
      *                             a "Next" button.
      *
      * i18n:            Object   - For i18n purposes. Allows you to change the
