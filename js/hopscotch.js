@@ -487,7 +487,7 @@
     this.initArrow = function() {
       this.arrowEl = document.createElement('div');
       this.arrowEl.setAttribute('id', 'hopscotch-bubble-arrow');
-      this.containerEl.appendChild(this.arrowEl);
+      this.element.appendChild(this.arrowEl);
     };
 
     this.renderStep = function(step, idx, isLast, callback) {
@@ -739,7 +739,7 @@
           // setInterval overhead.
           // To increase or decrease duration, change the divisor of scrollIncr.
           direction = (windowTop > targetTop) ? -1 : 1; // -1 means scrolling up, 1 means down
-          scrollIncr = Math.abs(windowTop - targetTop) / (opt.scrollDuration/10);
+          scrollIncr = Math.abs(windowTop - scrollToVal) / (opt.scrollDuration/10);
           scrollInt = setInterval(function() {
             var scrollTop = utils.getScrollTop(),
                 scrollTarget = scrollTop + (direction * scrollIncr);
