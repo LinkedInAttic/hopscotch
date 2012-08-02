@@ -697,7 +697,7 @@
           targetBottom   = (bubbleBottom > targetElBottom) ? bubbleBottom : targetElBottom, // whichever is lower
           windowTop      = utils.getScrollTop(),
           windowBottom   = windowTop + utils.getWindowHeight(),
-          scrollToVal    = targetTop - 50, // This is our final target scroll value.
+          scrollToVal    = targetTop - opt.scrollTopMargin, // This is our final target scroll value.
           scrollEl,
           yuiAnim,
           yuiEase,
@@ -728,7 +728,7 @@
         scrollToVal = 0;
       }
 
-      if (targetTop >= windowTop && targetTop <= windowTop + 50) {
+      if (targetTop >= windowTop && targetTop <= windowTop + opt.scrollTopMargin) {
         return;
       }
 
@@ -929,6 +929,9 @@
      * scrollDuration:  Number   - Duration of page scroll. Only relevant when
      *                             smoothScroll is set to true. Defaults to
      *                             1000ms.
+     * scrollTopMargin: NUMBER   - When the page scrolls, how much space should there
+     *                             be between the bubble/targetElement and the top
+     *                             of the viewport? Defaults to 50.
      * showCloseButton: Boolean  - should the tour bubble show a close (X) button?
      *                             Defaults to TRUE.
      * showPrevButton:  Boolean  - should the bubble have the Previous button?
@@ -962,6 +965,7 @@
       opt.animate         = utils.valOrDefault(opt.animate, false);
       opt.smoothScroll    = utils.valOrDefault(opt.smoothScroll, true);
       opt.scrollDuration  = utils.valOrDefault(opt.scrollDuration, 1000);
+      opt.scrollTopMargin = utils.valOrDefault(opt.scrollTopMargin, 50);
       opt.showCloseButton = utils.valOrDefault(opt.showCloseButton, true);
       opt.showPrevButton  = utils.valOrDefault(opt.showPrevButton, false);
       opt.showNextButton  = utils.valOrDefault(opt.showNextButton, true);

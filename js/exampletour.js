@@ -75,6 +75,7 @@ var tour = {
   animate: false,
   //smoothScroll: false,
   //showCloseButton: false,
+  scrollTopMargin: 200,
   showPrevButton: true,
   showNextButton: true,
   arrowWidth: 20,
