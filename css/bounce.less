@@ -119,19 +119,19 @@
 
 @-o-keyframes bounce-right {
   0%, 20%, 50%, 80%, 100% { -o-transform: translateX(@rest); }
-  40% { -o-transform:translateX(@first); }
+  40% { -o-transform:translateX(@first*(-1)); }
   60% { -o-transform:translateX(@second*(-1)); }
 }
 
 @-webkit-keyframes bounce-right {
   0%, 20%, 50%, 80%, 100% { -webkit-transform: translateX(@rest); }
-  40% { -webkit-transform:translateX(@first); }
+  40% { -webkit-transform:translateX(@first*(-1)); }
   60% { -webkit-transform:translateX(@second*(-1)); }
 }
 
 @keyframes bounce-right {
   0%, 20%, 50%, 80%, 100% { transform: translateX(@rest); }
-  40% { transform:translateX(@first); }
+  40% { transform:translateX(@first*(-1)); }
   60% { transform:translateX(@second*(-1)); }
 }
 
