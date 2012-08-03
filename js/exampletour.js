@@ -40,7 +40,7 @@ var tour = {
     },
     {
       title: 'Polar bears',
-      content: 'We made it!! Polar bears are very interesting creatures.',
+      //content: 'We made it!! Polar bears are very interesting creatures.',
       targetId: 'polarbears',
       orientation: 'right',
       showPrevButton: false

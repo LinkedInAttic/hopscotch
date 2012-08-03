@@ -490,8 +490,8 @@
 
       currStep = step;
 
-      if (step.title) { this.setTitle(step.title); }
-      if (step.content) { this.setContent(step.content); }
+      this.setTitle(step.title ? step.title : '');
+      this.setContent(step.content ? step.content : '');
       this.setNum(idx);
 
       this.showPrevButton(this.prevBtnEl && showPrev && idx > 0);
