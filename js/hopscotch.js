@@ -764,6 +764,7 @@
       if (initOptions) {
         this.configure(initOptions);
       }
+      return this;
     };
 
     /**
@@ -804,6 +805,7 @@
       bubble = getBubble();
       bubble.showPrevButton(opt.showPrevButton, true);
       bubble.showNextButton(opt.showNextButton, true);
+      return this;
     };
 
     this.startTour = function() {
@@ -839,6 +841,7 @@
         bubble.initAnimate();
       }
       this.isActive = true;
+      return this;
     };
 
     this.showStep = function(stepIdx) {
@@ -859,12 +862,14 @@
         cookieVal += ':mp';
       }
       utils.setState(opt.cookieName, cookieVal, 1);
+      return this;
     };
 
     this.prevStep = function() {
       if (currStepNum > 0) {
         this.showStep(--currStepNum);
       }
+      return this;
     };
 
     this.nextStep = function() {
@@ -874,6 +879,7 @@
       if (currStepNum < currTour.steps.length-1) {
         this.showStep(++currStepNum);
       }
+      return this;
     };
 
     /**
@@ -890,6 +896,7 @@
         utils.clearState(opt.cookieName);
       }
       this.isActive = false;
+      return this;
     };
 
     /**
@@ -965,6 +972,7 @@
       getBubble().showPrevButton(opt.showPrevButton, true);
       getBubble().showNextButton(opt.showNextButton, true);
       getBubble().showCloseButton(opt.showCloseButton, true);
+      return this;
     };
 
     this.init(initOptions);
