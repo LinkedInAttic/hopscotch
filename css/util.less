@@ -26,3 +26,8 @@
   transition-duration: @duration;
   transition-timing-function: @timing;
 }
+.background-clip () {
+  -moz-background-clip: padding; /* for Mozilla browsers*/
+  -webkit-background-clip: padding;   /* Webkit */
+  background-clip: padding-box; /*  browsers with full support */
+}

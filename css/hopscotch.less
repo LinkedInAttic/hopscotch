@@ -2,16 +2,22 @@
 @import "bounce.less";
 
 @anim-duration: .5s;
-@bubble-corner-radius: 10px;
-@hopscotch-blue: #3b6ca9;
+@bubbleCornerRadius: 10px;
+@bubbleColor: #fff;
+@bubbleBorderWidth: 6px;
+@borderColor: rgba(0, 0, 0, 0.5);
 
 div#hopscotch-bubble {
-  background-color: @hopscotch-blue;
-  color: #fff;
+  background-color: @bubbleColor;
+  border: @bubbleBorderWidth solid #000; /* default */
+  border: @bubbleBorderWidth solid @borderColor; /* transparent, if supported */
+  color: #000;
   font-family: Helvetica, Arial;
   font-size: 13px;
   position: absolute;
   z-index: 999999;
+
+  .background-clip;
 
   &.animate {
     .transition('top, left', @anim-duration, ease-in-out);
@@ -53,45 +59,89 @@ div#hopscotch-bubble {
     padding: 12px;
   }
 
-  #hopscotch-bubble-arrow {
+  #hopscotch-bubble-arrow-container {
     @arrowWidth: 20px;
-    @arrowColor: @hopscotch-blue;
+    @borderAngledWidth: @bubbleBorderWidth*1.414; // 1.414 == sqrt(2)
     position: absolute;
 
-    width: 0;
-    height: 0;
+    width: @arrowWidth*2;
+    height: @arrowWidth*2;
+
+    .hopscotch-bubble-arrow,
+    .hopscotch-bubble-arrow-border {
+      width: 0;
+      height: 0;
+    }
 
     &.up {
-      border-bottom: @arrowWidth solid @arrowColor;
-      border-left: @arrowWidth solid transparent;
-      border-right: @arrowWidth solid transparent;
+      top: (@arrowWidth + @bubbleBorderWidth) * (-1);
+      left: @bubbleCornerRadius;
 
-      top: @arrowWidth * (-1);
-      left: @bubble-corner-radius;
+      .hopscotch-bubble-arrow {
+        border-bottom: @arrowWidth solid @bubbleColor;
+        border-left: @arrowWidth solid transparent;
+        border-right: @arrowWidth solid transparent;
+        position: relative;
+        top: 0 - @arrowWidth + (@borderAngledWidth);
+      }
+      .hopscotch-bubble-arrow-border {
+        border-bottom: @arrowWidth solid @borderColor;
+        border-left: @arrowWidth solid transparent;
+        border-right: @arrowWidth solid transparent;
+      }
     }
     &.down {
-      border-top: @arrowWidth solid @arrowColor;
-      border-left: @arrowWidth solid transparent;
-      border-right: @arrowWidth solid transparent;
+      bottom: 0 - @arrowWidth*2 - @bubbleBorderWidth;
+      left: @bubbleCornerRadius;
 
-      bottom: @arrowWidth * (-1);
-      left: @bubble-corner-radius;
+      .hopscotch-bubble-arrow {
+        border-top:   @arrowWidth solid @bubbleColor;
+        border-left:  @arrowWidth solid transparent;
+        border-right: @arrowWidth solid transparent;
+        position:     relative;
+        top:          0 - @arrowWidth - (@borderAngledWidth);
+      }
+      .hopscotch-bubble-arrow-border {
+        border-top:   @arrowWidth solid @borderColor;
+        border-left:  @arrowWidth solid transparent;
+        border-right: @arrowWidth solid transparent;
+      }
     }
     &.left {
-      border-right: @arrowWidth solid @arrowColor;
-      border-top: @arrowWidth solid transparent;
-      border-bottom: @arrowWidth solid transparent;
+      top: @bubbleCornerRadius;
+      left: 0 - @arrowWidth - @bubbleBorderWidth;
 
-      top: @bubble-corner-radius;
-      left: @arrowWidth * (-1);
+      .hopscotch-bubble-arrow {
+        border-bottom: @arrowWidth solid transparent;
+        border-right:  @arrowWidth solid @bubbleColor;
+        border-top:    @arrowWidth solid transparent;
+        position: relative;
+        left: @borderAngledWidth;
+        top: 0 - (2*@arrowWidth);
+      }
+      .hopscotch-bubble-arrow-border {
+        border-bottom: @arrowWidth solid transparent;
+        border-right:  @arrowWidth solid @borderColor;
+        border-top:    @arrowWidth solid transparent;
+      }
     }
     &.right {
-      border-left: @arrowWidth solid @arrowColor;
-      border-top: @arrowWidth solid transparent;
-      border-bottom: @arrowWidth solid transparent;
+      top: @bubbleCornerRadius;
+      right: 0 - @arrowWidth*2 - @bubbleBorderWidth;
 
-      top: @bubble-corner-radius;
-      right: @arrowWidth * (-1);
+      .hopscotch-bubble-arrow {
+        border-bottom: @arrowWidth solid transparent;
+        border-left:   @arrowWidth solid @bubbleColor;
+        border-top:    @arrowWidth solid transparent;
+        position: relative;
+        left: 0 - @arrowWidth + (@borderAngledWidth);
+        top: 0 - (2*@arrowWidth);
+      }
+      .hopscotch-bubble-arrow-border {
+        border-bottom: @arrowWidth solid transparent;
+        border-left:   @arrowWidth solid @borderColor;
+        border-top:    @arrowWidth solid transparent;
+      }
     }
   }
 

@@ -476,8 +476,20 @@
     };
 
     this.initArrow = function() {
+      var arrowBorderEl;
+
       this.arrowEl = document.createElement('div');
-      this.arrowEl.setAttribute('id', 'hopscotch-bubble-arrow');
+      this.arrowEl.setAttribute('id', 'hopscotch-bubble-arrow-container');
+
+      arrowBorderEl = document.createElement('div');
+      arrowBorderEl.className = 'hopscotch-bubble-arrow-border';
+
+      arrowEl = document.createElement('div');
+      arrowEl.className = 'hopscotch-bubble-arrow';
+
+      this.arrowEl.appendChild(arrowBorderEl);
+      this.arrowEl.appendChild(arrowEl);
+
       this.element.appendChild(this.arrowEl);
     };
 
