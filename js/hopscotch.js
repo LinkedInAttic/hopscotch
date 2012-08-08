@@ -29,7 +29,11 @@
       HopscotchBubble,
       HopscotchI18N,
       utils,
+      winLoadHandler,
       undefinedStr      = 'undefined',
+      docLoaded         = false, // is the document done loading?
+      waitingToStart    = false, // is a tour waiting for the document to finish
+                                 // loading so that it can start?
       hasJquery         = (typeof window.jQuery !== undefinedStr),
       hasLocalStorage   = (typeof window.localStorage !== undefinedStr),
       docStyle          = document.body.style,
@@ -42,6 +46,20 @@
   if (window.hopscotch) {
     // Hopscotch already exists.
     return;
+  }
+
+  winLoadHandler = function() {
+    docLoaded = true;
+    if (waitingToStart) {
+      window.hopscotch.startTour();
+    }
+  };
+
+  if (window.addEventListener) {
+    window.addEventListener('load', winLoadHandler);
+  }
+  else if (window.attachEvent) {
+    window.attachEvent('onload', winLoadHandler);
   }
 
   /**
@@ -296,6 +314,7 @@
       bounce        = utils.valOrDefault(bounce, true);
       bubbleWidth   = utils.getPixelValue(step.width) || opt.bubbleWidth;
       bubblePadding = utils.valOrDefault(step.padding, opt.bubblePadding);
+      bubbleBorder = utils.valOrDefault(step.padding, opt.bubbleBorder);
 
       utils.removeClass(el, 'bounce-down bounce-up bounce-left bounce-right');
 
@@ -314,7 +333,7 @@
       }
       else if (step.orientation === 'left') {
         top = boundingRect.top;
-        left = boundingRect.left - bubbleWidth - 2*bubblePadding - opt.arrowWidth;
+        left = boundingRect.left - bubbleWidth - 2*bubblePadding - 2*bubbleBorder - opt.arrowWidth;
         bounceDirection = 'bounce-right';
       }
       else if (step.orientation === 'right') {
@@ -827,6 +846,11 @@
         throw "Need to load a tour before you start it!";
       }
 
+      if (document.readyState !== 'complete') {
+        waitingToStart = true;
+        return;
+      }
+
       // Check if we are resuming state.
       if (currTour.id === cookieTourId && typeof cookieTourStep !== undefinedStr) {
         currStepNum = cookieTourStep;
@@ -917,6 +941,7 @@
      * VALID OPTIONS INCLUDE...
      * bubbleWidth:     Number   - Default bubble width. Defaults to 280.
      * bubblePadding:   Number   - Default bubble padding. Defaults to 10.
+     * bubbleBorder:    Number   - Default bubble border width. Defaults to 6.
      * animate:         Boolean  - should the tour bubble animate between steps?
      *                             Defaults to FALSE.
      * smoothScroll:    Boolean  - should the page scroll smoothly to the next
@@ -936,7 +961,7 @@
      * arrowWidth:      Number   - Default arrow width. (space between the bubble
      *                             and the targetEl) Need to provide the option
      *                             to set this here in case developer wants to
-     *                             use own CSS. Defaults to 20.
+     *                             use own CSS. Defaults to 28.
      * cookieName:      String   - Name for the cookie key. Defaults to
      *                             'hopscotch.tour.state'.
      * onNext:          Function - A callback to be invoked after every click on
@@ -966,6 +991,7 @@
       opt.showNextButton  = utils.valOrDefault(opt.showNextButton, true);
       opt.bubbleWidth     = utils.valOrDefault(opt.bubbleWidth, 280);
       opt.bubblePadding   = utils.valOrDefault(opt.bubblePadding, 10);
+      opt.bubbleBorder    = utils.valOrDefault(opt.bubbleBorder, 6);
       opt.arrowWidth      = utils.valOrDefault(opt.arrowWidth, 20);
       opt.onNext          = utils.valOrDefault(opt.onNext, null);
       opt.cookieName      = utils.valOrDefault(opt.cookieName, 'hopscotch.tour.state');

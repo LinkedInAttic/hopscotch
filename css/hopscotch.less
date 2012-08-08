@@ -74,7 +74,7 @@ div#hopscotch-bubble {
     }
 
     &.up {
-      top: (@arrowWidth + @bubbleBorderWidth) * (-1);
+      top: 0 - @arrowWidth - @bubbleBorderWidth;
       left: @bubbleCornerRadius;
 
       .hopscotch-bubble-arrow {
@@ -85,6 +85,7 @@ div#hopscotch-bubble {
         top: 0 - @arrowWidth + (@borderAngledWidth);
       }
       .hopscotch-bubble-arrow-border {
+        border-bottom: @arrowWidth solid #000;
         border-bottom: @arrowWidth solid @borderColor;
         border-left: @arrowWidth solid transparent;
         border-right: @arrowWidth solid transparent;
@@ -102,6 +103,7 @@ div#hopscotch-bubble {
         top:          0 - @arrowWidth - (@borderAngledWidth);
       }
       .hopscotch-bubble-arrow-border {
+        border-top:   @arrowWidth solid #000;
         border-top:   @arrowWidth solid @borderColor;
         border-left:  @arrowWidth solid transparent;
         border-right: @arrowWidth solid transparent;
@@ -120,8 +122,9 @@ div#hopscotch-bubble {
         top: 0 - (2*@arrowWidth);
       }
       .hopscotch-bubble-arrow-border {
-        border-bottom: @arrowWidth solid transparent;
+        border-right:  @arrowWidth solid #000;
         border-right:  @arrowWidth solid @borderColor;
+        border-bottom: @arrowWidth solid transparent;
         border-top:    @arrowWidth solid transparent;
       }
     }
@@ -138,8 +141,9 @@ div#hopscotch-bubble {
         top: 0 - (2*@arrowWidth);
       }
       .hopscotch-bubble-arrow-border {
-        border-bottom: @arrowWidth solid transparent;
+        border-left:   @arrowWidth solid #000;
         border-left:   @arrowWidth solid @borderColor;
+        border-bottom: @arrowWidth solid transparent;
         border-top:    @arrowWidth solid transparent;
       }
     }
