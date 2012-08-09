@@ -272,6 +272,13 @@
       btnEl.setAttribute('type', 'button');
       btnEl.setAttribute('value', text);
       utils.addClass(btnEl, 'hopscotch-nav-button');
+
+      if (id.indexOf('prev') >= 0) {
+        utils.addClass(btnEl, 'prev');
+      }
+      else {
+        utils.addClass(btnEl, 'next');
+      }
       return btnEl;
     },
 
