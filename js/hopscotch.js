@@ -911,7 +911,7 @@
       return this;
     };
 
-    this.startTour = function() {
+    this.startTour = function(stepNum, substepNum) {
       var bubble,
           step;
 
@@ -924,8 +924,13 @@
         return;
       }
 
+      if (typeof stepNum !== undefinedStr) {
+        currStepNum    = stepNum;
+        currSubstepNum = substepNum;
+      }
+
       // Check if we are resuming state.
-      if (currTour.id === cookieTourId && typeof cookieTourStep !== undefinedStr) {
+      else if (currTour.id === cookieTourId && typeof cookieTourStep !== undefinedStr) {
         currStepNum    = cookieTourStep;
         currSubstepNum = cookieTourSubstep;
         step           = getCurrStep();
