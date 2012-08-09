@@ -90,11 +90,4 @@ for (i = 0, len = booleanControls.length; i < len; i++) {
     hopscotch.endTour();
   });
 
-  // ============
-  // CLEAR COOKIE
-  // ============
-  addClickListener(document.getElementById('clearCookieBtn'), function() {
-    hopscotch.clearCookie();
-  });
-
 }());
