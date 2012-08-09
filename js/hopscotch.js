@@ -263,8 +263,8 @@
   };
 
   HopscotchBubble = function(opt) {
-    var currStep,
-        isShowing = false,
+    var isShowing = false,
+        currStep,
 
     createButton = function(id, text) {
       var btnEl = document.createElement('input');
@@ -404,7 +404,7 @@
       var el             = document.createElement('div'),
           containerEl    = document.createElement('div'),
           self           = this,
-          cooldownActive = false, // for updating after window resize
+          resizeCooldown = false, // for updating after window resize
           winResizeTimeout;
 
       this.element     = el;
@@ -434,14 +434,13 @@
       // relying on closures to keep a handle of "this".
       // Reset position of bubble when window is resized
       window.onresize = function() {
-        if (cooldownActive || !isShowing) {
+        if (resizeCooldown || !isShowing) {
           return;
         }
-        cooldownActive = true;
+        resizeCooldown = true;
         winResizeTimeout = setTimeout(function() {
-          // currStep should not be null
           setPosition(self, currStep, false);
-          cooldownActive = false;
+          resizeCooldown = false;
         }, 200);
       };
 
@@ -520,6 +519,7 @@
           bubbleWidth,
           bubblePadding;
 
+      currStep = step;
       this.setTitle(step.title ? step.title : '');
       this.setContent(step.content ? step.content : '');
       this.setNum(idx);
@@ -713,7 +713,7 @@
       }
       else if (currStepNum < currTour.steps.length-1) {
         ++currStepNum;
-        currSubstepNum = (currStepNum.length > 0) ? 0 : undefined;
+        currSubstepNum = isInMultiPartStep() ? 0 : undefined;
         return true;
       }
       return false;
@@ -984,7 +984,6 @@
         cookieVal += '-' + substepIdx;
       }
 
-      currStep = step;
       isLast = (stepIdx === numTourSteps - 1) || (substepIdx >= step.length - 1);
       bubble.renderStep(step, stepIdx, substepIdx, isLast, adjustWindowScroll);
 
