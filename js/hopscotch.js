@@ -24,6 +24,8 @@
  *
  * http://daneden.me/animate/ for bounce animation
  *
+ * multiple start/end callbacks
+ *
  */
 
 (function() {
@@ -867,6 +869,7 @@
           tmpOpt[prop] = tour[prop];
         }
       }
+      opt = {}; // reset all options so there are no surprises
       this.configure(tmpOpt);
 
       // Get existing tour state, if it exists.
@@ -957,6 +960,10 @@
         currSubstepNum = 0;
       }
 
+      if (opt.onStart && currStepNum === 0 && !currSubstepNum) {
+        opt.onStart(currTour.id);
+      }
+
       this.showStep(currStepNum, currSubstepNum);
       bubble = getBubble().show();
 
@@ -979,7 +986,7 @@
       currStepNum    = stepIdx;
       currSubstepNum = substepIdx;
 
-      if (typeof substepIdx !== undefinedStr) {
+      if (typeof substepIdx !== undefinedStr && isInMultiPartStep()) {
         step = step[substepIdx];
         cookieVal += '-' + substepIdx;
       }
@@ -1035,7 +1042,7 @@
       var bubble     = getBubble();
       clearCookie    = utils.valOrDefault(clearCookie, true);
       currStepNum    = 0;
-      currSubstepNum = 0;
+      currSubstepNum = undefined;
       cookieTourStep = undefined;
 
       bubble.hide();
@@ -1043,6 +1050,10 @@
         utils.clearState(opt.cookieName);
       }
       this.isActive = false;
+
+      if (opt.onEnd) {
+        opt.onEnd(currTour.id);
+      }
       return this;
     };
 
@@ -1088,6 +1099,8 @@
      *                             ('4', '5', '6', etc.) will be used as default.
      */
     this.configure = function(options) {
+      var bubble;
+
       if (!opt) {
         opt = {};
       }
@@ -1105,22 +1118,26 @@
       opt.bubbleBorder    = utils.valOrDefault(opt.bubbleBorder, 6);
       opt.arrowWidth      = utils.valOrDefault(opt.arrowWidth, 20);
       opt.onNext          = utils.valOrDefault(opt.onNext, null);
+      opt.onStart         = utils.valOrDefault(opt.onStart, null);
+      opt.onEnd           = utils.valOrDefault(opt.onEnd, null);
       opt.cookieName      = utils.valOrDefault(opt.cookieName, 'hopscotch.tour.state');
 
       if (options) {
         utils.extend(HopscotchI18N, options.i18n);
       }
 
+      bubble = getBubble();
+
       if (opt.animate) {
-        getBubble().initAnimate();
+        bubble.initAnimate();
       }
       else {
-        getBubble().removeAnimate();
+        bubble.removeAnimate();
       }
 
-      getBubble().showPrevButton(opt.showPrevButton, true);
-      getBubble().showNextButton(opt.showNextButton, true);
-      getBubble().showCloseButton(opt.showCloseButton, true);
+      bubble.showPrevButton(opt.showPrevButton, true);
+      bubble.showNextButton(opt.showNextButton, true);
+      bubble.showCloseButton(opt.showCloseButton, true);
       return this;
     };
 
