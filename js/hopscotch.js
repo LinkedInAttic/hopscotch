@@ -1057,6 +1057,14 @@
       return this;
     };
 
+    this.getCurrStepNum = function() {
+      return currStepNum;
+    };
+
+    this.getCurrSubstepNum = function() {
+      return currSubstepNum;
+    };
+
     /**
      * configure
      * =========
@@ -1073,7 +1081,7 @@
      *                             1000ms.
      * scrollTopMargin: NUMBER   - When the page scrolls, how much space should there
      *                             be between the bubble/targetElement and the top
-     *                             of the viewport? Defaults to 50.
+     *                             of the viewport? Defaults to 200.
      * showCloseButton: Boolean  - should the tour bubble show a close (X) button?
      *                             Defaults to TRUE.
      * showPrevButton:  Boolean  - should the bubble have the Previous button?
@@ -1109,7 +1117,7 @@
       opt.animate         = utils.valOrDefault(opt.animate, false);
       opt.smoothScroll    = utils.valOrDefault(opt.smoothScroll, true);
       opt.scrollDuration  = utils.valOrDefault(opt.scrollDuration, 1000);
-      opt.scrollTopMargin = utils.valOrDefault(opt.scrollTopMargin, 50);
+      opt.scrollTopMargin = utils.valOrDefault(opt.scrollTopMargin, 200);
       opt.showCloseButton = utils.valOrDefault(opt.showCloseButton, true);
       opt.showPrevButton  = utils.valOrDefault(opt.showPrevButton, false);
       opt.showNextButton  = utils.valOrDefault(opt.showNextButton, true);
