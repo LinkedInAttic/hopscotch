@@ -33,6 +33,7 @@
       HopscotchBubble,
       HopscotchI18N,
       utils,
+      callbacks,
       winLoadHandler,
       undefinedStr      = 'undefined',
       docLoaded         = false, // is the document done loading?
@@ -254,6 +255,13 @@
         this.setState(name,"",-1);
       }
     }
+  };
+
+  callbacks = {
+    next:  [],
+    prev:  [],
+    start: [],
+    end:   []
   };
 
   HopscotchI18N = {
@@ -681,6 +689,7 @@
         cookieTourId,
         cookieTourStep,
         cookieTourSubstep,
+        _configure,
 
     /**
      * getBubble
@@ -748,6 +757,16 @@
 
     isInMultiPartStep = function() {
       return currTour.steps[currStepNum].length > 0;
+    },
+
+    invokeCallbacks = function(evtType, args) {
+      var cbArr = callbacks[evtType],
+          i = 0;
+          len = cbArr.length;
+
+      for (; i<len; ++i) {
+        cbArr[i].cb.apply(this, args);
+      }
     },
 
     /**
@@ -870,7 +889,7 @@
         }
       }
       opt = {}; // reset all options so there are no surprises
-      this.configure(tmpOpt);
+      _configure.call(this, tmpOpt, true);
 
       // Get existing tour state, if it exists.
       tourState = utils.getState(opt.cookieName);
@@ -916,7 +935,9 @@
 
     this.startTour = function(stepNum, substepNum) {
       var bubble,
-          step;
+          step,
+          i,
+          len;
 
       if (!currTour) {
         throw "Need to load a tour before you start it!";
@@ -960,8 +981,8 @@
         currSubstepNum = 0;
       }
 
-      if (opt.onStart && currStepNum === 0 && !currSubstepNum) {
-        opt.onStart(currTour.id);
+      if (currStepNum === 0 && !currSubstepNum) {
+        invokeCallbacks('start', [currTour.id])
       }
 
       this.showStep(currStepNum, currSubstepNum);
@@ -1005,6 +1026,7 @@
     this.prevStep = function() {
       var step = getCurrStep();
 
+      invokeCallbacks('prev', [currTour.id, currStepNum]);
       if (step.onPrev) {
         step.onPrev();
       }
@@ -1019,9 +1041,8 @@
       var step = getCurrStep();
 
       // invoke Next button callbacks
-      if (opt.onNext) {
-        opt.onNext(step, currStepNum);
-      }
+      invokeCallbacks('next', [currTour.id, currStepNum]);
+
       if (step.onNext) {
         step.onNext();
       }
@@ -1051,9 +1072,10 @@
       }
       this.isActive = false;
 
-      if (opt.onEnd) {
-        opt.onEnd(currTour.id);
-      }
+      invokeCallbacks('end', [currTour.id]);
+
+      hopscotch.removeCallbacks(true);
+
       return this;
     };
 
@@ -1066,8 +1088,47 @@
     };
 
     /**
-     * configure
-     * =========
+     * addCallback
+     * ===========
+     */
+    this.addCallback = function(evtType, cb, isTourCb) {
+      if (cb) {
+        callbacks[evtType].push({ cb: cb, fromTour: isTourCb });
+      }
+    };
+
+    /**
+     * removeCallbacks
+     * ===============
+     * Remove callbacks specified from hopscotch.configure(). If tourOnly
+     * is set to true, only removes callbacks specified by a tour (callbacks
+     * set by external calls to hopscotch.configure will not be removed).
+     */
+    this.removeCallbacks = function(tourOnly) {
+      var cbArr,
+          i,
+          len,
+          evtType;
+
+      for (evtType in callbacks) {
+        if (tourOnly) {
+          cbArr = callbacks[evtType];
+          for (i=0, len=cbArr.length; i < len; ++i) {
+            if (cbArr[i].fromTour) {
+              cbArr.splice(i--, 1);
+              --len;
+            }
+          }
+        }
+        else {
+          callbacks[evtType] = [];
+        }
+      }
+    };
+
+    /**
+     * _configure
+     * ==========
      * VALID OPTIONS INCLUDE...
      * bubbleWidth:     Number   - Default bubble width. Defaults to 280.
      * bubblePadding:   Number   - Default bubble padding. Defaults to 15.
@@ -1105,8 +1166,12 @@
      *                             '&#x4e8c;', '&#x4e09;']) If there are more steps
      *                             than provided numbers, Arabic numerals
      *                             ('4', '5', '6', etc.) will be used as default.
+     *
+     * isTourOptions:   This is a flag for the purpose of removing tour-specific
+     *                  callbacks once a tour ends. This is only used
+     *                  internally.
      */
-    this.configure = function(options) {
+    _configure = function(options, isTourOptions) {
       var bubble;
 
       if (!opt) {
@@ -1126,6 +1191,7 @@
       opt.bubbleBorder    = utils.valOrDefault(opt.bubbleBorder, 6);
       opt.arrowWidth      = utils.valOrDefault(opt.arrowWidth, 20);
       opt.onNext          = utils.valOrDefault(opt.onNext, null);
+      opt.onPrev          = utils.valOrDefault(opt.onPrev, null);
       opt.onStart         = utils.valOrDefault(opt.onStart, null);
       opt.onEnd           = utils.valOrDefault(opt.onEnd, null);
       opt.cookieName      = utils.valOrDefault(opt.cookieName, 'hopscotch.tour.state');
@@ -1133,6 +1199,11 @@
       if (options) {
         utils.extend(HopscotchI18N, options.i18n);
       }
+
+      this.addCallback('next', opt.onNext, isTourOptions);
+      this.addCallback('prev', opt.onPrev, isTourOptions);
+      this.addCallback('start', opt.onStart, isTourOptions);
+      this.addCallback('end', opt.onEnd, isTourOptions);
 
       bubble = getBubble();
 
@@ -1147,6 +1218,16 @@
       bubble.showNextButton(opt.showNextButton, true);
       bubble.showCloseButton(opt.showCloseButton, true);
       return this;
+    };
+
+    /**
+     * configure
+     * =========
+     * Just a wrapper for _configure, to make sure developers don't try and set
+     * isTourOptions.
+     */
+    this.configure = function(options) {
+      _configure.call(this, options, false);
     };
 
     this.init(initOptions);
