@@ -204,6 +204,13 @@
       }
     },
 
+    getStepTarget: function(step) {
+      if (typeof step.target === 'string') {
+        return document.getElementById(step.target);
+      }
+      return step.target;
+    },
+
     // Tour session persistence for multi-page tours. Uses HTML5 localStorage if available, then
     // falls back to using cookies.
     //
@@ -261,7 +268,8 @@
     next:  [],
     prev:  [],
     start: [],
-    end:   []
+    end:   [],
+    error: []
   };
 
   HopscotchI18N = {
@@ -323,7 +331,7 @@
           bounceDirection,
           top,
           left,
-          targetEl    = document.getElementById(step.targetId),
+          targetEl    = utils.getStepTarget(step),
           el          = bubble.element,
           arrowEl     = bubble.arrowEl,
           arrowOffset = utils.getPixelValue(step.arrowOffset);
@@ -454,7 +462,6 @@
         }, 200);
       };
 
-      this.hide();
       document.body.appendChild(el);
       return this;
     };
@@ -781,7 +788,7 @@
       var bubbleEl       = getBubble().element,
           bubbleTop      = utils.getPixelValue(bubbleEl.style.top),
           bubbleBottom   = bubbleTop + utils.getPixelValue(bubbleEl.offsetHeight),
-          targetEl       = document.getElementById(getCurrStep().targetId),
+          targetEl       = utils.getStepTarget(getCurrStep()),
           targetBounds   = targetEl.getBoundingClientRect(),
           targetElTop    = targetBounds.top + utils.getScrollTop(),
           targetElBottom = targetBounds.bottom + utils.getScrollTop(),
@@ -959,11 +966,11 @@
         currStepNum    = cookieTourStep;
         currSubstepNum = cookieTourSubstep;
         step           = getCurrStep();
-        if (!document.getElementById(step.targetId)) {
+        if (!utils.getStepTarget(step)) {
           decrementStep();
           step = getCurrStep();
           // May have just refreshed the page. Previous step should work. (but don't change cookie)
-          if (!document.getElementById(step.targetId)) {
+          if (!utils.getStepTarget(step)) {
             // Previous target doesn't exist either. The user may have just
             // clicked on a link that wasn't part of the tour. Let's just "end"
             // the tour and depend on the cookie to pick the user back up where
@@ -1025,21 +1032,42 @@
     };
 
     this.prevStep = function() {
-      var step = getCurrStep();
+      var step        = getCurrStep(),
+          foundTarget = false;
 
       invokeCallbacks('prev', [currTour.id, currStepNum]);
       if (step.onPrev) {
         step.onPrev();
       }
 
-      if (decrementStep()) {
-        this.showStep(currStepNum, currSubstepNum);
+      if (opt.skipIfNoElement) {
+        // decrement step until we find a target or until we reach beginning
+        while (!foundTarget && decrementStep()) {
+          step = getCurrStep();
+          foundTarget = utils.getStepTarget(step);
+        }
+        if (!foundTarget) {
+          this.endTour();
+        }
       }
+
+      else if (decrementStep()) {
+        // only try decrementing once, and invoke error callback if no target
+        // is found
+        step = getCurrStep();
+        if (!utils.getStepTarget(step)) {
+          invokeCallbacks('error', [currTour.id, currStepNum]);
+          return;
+        }
+      }
+
+      this.showStep(currStepNum, currSubstepNum);
       return this;
     };
 
     this.nextStep = function() {
-      var step = getCurrStep();
+      var step = getCurrStep(),
+          foundTarget = false;
 
       // invoke Next button callbacks
       invokeCallbacks('next', [currTour.id, currStepNum]);
@@ -1048,9 +1076,28 @@
         step.onNext();
       }
 
-      if (incrementStep()) {
-        this.showStep(currStepNum, currSubstepNum);
+      if (opt.skipIfNoElement) {
+        // decrement step until we find a target or until we reach beginning
+        while (!foundTarget && incrementStep()) {
+          step = getCurrStep();
+          foundTarget = utils.getStepTarget(step);
+        }
+        if (!foundTarget) {
+          this.endTour();
+        }
       }
+
+      else if (incrementStep()) {
+        // only try decrementing once, and invoke error callback if no target
+        // is found
+        step = getCurrStep();
+        if (!utils.getStepTarget(step)) {
+          invokeCallbacks('error', [currTour.id, currStepNum]);
+          this.endTour();
+          return;
+        }
+      }
+      this.showStep(currStepNum, currSubstepNum);
 
       return this;
     };
@@ -1154,6 +1201,9 @@
      *                             and the targetEl) Need to provide the option
      *                             to set this here in case developer wants to
      *                             use own CSS. Defaults to 28.
+     * skipIfNoElement  Boolean  - If a specified target element is not found,
+     *                             should we skip to the next step? Defaults to
+     *                             FALSE.
      * cookieName:      String   - Name for the cookie key. Defaults to
      *                             'hopscotch.tour.state'.
      * onNext:          Function - A callback to be invoked after every click on
@@ -1191,20 +1241,18 @@
       opt.bubblePadding   = utils.valOrDefault(opt.bubblePadding, 15);
       opt.bubbleBorder    = utils.valOrDefault(opt.bubbleBorder, 6);
       opt.arrowWidth      = utils.valOrDefault(opt.arrowWidth, 20);
-      opt.onNext          = utils.valOrDefault(opt.onNext, null);
-      opt.onPrev          = utils.valOrDefault(opt.onPrev, null);
-      opt.onStart         = utils.valOrDefault(opt.onStart, null);
-      opt.onEnd           = utils.valOrDefault(opt.onEnd, null);
+      opt.skipIfNoElement = utils.valOrDefault(opt.skipIfNoElement, false);
       opt.cookieName      = utils.valOrDefault(opt.cookieName, 'hopscotch.tour.state');
 
       if (options) {
         utils.extend(HopscotchI18N, options.i18n);
       }
 
-      this.addCallback('next', opt.onNext, isTourOptions);
-      this.addCallback('prev', opt.onPrev, isTourOptions);
-      this.addCallback('start', opt.onStart, isTourOptions);
-      this.addCallback('end', opt.onEnd, isTourOptions);
+      this.addCallback('next', options.onNext, isTourOptions);
+      this.addCallback('prev', options.onPrev, isTourOptions);
+      this.addCallback('start', options.onStart, isTourOptions);
+      this.addCallback('end', options.onEnd, isTourOptions);
+      this.addCallback('error', options.onError, isTourOptions);
 
       bubble = getBubble();
 
