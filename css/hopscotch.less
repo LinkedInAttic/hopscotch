@@ -5,7 +5,10 @@
 @bubbleCornerRadius: 10px;
 @bubbleColor: #fff;
 @bubbleBorderWidth: 6px;
+@bubblePadding: 15px;
 @borderColor: rgba(0, 0, 0, 0.5);
+@circleWidth: 30px;
+@spriteUrl: url(../img/sprite.png);
 
 div#hopscotch-bubble {
   background-color: @bubbleColor;
@@ -35,28 +38,46 @@ div#hopscotch-bubble {
   }
 
   h3 {
-    margin: 12px 0;
+    margin: 0;
     padding: 0;
   }
 
   #hopscotch-bubble-container {
-    padding: 15px;
+    padding: @bubblePadding;
     position: relative;
     -webkit-font-smoothing: antialiased; /* to fix text flickering */
   }
 
+  #hopscotch-bubble-content {
+    margin-left: @circleWidth + 10px;
+  }
+
   #hopscotch-bubble-close {
-    color: #fff;
+    color: #000;
+    background: transparent @spriteUrl -200px -100px no-repeat;
     display: block;
-    padding: 10px;
+    margin: @bubblePadding 10px 0 0;
     position: absolute;
+    text-decoration: none;
+    text-indent: -9999px;
+
+    width: 10px;
+    height: 10px;
+
     top: 0;
     right: 0;
   }
 
   #hopscotch-bubble-number {
+    background: transparent @spriteUrl 0 0 no-repeat;
+    color: #fff;
+    display: block;
     float: left;
-    padding: 12px;
+    line-height: @circleWidth + 3px;
+    margin: 0 10px 0 0;
+    text-align: center;
+    width: @circleWidth;
+    height: @circleWidth;
   }
 
   #hopscotch-bubble-arrow-container {

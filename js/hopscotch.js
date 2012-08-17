@@ -419,25 +419,28 @@
     };
 
     this.init = function() {
-      var el             = document.createElement('div'),
-          containerEl    = document.createElement('div'),
-          self           = this,
-          resizeCooldown = false, // for updating after window resize
+      var el              = document.createElement('div'),
+          containerEl     = document.createElement('div'),
+          bubbleContentEl = document.createElement('div'),
+          self            = this,
+          resizeCooldown  = false, // for updating after window resize
           winResizeTimeout;
 
-      this.element     = el;
-      this.containerEl = containerEl;
-      this.titleEl     = document.createElement('h3');
-      this.numberEl    = document.createElement('span');
-      this.contentEl   = document.createElement('p');
+      this.element         = el;
+      this.containerEl     = containerEl;
+      this.titleEl         = document.createElement('h3');
+      this.numberEl        = document.createElement('span');
+      this.contentEl       = document.createElement('p');
 
       el.setAttribute('id', 'hopscotch-bubble');
-      utils.addClass(el, 'animated');
+      utils.addClass(el, 'animated'); // for bounce css animation
       containerEl.setAttribute('id', 'hopscotch-bubble-container');
       this.numberEl.setAttribute('id', 'hopscotch-bubble-number');
       containerEl.appendChild(this.numberEl);
-      containerEl.appendChild(this.titleEl);
-      containerEl.appendChild(this.contentEl);
+      bubbleContentEl.appendChild(this.titleEl);
+      bubbleContentEl.appendChild(this.contentEl);
+      bubbleContentEl.setAttribute('id', 'hopscotch-bubble-content');
+      containerEl.appendChild(bubbleContentEl);
       el.appendChild(containerEl);
 
       this.initNavButtons();
