@@ -18,6 +18,7 @@ var tour = {
       orientation: 'left',
       width: 320,
       height: 480,
+      showSkip: true,
       onPrev: function() {
         document.getElementById('pageTitle').style.color = '#000';
       }

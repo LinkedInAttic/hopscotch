@@ -1,30 +1,26 @@
 /**
  *
- * Thoughts:
- * =========
- *
- * support > 1 bubble at a time? gahhhhhhhhh
- * "center" option (for block-level elements that span width of document)
- *
  * TODO:
- * =====
- * test css conflicts on different sites
- * improve auto-scrolling?
- * create hopscotch-jquery.js and hopscotch-yui.js?? blaarlkghiidsfffzp\09u93}%^*(!!
- *
- * position screws up when you align it with a position:fixed element
+ * ================
  * delay for displaying a step
  *
- * onShow, onHide callbacks?
+ * "center" option (for block-level elements that span width of document)
+ *   - and for the arrow
+ *
+ * test css conflicts on different sites
+ * improve auto-scrolling?
+ * create hopscotch-jquery.js and hopscotch-yui.js??
+ *
+ * position screws up when you align it with a position:fixed element
+ *   - handle header items specially
+ *
  * support horizontal smooth scroll????????
  *
- * in addition to targetId, do we want to support specifying targetEl directly?
- *
+ * NICETOHAVE:
+ * ===========
  * flag to see if user has already taken a tour?
- *
- * http://daneden.me/animate/ for bounce animation
- *
- * multiple start/end callbacks
+ * support > 1 bubble at a time? gahhhhhhhhh
+ * onShow, onHide callbacks?
  *
  */
 
@@ -277,6 +273,7 @@
     nextBtn: 'Next',
     prevBtn: 'Back',
     doneBtn: 'Done',
+    skipBtn: 'Skip',
     closeTooltip: 'Close'
   };
 
@@ -547,6 +544,10 @@
 
       this.showPrevButton(this.prevBtnEl && showPrev && (idx > 0 || subIdx > 0));
       this.showNextButton(this.nextBtnEl && showNext && !isLast);
+      this.nextBtnEl.setAttribute('value', step.showSkip ? HopscotchI18N.skipBtn : HopscotchI18N.nextBtn);
+      if (step.showSkip) {
+      }
+
       if (isLast) {
         utils.removeClass(this.doneBtnEl, 'hide');
       }
@@ -1137,6 +1138,54 @@
     this.getCurrSubstepNum = function() {
       return currSubstepNum;
     };
+
+    /** WORK IN PROGRESS
+    this.hasTakenTour = function(tourId) {
+      if (hasLocalStorage) {
+        utils.getState(opt.cookieName + '_history');
+      }
+      return false;
+    };
+
+    this.setHasTakenTour = function(tourId) {
+      var history;
+      if (hasLocalStorage && !this.hasTakenTour(tourId)) {
+        history = utils.getState(opt.cookieName + '_history');
+        if (history) {
+          history += ';'+tourId;
+        }
+        else {
+          history = tourId;
+        }
+      }
+    };
+
+    this.clearHasTakenTour = function(tourId) {
+      var history,
+          tourIds,
+          i,
+          len,
+          historyName = opt.cookieName + '_history',
+          found = false;
+
+      if (hasLocalStorage) {
+        history = utils.getState(historyName);
+        if (history) {
+          tourIds = history.split(';');
+          for (i=0, len=tourIds.length; i<len; ++i) {
+            if (tourIds[i] === tourId) {
+              tourIds.splice(i, 1);
+              found = true;
+              break;
+            }
+          }
+          if (found) {
+            utils.setState(historyName, tourIds.join(';'));
+          }
+        }
+      }
+    };
+    */
 
     /**
      * addCallback
