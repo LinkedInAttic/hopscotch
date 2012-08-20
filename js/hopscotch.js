@@ -513,7 +513,8 @@
     };
 
     this.initArrow = function() {
-      var arrowBorderEl;
+      var arrowEl,
+          arrowBorderEl;
 
       this.arrowEl = document.createElement('div');
       this.arrowEl.setAttribute('id', 'hopscotch-bubble-arrow-container');
@@ -528,6 +529,7 @@
       this.arrowEl.appendChild(arrowEl);
 
       this.element.appendChild(this.arrowEl);
+      return this;
     };
 
     this.renderStep = function(step, idx, subIdx, isLast, callback) {
@@ -1129,6 +1131,10 @@
       hopscotch.removeCallbacks(true);
 
       return this;
+    };
+
+    this.getCurrTour = function() {
+      return currTour;
     };
 
     this.getCurrStepNum = function() {
