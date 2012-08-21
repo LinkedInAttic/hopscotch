@@ -1188,6 +1188,7 @@
       if (cb) {
         callbacks[evtType].push({ cb: cb, fromTour: isTourCb });
       }
+      return this;
     };
 
     /**
@@ -1217,6 +1218,7 @@
           callbacks[evtType] = [];
         }
       }
+      return this;
     };
 
     /**
