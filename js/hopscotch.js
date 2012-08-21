@@ -150,6 +150,16 @@
       return typeof val !== undefinedStr ? val : valDefault;
     },
 
+    invokeCallbacks: function(evtType, args) {
+      var cbArr = callbacks[evtType],
+          i = 0,
+          len = cbArr.length;
+
+      for (; i<len; ++i) {
+        cbArr[i].cb.apply(this, args);
+      }
+    },
+
     getScrollTop: function() {
       if (typeof window.pageYOffset !== undefinedStr) {
         return window.pageYOffset;
@@ -215,7 +225,6 @@
 
     setState: function(name,value,days) {
       var expires = '',
-          userDataName,
           date;
 
       if (hasLocalStorage) {
@@ -241,7 +250,7 @@
         return localStorage.getItem(name);
       }
       else {
-        for(var i=0;i < ca.length;i++) {
+        for(i=0;i < ca.length;i++) {
           c = ca[i];
           while (c.charAt(0)===' ') c = c.substring(1,c.length);
           if (c.indexOf(nameEQ) === 0) return c.substring(nameEQ.length,c.length);
@@ -265,7 +274,8 @@
     prev:  [],
     start: [],
     end:   [],
-    error: []
+    error: [],
+    close: []
   };
 
   HopscotchI18N = {
@@ -503,8 +513,20 @@
       closeBtnEl.innerHTML = 'x';
 
       utils.addClickListener(closeBtnEl, function(evt) {
-        window.hopscotch.endTour();
-        utils.evtPreventDefault(evt);
+        var currStepNum   = hopscotch.getCurrStepNum(),
+            currTour      = hopscotch.getCurrTour(),
+            doEndCallback = (currStepNum === currTour.steps.length-1);
+
+        utils.invokeCallbacks('close', [currTour.id, currStepNum]);
+
+        window.hopscotch.endTour(true, doEndCallback);
+
+        if (evt.preventDefault) {
+          evt.preventDefault();
+        }
+        else if (event) {
+          event.returnValue = false;
+        }
       });
 
       this.closeBtnEl = closeBtnEl;
@@ -773,16 +795,6 @@
       return currTour.steps[currStepNum].length > 0;
     },
 
-    invokeCallbacks = function(evtType, args) {
-      var cbArr = callbacks[evtType],
-          i = 0;
-          len = cbArr.length;
-
-      for (; i<len; ++i) {
-        cbArr[i].cb.apply(this, args);
-      }
-    },
-
     /**
      * adjustWindowScroll
      * ==================
@@ -872,9 +884,6 @@
     };
 
     this.init = function() {
-      var tourState,
-          tourPair;
-
       if (initOptions) {
         this.configure(initOptions);
       }
@@ -891,7 +900,10 @@
       var tmpOpt = {},
           bubble,
           prop,
-          stepPair;
+          stepPair,
+          tourState,
+          tourPair;
+
       currTour = tour;
 
       // Set tour-specific configurations
@@ -949,9 +961,7 @@
 
     this.startTour = function(stepNum, substepNum) {
       var bubble,
-          step,
-          i,
-          len;
+          step;
 
       if (!currTour) {
         throw "Need to load a tour before you start it!";
@@ -996,7 +1006,7 @@
       }
 
       if (currStepNum === 0 && !currSubstepNum) {
-        invokeCallbacks('start', [currTour.id])
+        utils.invokeCallbacks('start', [currTour.id]);
       }
 
       this.showStep(currStepNum, currSubstepNum);
@@ -1041,7 +1051,7 @@
       var step        = getCurrStep(),
           foundTarget = false;
 
-      invokeCallbacks('prev', [currTour.id, currStepNum]);
+      utils.invokeCallbacks('prev', [currTour.id, currStepNum]);
       if (step.onPrev) {
         step.onPrev();
       }
@@ -1062,7 +1072,7 @@
         // is found
         step = getCurrStep();
         if (!utils.getStepTarget(step)) {
-          invokeCallbacks('error', [currTour.id, currStepNum]);
+          utils.invokeCallbacks('error', [currTour.id, currStepNum]);
           return;
         }
       }
@@ -1076,7 +1086,7 @@
           foundTarget = false;
 
       // invoke Next button callbacks
-      invokeCallbacks('next', [currTour.id, currStepNum]);
+      utils.invokeCallbacks('next', [currTour.id, currStepNum]);
 
       if (step.onNext) {
         step.onNext();
@@ -1098,7 +1108,7 @@
         // is found
         step = getCurrStep();
         if (!utils.getStepTarget(step)) {
-          invokeCallbacks('error', [currTour.id, currStepNum]);
+          utils.invokeCallbacks('error', [currTour.id, currStepNum]);
           this.endTour();
           return;
         }
@@ -1113,9 +1123,10 @@
      * ==========
      * Cancels out of an active tour. No state is preserved.
      */
-    this.endTour = function(clearCookie) {
+    this.endTour = function(clearCookie, doCallback) {
       var bubble     = getBubble();
       clearCookie    = utils.valOrDefault(clearCookie, true);
+      doCallback     = utils.valOrDefault(doCallback, true);
       currStepNum    = 0;
       currSubstepNum = undefined;
       cookieTourStep = undefined;
@@ -1126,7 +1137,9 @@
       }
       this.isActive = false;
 
-      invokeCallbacks('end', [currTour.id]);
+      if (doCallback) {
+        utils.invokeCallbacks('end', [currTour.id]);
+      }
 
       hopscotch.removeCallbacks(true);
 
@@ -1311,6 +1324,7 @@
       this.addCallback('start', options.onStart, isTourOptions);
       this.addCallback('end', options.onEnd, isTourOptions);
       this.addCallback('error', options.onError, isTourOptions);
+      this.addCallback('close', options.onClose, isTourOptions);
 
       bubble = getBubble();
 
