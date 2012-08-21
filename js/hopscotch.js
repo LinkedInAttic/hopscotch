@@ -9,7 +9,6 @@
  *
  * test css conflicts on different sites
  * improve auto-scrolling?
- * create hopscotch-jquery.js and hopscotch-yui.js??
  *
  * position screws up when you align it with a position:fixed element
  *   - handle header items specially
@@ -32,10 +31,8 @@
       callbacks,
       winLoadHandler,
       undefinedStr      = 'undefined',
-      docLoaded         = false, // is the document done loading?
       waitingToStart    = false, // is a tour waiting for the document to finish
                                  // loading so that it can start?
-      hasJquery         = (typeof window.jQuery !== undefinedStr),
       hasLocalStorage   = (typeof window.localStorage !== undefinedStr),
       docStyle          = document.body.style,
       hasCssTransitions = (typeof docStyle.MozTransition    !== undefinedStr ||
@@ -76,18 +73,13 @@
      * addClass
      * ========
      * Adds a class to a DOM element.
-     * Note: does not support adding multiple classes at once yet, unless
-     * you're using jQuery.
+     * Note: does not support adding multiple classes at once yet
      */
     addClass: function(domEl, classToAdd) {
       var domClasses,
           i, len;
 
-      if (hasJquery) {
-        $(domEl).addClass(classToAdd);
-      }
-
-      else if (domEl.className.length === 0) {
+      if (domEl.className.length === 0) {
         domEl.className = classToAdd;
       }
       else {
@@ -117,25 +109,20 @@
           toRemoveLen,
           domClassLen;
 
-      if (hasJquery) {
-        $(domEl).removeClass(classToRemove);
-      }
-      else {
-        classesToRemove = classToRemove.split(' ');
-        domClasses = domEl.className.split(' ');
-        for (i = 0, toRemoveLen = classesToRemove.length; i < toRemoveLen; ++i) {
-          currClass = classesToRemove[i];
-          for (j = 0, domClassLen = domClasses.length; j < domClassLen; ++j) {
-            if (domClasses[j] === currClass) {
-              break;
-            }
-          }
-          if (j < domClassLen) {
-            domClasses.splice(j, 1); // remove class from list
+      classesToRemove = classToRemove.split(' ');
+      domClasses = domEl.className.split(' ');
+      for (i = 0, toRemoveLen = classesToRemove.length; i < toRemoveLen; ++i) {
+        currClass = classesToRemove[i];
+        for (j = 0, domClassLen = domClasses.length; j < domClassLen; ++j) {
+          if (domClasses[j] === currClass) {
+            break;
           }
         }
-        domEl.className = domClasses.join(' ');
+        if (j < domClassLen) {
+          domClasses.splice(j, 1); // remove class from list
+        }
       }
+      domEl.className = domClasses.join(' ');
     },
 
     getPixelValue: function(val) {
@@ -395,16 +382,8 @@
       left += utils.getScrollLeft();
 
       if (opt.animate) {
-        if (!hasCssTransitions && hasJquery && opt.animate) {
-          $(el).animate({
-            top: top + 'px',
-            left: left + 'px'
-          });
-        }
-        else { // hasCssTransitions || !hasJquery || !opt.animate
-          el.style.top = top + 'px';
-          el.style.left = left + 'px';
-        }
+        el.style.top = top + 'px';
+        el.style.left = left + 'px';
       }
       else {
         el.style.top = top + 'px';
@@ -822,16 +801,11 @@
           scrollIncr,
           scrollInt;
 
-      // Leverage jQuery if it's present for scrolling
-      if (hasJquery) {
-        $('body, html').animate({ scrollTop: scrollToVal }, opt.scrollDuration);
-        return;
-      }
-      else if (typeof YAHOO             !== undefinedStr &&
-               typeof YAHOO.env         !== undefinedStr &&
-               typeof YAHOO.env.ua      !== undefinedStr &&
-               typeof YAHOO.util        !== undefinedStr &&
-               typeof YAHOO.util.Scroll !== undefinedStr) {
+      if (typeof YAHOO             !== undefinedStr &&
+          typeof YAHOO.env         !== undefinedStr &&
+          typeof YAHOO.env.ua      !== undefinedStr &&
+          typeof YAHOO.util        !== undefinedStr &&
+          typeof YAHOO.util.Scroll !== undefinedStr) {
         scrollEl = YAHOO.env.ua.webkit ? document.body : document.documentElement;
         yuiEase = YAHOO.util.Easing ? YAHOO.util.Easing.easeOut : undefined;
         yuiAnim = new YAHOO.util.Scroll(scrollEl, {

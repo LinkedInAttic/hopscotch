@@ -10,7 +10,6 @@
  * =====
  * test css conflicts on different sites
  * improve auto-scrolling?
- * create hopscotch-jquery.js and hopscotch-yui.js?? blaarlkghiidsfffzp\09u93}%^*(!!
  *
  * position screws up when you align it with a position:fixed element
  * delay for displaying a step
