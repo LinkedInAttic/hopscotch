@@ -36,7 +36,7 @@
       undefinedStr      = 'undefined',
       waitingToStart    = false, // is a tour waiting for the document to finish
                                  // loading so that it can start?
-      hasLocalStorage   = (typeof window.localStorage !== undefinedStr),
+      hasSessionStorage   = (typeof window.sessionStorage !== undefinedStr),
       docStyle          = document.body.style,
       hasCssTransitions = (typeof docStyle.MozTransition    !== undefinedStr ||
                            typeof docStyle.MsTransition     !== undefinedStr ||
@@ -122,7 +122,7 @@
       return $(step.target);
     },
 
-    // Tour session persistence for multi-page tours. Uses HTML5 localStorage if available, then
+    // Tour session persistence for multi-page tours. Uses HTML5 sessionStorage if available, then
     // falls back to using cookies.
     //
     // The following cookie-related logic is borrowed from:
@@ -133,8 +133,8 @@
           userDataName,
           date;
 
-      if (hasLocalStorage) {
-        localStorage.setItem(name, value);
+      if (hasSessionStorage) {
+        sessionStorage.setItem(name, value);
       }
       else {
         if (days) {
@@ -152,8 +152,8 @@
           i,
           c;
 
-      if (hasLocalStorage) {
-        return localStorage.getItem(name);
+      if (hasSessionStorage) {
+        return sessionStorage.getItem(name);
       }
       else {
         for(var i=0;i < ca.length;i++) {
@@ -166,8 +166,8 @@
     },
 
     clearState: function(name) {
-      if (hasLocalStorage) {
-        localStorage.removeItem(name);
+      if (hasSessionStorage) {
+        sessionStorage.removeItem(name);
       }
       else {
         this.setState(name,"",-1);
@@ -1001,7 +1001,7 @@
     };
 
     this.hasTakenTour = function(tourId) {
-      if (hasLocalStorage) {
+      if (hasSessionStorage) {
         utils.getState(opt.cookieName + '_history');
       }
       return false;
@@ -1009,7 +1009,7 @@
 
     this.setHasTakenTour = function(tourId) {
       var history;
-      if (hasLocalStorage && !this.hasTakenTour(tourId)) {
+      if (hasSessionStorage && !this.hasTakenTour(tourId)) {
         history = utils.getState(opt.cookieName + '_history');
         if (history) {
           history += ';'+tourId;
@@ -1028,7 +1028,7 @@
           historyName = opt.cookieName + '_history',
           found = false;
 
-      if (hasLocalStorage) {
+      if (hasSessionStorage) {
         history = utils.getState(historyName);
         if (history) {
           tourIds = history.split(';');
