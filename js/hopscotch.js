@@ -451,6 +451,7 @@
         }, 200);
       };
 
+      this.hide();
       document.body.appendChild(el);
       return this;
     };

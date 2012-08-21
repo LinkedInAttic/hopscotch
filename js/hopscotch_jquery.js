@@ -379,6 +379,7 @@
         }, 200);
       };
 
+      this.hide();
       $('body').append($el);
       return this;
     };
