@@ -1190,7 +1190,7 @@
      * isTourOptions.
      */
     this.configure = function(options) {
-      _configure.call(this, options, false);
+      return _configure.call(this, options, false);
     };
 
     this.init(initOptions);
