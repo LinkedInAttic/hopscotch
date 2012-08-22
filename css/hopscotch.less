@@ -46,10 +46,19 @@ div#hopscotch-bubble {
     padding: @bubblePadding;
     position: relative;
     -webkit-font-smoothing: antialiased; /* to fix text flickering */
+
+    p {
+      margin: 10px 0;
+      padding: 0;
+    }
   }
 
   #hopscotch-bubble-content {
-    margin-left: @circleWidth + 10px;
+    margin: 0 0 0 (@circleWidth + 10px);
+
+    h3 {
+      margin: 0 @bubblePadding 0 0;
+    }
   }
 
   #hopscotch-bubble-close {
