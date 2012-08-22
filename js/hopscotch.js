@@ -501,7 +501,7 @@
       closeBtnEl.id = 'hopscotch-bubble-close';
       closeBtnEl.href = '#';
       closeBtnEl.title = HopscotchI18N.closeTooltip;
-      closeBtnEl.innerHTML = 'x';
+      closeBtnEl.innerHTML = HopscotchI18N.closeTooltip;
 
       utils.addClickListener(closeBtnEl, function(evt) {
         var currStepNum   = hopscotch.getCurrStepNum(),
