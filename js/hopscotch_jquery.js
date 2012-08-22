@@ -27,13 +27,14 @@
  *
  */
 
-(function() {
+(function(context, namespace) {
   var Hopscotch,
       HopscotchBubble,
       HopscotchI18N,
       utils,
       callbacks,
       undefinedStr      = 'undefined',
+      winHopscotch      = context[namespace],
       waitingToStart    = false, // is a tour waiting for the document to finish
                                  // loading so that it can start?
       hasSessionStorage   = (typeof window.sessionStorage !== undefinedStr),
@@ -44,14 +45,14 @@
                            typeof docStyle.OTransition      !== undefinedStr ||
                            typeof docStyle.transition       !== undefinedStr);
 
-  if (window.hopscotch) {
+  if (winHopscotch) {
     // Hopscotch already exists.
     return;
   }
 
   $(window).load(function() {
     if (waitingToStart) {
-      window.hopscotch.startTour();
+      winHopscotch.startTour();
     }
   });
 
@@ -368,7 +369,7 @@
       // Not pretty, but IE doesn't support Function.bind(), so I'm
       // relying on closures to keep a handle of "this".
       // Reset position of bubble when window is resized
-      window.onresize = function() {
+      $(window).on('resize', function() {
         if (resizeCooldown || !isShowing) {
           return;
         }
@@ -377,7 +378,7 @@
           setPosition(self, currStep, false);
           resizeCooldown = false;
         }, 200);
-      };
+      });
 
       this.hide();
       $('body').append($el);
@@ -395,12 +396,12 @@
 
       // Attach click listeners
       this.$prevBtnEl.click(function(evt) {
-        window.hopscotch.prevStep();
+        winHopscotch.prevStep();
       });
       this.$nextBtnEl.click(function(evt) {
-        window.hopscotch.nextStep();
+        winHopscotch.nextStep();
       });
-      this.$doneBtnEl.click(window.hopscotch.endTour);
+      this.$doneBtnEl.click(winHopscotch.endTour);
 
       $buttonsEl.attr('id', 'hopscotch-actions')
                 .append(this.$prevBtnEl,
@@ -429,7 +430,7 @@
 
                    utils.invokeCallbacks('close', [currTour.id, currStepNum]);
 
-                   window.hopscotch.endTour(true, doEndCallback);
+                   winHopscotch.endTour(true, doEndCallback);
 
                    if (evt.preventDefault) {
                      evt.preventDefault();
@@ -1197,5 +1198,6 @@
     this.init(initOptions);
   };
 
-  window.hopscotch = new Hopscotch();
-}());
+  winHopscotch = new Hopscotch();
+  context[namespace] = winHopscotch;
+}(window, 'hopscotch'));

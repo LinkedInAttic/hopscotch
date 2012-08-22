@@ -10,8 +10,8 @@ div#hopscotch-bubble h3,div#hopscotch-bubble #hopscotch-bubble-number{font-size:
 div#hopscotch-bubble h3{margin:0;padding:0;}
 div#hopscotch-bubble #hopscotch-bubble-container{padding:15px;position:relative;-webkit-font-smoothing:antialiased;}
 div#hopscotch-bubble #hopscotch-bubble-content{margin-left:40px;}
-div#hopscotch-bubble #hopscotch-bubble-close{color:#000;background:transparent url(../img/sprite.png) -200px -100px no-repeat;display:block;margin:15px 10px 0 0;position:absolute;text-decoration:none;text-indent:-9999px;width:10px;height:10px;top:0;right:0;}
-div#hopscotch-bubble #hopscotch-bubble-number{background:transparent url(../img/sprite.png) 0 0 no-repeat;color:#fff;display:block;float:left;line-height:33px;margin:0 10px 0 0;text-align:center;width:30px;height:30px;}
+div#hopscotch-bubble #hopscotch-bubble-close{color:#000;background:transparent url(../img/sprite_os.png) -200px -100px no-repeat;display:block;margin:15px 10px 0 0;position:absolute;text-decoration:none;text-indent:-9999px;width:10px;height:10px;top:0;right:0;}
+div#hopscotch-bubble #hopscotch-bubble-number{background:transparent url(../img/sprite_os.png) 0 0 no-repeat;color:#fff;display:block;float:left;line-height:33px;margin:0 10px 0 0;text-align:center;width:30px;height:30px;}
 div#hopscotch-bubble #hopscotch-bubble-arrow-container{position:absolute;width:40px;height:40px;}div#hopscotch-bubble #hopscotch-bubble-arrow-container .hopscotch-bubble-arrow,div#hopscotch-bubble #hopscotch-bubble-arrow-container .hopscotch-bubble-arrow-border{width:0;height:0;}
 div#hopscotch-bubble #hopscotch-bubble-arrow-container.up{top:-26px;left:10px;}div#hopscotch-bubble #hopscotch-bubble-arrow-container.up .hopscotch-bubble-arrow{border-bottom:20px solid #ffffff;border-left:20px solid transparent;border-right:20px solid transparent;position:relative;top:-10px;}
 div#hopscotch-bubble #hopscotch-bubble-arrow-container.up .hopscotch-bubble-arrow-border{border-bottom:20px solid #000000;border-bottom:20px solid rgba(0, 0, 0, 0.5);border-left:20px solid transparent;border-right:20px solid transparent;}

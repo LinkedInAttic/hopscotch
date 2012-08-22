@@ -23,13 +23,14 @@
  *
  */
 
-(function() {
+(function(context, namespace) {
   var Hopscotch,
       HopscotchBubble,
       HopscotchI18N,
       utils,
       callbacks,
       winLoadHandler,
+      winHopscotch      = context[namespace],
       undefinedStr      = 'undefined',
       waitingToStart    = false, // is a tour waiting for the document to finish
                                  // loading so that it can start?
@@ -41,7 +42,7 @@
                            typeof docStyle.OTransition      !== undefinedStr ||
                            typeof docStyle.transition       !== undefinedStr);
 
-  if (window.hopscotch) {
+  if (winHopscotch) {
     // Hopscotch already exists.
     return;
   }
@@ -49,7 +50,7 @@
   winLoadHandler = function() {
     docLoaded = true;
     if (waitingToStart) {
-      window.hopscotch.startTour();
+      winHopscotch.startTour();
     }
   };
 
@@ -280,9 +281,9 @@
 
     createButton = function(id, text) {
       var btnEl = document.createElement('input');
-      btnEl.setAttribute('id', id);
-      btnEl.setAttribute('type', 'button');
-      btnEl.setAttribute('value', text);
+      btnEl.id = id;
+      btnEl.type = 'button';
+      btnEl.value = text;
       utils.addClass(btnEl, 'hopscotch-nav-button');
 
       if (id.indexOf('prev') >= 0) {
@@ -410,6 +411,7 @@
           bubbleContentEl = document.createElement('div'),
           self            = this,
           resizeCooldown  = false, // for updating after window resize
+          onWinResize,
           winResizeTimeout;
 
       this.element         = el;
@@ -418,14 +420,14 @@
       this.numberEl        = document.createElement('span');
       this.contentEl       = document.createElement('p');
 
-      el.setAttribute('id', 'hopscotch-bubble');
+      el.id = 'hopscotch-bubble';
       utils.addClass(el, 'animated'); // for bounce css animation
-      containerEl.setAttribute('id', 'hopscotch-bubble-container');
-      this.numberEl.setAttribute('id', 'hopscotch-bubble-number');
+      containerEl.id = 'hopscotch-bubble-container';
+      this.numberEl.id = 'hopscotch-bubble-number';
       containerEl.appendChild(this.numberEl);
       bubbleContentEl.appendChild(this.titleEl);
       bubbleContentEl.appendChild(this.contentEl);
-      bubbleContentEl.setAttribute('id', 'hopscotch-bubble-content');
+      bubbleContentEl.id = 'hopscotch-bubble-content';
       containerEl.appendChild(bubbleContentEl);
       el.appendChild(containerEl);
 
@@ -440,16 +442,25 @@
       // Not pretty, but IE doesn't support Function.bind(), so I'm
       // relying on closures to keep a handle of "this".
       // Reset position of bubble when window is resized
-      window.onresize = function() {
+      onWinResize = function() {
         if (resizeCooldown || !isShowing) {
           return;
         }
+
         resizeCooldown = true;
         winResizeTimeout = setTimeout(function() {
           setPosition(self, currStep, false);
           resizeCooldown = false;
         }, 200);
       };
+
+      if (window.addEventListener) {
+        window.addEventListener('resize', onWinResize);
+      }
+
+      else if (window.attachEvent) {
+        window.attachEvent('onresize', onWinResize);
+      }
 
       this.hide();
       document.body.appendChild(el);
@@ -470,14 +481,14 @@
 
       // Attach click listeners
       utils.addClickListener(this.prevBtnEl, function(evt) {
-        window.hopscotch.prevStep();
+        winHopscotch.prevStep();
       });
       utils.addClickListener(this.nextBtnEl, function(evt) {
-        window.hopscotch.nextStep();
+        winHopscotch.nextStep();
       });
-      utils.addClickListener(this.doneBtnEl, window.hopscotch.endTour);
+      utils.addClickListener(this.doneBtnEl, winHopscotch.endTour);
 
-      buttonsEl.setAttribute('id', 'hopscotch-actions');
+      buttonsEl.id = 'hopscotch-actions';
       this.buttonsEl = buttonsEl;
 
       this.containerEl.appendChild(buttonsEl);
@@ -487,9 +498,9 @@
     this.initCloseButton = function() {
       var closeBtnEl = document.createElement('a');
 
-      closeBtnEl.setAttribute('id', 'hopscotch-bubble-close');
-      closeBtnEl.setAttribute('href', '#');
-      closeBtnEl.setAttribute('title', HopscotchI18N.closeTooltip);
+      closeBtnEl.id = 'hopscotch-bubble-close';
+      closeBtnEl.href = '#';
+      closeBtnEl.title = HopscotchI18N.closeTooltip;
       closeBtnEl.innerHTML = 'x';
 
       utils.addClickListener(closeBtnEl, function(evt) {
@@ -499,7 +510,7 @@
 
         utils.invokeCallbacks('close', [currTour.id, currStepNum]);
 
-        window.hopscotch.endTour(true, doEndCallback);
+        winHopscotch.endTour(true, doEndCallback);
 
         if (evt.preventDefault) {
           evt.preventDefault();
@@ -519,7 +530,7 @@
           arrowBorderEl;
 
       this.arrowEl = document.createElement('div');
-      this.arrowEl.setAttribute('id', 'hopscotch-bubble-arrow-container');
+      this.arrowEl.id = 'hopscotch-bubble-arrow-container';
 
       arrowBorderEl = document.createElement('div');
       arrowBorderEl.className = 'hopscotch-bubble-arrow-border';
@@ -548,7 +559,7 @@
 
       this.showPrevButton(this.prevBtnEl && showPrev && (idx > 0 || subIdx > 0));
       this.showNextButton(this.nextBtnEl && showNext && !isLast);
-      this.nextBtnEl.setAttribute('value', step.showSkip ? HopscotchI18N.skipBtn : HopscotchI18N.nextBtn);
+      this.nextBtnEl.value = step.showSkip ? HopscotchI18N.skipBtn : HopscotchI18N.nextBtn;
       if (step.showSkip) {
       }
 
@@ -1331,5 +1342,6 @@
     this.init(initOptions);
   };
 
-  window.hopscotch = new Hopscotch();
-}());
+  winHopscotch = new Hopscotch();
+  context[namespace] = winHopscotch;
+}(window, 'hopscotch'));
