@@ -359,10 +359,7 @@
          .append($containerEl);
 
       this.initNavButtons();
-
-      if (opt && opt.showCloseButton) {
-        this.initCloseButton();
-      }
+      this.initCloseButton();
 
       this.initArrow();
 
@@ -883,7 +880,7 @@
       isLast = (stepIdx === numTourSteps - 1) || (substepIdx >= step.length - 1);
       bubble.renderStep(step, stepIdx, substepIdx, isLast, adjustWindowScroll);
 
-      if (step.multiPage) {
+      if (step.multipage) {
         cookieVal += ':mp';
       }
 
@@ -979,7 +976,7 @@
       if (clearCookie) {
         utils.clearState(opt.cookieName);
       }
-      this.isActive = false;
+      winHopscotch.isActive = false;
 
       if (doCallback) {
         utils.invokeCallbacks('end', [currTour.id]);
@@ -1089,6 +1086,24 @@
       return this;
     };
 
+    this.resetDefaultOptions = function() {
+      opt = {
+        animate:         false,
+        smoothScroll:    true,
+        scrollDuration:  1000,
+        scrollTopMargin: 200,
+        showCloseButton: true,
+        showPrevButton:  false,
+        showNextButton:  true,
+        bubbleWidth:     280,
+        bubblePadding:   15,
+        bubbleBorder:    6,
+        arrowWidth:      20,
+        skipIfNoElement: false,
+        cookieName:      'hopscotch.tour.state'
+      };
+    };
+
     /**
      * _configure
      * ==========
@@ -1141,23 +1156,10 @@
       var bubble;
 
       if (!opt) {
-        opt = {};
+        this.resetDefaultOptions();
       }
 
       utils.extend(opt, options);
-      opt.animate         = utils.valOrDefault(opt.animate, false);
-      opt.smoothScroll    = utils.valOrDefault(opt.smoothScroll, true);
-      opt.scrollDuration  = utils.valOrDefault(opt.scrollDuration, 1000);
-      opt.scrollTopMargin = utils.valOrDefault(opt.scrollTopMargin, 200);
-      opt.showCloseButton = utils.valOrDefault(opt.showCloseButton, true);
-      opt.showPrevButton  = utils.valOrDefault(opt.showPrevButton, false);
-      opt.showNextButton  = utils.valOrDefault(opt.showNextButton, true);
-      opt.bubbleWidth     = utils.valOrDefault(opt.bubbleWidth, 280);
-      opt.bubblePadding   = utils.valOrDefault(opt.bubblePadding, 15);
-      opt.bubbleBorder    = utils.valOrDefault(opt.bubbleBorder, 6);
-      opt.arrowWidth      = utils.valOrDefault(opt.arrowWidth, 20);
-      opt.skipIfNoElement = utils.valOrDefault(opt.skipIfNoElement, false);
-      opt.cookieName      = utils.valOrDefault(opt.cookieName, 'hopscotch.tour.state');
 
       if (options) {
         utils.extend(HopscotchI18N, options.i18n);
