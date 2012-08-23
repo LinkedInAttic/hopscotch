@@ -753,7 +753,7 @@
           tmpOpt[prop] = tour[prop];
         }
       }
-      opt = {}; // reset all options so there are no surprises
+      this.resetDefaultOptions(); // reset all options so there are no surprises
       _configure.call(this, tmpOpt, true);
 
       // Get existing tour state, if it exists.
