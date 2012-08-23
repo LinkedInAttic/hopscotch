@@ -1279,8 +1279,6 @@
      * skipIfNoElement  Boolean  - If a specified target element is not found,
      *                             should we skip to the next step? Defaults to
      *                             FALSE.
-     * cookieName:      String   - Name for the cookie key. Defaults to
-     *                             'hopscotch.tour.state'.
      * onNext:          Function - A callback to be invoked after every click on
      *                             a "Next" button.
      *
