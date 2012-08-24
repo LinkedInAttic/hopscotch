@@ -79,7 +79,7 @@
 
     invokeCallbacks: function(evtType, args) {
       var cbArr = callbacks[evtType],
-          i = 0;
+          i = 0,
           len = cbArr.length;
 
       for (; i<len; ++i) {
@@ -131,7 +131,6 @@
 
     setState: function(name,value,days) {
       var expires = '',
-          userDataName,
           date;
 
       if (hasSessionStorage) {
@@ -157,7 +156,7 @@
         return sessionStorage.getItem(name);
       }
       else {
-        for(var i=0;i < ca.length;i++) {
+        for(i=0;i < ca.length;i++) {
           c = ca[i];
           while (c.charAt(0)===' ') c = c.substring(1,c.length);
           if (c.indexOf(nameEQ) === 0) return c.substring(nameEQ.length,c.length);
@@ -243,15 +242,15 @@
           bounceDirection,
           top,
           left,
-          targetEl    = utils.getStepTarget(step)[0],
-          $el         = bubble.$element,
-          $arrowEl    = bubble.$arrowEl,
-          arrowOffset = utils.getPixelValue(step.arrowOffset);
+          bubbleBorder = 6,
+          targetEl     = utils.getStepTarget(step)[0],
+          $el          = bubble.$element,
+          $arrowEl     = bubble.$arrowEl,
+          arrowOffset  = utils.getPixelValue(step.arrowOffset);
 
       bounce        = utils.valOrDefault(bounce, true);
       bubbleWidth   = utils.getPixelValue(step.width) || opt.bubbleWidth;
       bubblePadding = utils.valOrDefault(step.padding, opt.bubblePadding);
-      bubbleBorder  = utils.valOrDefault(step.padding, opt.bubbleBorder);
 
       $el.removeClass('bounce-down bounce-up bounce-left bounce-right');
 
@@ -421,8 +420,8 @@
                    title: HopscotchI18N.closeTooltip
                  })
                  .click(function(evt) {
-                   var currStepNum   = hopscotch.getCurrStepNum(),
-                       currTour      = hopscotch.getCurrTour(),
+                   var currStepNum   = winHopscotch.getCurrStepNum(),
+                       currTour      = winHopscotch.getCurrTour(),
                        doEndCallback = (currStepNum === currTour.steps.length-1);
 
                    utils.invokeCallbacks('close', [currTour.id, currStepNum]);
@@ -472,6 +471,8 @@
 
       this.showPrevButton(this.$prevBtnEl && showPrev && (idx > 0 || subIdx > 0));
       this.showNextButton(this.$nextBtnEl && showNext && !isLast);
+      this.$nextBtnEl.val(step.showSkip ? HopscotchI18N.skipBtn : HopscotchI18N.nextBtn);
+
       if (isLast) {
         this.$doneBtnEl.removeClass('hide');
       }
@@ -654,6 +655,10 @@
       return (step.length > 0) ? step[currSubstepNum] : step;
     },
 
+    isInMultiPartStep = function() {
+      return currTour.steps[currStepNum].length > 0;
+    },
+
     /**
      * incrementStep
      * =============
@@ -699,10 +704,6 @@
       return false;
     },
 
-    isInMultiPartStep = function() {
-      return currTour.steps[currStepNum].length > 0;
-    },
-
     /**
      * adjustWindowScroll
      * ==================
@@ -723,9 +724,6 @@
     };
 
     this.init = function() {
-      var tourState,
-          tourPair;
-
       if (initOptions) {
         this.configure(initOptions);
       }
@@ -742,7 +740,10 @@
       var tmpOpt = {},
           bubble,
           prop,
+          tourState,
+          tourPair,
           stepPair;
+
       currTour = tour;
 
       // Set tour-specific configurations
@@ -800,9 +801,7 @@
 
     this.startTour = function(stepNum, substepNum) {
       var bubble,
-          step,
-          i,
-          len;
+          step;
 
       if (!currTour) {
         throw "Need to load a tour before you start it!";
@@ -847,7 +846,7 @@
       }
 
       if (currStepNum === 0 && !currSubstepNum) {
-        utils.invokeCallbacks('start', [currTour.id])
+        utils.invokeCallbacks('start', [currTour.id]);
       }
 
       this.showStep(currStepNum, currSubstepNum);
@@ -902,9 +901,12 @@
         while (!foundTarget && decrementStep()) {
           step = getCurrStep();
           foundTarget = utils.getStepTarget(step);
+          if (!foundTarget) {
+            utils.invokeCallbacks('error', [currTour.id, currStepNum]);
+          }
         }
         if (!foundTarget) {
-          this.endTour();
+          return this.endTour(true, false);
         }
       }
 
@@ -914,7 +916,7 @@
         step = getCurrStep();
         if (!utils.getStepTarget(step)) {
           utils.invokeCallbacks('error', [currTour.id, currStepNum]);
-          return;
+          return this.endTour(true, false);
         }
       }
 
@@ -934,24 +936,26 @@
       }
 
       if (opt.skipIfNoElement) {
-        // decrement step until we find a target or until we reach beginning
+        // increment step until we find a target or until we reach beginning
         while (!foundTarget && incrementStep()) {
           step = getCurrStep();
           foundTarget = utils.getStepTarget(step);
+          if (!foundTarget) {
+            utils.invokeCallbacks('error', [currTour.id, currStepNum]);
+          }
         }
         if (!foundTarget) {
-          this.endTour();
+          return this.endTour(true, false);
         }
       }
 
       else if (incrementStep()) {
-        // only try decrementing once, and invoke error callback if no target
+        // only try incrementing once, and invoke error callback if no target
         // is found
         step = getCurrStep();
         if (!utils.getStepTarget(step)) {
           utils.invokeCallbacks('error', [currTour.id, currStepNum]);
-          this.endTour();
-          return;
+          return this.endTour(true, false);
         }
       }
       this.showStep(currStepNum, currSubstepNum);
@@ -982,7 +986,7 @@
         utils.invokeCallbacks('end', [currTour.id]);
       }
 
-      hopscotch.removeCallbacks(true);
+      winHopscotch.removeCallbacks(true);
 
       return this;
     };
@@ -1097,9 +1101,8 @@
         showNextButton:  true,
         bubbleWidth:     280,
         bubblePadding:   15,
-        bubbleBorder:    6,
         arrowWidth:      20,
-        skipIfNoElement: false,
+        skipIfNoElement: true,
         cookieName:      'hopscotch.tour.state'
       };
     };
@@ -1110,7 +1113,6 @@
      * VALID OPTIONS INCLUDE...
      * bubbleWidth:     Number   - Default bubble width. Defaults to 280.
      * bubblePadding:   Number   - Default bubble padding. Defaults to 15.
-     * bubbleBorder:    Number   - Default bubble border width. Defaults to 6.
      * animate:         Boolean  - should the tour bubble animate between steps?
      *                             Defaults to FALSE.
      * smoothScroll:    Boolean  - should the page scroll smoothly to the next
@@ -1133,7 +1135,7 @@
      *                             use own CSS. Defaults to 28.
      * skipIfNoElement  Boolean  - If a specified target element is not found,
      *                             should we skip to the next step? Defaults to
-     *                             FALSE.
+     *                             TRUE.
      * onNext:          Function - A callback to be invoked after every click on
      *                             a "Next" button.
      *

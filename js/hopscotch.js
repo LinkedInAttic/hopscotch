@@ -35,12 +35,7 @@
       waitingToStart    = false, // is a tour waiting for the document to finish
                                  // loading so that it can start?
       hasSessionStorage = (typeof window.sessionStorage !== undefinedStr),
-      docStyle          = document.body.style,
-      hasCssTransitions = (typeof docStyle.MozTransition    !== undefinedStr ||
-                           typeof docStyle.MsTransition     !== undefinedStr ||
-                           typeof docStyle.webkitTransition !== undefinedStr ||
-                           typeof docStyle.OTransition      !== undefinedStr ||
-                           typeof docStyle.transition       !== undefinedStr);
+      docStyle          = document.body.style;
 
   if (winHopscotch) {
     // Hopscotch already exists.
@@ -48,7 +43,6 @@
   }
 
   winLoadHandler = function() {
-    docLoaded = true;
     if (waitingToStart) {
       winHopscotch.startTour();
     }
@@ -326,15 +320,15 @@
           bounceDirection,
           top,
           left,
-          targetEl    = utils.getStepTarget(step),
-          el          = bubble.element,
-          arrowEl     = bubble.arrowEl,
-          arrowOffset = utils.getPixelValue(step.arrowOffset);
+          bubbleBorder = 6,
+          targetEl     = utils.getStepTarget(step),
+          el           = bubble.element,
+          arrowEl      = bubble.arrowEl,
+          arrowOffset  = utils.getPixelValue(step.arrowOffset);
 
       bounce        = utils.valOrDefault(bounce, true);
       bubbleWidth   = utils.getPixelValue(step.width) || opt.bubbleWidth;
       bubblePadding = utils.valOrDefault(step.padding, opt.bubblePadding);
-      bubbleBorder = utils.valOrDefault(step.padding, opt.bubbleBorder);
 
       utils.removeClass(el, 'bounce-down bounce-up bounce-left bounce-right');
 
@@ -501,8 +495,8 @@
       closeBtnEl.innerHTML = HopscotchI18N.closeTooltip;
 
       utils.addClickListener(closeBtnEl, function(evt) {
-        var currStepNum   = hopscotch.getCurrStepNum(),
-            currTour      = hopscotch.getCurrTour(),
+        var currStepNum   = winHopscotch.getCurrStepNum(),
+            currTour      = winHopscotch.getCurrTour(),
             doEndCallback = (currStepNum === currTour.steps.length-1);
 
         utils.invokeCallbacks('close', [currTour.id, currStepNum]);
@@ -557,8 +551,6 @@
       this.showPrevButton(this.prevBtnEl && showPrev && (idx > 0 || subIdx > 0));
       this.showNextButton(this.nextBtnEl && showNext && !isLast);
       this.nextBtnEl.value = step.showSkip ? HopscotchI18N.skipBtn : HopscotchI18N.nextBtn;
-      if (step.showSkip) {
-      }
 
       if (isLast) {
         utils.removeClass(this.doneBtnEl, 'hide');
@@ -734,6 +726,10 @@
       return (step.length > 0) ? step[currSubstepNum] : step;
     },
 
+    isInMultiPartStep = function() {
+      return currTour.steps[currStepNum].length > 0;
+    },
+
     /**
      * incrementStep
      * =============
@@ -777,10 +773,6 @@
         return true;
       }
       return false;
-    },
-
-    isInMultiPartStep = function() {
-      return currTour.steps[currStepNum].length > 0;
     },
 
     /**
@@ -864,13 +856,12 @@
           window.scrollTo(0, scrollToVal);
         }
       }
-    };
+    },
 
-    this.init = function() {
+    init = function() {
       if (initOptions) {
         this.configure(initOptions);
       }
-      return this;
     };
 
     /**
@@ -1045,9 +1036,12 @@
         while (!foundTarget && decrementStep()) {
           step = getCurrStep();
           foundTarget = utils.getStepTarget(step);
+          if (!foundTarget) {
+            utils.invokeCallbacks('error', [currTour.id, currStepNum]);
+          }
         }
         if (!foundTarget) {
-          this.endTour();
+          return this.endTour(true, false);
         }
       }
 
@@ -1057,7 +1051,7 @@
         step = getCurrStep();
         if (!utils.getStepTarget(step)) {
           utils.invokeCallbacks('error', [currTour.id, currStepNum]);
-          return;
+          return this.endTour(true, false);
         }
       }
 
@@ -1077,24 +1071,26 @@
       }
 
       if (opt.skipIfNoElement) {
-        // decrement step until we find a target or until we reach beginning
+        // increment step until we find a target or until we reach beginning
         while (!foundTarget && incrementStep()) {
           step = getCurrStep();
           foundTarget = utils.getStepTarget(step);
+          if (!foundTarget) {
+            utils.invokeCallbacks('error', [currTour.id, currStepNum]);
+          }
         }
         if (!foundTarget) {
-          this.endTour();
+          return this.endTour(true, false);
         }
       }
 
       else if (incrementStep()) {
-        // only try decrementing once, and invoke error callback if no target
+        // only try incrementing once, and invoke error callback if no target
         // is found
         step = getCurrStep();
         if (!utils.getStepTarget(step)) {
           utils.invokeCallbacks('error', [currTour.id, currStepNum]);
-          this.endTour();
-          return;
+          return this.endTour(true, false);
         }
       }
       this.showStep(currStepNum, currSubstepNum);
@@ -1125,7 +1121,7 @@
         utils.invokeCallbacks('end', [currTour.id]);
       }
 
-      hopscotch.removeCallbacks(true);
+      winHopscotch.removeCallbacks(true);
 
       return this;
     };
@@ -1242,9 +1238,8 @@
         showNextButton:  true,
         bubbleWidth:     280,
         bubblePadding:   15,
-        bubbleBorder:    6,
         arrowWidth:      20,
-        skipIfNoElement: false,
+        skipIfNoElement: true,
         cookieName:      'hopscotch.tour.state'
       };
     };
@@ -1255,7 +1250,6 @@
      * VALID OPTIONS INCLUDE...
      * bubbleWidth:     Number   - Default bubble width. Defaults to 280.
      * bubblePadding:   Number   - Default bubble padding. Defaults to 15.
-     * bubbleBorder:    Number   - Default bubble border width. Defaults to 6.
      * animate:         Boolean  - should the tour bubble animate between steps?
      *                             Defaults to FALSE.
      * smoothScroll:    Boolean  - should the page scroll smoothly to the next
@@ -1273,12 +1267,13 @@
      * showNextButton:  Boolean  - should the bubble have the Next button?
      *                             Defaults to TRUE.
      * arrowWidth:      Number   - Default arrow width. (space between the bubble
-     *                             and the targetEl) Need to provide the option
-     *                             to set this here in case developer wants to
-     *                             use own CSS. Defaults to 28.
+     *                             and the targetEl) Used for bubble position
+     *                             calculation. Need to provide the option to set
+     *                             this here in case developer wants to use own CSS.
+     *                             Defaults to 20.
      * skipIfNoElement  Boolean  - If a specified target element is not found,
      *                             should we skip to the next step? Defaults to
-     *                             FALSE.
+     *                             TRUE.
      * onNext:          Function - A callback to be invoked after every click on
      *                             a "Next" button.
      *
@@ -1340,7 +1335,7 @@
       return _configure.call(this, options, false);
     };
 
-    this.init(initOptions);
+    init.call(this, initOptions);
   };
 
   winHopscotch = new Hopscotch();
