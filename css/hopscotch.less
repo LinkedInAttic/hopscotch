@@ -1,5 +1,6 @@
 @import "util.less";
 @import "bounce.less";
+@import "flipin.less";
 
 @anim-duration: .5s;
 @bubbleCornerRadius: 10px;
@@ -24,6 +25,10 @@ div#hopscotch-bubble {
 
   &.animate {
     .transition('top, left', @anim-duration, ease-in-out);
+  }
+
+  &.invisible {
+    opacity: 0;
   }
 
   &.hide,

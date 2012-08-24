@@ -35,7 +35,9 @@
       waitingToStart    = false, // is a tour waiting for the document to finish
                                  // loading so that it can start?
       hasSessionStorage = (typeof window.sessionStorage !== undefinedStr),
-      docStyle          = document.body.style;
+      docStyle          = document.body.style,
+      flipDuration      = 2000,
+      closeDuration     = 1000;
 
   if (winHopscotch) {
     // Hopscotch already exists.
@@ -330,7 +332,8 @@
       bubbleWidth   = utils.getPixelValue(step.width) || opt.bubbleWidth;
       bubblePadding = utils.valOrDefault(step.padding, opt.bubblePadding);
 
-      utils.removeClass(el, 'bounce-down bounce-up bounce-left bounce-right');
+      //utils.removeClass(el, 'bounce-down bounce-up bounce-left bounce-right');
+      utils.removeClass(el, 'flip-in-down flip-in-up flip-in-left flip-in-right');
 
       // SET POSITION
       boundingRect = targetEl.getBoundingClientRect();
@@ -338,22 +341,22 @@
         bubbleHeight = el.offsetHeight;
         top = (boundingRect.top - bubbleHeight) - opt.arrowWidth;
         left = boundingRect.left;
-        bounceDirection = 'bounce-down';
+        bounceDirection = 'flip-in-down';
       }
       else if (step.orientation === 'bottom') {
         top = boundingRect.bottom + opt.arrowWidth;
         left = boundingRect.left;
-        bounceDirection = 'bounce-up';
+        bounceDirection = 'flip-in-up';
       }
       else if (step.orientation === 'left') {
         top = boundingRect.top;
         left = boundingRect.left - bubbleWidth - 2*bubblePadding - 2*bubbleBorder - opt.arrowWidth;
-        bounceDirection = 'bounce-right';
+        bounceDirection = 'flip-in-right';
       }
       else if (step.orientation === 'right') {
         top = boundingRect.top;
         left = boundingRect.right + opt.arrowWidth;
-        bounceDirection = 'bounce-left';
+        bounceDirection = 'flip-in-left';
       }
 
       // SET (OR RESET) ARROW OFFSETS
@@ -385,6 +388,7 @@
         el.style.left = left + 'px';
 
         // Do the bouncing effect
+        /*
         if (bounce) {
           bounceDelay = opt.smoothScroll ? opt.scrollDuration : 0;
 
@@ -394,12 +398,13 @@
           // Then remove it
           setTimeout(function() {
             utils.removeClass(el, bounceDirection);
-          }, bounceDelay + 2000); // bounce lasts 2 seconds
+          }, bounceDelay + flipDuration); // bounce lasts 2 seconds
         }
+        */
       }
-    };
+    },
 
-    this.init = function() {
+    init = function() {
       var el              = document.createElement('div'),
           containerEl     = document.createElement('div'),
           bubbleContentEl = document.createElement('div'),
@@ -453,7 +458,7 @@
         window.attachEvent('onresize', onWinResize);
       }
 
-      this.hide();
+      utils.addClass(el, 'invisible');
       document.body.appendChild(el);
       return this;
     };
@@ -547,6 +552,7 @@
       this.setTitle(step.title ? step.title : '');
       this.setContent(step.content ? step.content : '');
       this.setNum(idx);
+      this.orientation = step.orientation;
 
       this.showPrevButton(this.prevBtnEl && showPrev && (idx > 0 || subIdx > 0));
       this.showNextButton(this.nextBtnEl && showNext && !isLast);
@@ -635,21 +641,45 @@
       }
     };
 
+    this.getArrowDirection = function() {
+      if (this.orientation === 'top') {
+        return 'down';
+      }
+      if (this.orientation === 'bottom') {
+        return 'up';
+      }
+      if (this.orientation === 'left') {
+        return 'right';
+      }
+      if (this.orientation === 'right') {
+        return 'left';
+      }
+    };
+
     this.show = function() {
-      var self = this;
+      var self      = this,
+          className = 'flip-in-' + this.getArrowDirection();
+
+      utils.removeClass(this.element, 'hide');
       if (opt.animate) {
         setTimeout(function() {
           utils.addClass(self.element, 'animate');
         }, 50);
       }
-      utils.removeClass(this.element, 'hide');
+      else {
+        utils.removeClass(self.element, 'hide');
+        utils.addClass(self.element, className);
+      }
       isShowing = true;
       return this;
     };
 
     this.hide = function() {
-      utils.addClass(this.element, 'hide');
-      utils.removeClass(this.element, 'animate');
+      var el = this.element;
+      el.style.top = '';
+      el.style.left = '';
+      utils.addClass(el, 'hide');
+      utils.removeClass(el, 'animate invisible flip-in-up flip-in-down flip-in-right flip-in-left');
       isShowing = false;
       return this;
     };
@@ -693,7 +723,7 @@
       utils.removeClass(this.element, 'animate');
     };
 
-    this.init();
+    init.call(this);
   };
 
   Hopscotch = function(initOptions) {
@@ -783,7 +813,8 @@
      * to bring it back into the viewport.
      */
     adjustWindowScroll = function() {
-      var bubbleEl       = getBubble().element,
+      var bubble         = getBubble(),
+          bubbleEl       = bubble.element,
           bubbleTop      = utils.getPixelValue(bubbleEl.style.top),
           bubbleBottom   = bubbleTop + utils.getPixelValue(bubbleEl.offsetHeight),
           targetEl       = utils.getStepTarget(getCurrStep()),
@@ -821,6 +852,7 @@
       }
 
       if (targetTop >= windowTop && targetTop <= windowTop + opt.scrollTopMargin) {
+        bubble.show();
         return;
       }
 
@@ -842,6 +874,7 @@
               // and clear the interval
               scrollTarget = scrollToVal;
               clearInterval(scrollInt);
+              bubble.show();
             }
 
             window.scrollTo(0, scrollTarget);
@@ -849,11 +882,13 @@
             if (utils.getScrollTop() === scrollTop) {
               // Couldn't scroll any further. Clear interval.
               clearInterval(scrollInt);
+              bubble.show();
             }
           }, 10);
         }
         else {
           window.scrollTo(0, scrollToVal);
+          bubble.show();
         }
       }
     },
@@ -985,7 +1020,7 @@
       }
 
       this.showStep(currStepNum, currSubstepNum);
-      bubble = getBubble().show();
+      bubble = getBubble();
 
       if (opt.animate) {
         bubble.initAnimate();
@@ -1024,7 +1059,9 @@
 
     this.prevStep = function() {
       var step        = getCurrStep(),
-          foundTarget = false;
+          foundTarget = false,
+          bubble      = getBubble(),
+          self        = this;
 
       utils.invokeCallbacks('prev', [currTour.id, currStepNum]);
       if (step.onPrev) {
@@ -1055,13 +1092,16 @@
         }
       }
 
-      this.showStep(currStepNum, currSubstepNum);
+      utils.addClass(bubble.element, 'invisible');
+      self.showStep(currStepNum, currSubstepNum);
+
       return this;
     };
 
     this.nextStep = function() {
-      var step = getCurrStep(),
-          foundTarget = false;
+      var step        = getCurrStep(),
+          foundTarget = false,
+          bubble      = getBubble();
 
       // invoke Next button callbacks
       utils.invokeCallbacks('next', [currTour.id, currStepNum]);
@@ -1093,6 +1133,8 @@
           return this.endTour(true, false);
         }
       }
+
+      utils.addClass(bubble.element, 'invisible');
       this.showStep(currStepNum, currSubstepNum);
 
       return this;
