@@ -189,6 +189,7 @@
     nextBtn: 'Next',
     prevBtn: 'Back',
     doneBtn: 'Done',
+    skipBtn: 'Skip',
     closeTooltip: 'Close'
   };
 
@@ -849,13 +850,20 @@
         utils.invokeCallbacks('start', [currTour.id]);
       }
 
-      this.showStep(currStepNum, currSubstepNum);
-      bubble = getBubble().show();
-
+      this.isActive = true;
       if (opt.animate) {
         bubble.initAnimate();
       }
-      this.isActive = true;
+
+      if (!utils.getStepTarget(getCurrStep())) {
+        utils.invokeCallbacks('error', [currTour.id, currStepNum]);
+        if (opt.skipIfNoElement) {
+          this.nextStep();
+        }
+      }
+      else {
+        this.showStep(currStepNum, currSubstepNum);
+      }
       return this;
     };
 
@@ -884,6 +892,7 @@
       }
 
       utils.setState(opt.cookieName, cookieVal, 1);
+      getBubble().show();
       return this;
     };
 
