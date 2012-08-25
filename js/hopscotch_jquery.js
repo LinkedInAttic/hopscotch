@@ -832,7 +832,7 @@
             // clicked on a link that wasn't part of the tour. Let's just "end"
             // the tour and depend on the cookie to pick the user back up where
             // she left off.
-            this.endTour(false);
+            this.endTour(false, false);
             return;
           }
         }
