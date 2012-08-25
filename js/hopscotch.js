@@ -474,6 +474,7 @@
       utils.addClickListener(this.prevBtnEl, function(evt) {
         winHopscotch.prevStep();
       });
+
       utils.addClickListener(this.nextBtnEl, function(evt) {
         winHopscotch.nextStep();
       });
@@ -942,6 +943,8 @@
         throw "Need to load a tour before you start it!";
       }
 
+      // If document isn't ready, wait for it to finish loading.
+      // (so that we can calculate positioning accurately)
       if (document.readyState !== 'complete') {
         waitingToStart = true;
         return;
@@ -958,9 +961,9 @@
         currSubstepNum = cookieTourSubstep;
         step           = getCurrStep();
         if (!utils.getStepTarget(step)) {
+          // May have just refreshed the page. Previous step should work. (but don't change cookie)
           decrementStep();
           step = getCurrStep();
-          // May have just refreshed the page. Previous step should work. (but don't change cookie)
           if (!utils.getStepTarget(step)) {
             // Previous target doesn't exist either. The user may have just
             // clicked on a link that wasn't part of the tour. Let's just "end"
@@ -989,15 +992,17 @@
         bubble.initAnimate();
       }
 
+      // Check if first step element exists
       if (!utils.getStepTarget(getCurrStep())) {
         utils.invokeCallbacks('error', [currTour.id, currStepNum]);
         if (opt.skipIfNoElement) {
-          this.nextStep();
+          this.nextStep(false);
         }
       }
       else {
         this.showStep(currStepNum, currSubstepNum);
       }
+
       return this;
     };
 
@@ -1034,10 +1039,11 @@
       var step        = getCurrStep(),
           foundTarget = false;
 
-      utils.invokeCallbacks('prev', [currTour.id, currStepNum]);
+      // invoke callbacks
       if (step.onPrev) {
         step.onPrev();
       }
+      utils.invokeCallbacks('prev', [currTour.id, currStepNum]);
 
       if (opt.skipIfNoElement) {
         // decrement step until we find a target or until we reach beginning
@@ -1052,7 +1058,6 @@
           return this.endTour(true, false);
         }
       }
-
       else if (decrementStep()) {
         // only try decrementing once, and invoke error callback if no target
         // is found
@@ -1067,16 +1072,12 @@
       return this;
     };
 
-    this.nextStep = function() {
-      var step = getCurrStep(),
+    this.nextStep = function(btnClick) {
+      var step        = getCurrStep(),
+          origStepNum = currStepNum,
           foundTarget = false;
 
-      // invoke Next button callbacks
-      utils.invokeCallbacks('next', [currTour.id, currStepNum]);
-
-      if (step.onNext) {
-        step.onNext();
-      }
+      btnClick = utils.valOrDefault(btnClick, true);
 
       if (opt.skipIfNoElement) {
         // increment step until we find a target or until we reach beginning
@@ -1091,7 +1092,6 @@
           return this.endTour(true, false);
         }
       }
-
       else if (incrementStep()) {
         // only try incrementing once, and invoke error callback if no target
         // is found
@@ -1100,6 +1100,14 @@
           utils.invokeCallbacks('error', [currTour.id, currStepNum]);
           return this.endTour(true, false);
         }
+      }
+
+      if (btnClick) {
+        // invoke callbacks -- only if it resulted from a button click
+        if (step.onNext) {
+          step.onNext();
+        }
+        utils.invokeCallbacks('next', [currTour.id, origStepNum]);
       }
       this.showStep(currStepNum, currSubstepNum);
 
