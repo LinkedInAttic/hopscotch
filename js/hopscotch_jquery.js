@@ -247,7 +247,8 @@
           targetEl     = utils.getStepTarget(step)[0],
           $el          = bubble.$element,
           $arrowEl     = bubble.$arrowEl,
-          arrowOffset  = utils.getPixelValue(step.arrowOffset);
+          arrowOffset  = utils.getPixelValue(step.arrowOffset),
+          position     = step.fixedElement ? 'fixed' : 'absolute';
 
       bounce        = utils.valOrDefault(bounce, true);
       bubbleWidth   = utils.getPixelValue(step.width) || opt.bubbleWidth;
@@ -304,24 +305,23 @@
       top += utils.getPixelValue(step.yOffset);
 
       // ADJUST TOP FOR SCROLL POSITION
-      top += utils.getScrollTop();
-      left += utils.getScrollLeft();
+      if (!step.fixedElement) {
+        top += utils.getScrollTop();
+        left += utils.getScrollLeft();
+      }
 
-      if (opt.animate) {
-        if (!hasCssTransitions && opt.animate) {
-          $el.animate({
-            top: top + 'px',
-            left: left + 'px'
-          });
-        }
-        else { // hasCssTransitions || !opt.animate
-          $el.css('top', top + 'px');
-          $el.css('left', left + 'px');
-        }
+      if (opt.animate && !hasCssTransitions) {
+        $el.animate({
+          top: top + 'px',
+          left: left + 'px'
+        }).css('position', position);
       }
       else {
-        $el.css('top', top + 'px');
-        $el.css('left', left + 'px');
+        $el.css({
+          top: top + 'px',
+          left: left + 'px',
+          position: position
+        });
 
         // Do the bouncing effect
         if (bounce) {
@@ -501,13 +501,13 @@
         // Timeout to get correct height of bubble for positioning.
         setTimeout(function() {
           setPosition(self, step);
-          if (callback) { callback(); }
+          if (callback && !step.fixedElement) { callback(); }
         }, 5);
       }
       else {
         // Don't care about height for the other orientations.
         setPosition(this, step);
-        if (callback) { callback(); }
+        if (callback && !step.fixedElement) { callback(); }
       }
 
       return this;

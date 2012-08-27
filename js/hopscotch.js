@@ -375,29 +375,28 @@
       top += utils.getPixelValue(step.yOffset);
 
       // ADJUST TOP FOR SCROLL POSITION
-      top += utils.getScrollTop();
-      left += utils.getScrollLeft();
-
-      if (opt.animate) {
-        el.style.top = top + 'px';
-        el.style.left = left + 'px';
+      if (!step.fixedElement) {
+        top += utils.getScrollTop();
+        left += utils.getScrollLeft();
       }
-      else {
-        el.style.top = top + 'px';
-        el.style.left = left + 'px';
 
+      // ACCOUNT FOR FIXED POSITION ELEMENTS
+      el.style.position = (step.fixedElement ? 'fixed' : 'absolute');
+
+      el.style.top = top + 'px';
+      el.style.left = left + 'px';
+
+      if (!opt.animate && bounce) {
         // Do the bouncing effect
-        if (bounce) {
-          bounceDelay = opt.smoothScroll ? opt.scrollDuration : 0;
+        bounceDelay = opt.smoothScroll ? opt.scrollDuration : 0;
 
-          setTimeout(function() {
-            utils.addClass(el, bounceDirection);
-          }, bounceDelay);
-          // Then remove it
-          setTimeout(function() {
-            utils.removeClass(el, bounceDirection);
-          }, bounceDelay + 2000); // bounce lasts 2 seconds
-        }
+        setTimeout(function() {
+          utils.addClass(el, bounceDirection);
+        }, bounceDelay);
+        // Then remove it
+        setTimeout(function() {
+          utils.removeClass(el, bounceDirection);
+        }, bounceDelay + 2000); // bounce lasts 2 seconds
       }
     };
 
@@ -574,13 +573,15 @@
         // Timeout to get correct height of bubble for positioning.
         setTimeout(function() {
           setPosition(self, step);
-          if (callback) { callback(); }
+          // only want to adjust window scroll for non-fixed elements
+          if (callback && !step.fixedElement) { callback(); }
         }, 5);
       }
       else {
         // Don't care about height for the other orientations.
         setPosition(this, step);
-        if (callback) { callback(); }
+        // only want to adjust window scroll for non-fixed elements
+        if (callback && !step.fixedElement) { callback(); }
       }
 
       return this;
