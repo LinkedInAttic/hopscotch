@@ -818,7 +818,7 @@
       // (so that we can calculate positioning accurately)
       if (document.readyState !== 'complete') {
         waitingToStart = true;
-        return;
+        return this;
       }
 
       if (typeof stepNum !== undefinedStr) {
@@ -841,7 +841,7 @@
             // the tour and depend on the cookie to pick the user back up where
             // she left off.
             this.endTour(false, false);
-            return;
+            return this;
           }
         }
       }
@@ -854,9 +854,7 @@
         currSubstepNum = 0;
       }
 
-      if (currStepNum === 0 && !currSubstepNum) {
-        utils.invokeCallbacks('start', [currTour.id]);
-      }
+      utils.invokeCallbacks('start', [currTour.id, currStepNum]);
 
       this.isActive = true;
       if (opt.animate) {
@@ -1185,12 +1183,12 @@
         utils.extend(HopscotchI18N, options.i18n);
       }
 
-      this.addCallback('next', options.onNext, isTourOptions);
-      this.addCallback('prev', options.onPrev, isTourOptions);
-      this.addCallback('start', options.onStart, isTourOptions);
-      this.addCallback('end', options.onEnd, isTourOptions);
-      this.addCallback('error', options.onError, isTourOptions);
-      this.addCallback('close', options.onClose, isTourOptions);
+      this.addCallback('next', options.onNext, isTourOptions)
+          .addCallback('prev', options.onPrev, isTourOptions)
+          .addCallback('start', options.onStart, isTourOptions)
+          .addCallback('end', options.onEnd, isTourOptions)
+          .addCallback('error', options.onError, isTourOptions)
+          .addCallback('close', options.onClose, isTourOptions);
 
       bubble = getBubble();
 
