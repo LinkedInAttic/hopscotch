@@ -287,10 +287,16 @@
         });
       }
       else if (step.orientation === 'top' || step.orientation === 'bottom') {
-        $arrowEl.css('left', arrowOffset + 'px');
+        $arrowEl.css({
+          left: arrowOffset + 'px',
+          top: ''
+        });
       }
       else if (step.orientation === 'left' || step.orientation === 'right') {
-        $arrowEl.css('top', arrowOffset + 'px');
+        $arrowEl.css({
+          top: arrowOffset + 'px',
+          left: ''
+        });
       }
 
       // SET OFFSETS

@@ -362,9 +362,11 @@
         arrowEl.style.left = '';
       }
       else if (step.orientation === 'top' || step.orientation === 'bottom') {
+        arrowEl.style.top = '';
         arrowEl.style.left = arrowOffset + 'px';
       }
       else if (step.orientation === 'left' || step.orientation === 'right') {
+        arrowEl.style.left = '';
         arrowEl.style.top = arrowOffset + 'px';
       }
 
