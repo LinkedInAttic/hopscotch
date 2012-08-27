@@ -12,18 +12,6 @@ var tour = {
       },
     },
     {
-      title: 'Debug controls',
-      content: 'Here are the debug controls. They\'re pretty self-explanatory: start a tour, end a tour, clear the tour cookie (if you want the tour to forget what step you are on).',
-      target: 'debug',
-      orientation: 'left',
-      width: 320,
-      height: 480,
-      showSkip: true,
-      onPrev: function() {
-        document.getElementById('pageTitle').style.color = '#000';
-      }
-    },
-    {
       title: 'Mission district',
       content: 'Some sort of sound heat map in the mission? Did you notice that this bubble isn\'t completely aligned with this image? That\'s because I\'m using xOffset and yOffset options, which are available if you need to make slight positioning adjustments! Hopscotch has never been more fun!',
       target: 'mission',
@@ -31,33 +19,47 @@ var tour = {
       xOffset: 100,
       arrowOffset: 100
     },
-    [
-      {
-        title: 'Cool wave',
-        content: 'This is a <b>colorful</b> wave. Here is the the <a href="http://imgur.com/s632o" target="_new">page</a> where I found it.',
-        target: 'wave',
-        orientation: 'bottom',
-        width: 500,
-        //xOffset: -50,
-        //arrowOffset: 400,
-        //showPrevButton: false
-      },
-      {
-        title: 'Multi-page test',
-        content: 'Are you ready? We\'re going to try hopping to another page and then back!!! Where we\'re going, we won\'t need roads... (Please click this link.)',
-        target: 'secpagelink',
-        orientation: 'bottom',
-        showNextButton: false,
-        multiPage: true
-      },
-      {
-        title: 'Polar bears',
-        //content: 'We made it!! Polar bears are very interesting creatures.',
-        target: 'polarbears',
-        orientation: 'right',
-        showPrevButton: false
+    {
+      title: 'Debug controls',
+      content: 'Here are the debug controls. They\'re pretty self-explanatory: start a tour, end a tour, clear the tour cookie (if you want the tour to forget what step you are on).',
+      target: 'debug',
+      orientation: 'left',
+      width: 320,
+      height: 480,
+      showSkip: true,
+      fixedElement: true,
+      xOffset: 20,
+      zindex: 15,
+      delay: 1000,
+      onPrev: function() {
+        document.getElementById('pageTitle').style.color = '#000';
       }
-    ],
+    },
+    {
+      title: 'Cool wave',
+      content: 'This is a <b>colorful</b> wave. Here is the the <a href="http://imgur.com/s632o" target="_new">page</a> where I found it.',
+      target: 'wave',
+      orientation: 'bottom',
+      width: 500,
+      //xOffset: -50,
+      //arrowOffset: 400,
+      //showPrevButton: false
+    },
+    {
+      title: 'Multi-page test',
+      content: 'Are you ready? We\'re going to try hopping to another page and then back!!! Where we\'re going, we won\'t need roads... (Please click this link.)',
+      target: 'secpagelink',
+      orientation: 'bottom',
+      showNextButton: false,
+      multipage: true
+    },
+    {
+      title: 'Polar bears',
+      //content: 'We made it!! Polar bears are very interesting creatures.',
+      target: 'polarbears',
+      orientation: 'right',
+      showPrevButton: false
+    },
     {
       title: 'Returning to the first page',
       content: 'Time to go back home... Please click this link to return to the first page.',
@@ -65,7 +67,7 @@ var tour = {
       orientation: 'bottom',
       showNextButton: false,
       showPrevButton: false,
-      multiPage: true // this indicates that next step will be on a different page
+      multipage: true // this indicates that next step will be on a different page
     },
     {
       title: 'Python decorator',
@@ -90,7 +92,8 @@ var tour = {
         list = document.getElementById('my-list');
     if (list) {
       newLi = document.createElement('li');
-      newLi.innerHTML = 'going from step ' + (idx + 1) + ' to step ' + (idx+2) + '. (can use this callback for tracking)';
+      newLi.innerHTML = 'clicked next on step ' + (idx + 1);
+      //newLi.innerHTML = 'going from step ' + (idx + 1) + ' to step ' + (idx+2) + '. (can use this callback for tracking)';
       list.appendChild(newLi);
     }
   },
@@ -104,7 +107,18 @@ var tour = {
     console.log('tour end ' + tourId);
   },
   onError: function(tourId, idx) {
-    alert('DANGER!!! tourId: ' + tourId + ' and idx: ' + idx);
+    //alert('DANGER!!! tourId: ' + tourId + ' and idx: ' + idx);
+    var newLi,
+        list = document.getElementById('my-list');
+    if (list) {
+      newLi = document.createElement('li');
+      newLi.innerHTML = 'error on step ' + (idx + 1);
+      //newLi.innerHTML = 'going from step ' + (idx + 1) + ' to step ' + (idx+2) + '. (can use this callback for tracking)';
+      list.appendChild(newLi);
+    }
+  },
+  onClose: function() {
+    console.log('closing');
   }
   //i18n: {
     ////nextBtn: 'Forward',

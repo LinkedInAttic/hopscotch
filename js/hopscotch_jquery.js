@@ -497,6 +497,8 @@
         padding: bubblePadding + 'px'
       });
 
+      this.$element.css('zIndex', step.zindex ? step.zindex : '');
+
       if (step.orientation === 'top') {
         // Timeout to get correct height of bubble for positioning.
         setTimeout(function() {
@@ -880,6 +882,7 @@
           numTourSteps = tourSteps.length,
           cookieVal    = currTour.id + ':' + stepIdx,
           bubble       = getBubble(),
+          delay        = utils.valOrDefault(step.delay, 0),
           isLast;
 
       // Update bubble for current step
@@ -892,14 +895,17 @@
       }
 
       isLast = (stepIdx === numTourSteps - 1) || (substepIdx >= step.length - 1);
-      bubble.renderStep(step, stepIdx, substepIdx, isLast, adjustWindowScroll);
+
+      setTimeout(function() {
+        bubble.renderStep(step, stepIdx, substepIdx, isLast, adjustWindowScroll);
+        bubble.show();
+      }, delay);
 
       if (step.multipage) {
         cookieVal += ':mp';
       }
 
       utils.setState(opt.cookieName, cookieVal, 1);
-      getBubble().show();
       return this;
     };
 
