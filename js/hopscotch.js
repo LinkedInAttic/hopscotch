@@ -309,7 +309,7 @@
      * target element and the orientation and offset information specified by
      * the step JSON.
      */
-    setPosition = function(bubble, step, bounce) {
+    setPosition = function(bubble, step) {
       var bubbleWidth,
           bubbleHeight,
           bubblePadding,
@@ -322,7 +322,6 @@
           arrowEl      = bubble.arrowEl,
           arrowOffset  = utils.getPixelValue(step.arrowOffset);
 
-      bounce        = utils.valOrDefault(bounce, true);
       bubbleWidth   = utils.getPixelValue(step.width) || opt.bubbleWidth;
       bubblePadding = utils.valOrDefault(step.padding, opt.bubblePadding);
 
