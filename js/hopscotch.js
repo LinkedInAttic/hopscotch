@@ -669,6 +669,9 @@
       else {
         utils.removeClass(self.element, 'hide');
         utils.addClass(self.element, className);
+        setTimeout(function() {
+          utils.removeClass(self.element, 'invisible');
+        }, 50);
       }
       isShowing = true;
       return this;
@@ -1092,7 +1095,6 @@
         }
       }
 
-      utils.addClass(bubble.element, 'invisible');
       self.showStep(currStepNum, currSubstepNum);
 
       return this;
