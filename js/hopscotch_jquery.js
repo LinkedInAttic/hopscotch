@@ -37,7 +37,7 @@
       winHopscotch      = context[namespace],
       waitingToStart    = false, // is a tour waiting for the document to finish
                                  // loading so that it can start?
-      hasSessionStorage   = (typeof window.sessionStorage !== undefinedStr),
+      hasSessionStorage = (typeof window.sessionStorage !== undefinedStr),
       docStyle          = document.body.style,
       hasCssTransitions = (typeof docStyle.MozTransition    !== undefinedStr ||
                            typeof docStyle.MsTransition     !== undefinedStr ||
@@ -189,6 +189,7 @@
     nextBtn: 'Next',
     prevBtn: 'Back',
     doneBtn: 'Done',
+    skipBtn: 'Skip',
     closeTooltip: 'Close'
   };
 
@@ -252,7 +253,7 @@
       bubbleWidth   = utils.getPixelValue(step.width) || opt.bubbleWidth;
       bubblePadding = utils.valOrDefault(step.padding, opt.bubblePadding);
 
-      $el.removeClass('bounce-down bounce-up bounce-left bounce-right');
+      $el.removeClass('fade-in-down fade-in-up fade-in-left fade-in-right');
 
       // SET POSITION
       boundingRect = targetEl.getBoundingClientRect();
@@ -260,22 +261,22 @@
         bubbleHeight = $el.height();
         top = (boundingRect.top - bubbleHeight) - opt.arrowWidth;
         left = boundingRect.left;
-        bounceDirection = 'bounce-down';
+        bounceDirection = 'fade-in-down';
       }
       else if (step.orientation === 'bottom') {
         top = boundingRect.bottom + opt.arrowWidth;
         left = boundingRect.left;
-        bounceDirection = 'bounce-up';
+        bounceDirection = 'fade-in-up';
       }
       else if (step.orientation === 'left') {
         top = boundingRect.top;
         left = boundingRect.left - bubbleWidth - 2*bubblePadding - 2*bubbleBorder - opt.arrowWidth;
-        bounceDirection = 'bounce-right';
+        bounceDirection = 'fade-in-right';
       }
       else if (step.orientation === 'right') {
         top = boundingRect.top;
         left = boundingRect.right + opt.arrowWidth;
-        bounceDirection = 'bounce-left';
+        bounceDirection = 'fade-in-left';
       }
 
       // SET (OR RESET) ARROW OFFSETS
@@ -376,7 +377,7 @@
         }, 200);
       });
 
-      this.hide();
+      this.hide(false);
       $('body').append($el);
       return this;
     };
@@ -468,6 +469,7 @@
       this.setTitle(step.title ? step.title : '');
       this.setContent(step.content ? step.content : '');
       this.setNum(idx);
+      this.orientation = step.orientation;
 
       this.showPrevButton(this.$prevBtnEl && showPrev && (idx > 0 || subIdx > 0));
       this.showNextButton(this.$nextBtnEl && showNext && !isLast);
@@ -564,21 +566,60 @@
       }
     };
 
+    this.getArrowDirection = function() {
+      if (this.orientation === 'top') {
+        return 'down';
+      }
+      if (this.orientation === 'bottom') {
+        return 'up';
+      }
+      if (this.orientation === 'left') {
+        return 'right';
+      }
+      if (this.orientation === 'right') {
+        return 'left';
+      }
+    };
+
     this.show = function() {
-      var self = this;
+      var self      = this,
+          className = 'fade-in-' + this.getArrowDirection(),
+          fadeDur   = 1000;
+
+      this.$element.removeClass('hide');
       if (opt.animate) {
         setTimeout(function() {
           self.$element.addClass('animate');
         }, 50);
       }
-      this.$element.removeClass('hide');
+      else {
+        this.$element.addClass(className);
+        setTimeout(function() {
+          self.$element.removeClass('invisible');
+        }, 50);
+        setTimeout(function() {
+          self.$element.removeClass(className);
+        }, fadeDur);
+      }
       isShowing = true;
       return this;
     };
 
-    this.hide = function() {
-      this.$element.addClass('hide')
-                   .removeClass('animate');
+    this.hide = function(remove) {
+      remove = utils.valOrDefault(remove, true);
+      this.$element.removeClass('animate fade-in-up fade-in-down fade-in-right fade-in-left')
+                   .css({
+                     top: '',
+                     left: ''
+                   });
+      if (remove) {
+        this.$element.addClass('hide')
+                     .removeClass('invisible');
+      }
+      else {
+        this.$element.addClass('invisible')
+                     .removeClass('hide');
+      }
       isShowing = false;
       return this;
     };
@@ -711,7 +752,7 @@
      * outside of the viewport. If it is, adjust the window scroll position
      * to bring it back into the viewport.
      */
-    adjustWindowScroll = function() {
+    adjustWindowScroll = function(cb) {
       var $bubbleEl    = getBubble().$element,
           bubbleTop    = utils.getPixelValue($bubbleEl.css('top')),
           targetEl     = utils.getStepTarget(getCurrStep())[0],
@@ -720,7 +761,7 @@
           targetTop    = (bubbleTop < targetElTop) ? bubbleTop : targetElTop, // target whichever is higher
           scrollToVal  = targetTop - opt.scrollTopMargin; // This is our final target scroll value.
 
-      $('body, html').animate({ scrollTop: scrollToVal }, opt.scrollDuration);
+      $('body, html').animate({ scrollTop: scrollToVal }, opt.scrollDuration, cb);
     };
 
     this.init = function() {
@@ -877,7 +918,12 @@
       }
 
       isLast = (stepIdx === numTourSteps - 1) || (substepIdx >= step.length - 1);
-      bubble.renderStep(step, stepIdx, substepIdx, isLast, adjustWindowScroll);
+      bubble.renderStep(step, stepIdx, substepIdx, isLast, function() {
+        // when done adjusting window scroll, call bubble.show()
+        adjustWindowScroll(function() {
+          bubble.show.call(bubble);
+        });
+      });
 
       if (step.multipage) {
         cookieVal += ':mp';
@@ -920,7 +966,9 @@
         }
       }
 
+      bubble.hide(false);
       this.showStep(currStepNum, currSubstepNum);
+
       return this;
     };
 
@@ -958,6 +1006,8 @@
           return this.endTour(true, false);
         }
       }
+
+      bubble.hide(false);
       this.showStep(currStepNum, currSubstepNum);
 
       return this;

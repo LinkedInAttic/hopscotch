@@ -35,9 +35,7 @@
       waitingToStart    = false, // is a tour waiting for the document to finish
                                  // loading so that it can start?
       hasSessionStorage = (typeof window.sessionStorage !== undefinedStr),
-      docStyle          = document.body.style,
-      flipDuration      = 2000,
-      closeDuration     = 1000;
+      docStyle          = document.body.style;
 
   if (winHopscotch) {
     // Hopscotch already exists.
@@ -332,8 +330,7 @@
       bubbleWidth   = utils.getPixelValue(step.width) || opt.bubbleWidth;
       bubblePadding = utils.valOrDefault(step.padding, opt.bubblePadding);
 
-      //utils.removeClass(el, 'bounce-down bounce-up bounce-left bounce-right');
-      utils.removeClass(el, 'flip-in-down flip-in-up flip-in-left flip-in-right');
+      utils.removeClass(el, 'fade-in-down fade-in-up fade-in-left fade-in-right');
 
       // SET POSITION
       boundingRect = targetEl.getBoundingClientRect();
@@ -341,22 +338,22 @@
         bubbleHeight = el.offsetHeight;
         top = (boundingRect.top - bubbleHeight) - opt.arrowWidth;
         left = boundingRect.left;
-        bounceDirection = 'flip-in-down';
+        bounceDirection = 'fade-in-down';
       }
       else if (step.orientation === 'bottom') {
         top = boundingRect.bottom + opt.arrowWidth;
         left = boundingRect.left;
-        bounceDirection = 'flip-in-up';
+        bounceDirection = 'fade-in-up';
       }
       else if (step.orientation === 'left') {
         top = boundingRect.top;
         left = boundingRect.left - bubbleWidth - 2*bubblePadding - 2*bubbleBorder - opt.arrowWidth;
-        bounceDirection = 'flip-in-right';
+        bounceDirection = 'fade-in-right';
       }
       else if (step.orientation === 'right') {
         top = boundingRect.top;
         left = boundingRect.right + opt.arrowWidth;
-        bounceDirection = 'flip-in-left';
+        bounceDirection = 'fade-in-left';
       }
 
       // SET (OR RESET) ARROW OFFSETS
@@ -458,7 +455,7 @@
         window.attachEvent('onresize', onWinResize);
       }
 
-      utils.addClass(el, 'invisible');
+      this.hide(false);
       document.body.appendChild(el);
       return this;
     };
@@ -658,7 +655,8 @@
 
     this.show = function() {
       var self      = this,
-          className = 'flip-in-' + this.getArrowDirection();
+          className = 'fade-in-' + this.getArrowDirection(),
+          fadeDur   = 1000;
 
       utils.removeClass(this.element, 'hide');
       if (opt.animate) {
@@ -667,22 +665,32 @@
         }, 50);
       }
       else {
-        utils.removeClass(this.element, 'hide');
         utils.addClass(this.element, className);
         setTimeout(function() {
           utils.removeClass(self.element, 'invisible');
         }, 50);
+        setTimeout(function() {
+          utils.removeClass(self.element, className);
+        }, fadeDur);
       }
       isShowing = true;
       return this;
     };
 
-    this.hide = function() {
+    this.hide = function(remove) {
       var el = this.element;
+      remove = utils.valOrDefault(remove, true);
       el.style.top = '';
       el.style.left = '';
-      utils.addClass(el, 'hide');
-      utils.removeClass(el, 'animate invisible flip-in-up flip-in-down flip-in-right flip-in-left');
+      if (remove) {
+        utils.addClass(el, 'hide');
+        utils.removeClass(el, 'invisible');
+      }
+      else {
+        utils.removeClass(el, 'hide');
+        utils.addClass(el, 'invisible');
+      }
+      utils.removeClass(el, 'animate fade-in-up fade-in-down fade-in-right fade-in-left');
       isShowing = false;
       return this;
     };
@@ -815,7 +823,7 @@
      * outside of the viewport. If it is, adjust the window scroll position
      * to bring it back into the viewport.
      */
-    adjustWindowScroll = function() {
+    adjustWindowScroll = function(cb) {
       var bubble         = getBubble(),
           bubbleEl       = bubble.element,
           bubbleTop      = utils.getPixelValue(bubbleEl.style.top),
@@ -829,6 +837,7 @@
           windowTop      = utils.getScrollTop(),
           windowBottom   = windowTop + utils.getWindowHeight(),
           scrollToVal    = targetTop - opt.scrollTopMargin, // This is our final target scroll value.
+          self           = this,
           scrollEl,
           yuiAnim,
           yuiEase,
@@ -846,6 +855,7 @@
         yuiAnim = new YAHOO.util.Scroll(scrollEl, {
           scroll: { to: [0, scrollToVal] }
         }, opt.scrollDuration/1000, yuiEase);
+        yuiAnim.onComplete.subscribe(cb);
         yuiAnim.animate();
         return;
       }
@@ -855,7 +865,7 @@
       }
 
       if (targetTop >= windowTop && targetTop <= windowTop + opt.scrollTopMargin) {
-        bubble.show();
+        if (cb) { cb(); } // HopscotchBubble.show
         return;
       }
 
@@ -877,7 +887,9 @@
               // and clear the interval
               scrollTarget = scrollToVal;
               clearInterval(scrollInt);
-              bubble.show();
+              if (cb) { cb(); } // HopscotchBubble.show
+              window.scrollTo(0, scrollTarget);
+              return;
             }
 
             window.scrollTo(0, scrollTarget);
@@ -885,14 +897,21 @@
             if (utils.getScrollTop() === scrollTop) {
               // Couldn't scroll any further. Clear interval.
               clearInterval(scrollInt);
-              bubble.show();
+
+              if (cb) { cb(); } // HopscotchBubble.show
             }
           }, 10);
         }
         else {
           window.scrollTo(0, scrollToVal);
-          bubble.show();
+
+          if (cb) { cb(); } // HopscotchBubble.show
         }
+      }
+      else {
+        // I guess it's showing in the window. Just point to it then.
+        if (cb) { cb(); } // HopscotchBubble.show
+        return;
       }
     },
 
@@ -1038,6 +1057,7 @@
           numTourSteps = tourSteps.length,
           cookieVal    = currTour.id + ':' + stepIdx,
           bubble       = getBubble(),
+          self         = this,
           isLast;
 
       // Update bubble for current step
@@ -1050,7 +1070,12 @@
       }
 
       isLast = (stepIdx === numTourSteps - 1) || (substepIdx >= step.length - 1);
-      bubble.renderStep(step, stepIdx, substepIdx, isLast, adjustWindowScroll);
+      bubble.renderStep(step, stepIdx, substepIdx, isLast, function() {
+        // when done adjusting window scroll, call bubble.show()
+        adjustWindowScroll(function() {
+          bubble.show.call(bubble);
+        });
+      });
 
       if (step.multipage) {
         cookieVal += ':mp';
@@ -1094,7 +1119,7 @@
         }
       }
 
-      utils.addClass(bubble.element, 'invisible');
+      bubble.hide(false);
       this.showStep(currStepNum, currSubstepNum);
 
       return this;
@@ -1136,7 +1161,7 @@
         }
       }
 
-      utils.addClass(bubble.element, 'invisible');
+      bubble.hide(false);
       this.showStep(currStepNum, currSubstepNum);
 
       return this;
