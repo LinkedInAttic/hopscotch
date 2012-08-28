@@ -21,7 +21,7 @@
  *
  * flag to see if user has already taken a tour?
  *
- * http://daneden.me/animate/ for bounce animation
+ * http://daneden.me/animate/ for fade animation
  *
  * multiple start/end callbacks
  *
@@ -180,6 +180,7 @@
     prev:  [],
     start: [],
     end:   [],
+    show:  [],
     error: [],
     close: []
   };
@@ -234,13 +235,11 @@
      * target element and the orientation and offset information specified by
      * the step JSON.
      */
-    setPosition = function(bubble, step, bounce) {
+    setPosition = function(bubble, step) {
       var bubbleWidth,
           bubbleHeight,
           bubblePadding,
           boundingRect,
-          bounceDelay,
-          bounceDirection,
           top,
           left,
           bubbleBorder = 6,
@@ -250,7 +249,6 @@
           arrowOffset  = utils.getPixelValue(step.arrowOffset),
           position     = step.fixedElement ? 'fixed' : 'absolute';
 
-      bounce        = utils.valOrDefault(bounce, true);
       bubbleWidth   = utils.getPixelValue(step.width) || opt.bubbleWidth;
       bubblePadding = utils.valOrDefault(step.padding, opt.bubblePadding);
 
@@ -262,22 +260,18 @@
         bubbleHeight = $el.height();
         top = (boundingRect.top - bubbleHeight) - opt.arrowWidth;
         left = boundingRect.left;
-        bounceDirection = 'fade-in-down';
       }
       else if (step.orientation === 'bottom') {
         top = boundingRect.bottom + opt.arrowWidth;
         left = boundingRect.left;
-        bounceDirection = 'fade-in-up';
       }
       else if (step.orientation === 'left') {
         top = boundingRect.top;
         left = boundingRect.left - bubbleWidth - 2*bubblePadding - 2*bubbleBorder - opt.arrowWidth;
-        bounceDirection = 'fade-in-right';
       }
       else if (step.orientation === 'right') {
         top = boundingRect.top;
         left = boundingRect.right + opt.arrowWidth;
-        bounceDirection = 'fade-in-left';
       }
 
       // SET (OR RESET) ARROW OFFSETS
@@ -322,19 +316,6 @@
           left: left + 'px',
           position: position
         });
-
-        // Do the bouncing effect
-        if (bounce) {
-          bounceDelay = opt.smoothScroll ? opt.scrollDuration : 0;
-
-          setTimeout(function() {
-            $el.addClass(bounceDirection);
-          }, bounceDelay);
-          // Then remove it
-          setTimeout(function() {
-            $el.removeClass(bounceDirection);
-          }, bounceDelay + 2000); // bounce lasts 2 seconds
-        }
       }
     };
 
@@ -361,7 +342,7 @@
                   .append(this.$numberEl, $bubbleContentEl);
 
       $el.attr('id', 'hopscotch-bubble')
-         .addClass('animated')
+         .addClass('animated') // for fade css animation
          .append($containerEl);
 
       this.initNavButtons();
@@ -948,6 +929,7 @@
             bubble.show.call(bubble);
           });
         });
+        utils.invokeCallbacks('show', [currTour.id, currStepNum]);
       }, delay);
 
       if (step.multipage) {
@@ -1247,6 +1229,7 @@
           .addCallback('prev', options.onPrev, isTourOptions)
           .addCallback('start', options.onStart, isTourOptions)
           .addCallback('end', options.onEnd, isTourOptions)
+          .addCallback('show', options.onShow, isTourOptions)
           .addCallback('error', options.onError, isTourOptions)
           .addCallback('close', options.onClose, isTourOptions);
 
@@ -1262,6 +1245,7 @@
       bubble.showPrevButton(opt.showPrevButton, true);
       bubble.showNextButton(opt.showNextButton, true);
       bubble.showCloseButton(opt.showCloseButton, true);
+
       return this;
     };
 
