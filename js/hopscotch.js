@@ -667,8 +667,8 @@
         }, 50);
       }
       else {
-        utils.removeClass(self.element, 'hide');
-        utils.addClass(self.element, className);
+        utils.removeClass(this.element, 'hide');
+        utils.addClass(this.element, className);
         setTimeout(function() {
           utils.removeClass(self.element, 'invisible');
         }, 50);
@@ -1063,8 +1063,7 @@
     this.prevStep = function() {
       var step        = getCurrStep(),
           foundTarget = false,
-          bubble      = getBubble(),
-          self        = this;
+          bubble      = getBubble();
 
       utils.invokeCallbacks('prev', [currTour.id, currStepNum]);
       if (step.onPrev) {
@@ -1095,7 +1094,8 @@
         }
       }
 
-      self.showStep(currStepNum, currSubstepNum);
+      utils.addClass(bubble.element, 'invisible');
+      this.showStep(currStepNum, currSubstepNum);
 
       return this;
     };
