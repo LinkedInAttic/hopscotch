@@ -662,7 +662,8 @@
   };
 
   Hopscotch = function(initOptions) {
-    var bubble,
+    var cookieName = 'hopscotch.tour.state',
+        bubble,
         opt,
         currTour,
         currStepNum,
@@ -1150,6 +1151,11 @@
       return this;
     };
 
+    this.setCookieName = function(name) {
+      cookieName     = name;
+      opt.cookieName = name;
+    };
+
     this.resetDefaultOptions = function() {
       opt = {
         animate:         false,
@@ -1163,7 +1169,7 @@
         bubblePadding:   15,
         arrowWidth:      20,
         skipIfNoElement: true,
-        cookieName:      'hopscotch.tour.state'
+        cookieName:      cookieName
       };
     };
 
