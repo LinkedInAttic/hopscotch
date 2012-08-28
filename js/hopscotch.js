@@ -327,7 +327,7 @@
       bubbleWidth   = utils.getPixelValue(step.width) || opt.bubbleWidth;
       bubblePadding = utils.valOrDefault(step.padding, opt.bubblePadding);
 
-      utils.removeClass(el, 'bounce-down bounce-up bounce-left bounce-right');
+      utils.removeClass(el, 'fade-in-down fade-in-up fade-in-left fade-in-right');
 
       // SET POSITION
       boundingRect = targetEl.getBoundingClientRect();
@@ -335,22 +335,22 @@
         bubbleHeight = el.offsetHeight;
         top = (boundingRect.top - bubbleHeight) - opt.arrowWidth;
         left = boundingRect.left;
-        bounceDirection = 'bounce-down';
+        bounceDirection = 'fade-in-down';
       }
       else if (step.orientation === 'bottom') {
         top = boundingRect.bottom + opt.arrowWidth;
         left = boundingRect.left;
-        bounceDirection = 'bounce-up';
+        bounceDirection = 'fade-in-up';
       }
       else if (step.orientation === 'left') {
         top = boundingRect.top;
         left = boundingRect.left - bubbleWidth - 2*bubblePadding - 2*bubbleBorder - opt.arrowWidth;
-        bounceDirection = 'bounce-right';
+        bounceDirection = 'fade-in-right';
       }
       else if (step.orientation === 'right') {
         top = boundingRect.top;
         left = boundingRect.right + opt.arrowWidth;
-        bounceDirection = 'bounce-left';
+        bounceDirection = 'fade-in-left';
       }
 
       // SET (OR RESET) ARROW OFFSETS
@@ -385,19 +385,10 @@
 
       if (!opt.animate && bounce) {
         // Do the bouncing effect
-        bounceDelay = opt.smoothScroll ? opt.scrollDuration : 0;
-
-        setTimeout(function() {
-          utils.addClass(el, bounceDirection);
-        }, bounceDelay);
-        // Then remove it
-        setTimeout(function() {
-          utils.removeClass(el, bounceDirection);
-        }, bounceDelay + 2000); // bounce lasts 2 seconds
       }
-    };
+    },
 
-    this.init = function() {
+    init = function() {
       var el              = document.createElement('div'),
           containerEl     = document.createElement('div'),
           bubbleContentEl = document.createElement('div'),
@@ -451,7 +442,7 @@
         window.attachEvent('onresize', onWinResize);
       }
 
-      this.hide();
+      this.hide(false);
       document.body.appendChild(el);
       return this;
     };
@@ -546,6 +537,7 @@
       this.setTitle(step.title ? step.title : '');
       this.setContent(step.content ? step.content : '');
       this.setNum(idx);
+      this.orientation = step.orientation;
 
       this.showPrevButton(this.prevBtnEl && showPrev && (idx > 0 || subIdx > 0));
       this.showNextButton(this.nextBtnEl && showNext && !isLast);
@@ -573,14 +565,20 @@
         setTimeout(function() {
           setPosition(self, step);
           // only want to adjust window scroll for non-fixed elements
-          if (callback && !step.fixedElement) { callback(); }
+          if (callback) {
+            if (!step.fixedElement) { callback(); }
+            else { self.show(); }
+          }
         }, 5);
       }
       else {
         // Don't care about height for the other orientations.
         setPosition(this, step);
         // only want to adjust window scroll for non-fixed elements
-        if (callback && !step.fixedElement) { callback(); }
+        if (callback) {
+          if (!step.fixedElement) { callback(); }
+          else { self.show(); }
+        }
       }
 
       return this;
@@ -638,21 +636,59 @@
       }
     };
 
+    this.getArrowDirection = function() {
+      if (this.orientation === 'top') {
+        return 'down';
+      }
+      if (this.orientation === 'bottom') {
+        return 'up';
+      }
+      if (this.orientation === 'left') {
+        return 'right';
+      }
+      if (this.orientation === 'right') {
+        return 'left';
+      }
+    };
+
     this.show = function() {
-      var self = this;
+      var self      = this,
+          className = 'fade-in-' + this.getArrowDirection(),
+          fadeDur   = 1000;
+
+      utils.removeClass(this.element, 'hide');
       if (opt.animate) {
         setTimeout(function() {
           utils.addClass(self.element, 'animate');
         }, 50);
       }
-      utils.removeClass(this.element, 'hide');
+      else {
+        utils.addClass(this.element, className);
+        setTimeout(function() {
+          utils.removeClass(self.element, 'invisible');
+        }, 50);
+        setTimeout(function() {
+          utils.removeClass(self.element, className);
+        }, fadeDur);
+      }
       isShowing = true;
       return this;
     };
 
-    this.hide = function() {
-      utils.addClass(this.element, 'hide');
-      utils.removeClass(this.element, 'animate');
+    this.hide = function(remove) {
+      var el = this.element;
+      remove = utils.valOrDefault(remove, true);
+      el.style.top = '';
+      el.style.left = '';
+      if (remove) {
+        utils.addClass(el, 'hide');
+        utils.removeClass(el, 'invisible');
+      }
+      else {
+        utils.removeClass(el, 'hide');
+        utils.addClass(el, 'invisible');
+      }
+      utils.removeClass(el, 'animate fade-in-up fade-in-down fade-in-right fade-in-left');
       isShowing = false;
       return this;
     };
@@ -696,7 +732,7 @@
       utils.removeClass(this.element, 'animate');
     };
 
-    this.init();
+    init.call(this);
   };
 
   Hopscotch = function(initOptions) {
@@ -785,8 +821,9 @@
      * outside of the viewport. If it is, adjust the window scroll position
      * to bring it back into the viewport.
      */
-    adjustWindowScroll = function() {
-      var bubbleEl       = getBubble().element,
+    adjustWindowScroll = function(cb) {
+      var bubble         = getBubble(),
+          bubbleEl       = bubble.element,
           bubbleTop      = utils.getPixelValue(bubbleEl.style.top),
           bubbleBottom   = bubbleTop + utils.getPixelValue(bubbleEl.offsetHeight),
           targetEl       = utils.getStepTarget(getCurrStep()),
@@ -798,6 +835,7 @@
           windowTop      = utils.getScrollTop(),
           windowBottom   = windowTop + utils.getWindowHeight(),
           scrollToVal    = targetTop - opt.scrollTopMargin, // This is our final target scroll value.
+          self           = this,
           scrollEl,
           yuiAnim,
           yuiEase,
@@ -815,6 +853,7 @@
         yuiAnim = new YAHOO.util.Scroll(scrollEl, {
           scroll: { to: [0, scrollToVal] }
         }, opt.scrollDuration/1000, yuiEase);
+        yuiAnim.onComplete.subscribe(cb);
         yuiAnim.animate();
         return;
       }
@@ -824,6 +863,7 @@
       }
 
       if (targetTop >= windowTop && targetTop <= windowTop + opt.scrollTopMargin) {
+        if (cb) { cb(); } // HopscotchBubble.show
         return;
       }
 
@@ -845,6 +885,9 @@
               // and clear the interval
               scrollTarget = scrollToVal;
               clearInterval(scrollInt);
+              if (cb) { cb(); } // HopscotchBubble.show
+              window.scrollTo(0, scrollTarget);
+              return;
             }
 
             window.scrollTo(0, scrollTarget);
@@ -852,12 +895,21 @@
             if (utils.getScrollTop() === scrollTop) {
               // Couldn't scroll any further. Clear interval.
               clearInterval(scrollInt);
+
+              if (cb) { cb(); } // HopscotchBubble.show
             }
           }, 10);
         }
         else {
           window.scrollTo(0, scrollToVal);
+
+          if (cb) { cb(); } // HopscotchBubble.show
         }
+      }
+      else {
+        // I guess it's showing in the window. Just point to it then.
+        if (cb) { cb(); } // HopscotchBubble.show
+        return;
       }
     },
 
@@ -987,6 +1039,9 @@
 
       utils.invokeCallbacks('start', [currTour.id, currStepNum]);
 
+      this.showStep(currStepNum, currSubstepNum);
+      bubble = getBubble();
+
       this.isActive = true;
       if (opt.animate) {
         bubble.initAnimate();
@@ -1013,6 +1068,7 @@
           cookieVal    = currTour.id + ':' + stepIdx,
           bubble       = getBubble(),
           delay        = utils.valOrDefault(step.delay, 0),
+          self         = this,
           isLast;
 
       // Update bubble for current step
@@ -1025,10 +1081,13 @@
       }
 
       isLast = (stepIdx === numTourSteps - 1) || (substepIdx >= step.length - 1);
-
       setTimeout(function() {
-        bubble.renderStep(step, stepIdx, substepIdx, isLast, adjustWindowScroll);
-        bubble.show();
+        bubble.renderStep(step, stepIdx, substepIdx, isLast, function() {
+          // when done adjusting window scroll, call bubble.show()
+          adjustWindowScroll(function() {
+            bubble.show.call(bubble);
+          });
+        });
       }, delay);
 
       if (step.multipage) {
@@ -1041,7 +1100,8 @@
 
     this.prevStep = function() {
       var step        = getCurrStep(),
-          foundTarget = false;
+          foundTarget = false,
+          bubble      = getBubble();
 
       // invoke callbacks
       if (step.onPrev) {
@@ -1072,14 +1132,17 @@
         }
       }
 
+      bubble.hide(false);
       this.showStep(currStepNum, currSubstepNum);
+
       return this;
     };
 
     this.nextStep = function(btnClick) {
       var step        = getCurrStep(),
           origStepNum = currStepNum,
-          foundTarget = false;
+          foundTarget = false,
+          bubble      = getBubble();
 
       btnClick = utils.valOrDefault(btnClick, true);
 
@@ -1113,6 +1176,8 @@
         }
         utils.invokeCallbacks('next', [currTour.id, origStepNum]);
       }
+
+      bubble.hide(false);
       this.showStep(currStepNum, currSubstepNum);
 
       return this;
