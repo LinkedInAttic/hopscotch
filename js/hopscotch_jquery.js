@@ -886,6 +886,8 @@
 
       utils.invokeCallbacks('start', [currTour.id, currStepNum]);
 
+      bubble = getBubble();
+
       this.isActive = true;
       if (opt.animate) {
         bubble.initAnimate();

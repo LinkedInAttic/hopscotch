@@ -1030,7 +1030,6 @@
 
       utils.invokeCallbacks('start', [currTour.id, currStepNum]);
 
-      this.showStep(currStepNum, currSubstepNum);
       bubble = getBubble();
 
       this.isActive = true;
