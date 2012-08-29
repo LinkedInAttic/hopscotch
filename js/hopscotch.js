@@ -432,7 +432,7 @@
         window.attachEvent('onresize', onWinResize);
       }
 
-      this.hide(false);
+      this.hide();
       document.body.appendChild(el);
       return this;
     };
@@ -667,6 +667,7 @@
 
     this.hide = function(remove) {
       var el = this.element;
+
       remove = utils.valOrDefault(remove, true);
       el.style.top = '';
       el.style.left = '';
@@ -676,7 +677,9 @@
       }
       else {
         utils.removeClass(el, 'hide');
-        utils.addClass(el, 'invisible');
+        if (!opt.animate) {
+          utils.addClass(el, 'invisible');
+        }
       }
       utils.removeClass(el, 'animate fade-in-up fade-in-down fade-in-right fade-in-left');
       isShowing = false;
@@ -1065,6 +1068,11 @@
       currStepNum    = stepIdx;
       currSubstepNum = substepIdx;
 
+      // Only do fade if we're not animating.
+      if (!opt.animate) {
+        bubble.hide(false);
+      }
+
       if (typeof substepIdx !== undefinedStr && isInMultiPartStep()) {
         step = step[substepIdx];
         cookieVal += '-' + substepIdx;
@@ -1125,7 +1133,6 @@
         }
       }
 
-      bubble.hide(false);
       this.showStep(currStepNum, currSubstepNum);
 
       return this;
@@ -1170,7 +1177,6 @@
         utils.invokeCallbacks('next', [currTour.id, origStepNum]);
       }
 
-      bubble.hide(false);
       this.showStep(currStepNum, currSubstepNum);
 
       return this;

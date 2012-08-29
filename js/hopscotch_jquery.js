@@ -317,9 +317,9 @@
           position: position
         });
       }
-    };
+    },
 
-    this.init = function() {
+    init = function() {
       var $el              = $('<div>'),
           $containerEl     = $('<div>'),
           $bubbleContentEl = $('<div>'),
@@ -364,7 +364,7 @@
         }, 200);
       });
 
-      this.hide(false);
+      this.hide();
       $('body').append($el);
       return this;
     };
@@ -612,7 +612,7 @@
                      .removeClass('invisible');
       }
       else {
-        this.$element.addClass('invisible')
+        this.$element.addClass(opt.animate ? '' : 'invisible')
                      .removeClass('hide');
       }
       isShowing = false;
@@ -658,7 +658,7 @@
       this.$element.removeClass('animate');
     };
 
-    this.init();
+    init.call(this);
   };
 
   Hopscotch = function(initOptions) {
@@ -919,6 +919,11 @@
       currStepNum    = stepIdx;
       currSubstepNum = substepIdx;
 
+      // Only do fade if we're not animating.
+      if (!opt.animate) {
+        bubble.hide(false);
+      }
+
       if (typeof substepIdx !== undefinedStr && isInMultiPartStep()) {
         step = step[substepIdx];
         cookieVal += '-' + substepIdx;
@@ -976,7 +981,6 @@
         }
       }
 
-      bubble.hide(false);
       this.showStep(currStepNum, currSubstepNum);
 
       return this;
@@ -1020,7 +1024,6 @@
         utils.invokeCallbacks('next', [currTour.id, origStepNum]);
       }
 
-      bubble.hide(false);
       this.showStep(currStepNum, currSubstepNum);
 
       return this;

@@ -2,6 +2,7 @@
 @import "fade.less";
 
 @anim-duration: .5s;
+@anim-timing: ease-in-out;
 @bubbleCornerRadius: 10px;
 @bubbleColor: #fff;
 @bubbleBorderWidth: 6px;
@@ -23,7 +24,25 @@ div#hopscotch-bubble {
   .background-clip;
 
   &.animate {
-    .transition('top, left', @anim-duration, ease-in-out);
+    -moz-transition-property: top, left;
+    -moz-transition-duration: @anim-duration;
+    -moz-transition-timing-function: @anim-timing;
+
+    -ms-transition-property: top, left;
+    -ms-transition-duration: @anim-duration;
+    -ms-transition-timing-function: @anim-timing;
+
+    -o-transition-property: top, left;
+    -o-transition-duration: @anim-duration;
+    -o-transition-timing-function: @anim-timing;
+
+    -webkit-transition-property: top, left;
+    -webkit-transition-duration: @anim-duration;
+    -webkit-transition-timing-function: @anim-timing;
+
+    transition-property: top, left;
+    transition-duration: @anim-duration;
+    transition-timing-function: @anim-timing;
   }
 
   &.invisible {
