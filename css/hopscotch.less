@@ -7,10 +7,10 @@ div#hopscotch-bubble {
   border: @bubbleBorderWidth solid #000; /* default */
   border: @bubbleBorderWidth solid @borderColor; /* transparent, if supported */
   color: #000;
-  font-family: Helvetica, Arial;
+  font-family: @bubbleFontFamily;
   font-size: 13px;
   position: absolute;
-  z-index: 999999;
+  z-index: @bubbleZindex;
 
   .background-clip;
 
