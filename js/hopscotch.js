@@ -2,21 +2,22 @@
  *
  * TODO:
  * ================
- * delay for displaying a step
- *
  * "center" option (for block-level elements that span width of document)
  *   - and for the arrow
  *
+ * problematic situation
+ * - step 2 is on a regular (non-fixed) element, but page is scrolled
+ * - step 3 is on a fixed element
+ * - if animate is set to true, it screws up.
+ *
  * test css conflicts on different sites
- * improve auto-scrolling?
  *
  * support horizontal smooth scroll????????
  *
  * NICETOHAVE:
  * ===========
  * flag to see if user has already taken a tour?
- * support > 1 bubble at a time? gahhhhhhhhh
- * onShow, onHide callbacks?
+ * support > 1 bubble at a time?
  *
  */
 
@@ -31,8 +32,14 @@
       undefinedStr      = 'undefined',
       waitingToStart    = false, // is a tour waiting for the document to finish
                                  // loading so that it can start?
+      hasJquery         = (typeof window.jQuery !== undefinedStr),
       hasSessionStorage = (typeof window.sessionStorage !== undefinedStr),
-      docStyle          = document.body.style;
+      docStyle          = document.body.style,
+      hasCssTransitions = (typeof docStyle.MozTransition    !== undefinedStr ||
+                           typeof docStyle.MsTransition     !== undefinedStr ||
+                           typeof docStyle.webkitTransition !== undefinedStr ||
+                           typeof docStyle.OTransition      !== undefinedStr ||
+                           typeof docStyle.transition       !== undefinedStr);
 
   if (winHopscotch) {
     // Hopscotch already exists.
@@ -374,8 +381,16 @@
       // ACCOUNT FOR FIXED POSITION ELEMENTS
       el.style.position = (step.fixedElement ? 'fixed' : 'absolute');
 
-      el.style.top = top + 'px';
-      el.style.left = left + 'px';
+      if (opt.animate && hasJquery && !hasCssTransitions) {
+        $(el).animate({
+          top: top + 'px',
+          left: left + 'px'
+        });
+      }
+      else {
+        el.style.top = top + 'px';
+        el.style.left = left + 'px';
+      }
     },
 
     init = function() {
@@ -837,32 +852,41 @@
           scrollIncr,
           scrollInt;
 
-      if (typeof YAHOO             !== undefinedStr &&
-          typeof YAHOO.env         !== undefinedStr &&
-          typeof YAHOO.env.ua      !== undefinedStr &&
-          typeof YAHOO.util        !== undefinedStr &&
-          typeof YAHOO.util.Scroll !== undefinedStr) {
-        scrollEl = YAHOO.env.ua.webkit ? document.body : document.documentElement;
-        yuiEase = YAHOO.util.Easing ? YAHOO.util.Easing.easeOut : undefined;
-        yuiAnim = new YAHOO.util.Scroll(scrollEl, {
-          scroll: { to: [0, scrollToVal] }
-        }, opt.scrollDuration/1000, yuiEase);
-        yuiAnim.onComplete.subscribe(cb);
-        yuiAnim.animate();
-        return;
-      }
-
-      if (scrollToVal < 0) {
-        scrollToVal = 0;
-      }
-
-      if (targetTop >= windowTop && targetTop <= windowTop + opt.scrollTopMargin) {
+      if (targetTop >= windowTop && (targetTop <= windowTop + opt.scrollTopMargin || targetBottom <= windowBottom)) {
+        // target and bubble are both visible in viewport
         if (cb) { cb(); } // HopscotchBubble.show
         return;
       }
+      else if (!opt.smoothScroll) {
+        // Abrupt scroll to scroll target
+        window.scrollTo(0, scrollToVal);
 
-      if (targetTop < windowTop || targetBottom > windowBottom) {
-        if (opt.smoothScroll) {
+        if (cb) { cb(); } // HopscotchBubble.show
+        return;
+      }
+      else {
+        // Smooth scroll to scroll target
+        if (typeof YAHOO             !== undefinedStr &&
+            typeof YAHOO.env         !== undefinedStr &&
+            typeof YAHOO.env.ua      !== undefinedStr &&
+            typeof YAHOO.util        !== undefinedStr &&
+            typeof YAHOO.util.Scroll !== undefinedStr) {
+          scrollEl = YAHOO.env.ua.webkit ? document.body : document.documentElement;
+          yuiEase = YAHOO.util.Easing ? YAHOO.util.Easing.easeOut : undefined;
+          yuiAnim = new YAHOO.util.Scroll(scrollEl, {
+            scroll: { to: [0, scrollToVal] }
+          }, opt.scrollDuration/1000, yuiEase);
+          yuiAnim.onComplete.subscribe(cb);
+          yuiAnim.animate();
+        }
+        else if (hasJquery) {
+          $('body, html').animate({ scrollTop: scrollToVal }, opt.scrollDuration, cb);
+        }
+        else {
+          if (scrollToVal < 0) {
+            scrollToVal = 0;
+          }
+
           // 48 * 10 == 480ms scroll duration
           // make it slightly less than CSS transition duration because of
           // setInterval overhead.
@@ -894,24 +918,8 @@
             }
           }, 10);
         }
-        else {
-          window.scrollTo(0, scrollToVal);
-
-          if (cb) { cb(); } // HopscotchBubble.show
-        }
-      }
-      else {
-        // I guess it's showing in the window. Just point to it then.
-        if (cb) { cb(); } // HopscotchBubble.show
-        return;
       }
     },
-
-    init = function() {
-      if (initOptions) {
-        this.configure(initOptions);
-      }
-    };
 
     /**
      * loadTour
@@ -919,7 +927,7 @@
      * Loads, but does not display, tour. (Give the developer a chance to
      * override tour-specified configuration options before displaying)
      */
-    this.loadTour = function(tour) {
+    loadTour = function(tour) {
       var tmpOpt = {},
           bubble,
           prop,
@@ -976,19 +984,21 @@
         }
       }
 
-      // Initialize whether to show or hide nav buttons
-      bubble = getBubble();
-      bubble.showPrevButton(opt.showPrevButton, true);
-      bubble.showNextButton(opt.showNextButton, true);
       return this;
+    },
+
+    init = function() {
+      if (initOptions) {
+        this.configure(initOptions);
+      }
     };
 
-    this.startTour = function(stepNum, substepNum) {
+    this.startTour = function(tour, stepNum, substepNum) {
       var bubble,
           step;
 
       if (!currTour) {
-        throw "Need to load a tour before you start it!";
+        loadTour.call(this, tour);
       }
 
       // If document isn't ready, wait for it to finish loading.
@@ -1034,6 +1044,7 @@
       utils.invokeCallbacks('start', [currTour.id, currStepNum]);
 
       bubble = getBubble();
+      bubble.hide(false); // make invisible for boundingRect calculations when opt.animate == true
 
       this.isActive = true;
       if (opt.animate) {
@@ -1062,6 +1073,8 @@
           bubble       = getBubble(),
           delay        = utils.valOrDefault(step.delay, 0),
           self         = this,
+          targetEl     = utils.getStepTarget(step),
+          nextStepFn,
           isLast;
 
       // Update bubble for current step
@@ -1078,15 +1091,29 @@
         cookieVal += '-' + substepIdx;
       }
 
+      // When nextOnTargetClick is true, attach this function to the click event
+      // of the target element.
+      if (step.nextOnTargetClick) {
+        nextStepFn = function() {
+          self.nextStep();
+          return targetEl.removeEventListener ? targetEl.removeEventListener('click', nextStepFn) : targetEl.detachEvent('click', nextStepFn);
+        };
+      }
+
       isLast = (stepIdx === numTourSteps - 1) || (substepIdx >= step.length - 1);
       setTimeout(function() {
         bubble.renderStep(step, stepIdx, substepIdx, isLast, function() {
           // when done adjusting window scroll, call bubble.show()
           adjustWindowScroll(function() {
-            bubble.show.call(bubble);
+            bubble.show();
           });
 
           if (step.onShow) { step.onShow(); }
+
+          // If we want to advance to next step when user clicks on target.
+          if (step.nextOnTargetClick) {
+            utils.addClickListener(targetEl, nextStepFn);
+          }
         });
         utils.invokeCallbacks('show', [currTour.id, currStepNum]);
       }, delay);
@@ -1156,7 +1183,7 @@
           }
         }
         if (!foundTarget) {
-          return this.endTour(true, false);
+          return this.endTour(true);
         }
       }
       else if (incrementStep()) {
@@ -1185,7 +1212,8 @@
     /**
      * endTour
      * ==========
-     * Cancels out of an active tour. No state is preserved.
+     * Cancels out of an active tour. If clearCookie is true, no state is
+     * preserved. If doCallback is false, the onEnd callback is not invoked.
      */
     this.endTour = function(clearCookie, doCallback) {
       var bubble     = getBubble();
@@ -1201,11 +1229,13 @@
       }
       winHopscotch.isActive = false;
 
-      if (doCallback) {
+      if (currTour && doCallback) {
         utils.invokeCallbacks('end', [currTour.id]);
       }
 
       winHopscotch.removeCallbacks(true);
+
+      currTour = null;
 
       return this;
     };
@@ -1409,9 +1439,9 @@
         bubble.removeAnimate();
       }
 
-      bubble.showPrevButton(opt.showPrevButton, true);
-      bubble.showNextButton(opt.showNextButton, true);
-      bubble.showCloseButton(opt.showCloseButton, true);
+      bubble.showPrevButton(options.showPrevButton, typeof options.showPrevButton !== undefinedStr);
+      bubble.showNextButton(options.showNextButton, typeof options.showNextButton !== undefinedStr);
+      bubble.showCloseButton(options.showCloseButton, typeof options.showCloseButton !== undefinedStr);
 
       return this;
     };
