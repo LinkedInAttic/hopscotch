@@ -1095,7 +1095,14 @@
       // of the target element.
       if (step.nextOnTargetClick) {
         nextStepFn = function() {
-          self.nextStep();
+          if (step.delay) {
+            setTimeout(function() {
+              self.nextStep();
+            }, step.delay);
+          }
+          else {
+            self.nextStep();
+          }
           return targetEl.removeEventListener ? targetEl.removeEventListener('click', nextStepFn) : targetEl.detachEvent('click', nextStepFn);
         };
       }
