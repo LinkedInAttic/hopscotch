@@ -19,12 +19,18 @@
         background-color: #fff;
         border: 5px solid #000;
         padding: 20px;
-        position: absolute;
+        position: fixed;
         top: 0;
         right: 0;
+        z-index: 10;
       }
       #debug h3 {
         margin: 10px 0;
+      }
+      #debug-output,
+      #debug-output p {
+        margin: 0;
+        padding: 0;
       }
       .img-container {
         text-align: center;
@@ -81,21 +87,46 @@
       </label>
       <br/>
       <label>Go to step number: <input id="gototext" type="text" size="5"><input id="gotobtn" type="button" value="Go!"></label>
+      <div id="debug-output">
+      </div>
     </div>
     <!--
     <script src="js/yui/build/yahoo-dom-event/yahoo-dom-event.js"></script>
     <script src="js/yui/build/animation/animation-min.js"></script>
-    <script src="js/jquery-1.7.2.js"></script>
     <script src="bootstrap/js/bootstrap-tooltip.js""></script>
     <script src="bootstrap/js/bootstrap-popover.js""></script>
     -->
+    <script src="js/jquery-1.7.2.js"></script>
+    <!--<script src="js/hopscotch_jquery.js"></script>-->
     <script src="js/hopscotch.js"></script>
     <script src="js/exampletour.js"></script>
     <script src="js/debug.js"></script>
     <script>
-      hopscotch.loadTour(tour);
       //hopscotch.clearCookie();
-      hopscotch.startTour();
+      var printLog = function(str) {
+        var el = document.getElementById('debug-output'),
+            newEl = document.createElement('p');
+        newEl.innerHTML = str;
+        el.appendChild(newEl);
+      },
+      onStart = function(tourId) {
+        printLog('global start ' + tourId);
+      },
+      onEnd = function(tourId) {
+        printLog('global end ' + tourId);
+      },
+      onNext = function(tourId, stepNum) {
+        printLog('global next ' + tourId + ' ' + stepNum);
+      },
+      onPrev = function(tourId, stepNum) {
+        printLog('global prev ' + tourId + ' ' + stepNum);
+      };
+      hopscotch.addCallback('start', onStart)
+               .addCallback('end', onEnd)
+               .addCallback('next', onNext)
+               .addCallback('prev', onPrev);
+
+      hopscotch.startTour(tour);
     </script>
   </body>
 </html>

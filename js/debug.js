@@ -67,8 +67,8 @@ for (i = 0, len = booleanControls.length; i < len; i++) {
   }
 }());
 
-// GO TO STEP NUM
 (function() {
+  // GO TO STEP NUM
   var gotobtn  = document.getElementById('gotobtn');
   addClickListener(gotobtn, function() {
     var gototext = document.getElementById('gototext');
@@ -79,8 +79,7 @@ for (i = 0, len = booleanControls.length; i < len; i++) {
   // START TOUR
   // ==========
   addClickListener(document.getElementById('startBtn'), function() {
-    hopscotch.loadTour(tour);
-    hopscotch.startTour();
+    hopscotch.startTour(tour);
   });
 
   // ========

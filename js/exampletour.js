@@ -7,17 +7,10 @@ var tour = {
       target: 'subheading',
       orientation: 'bottom',
       arrowOffset: 30,
+      nextOnTargetClick: true,
       onNext: function() {
         document.getElementById('pageTitle').style.color = '#f00';
-      },
-    },
-    {
-      title: 'Mission district',
-      content: 'Some sort of sound heat map in the mission? Did you notice that this bubble isn\'t completely aligned with this image? That\'s because I\'m using xOffset and yOffset options, which are available if you need to make slight positioning adjustments! Hopscotch has never been more fun!',
-      target: 'mission',
-      orientation: 'top',
-      xOffset: 100,
-      arrowOffset: 100
+      }
     },
     {
       title: 'Debug controls',
@@ -28,19 +21,29 @@ var tour = {
       height: 480,
       showSkip: true,
       fixedElement: true,
-      xOffset: 20,
+      //xOffset: 20,
       zindex: 15,
-      delay: 1000,
+      showPrevButton: true,
+      showNextButton: true,
+      delay: 5000,
       onPrev: function() {
         document.getElementById('pageTitle').style.color = '#000';
       }
+    },
+    {
+      title: 'Mission district',
+      content: 'Some sort of sound heat map in the mission? Did you notice that this bubble isn\'t completely aligned with this image? That\'s because I\'m using xOffset and yOffset options, which are available if you need to make slight positioning adjustments! Hopscotch has never been more fun!',
+      target: 'mission',
+      orientation: 'top',
+      xOffset: 100,
+      arrowOffset: 100
     },
     {
       title: 'Cool wave',
       content: 'This is a <b>colorful</b> wave. Here is the the <a href="http://imgur.com/s632o" target="_new">page</a> where I found it.',
       target: 'wave',
       orientation: 'bottom',
-      width: 500,
+      width: 500
       //xOffset: -50,
       //arrowOffset: 400,
       //showPrevButton: false
@@ -77,14 +80,12 @@ var tour = {
       xOffset: 200
     }
   ],
-  animate: false,
+  //animate: true,
   //smoothScroll: false,
   //showCloseButton: false,
-  //scrollTopMargin: 200,
-  showPrevButton: true,
-  showNextButton: true,
+  scrollTopMargin: 50,
   arrowWidth: 20,
-  scrollDuration: 500,
+  //scrollDuration: 2000,
   cookieName: 'li_hs',
   skipIfNoElement: true,
   onNext: function(tourId, idx) {
@@ -98,16 +99,18 @@ var tour = {
     }
   },
   onPrev: function(tourId, idx) {
-    console.log('tour prev ' + tourId + ' ' + idx);
+    printLog('tour prev ' + tourId + ' ' + idx);
   },
-  onStart: function(tourId) {
-    console.log('tour start ' + tourId);
+  onStart: function(tourId, idx) {
+    printLog('tour start ' + tourId + ' and idx is: ' + idx);
   },
   onEnd: function(tourId) {
-    console.log('tour end ' + tourId);
+    printLog('tour end ' + tourId);
+  },
+  onShow: function(tourId, idx) {
+    printLog('showing step: ' + tourId + ' ' + idx);
   },
   onError: function(tourId, idx) {
-    //alert('DANGER!!! tourId: ' + tourId + ' and idx: ' + idx);
     var newLi,
         list = document.getElementById('my-list');
     if (list) {
@@ -118,7 +121,7 @@ var tour = {
     }
   },
   onClose: function() {
-    console.log('closing');
+    printLog('closing');
   }
   //i18n: {
     ////nextBtn: 'Forward',
