@@ -52,7 +52,8 @@ div#hopscotch-bubble {
   }
 
   h3 {
-    margin: 0;
+    font-weight: bold;
+    margin: 0 @bubblePadding 0 0;
     padding: 0;
   }
 
@@ -62,6 +63,7 @@ div#hopscotch-bubble {
     -webkit-font-smoothing: antialiased; /* to fix text flickering */
 
     p {
+      line-height: 17px;
       margin: 10px 0;
       padding: 0;
     }
@@ -69,10 +71,6 @@ div#hopscotch-bubble {
 
   #hopscotch-bubble-content {
     margin: 0 0 0 (@circleWidth + 10px);
-
-    h3 {
-      margin: 0 @bubblePadding 0 0;
-    }
   }
 
   #hopscotch-bubble-close {
