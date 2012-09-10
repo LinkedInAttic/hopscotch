@@ -1,26 +1,3 @@
-/**
- *
- * TODO:
- * ================
- * "center" option (for block-level elements that span width of document)
- *   - and for the arrow
- *
- * problematic situation
- * - step 2 is on a regular (non-fixed) element, but page is scrolled
- * - step 3 is on a fixed element
- * - if animate is set to true, it screws up.
- *
- * test css conflicts on different sites
- *
- * support horizontal smooth scroll????????
- *
- * NICETOHAVE:
- * ===========
- * flag to see if user has already taken a tour?
- * support > 1 bubble at a time?
- *
- */
-
 (function(context, namespace) {
   var Hopscotch,
       HopscotchBubble,
@@ -197,6 +174,7 @@
     },
 
     getStepTarget: function(step) {
+      if (!step) { return null; }
       if (typeof step.target === 'string') {
         return document.getElementById(step.target);
       }
@@ -769,7 +747,14 @@
     },
 
     getCurrStep = function() {
-      var step = currTour.steps[currStepNum];
+      var step;
+
+      if (currStepNum < 0 || currStepNum >= currTour.steps.length) {
+        return null;
+      }
+      else {
+        step = currTour.steps[currStepNum];
+      }
 
       return (step.length > 0) ? step[currSubstepNum] : step;
     },
@@ -1068,6 +1053,11 @@
         loadTour.call(this, tour);
       }
 
+      if (typeof stepNum !== undefinedStr) {
+        currStepNum    = stepNum;
+        currSubstepNum = substepNum;
+      }
+
       // If document isn't ready, wait for it to finish loading.
       // (so that we can calculate positioning accurately)
       if (document.readyState !== 'complete') {
@@ -1075,32 +1065,29 @@
         return this;
       }
 
-      if (typeof stepNum !== undefinedStr) {
-        currStepNum    = stepNum;
-        currSubstepNum = substepNum;
-      }
-
       // Check if we are resuming state.
-      else if (currTour.id === cookieTourId && typeof cookieTourStep !== undefinedStr) {
-        currStepNum    = cookieTourStep;
-        currSubstepNum = cookieTourSubstep;
-        step           = getCurrStep();
-        if (!utils.getStepTarget(step)) {
-          // May have just refreshed the page. Previous step should work. (but don't change cookie)
-          decrementStep();
-          step = getCurrStep();
-          if (!utils.getStepTarget(step)) {
-            // Previous target doesn't exist either. The user may have just
-            // clicked on a link that wasn't part of the tour. Let's just "end"
-            // the tour and depend on the cookie to pick the user back up where
-            // she left off.
-            this.endTour(false, false);
-            return this;
+      if (typeof currStepNum === undefinedStr) {
+        if (currTour.id === cookieTourId && typeof cookieTourStep !== undefinedStr) {
+          currStepNum    = cookieTourStep;
+          currSubstepNum = cookieTourSubstep;
+          step           = getCurrStep();
+          if (!step || !utils.getStepTarget(step)) {
+            // May have just refreshed the page. Previous step should work. (but don't change cookie)
+            --currStepNum;
+            step = getCurrStep();
+            if (!utils.getStepTarget(step)) {
+              // Previous target doesn't exist either. The user may have just
+              // clicked on a link that wasn't part of the tour. Let's just "end"
+              // the tour and depend on the cookie to pick the user back up where
+              // she left off.
+              this.endTour(false, false);
+              return this;
+            }
           }
         }
-      }
-      else {
-        currStepNum = 0;
+        else {
+          currStepNum = 0;
+        }
       }
 
       if (!currSubstepNum && isInMultiPartStep()) {
@@ -1296,6 +1283,19 @@
     this.addCallback = function(evtType, cb, isTourCb) {
       if (cb) {
         callbacks[evtType].push({ cb: cb, fromTour: isTourCb });
+      }
+      return this;
+    };
+
+    this.removeCallback = function(evtType, cb) {
+      var cbs = callbacks[evtType],
+          i,
+          len;
+
+      for (i = 0, len = cbs.length; i < len; ++i) {
+        if (cb === cbs[i].cb) {
+          cbs.splice(i, 1);
+        }
       }
       return this;
     };
