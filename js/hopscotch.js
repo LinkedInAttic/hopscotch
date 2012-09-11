@@ -664,10 +664,13 @@
       remove = utils.valOrDefault(remove, true);
       el.style.top = '';
       el.style.left = '';
+
+      // display: none
       if (remove) {
         utils.addClass(el, 'hide');
         utils.removeClass(el, 'invisible');
       }
+      // opacity: 0
       else {
         utils.removeClass(el, 'hide');
         if (!opt.animate) {
