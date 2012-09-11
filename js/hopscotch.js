@@ -23,6 +23,11 @@
     return;
   }
 
+  /**
+   * Called when the page is done loading.
+   *
+   * @private
+   */
   winLoadHandler = function() {
     if (waitingToStart) {
       winHopscotch.startTour();
@@ -43,6 +48,8 @@
    * and extract information from the DOM. Basically these are things I
    * would normally use jQuery for, but I don't want to require it for
    * this framework.
+   *
+   * @private
    */
   utils = {
     /**
@@ -252,10 +259,19 @@
     closeTooltip: 'Close'
   };
 
+  /**
+   * HopscotchBubble
+   *
+   * @class The HopscotchBubble class is a singleton class which manages the properties of the bubble.
+   * @private
+   */
   HopscotchBubble = function(opt) {
     var isShowing = false,
         currStep,
 
+    /**
+     * @private
+     */
     createButton = function(id, text) {
       var btnEl = document.createElement('input');
       btnEl.id = id;
@@ -272,6 +288,9 @@
       return btnEl;
     },
 
+    /**
+     * @private
+     */
     showButton = function(btnEl, show, permanent) {
       var classname = 'hide';
 
@@ -289,12 +308,14 @@
 
     /**
      * setPosition
-     * ===========
+     *
      * Sets the position of the bubble using the bounding rectangle of the
      * target element and the orientation and offset information specified by
      * the step JSON.
+     *
+     * @private
      */
-    setPosition = function(bubble, step) {
+    setPosition = function(step) {
       var bubbleWidth,
           bubbleHeight,
           bubblePadding,
@@ -303,8 +324,8 @@
           left,
           bubbleBorder = 6,
           targetEl     = utils.getStepTarget(step),
-          el           = bubble.element,
-          arrowEl      = bubble.arrowEl,
+          el           = this.element,
+          arrowEl      = this.arrowEl,
           arrowOffset  = utils.getPixelValue(step.arrowOffset);
 
       bubbleWidth   = utils.getPixelValue(step.width) || opt.bubbleWidth;
@@ -371,6 +392,9 @@
       }
     },
 
+    /**
+     * @private
+     */
     init = function() {
       var el              = document.createElement('div'),
           containerEl     = document.createElement('div'),
@@ -402,9 +426,13 @@
 
       this.initArrow();
 
-      // Not pretty, but IE doesn't support Function.bind(), so I'm
-      // relying on closures to keep a handle of "this".
-      // Reset position of bubble when window is resized
+      /**
+       * Not pretty, but IE doesn't support Function.bind(), so I'm
+       * relying on closures to keep a handle of "this".
+       * Reset position of bubble when window is resized
+       *
+       * @private
+       */
       onWinResize = function() {
         if (resizeCooldown || !isShowing) {
           return;
@@ -412,7 +440,7 @@
 
         resizeCooldown = true;
         winResizeTimeout = setTimeout(function() {
-          setPosition(self, currStep, false);
+          setPosition.call(self, currStep, false);
           resizeCooldown = false;
         }, 200);
       };
@@ -546,7 +574,7 @@
       if (step.orientation === 'top') {
         // Timeout to get correct height of bubble for positioning.
         setTimeout(function() {
-          setPosition(self, step);
+          setPosition.call(self, step);
           // only want to adjust window scroll for non-fixed elements
           if (callback) {
             if (!step.fixedElement) { callback(); }
@@ -556,7 +584,7 @@
       }
       else {
         // Don't care about height for the other orientations.
-        setPosition(this, step);
+        setPosition.call(this, step);
         // only want to adjust window scroll for non-fixed elements
         if (callback) {
           if (!step.fixedElement) { callback(); }
@@ -724,6 +752,13 @@
     init.call(this);
   };
 
+  /**
+   * Hopscotch
+   *
+   * @class Creates the Hopscotch object. Used to manage tour progress and configurations.
+   * @constructor
+   * @param {Object} initOptions Options to be passed to `configure()`.
+   */
   Hopscotch = function(initOptions) {
     var cookieName = 'hopscotch.tour.state',
         bubble,
@@ -738,9 +773,11 @@
 
     /**
      * getBubble
-     * ==========
-     * Retrieves the "singleton" bubble div or creates it if it doesn't
-     * exist yet.
+     *
+     * Singleton accessor function for retrieving or creating bubble object.
+     *
+     * @private
+     * @returns {Object} HopscotchBubble
      */
     getBubble = function() {
       if (!bubble) {
@@ -749,6 +786,12 @@
       return bubble;
     },
 
+    /**
+     * getCurrStep
+     *
+     * @private
+     * @returns {Object} the step object corresponding to the current value of currStepNum
+     */
     getCurrStep = function() {
       var step;
 
@@ -762,15 +805,17 @@
       return (step.length > 0) ? step[currSubstepNum] : step;
     },
 
+    // isInMultiPartStep, incrementStep, AND decrementStep ARE ONLY USEFUL FOR MULTI-PART
+    // STEPS, WHICH HAVE YET TO BE FULLY IMPLEMENTED.
+    /*
     isInMultiPartStep = function() {
       return currTour.steps[currStepNum].length > 0;
     },
+    */
 
-    // incrementStep AND decrementStep ARE ONLY USEFUL FOR MULTI-PART
-    // STEPS, WHICH HAVE YET TO BE FULLY IMPLEMENTED.
     /**
      * incrementStep
-     * =============
+     *
      * Sets current step num and substep num to the next step in the tour.
      * Returns true if successful, false if not.
      */
@@ -792,7 +837,7 @@
 
     /**
      * decrementStep
-     * =============
+     *
      * Sets current step num and substep num to the previous step in the tour.
      * Returns true if successful, false if not.
      */
@@ -819,25 +864,40 @@
 
     /**
      * adjustWindowScroll
-     * ==================
+     *
      * Checks if the bubble or target element is partially or completely
      * outside of the viewport. If it is, adjust the window scroll position
      * to bring it back into the viewport.
+     *
+     * @private
+     * @param {Function} cb Callback to invoke after done scrolling.
      */
     adjustWindowScroll = function(cb) {
       var bubble         = getBubble(),
+
+          // Calculate the bubble element top and bottom position
           bubbleEl       = bubble.element,
           bubbleTop      = utils.getPixelValue(bubbleEl.style.top),
           bubbleBottom   = bubbleTop + utils.getPixelValue(bubbleEl.offsetHeight),
+
+          // Calculate the target element top and bottom position
           targetEl       = utils.getStepTarget(getCurrStep()),
           targetBounds   = targetEl.getBoundingClientRect(),
           targetElTop    = targetBounds.top + utils.getScrollTop(),
           targetElBottom = targetBounds.bottom + utils.getScrollTop(),
-          targetTop      = (bubbleTop < targetElTop) ? bubbleTop : targetElTop, // target whichever is higher
-          targetBottom   = (bubbleBottom > targetElBottom) ? bubbleBottom : targetElBottom, // whichever is lower
+
+          // The higher of the two: bubble or target
+          targetTop      = (bubbleTop < targetElTop) ? bubbleTop : targetElTop,
+          // The lower of the two: bubble or target
+          targetBottom   = (bubbleBottom > targetElBottom) ? bubbleBottom : targetElBottom,
+
+          // Calculate the current viewport top and bottom
           windowTop      = utils.getScrollTop(),
           windowBottom   = windowTop + utils.getWindowHeight(),
-          scrollToVal    = targetTop - opt.scrollTopMargin, // This is our final target scroll value.
+
+          // This is our final target scroll value.
+          scrollToVal    = targetTop - opt.scrollTopMargin,
+
           self           = this,
           scrollEl,
           yuiAnim,
@@ -846,20 +906,23 @@
           scrollIncr,
           scrollInt;
 
+      // Target and bubble are both visible in viewport
       if (targetTop >= windowTop && (targetTop <= windowTop + opt.scrollTopMargin || targetBottom <= windowBottom)) {
-        // target and bubble are both visible in viewport
         if (cb) { cb(); } // HopscotchBubble.show
         return;
       }
+
+      // Abrupt scroll to scroll target
       else if (!opt.smoothScroll) {
-        // Abrupt scroll to scroll target
         window.scrollTo(0, scrollToVal);
 
         if (cb) { cb(); } // HopscotchBubble.show
         return;
       }
+
+      // Smooth scroll to scroll target
       else {
-        // Smooth scroll to scroll target
+        // Use YUI if it exists
         if (typeof YAHOO             !== undefinedStr &&
             typeof YAHOO.env         !== undefinedStr &&
             typeof YAHOO.env.ua      !== undefinedStr &&
@@ -873,9 +936,13 @@
           yuiAnim.onComplete.subscribe(cb);
           yuiAnim.animate();
         }
+
+        // Use jQuery if it exists
         else if (hasJquery) {
           $('body, html').animate({ scrollTop: scrollToVal }, opt.scrollDuration, cb);
         }
+
+        // Use my crummy setInterval scroll solution if we're using plain, vanilla Javascript.
         else {
           if (scrollToVal < 0) {
             scrollToVal = 0;
@@ -917,14 +984,20 @@
 
     /**
      * changeStep
-     * ==========
+     *
      * Helper function to change step by going forwards or backwards 1.
      * nextStep and prevStep are publicly accessible wrappers for this function.
+     *
+     * @private
+     * @param {Boolean} doCallbacks Flag for invoking onNext or onPrev callbacks
+     * @param {Number} direction Either 1 for "next" or -1 for "prev"
      */
     changeStep = function(doCallbacks, direction) {
       var self        = this,
           nextStep    = currTour.steps[currStepNum + direction],
           bubble      = getBubble();
+
+      doCallbacks = utils.valOrDefault(doCallbacks, true);
 
       bubble.hide();
       setTimeout(function() {
@@ -948,8 +1021,7 @@
           }
         }
         else if (currStepNum + direction >= 0 && currStepNum + direction < currTour.steps.length) {
-          // only try incrementing once, and invoke error callback if no target
-          // is found
+          // only try incrementing once, and invoke error callback if no target is found
           currStepNum += direction;
           step = getCurrStep();
           if (!utils.getStepTarget(step)) {
@@ -978,9 +1050,11 @@
 
     /**
      * loadTour
-     * ========
-     * Loads, but does not display, tour. (Give the developer a chance to
-     * override tour-specified configuration options before displaying)
+     *
+     * Loads, but does not display, tour.
+     *
+     * @private
+     * @param tour The tour JSON object
      */
     loadTour = function(tour) {
       var tmpOpt = {},
@@ -1042,16 +1116,36 @@
       return this;
     },
 
-    init = function() {
+    /**
+     * init
+     *
+     * Initializes the Hopscotch object.
+     *
+     * @private
+     */
+    init = function(initOptions) {
       if (initOptions) {
         this.configure(initOptions);
       }
     };
 
+    /**
+     * startTour
+     *
+     * Begins the tour.
+     *
+     * @param {Object} tour The tour JSON object
+     * @stepNum {Number} stepNum __Optional__ The step number to start from
+     * @substepNum {Number} substepNum __Optional__ The substep number to start from
+     * @returns {Object} Hopscotch
+     *
+     */
     this.startTour = function(tour, stepNum, substepNum) {
       var bubble,
           step;
 
+      // loadTour if we are calling startTour directly. (When we call startTour
+      // from window onLoad handler, we'll use currTour)
       if (!currTour) {
         loadTour.call(this, tour);
       }
@@ -1068,8 +1162,8 @@
         return this;
       }
 
-      // Check if we are resuming state.
       if (typeof currStepNum === undefinedStr) {
+        // Check if we are resuming state.
         if (currTour.id === cookieTourId && typeof cookieTourStep !== undefinedStr) {
           currStepNum    = cookieTourStep;
           currSubstepNum = cookieTourSubstep;
@@ -1093,10 +1187,12 @@
         }
       }
 
+      /*
       if (!currSubstepNum && isInMultiPartStep()) {
         // Multi-part step
         currSubstepNum = 0;
       }
+      */
 
       utils.invokeCallbacks('start', [currTour.id, currStepNum]);
 
@@ -1108,11 +1204,11 @@
         bubble.initAnimate();
       }
 
-      // Check if first step element exists
       if (!utils.getStepTarget(getCurrStep())) {
+        // First step element doesn't exist
         utils.invokeCallbacks('error', [currTour.id, currStepNum]);
         if (opt.skipIfNoElement) {
-          this.nextStep();
+          this.nextStep(false);
         }
       }
       else {
@@ -1122,11 +1218,20 @@
       return this;
     };
 
-    this.showStep = function(stepIdx, substepIdx) {
+    /**
+     * showStep
+     *
+     * Skips to a specific step and renders the corresponding bubble.
+     *
+     * @stepNum {Number} stepNum The step number to show
+     * @substepNum {Number} substepNum __Optional__ The substep number to show
+     * @returns {Object} Hopscotch
+     */
+    this.showStep = function(stepNum, substepNum) {
       var tourSteps    = currTour.steps,
-          step         = tourSteps[stepIdx],
+          step         = tourSteps[stepNum],
           numTourSteps = tourSteps.length,
-          cookieVal    = currTour.id + ':' + stepIdx,
+          cookieVal    = currTour.id + ':' + stepNum,
           bubble       = getBubble(),
           self         = this,
           targetEl     = utils.getStepTarget(step),
@@ -1134,30 +1239,36 @@
           isLast;
 
       // Update bubble for current step
-      currStepNum    = stepIdx;
-      currSubstepNum = substepIdx;
+      currStepNum    = stepNum;
+      currSubstepNum = substepNum;
 
       // Only do fade if we're not animating.
       if (!opt.animate) {
         bubble.hide(false);
       }
 
-      if (typeof substepIdx !== undefinedStr && isInMultiPartStep()) {
-        step = step[substepIdx];
-        cookieVal += '-' + substepIdx;
+      /* UNCOMMENT WHEN MULTI-PART STEPS ARE FINISHED
+      if (typeof substepNum !== undefinedStr && isInMultiPartStep()) {
+        step = step[substepNum];
+        cookieVal += '-' + substepNum;
       }
+      */
 
-      // When nextOnTargetClick is true, attach this function to the click event
+      // When nextOnTargetClick is true, attach nextStepFn to the click event
       // of the target element.
       if (step.nextOnTargetClick) {
+        /**
+         * @private
+         */
         nextStepFn = function() {
-          self.nextStep();
+          self.nextStep(false);
+          // Detach the listener after we've clicked on the target.
           return targetEl.removeEventListener ? targetEl.removeEventListener('click', nextStepFn) : targetEl.detachEvent('click', nextStepFn);
         };
       }
 
-      isLast = (stepIdx === numTourSteps - 1) || (substepIdx >= step.length - 1);
-      bubble.renderStep(step, stepIdx, substepIdx, isLast, function() {
+      isLast = (stepNum === numTourSteps - 1) || (substepNum >= step.length - 1);
+      bubble.renderStep(step, stepNum, substepNum, isLast, function() {
         // when done adjusting window scroll, call bubble.show()
         adjustWindowScroll(function() {
           bubble.show();
@@ -1180,35 +1291,56 @@
       return this;
     };
 
+    /**
+     * prevStep
+     *
+     * Jump to the previous step.
+     *
+     * @param {Boolean} doCallbacks Flag for invoking onPrev callback. Defaults to true.
+     * @returns {Object} Hopscotch
+     */
     this.prevStep = function(doCallbacks) {
       changeStep.call(this, doCallbacks, -1);
+      return this;
     };
 
+    /**
+     * nextStep
+     *
+     * Jump to the next step.
+     *
+     * @param {Boolean} doCallbacks Flag for invoking onNext callback. Defaults to true.
+     * @returns {Object} Hopscotch
+     */
     this.nextStep = function(doCallbacks) {
       changeStep.call(this, doCallbacks, 1);
+      return this;
     };
 
     /**
      * endTour
-     * ==========
-     * Cancels out of an active tour. If clearCookie is true, no state is
-     * preserved. If doCallback is false, the onEnd callback is not invoked.
+     *
+     * Cancels out of an active tour.
+     *
+     * @param {Boolean} clearState Flag for clearing state. Defaults to true.
+     * @param {Boolean} doCallbacks Flag for invoking 'onEnd' callbacks. Defaults to true.
+     * @returns {Object} Hopscotch
      */
-    this.endTour = function(clearCookie, doCallback) {
+    this.endTour = function(clearState, doCallbacks) {
       var bubble     = getBubble();
-      clearCookie    = utils.valOrDefault(clearCookie, true);
-      doCallback     = utils.valOrDefault(doCallback, true);
+      clearState     = utils.valOrDefault(clearState, true);
+      doCallbacks    = utils.valOrDefault(doCallbacks, true);
       currStepNum    = 0;
       currSubstepNum = undefined;
       cookieTourStep = undefined;
 
       bubble.hide();
-      if (clearCookie) {
+      if (clearState) {
         utils.clearState(opt.cookieName);
       }
       winHopscotch.isActive = false;
 
-      if (currTour && doCallback) {
+      if (currTour && doCallbacks) {
         utils.invokeCallbacks('end', [currTour.id]);
       }
 
@@ -1219,17 +1351,29 @@
       return this;
     };
 
+    /**
+     * getCurrTour
+     *
+     * @return {Object} The currently loaded tour.
+     */
     this.getCurrTour = function() {
       return currTour;
     };
 
+    /**
+     * getCurrStepNum
+     *
+     * @return {number} The current step number.
+     */
     this.getCurrStepNum = function() {
       return currStepNum;
     };
 
+    /*
     this.getCurrSubstepNum = function() {
       return currSubstepNum;
     };
+    */
 
     /** WORK IN PROGRESS
     this.hasTakenTour = function(tourId) {
@@ -1281,15 +1425,31 @@
 
     /**
      * addCallback
-     * ===========
+     *
+     * Adds a callback for one of the event types. Valid event types are:
+     *
+     * @param {string} evtType "start", "end", "next", "prev", "show", "close", or "error"
+     * @param {Function} cb The callback to add.
+     * @param {Boolean} isTourCb Flag indicating callback is from a tour definition.
+     *    For internal use only!
+     * @returns {Object} Hopscotch
      */
     this.addCallback = function(evtType, cb, isTourCb) {
-      if (cb) {
+      if (evtType && cb) {
         callbacks[evtType].push({ cb: cb, fromTour: isTourCb });
       }
       return this;
     };
 
+    /**
+     * removeCallback
+     *
+     * Removes a callback for one of the event types, e.g. 'start', 'next', etc.
+     *
+     * @param {string} evtType "start", "end", "next", "prev", "show", "close", or "error"
+     * @param {Function} cb The callback to remove.
+     * @returns {Object} Hopscotch
+     */
     this.removeCallback = function(evtType, cb) {
       var cbs = callbacks[evtType],
           i,
@@ -1305,10 +1465,14 @@
 
     /**
      * removeCallbacks
-     * ===============
-     * Remove callbacks specified from hopscotch.configure(). If tourOnly
-     * is set to true, only removes callbacks specified by a tour (callbacks
-     * set by external calls to hopscotch.configure will not be removed).
+     *
+     * Remove callbacks for a hopscotch event. If tourOnly is set to true, only
+     * removes callbacks specified by a tour (callbacks set by external calls
+     * to hopscotch.configure or hopscotch.addCallback will not be removed).
+     *
+     * @param {boolean} tourOnly Flag to indicate we should only remove callbacks added
+     *    by a tour. Defaults to false.
+     * @returns {Object} Hopscotch
      */
     this.removeCallbacks = function(tourOnly) {
       var cbArr,
@@ -1333,11 +1497,28 @@
       return this;
     };
 
+    /**
+     * setCookieName
+     *
+     * Sets the cookie name (or sessionStorage name, if supported) used for multi-page
+     * tour persistence.
+     *
+     * @param {String} name The cookie name
+     * @returns {Object} Hopscotch
+     */
     this.setCookieName = function(name) {
       cookieName     = name;
       opt.cookieName = name;
+      return this;
     };
 
+    /**
+     * resetDefaultOptions
+     *
+     * Resets all configuration options to default.
+     *
+     * @returns {Object} Hopscotch
+     */
     this.resetDefaultOptions = function() {
       opt = {
         animate:         false,
@@ -1353,53 +1534,16 @@
         skipIfNoElement: true,
         cookieName:      cookieName
       };
+      return this;
     };
 
     /**
      * _configure
-     * ==========
-     * VALID OPTIONS INCLUDE...
-     * bubbleWidth:     Number   - Default bubble width. Defaults to 280.
-     * bubblePadding:   Number   - Default bubble padding. Defaults to 15.
-     * animate:         Boolean  - should the tour bubble animate between steps?
-     *                             Defaults to FALSE.
-     * smoothScroll:    Boolean  - should the page scroll smoothly to the next
-     *                             step? Defaults to TRUE.
-     * scrollDuration:  Number   - Duration of page scroll. Only relevant when
-     *                             smoothScroll is set to true. Defaults to
-     *                             1000ms.
-     * scrollTopMargin: NUMBER   - When the page scrolls, how much space should there
-     *                             be between the bubble/targetElement and the top
-     *                             of the viewport? Defaults to 200.
-     * showCloseButton: Boolean  - should the tour bubble show a close (X) button?
-     *                             Defaults to TRUE.
-     * showPrevButton:  Boolean  - should the bubble have the Previous button?
-     *                             Defaults to FALSE.
-     * showNextButton:  Boolean  - should the bubble have the Next button?
-     *                             Defaults to TRUE.
-     * arrowWidth:      Number   - Default arrow width. (space between the bubble
-     *                             and the targetEl) Used for bubble position
-     *                             calculation. Need to provide the option to set
-     *                             this here in case developer wants to use own CSS.
-     *                             Defaults to 20.
-     * skipIfNoElement  Boolean  - If a specified target element is not found,
-     *                             should we skip to the next step? Defaults to
-     *                             TRUE.
-     * onNext:          Function - A callback to be invoked after every click on
-     *                             a "Next" button.
      *
-     * i18n:            Object   - For i18n purposes. Allows you to change the
-     *                             text of button labels and step numbers.
-     * i18n.stepNums:   Array<String> - Provide a list of strings to be shown as
-     *                             the step number, based on index of array. Unicode
-     *                             characters are supported. (e.g., ['&#x4e00;',
-     *                             '&#x4e8c;', '&#x4e09;']) If there are more steps
-     *                             than provided numbers, Arabic numerals
-     *                             ('4', '5', '6', etc.) will be used as default.
-     *
-     * isTourOptions:   This is a flag for the purpose of removing tour-specific
-     *                  callbacks once a tour ends. This is only used
-     *                  internally.
+     * @see this.configure
+     * @private
+     * @param options
+     * @param {Boolean} isTourOptions Should be set to true when setting options from a tour definition.
      */
     _configure = function(options, isTourOptions) {
       var bubble;
@@ -1440,9 +1584,91 @@
 
     /**
      * configure
-     * =========
-     * Just a wrapper for _configure, to make sure developers don't try and set
-     * isTourOptions.
+     *
+     * <pre>
+     * VALID OPTIONS INCLUDE...
+     *
+     * - bubbleWidth:     Number   - Default bubble width. Defaults to 280.
+     * - bubblePadding:   Number   - Default bubble padding. Defaults to 15.
+     * - animate:         Boolean  - should the tour bubble animate between steps?
+     *                               Defaults to FALSE.
+     * - smoothScroll:    Boolean  - should the page scroll smoothly to the next
+     *                               step? Defaults to TRUE.
+     * - scrollDuration:  Number   - Duration of page scroll. Only relevant when
+     *                               smoothScroll is set to true. Defaults to
+     *                               1000ms.
+     * - scrollTopMargin: NUMBER   - When the page scrolls, how much space should there
+     *                               be between the bubble/targetElement and the top
+     *                               of the viewport? Defaults to 200.
+     * - showCloseButton: Boolean  - should the tour bubble show a close (X) button?
+     *                               Defaults to TRUE.
+     * - showPrevButton:  Boolean  - should the bubble have the Previous button?
+     *                               Defaults to FALSE.
+     * - showNextButton:  Boolean  - should the bubble have the Next button?
+     *                               Defaults to TRUE.
+     * - arrowWidth:      Number   - Default arrow width. (space between the bubble
+     *                               and the targetEl) Used for bubble position
+     *                               calculation. Only use this option if you are
+     *                               using your own custom CSS. Defaults to 20.
+     * - skipIfNoElement  Boolean  - If a specified target element is not found,
+     *                               should we skip to the next step? Defaults to
+     *                               TRUE.
+     * - onNext:          Function - A callback to be invoked after every click on
+     *                               a "Next" button.
+     *
+     * - i18n:            Object   - For i18n purposes. Allows you to change the
+     *                               text of button labels and step numbers.
+     * - i18n.stepNums:   Array\<String\> - Provide a list of strings to be shown as
+     *                               the step number, based on index of array. Unicode
+     *                               characters are supported. (e.g., ['&#x4e00;',
+     *                               '&#x4e8c;', '&#x4e09;']) If there are more steps
+     *                               than provided numbers, Arabic numerals
+     *                               ('4', '5', '6', etc.) will be used as default.
+     * // =========
+     * // CALLBACKS
+     * // =========
+     * - onNext:          Function - Invoked after every click on a "Next" button.
+     * - onPrev:          Function - Invoked after every click on a "Prev" button.
+     * - onStart:         Function - Invoked when the tour is started.
+     * - onEnd:           Function - Invoked when the tour ends.
+     * - onClose:         Function - Invoked when the user closes the tour before finishing.
+     * - onError:         Function - Invoked when the specified target element doesn't exist on the page.
+     *
+     * // ====
+     * // I18N
+     * // ====
+     * i18n:              OBJECT      - For i18n purposes. Allows you to change the text
+     *                                  of button labels and step numbers.
+     * i18n.nextBtn:      STRING      - Label for next button
+     * i18n.prevBtn:      STRING      - Label for prev button
+     * i18n.doneBtn:      STRING      - Label for done button
+     * i18n.skipBtn:      STRING      - Label for skip button
+     * i18n.closeTooltip: STRING      - Text for close button tooltip
+     * i18n.stepNums:   ARRAY<STRING> - Provide a list of strings to be shown as
+     *                                  the step number, based on index of array. Unicode
+     *                                  characters are supported. (e.g., ['&#x4e00;',
+     *                                  '&#x4e8c;', '&#x4e09;']) If there are more steps
+     *                                  than provided numbers, Arabic numerals
+     *                                  ('4', '5', '6', etc.) will be used as default.
+     * </pre>
+     *
+     * @example hopscotch.configure({ animate: false, scrollTopMargin: 150 });
+     * @example
+     * hopscotch.configure({
+     *   animate: false,
+     *   scrollTopMargin: 150,
+     *   onStart: function() {
+     *     alert("Have fun!");
+     *   },
+     *   i18n: {
+     *     nextBtn: 'Forward',
+     *     prevBtn: 'Previous'
+     *     closeTooltip: 'Quit'
+     *   }
+     * });
+     *
+     * @param {Object} options A hash of configuration options.
+     * @returns {Object} Hopscotch
      */
     this.configure = function(options) {
       return _configure.call(this, options, false);
