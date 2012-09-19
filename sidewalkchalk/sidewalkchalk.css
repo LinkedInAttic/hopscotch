@@ -1,0 +1,279 @@
+#hopscotch-builder {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  z-index: 101011;
+	font-family: Helvetica, Arial, sans-serif;
+	font-size: 12px;
+}
+#hopscotch-builder p {
+	margin: 0;
+	padding: 0;
+}
+#hopscotch-builder ol {
+	padding: 0;
+}
+#hopscotch-builder ol li.step{
+	list-style-type: none;
+}
+#hopscotch-builder #forms-list li.step {
+	display: none;
+}
+#hopscotch-builder label {
+	display: block;
+	margin-top: 10px;
+	font-weight: bold;
+	font-size: 1.2em;
+	color: #f57428;
+	margin-bottom: 3px;
+}
+#hopscotch-builder button {
+	background-color: #fff;
+	border: 1px solid #808080;
+	margin: 0;
+	padding: 8px 6px;
+	text-shadow: 0 1px 1px rgba(0, 0, 0, 0.35);
+	-webkit-border-radius: 3px;
+	-khtml-border-radius: 3px;
+	border-radius: 3px;
+}
+#hopscotch-builder button.button-up, #hopscotch-builder .button-up button {
+	-webkit-box-shadow:  2px 2px 1px -1px #999;
+	box-shadow:  2px 2px 3px -1px #999;
+	background-image: -webkit-linear-gradient(top, #F6E312 0%,#F9C80D 100%);
+	background-image: -moz-linear-gradient(top, #F6E312 0%,#F9C80D 100%);
+	background-image: -ms-linear-gradient(top, #F6E312 0%,#F9C80D 100%);
+	background-image: linear-gradient(top, #F6E312 0%,#F9C80D 100%);
+	border: 1px solid #e9ac1a;
+}
+#hopscotch-builder button.button-down, #hopscotch-builder .button-down button {
+	-webkit-box-shadow: 0 1px 2px rgba(0, 0, 0, 0.25) inset;
+	box-shadow: 0 1px 2px rgba(0, 0, 0, 0.25) inset;
+	border: 1px solid #a7a7a7;
+	background-image: -webkit-linear-gradient(top, #F2F2F2 0%,#E9E9E9 32%,#D8D8D8 74%,#D1D1D1 100%);
+	background-image: -moz-linear-gradient(top, #F2F2F2 0%,#E9E9E9 32%,#D8D8D8 74%,#D1D1D1 100%);
+	background-image: -o-linear-gradient(top, #F2F2F2 0%,#E9E9E9 32%,#D8D8D8 74%,#D1D1D1 100%);
+	background-image: linear-gradient(top, #F2F2F2 0%,#E9E9E9 32%,#D8D8D8 74%,#D1D1D1 100%);
+}
+#hopscotch-builder input:not([type="checkbox"]) {
+	width: 50px;
+	border: 1px solid #ccc;
+	padding: 6px 8px;
+	margin: 3px 2px;
+	-webkit-box-shadow: 1px 1px 3px #dde inset;
+	box-shadow: 1px 1px 3px #dde inset;
+}
+#hopscotch-builder textarea {
+	border: 1px solid #ccc;
+	-webkit-box-shadow: 1px 1px 3px #dde inset;
+	box-shadow: 1px 1px 3px #dde inset;
+}
+
+/* Common classes */
+#hopscotch-builder .normal-label {
+	font-size: 1.0em;
+	font-weight: normal;
+	color: #666;
+}
+#hopscotch-builder .last {
+	margin-right: 0;
+}
+
+/* Main containers */
+#hopscotch-builder #hopscotchIt {
+	background-color: #fff;
+	border: 10px solid #777;
+	-webkit-box-shadow:  5px 5px 6px 0px #999;
+	box-shadow:  5px 5px 6px 0px #999;
+	width: 352px;
+	padding: 20px 30px;
+	position: relative;
+	-webkit-border-radius: 10px;
+	-moz-border-radius: 10px;
+	border-radius: 10px;
+}
+#hopscotch-builder .this-box {
+	overflow: hidden;
+}
+
+
+/* What section, yo? */
+#hopscotch-builder .minmax-container {
+	position: absolute;
+	top: 17px;
+	right: 16px;
+}
+#hopscotch-builder .minmax-container button {
+	padding: 6px 8px;
+	width: 35px;
+	height: 35px;
+}
+#hopscotch-builder .maximize {
+	-webkit-border-radius: 3px 0px 0px 3px;
+	-khtml-border-radius: 3px 0px 0px 3px;
+	border-radius: 3px 0px 0px 3px;
+}
+#hopscotch-builder .maximize span, #hopscotch-builder .minimize span {
+	display: block;
+	width: 9px;
+	height: 13px;
+	border: 4px solid #777;
+	background-color: #fff;
+}
+#hopscotch-builder .minimize {
+	-webkit-border-radius: 0 3px 3px 0;
+	-khtml-border-radius: 0 3px 3px 0;
+	border-radius: 0 3px 3px 0;
+	line-height: 35px;
+	padding: 9px 8px;
+}
+#hopscotch-builder .minimize span {
+	width: 9px;
+	height: 5px;
+	display: inline-block;
+	vertical-align: top;
+}
+
+#hopscotch-builder .target-element button {
+	width: 29px;
+	height: 29px;
+	margin-right: 7px;
+}
+#hopscotch-builder .target-element input {
+	display: inline-block;
+	width: 215px;
+}
+
+#hopscotch-builder .orientation, #hopscotch-builder .pixel-pusher, #hopscotch-builder .bubble-offset {
+	float: left;
+	margin-right: 15px;
+	width: 102px;
+}
+#hopscotch-builder .tooltip-offset input[type="checkbox"], #hopscotch-builder .box-width input[type="checkbox"] {
+	margin-left: -20px;
+}
+#hopscotch-builder .bubble-offset input[type="checkbox"] {
+	float: left;
+	margin-top: 27px;
+	margin-right: 5px;
+	margin-left: -14px;
+}
+#hopscotch-builder .bubble-offset label {
+	margin-left: 4px;
+}
+
+#hopscotch-builder .title input {
+	width: 250px;
+}
+
+#hopscotch-builder .content input[type="checkbox"] {
+	vertical-align: top;
+	margin: 6px 2px 0 -16px;
+}
+#hopscotch-builder .content textarea {
+	width: 250px;
+	height: 40px;
+}
+
+#hopscotch-builder .buttons ul {
+	margin: 0;
+	padding: 0;
+}
+#hopscotch-builder .buttons li {
+	margin: 0;
+	padding: 0;
+	list-style: none;
+	display: inline-block;
+	margin-right: 25px;
+}
+#hopscotch-builder .buttons li label {
+	margin-top: 0;
+}
+#hopscotch-builder .buttons .normal-label {
+	display: inline-block;
+}
+
+#hopscotch-builder .step2 label {
+	display: inline-block;
+	margin-right: 10px;
+}
+#hopscotch-builder button.prev, #hopscotch-builder button.next {
+	border: 0;
+	font-weight: bold;
+	display: inline-block;
+	font-size: 1.2em;
+	color: #2e8dd7;
+	text-shadow: 0px 0px 0px #fff;
+}
+#hopscotch-builder .step2 ol {
+	margin: 0;
+	padding-left: 1.3em;;
+}
+#hopscotch-builder .step2 li {
+	margin: 7px 0;
+	padding: 0;
+}
+#hopscotch-builder .step2 a, #hopscotch-builder .step2 a:link {
+	color: #000;
+	text-decoration: none;
+}
+#hopscotch-builder .step2 .button-up {
+	width: 20px;
+	height: 20px;
+	font-size: 1.2em;
+	padding: 0;
+	margin-right: 5px;
+}
+
+#hopscotch-builder .actions {
+	margin-top: 25px;
+}
+#hopscotch-builder .actions button {
+	-moz-box-shadow: 0 1px 2px rgba(0,0,0,0.25);
+	-webkit-box-shadow: 0 1px 2px rgba(0, 0, 0, 0.25);
+	-o-box-shadow: 0 1px 2px rgba(0,0,0,0.25);
+	box-shadow: 0 1px 2px rgba(0, 0, 0, 0.25);
+	background-image: -webkit-linear-gradient(top, #287bbc 0%,#23639a 100%);
+	background-image: -moz-linear-gradient(top, #287bbc 0%,#23639a 100%);
+	background-image: -ms-linear-gradient(top, #287bbc 0%,#23639a 100%);
+	background-image: linear-gradient(top, #287bbc 0%,#23639a 100%);
+	border: 1px solid #1b5480;
+	color: #fff;
+	font-size: 1.1em;
+	font-weight: bold;
+}
+#hopscotch-builder .actions p {
+	margin-top: 10px;
+}
+#hopscotch-builder .actions a {
+	text-decoration: none;
+	color: #1b5480;
+}
+#outer-target-selector {
+	position: absolute;
+	display: none;
+	z-index: 101010;
+	background: #F57428;
+	opacity: .3;
+	pointer-events:none;
+}
+
+
+#hopscotch-builder .steps-list {
+	border: #ccc solid 1px;
+	max-height: 125px;
+	overflow-y: auto;
+}
+#hopscotch-builder .steps-list li {
+	border-bottom: #ccc solid 1px;
+	padding: 5px;
+}
+#hopscotch-builder .steps-list li label {
+	display: inline;
+	font-size: 100%;
+	color: #000;
+}
+#hopscotch-builder .steps-list li input {
+	width: 15px;
+	text-align: center;
+}
