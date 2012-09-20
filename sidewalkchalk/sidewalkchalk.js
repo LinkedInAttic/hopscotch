@@ -1,263 +1,289 @@
-//javascript:(function(){
+var sidewalkchalk = {
+  init: function(){
+    this.getHtml();
 
-  var sidewalkchalk = {
-    init: function(){
-      this.getHtml();
+    this.stepInfo = {
+      stepIdBase: 'hs-builder-step-',
+      tagName: 'li' 
+    };
+    this.stepNum = 1;
 
-      this.stepInfo = {
-        stepIdBase: 'hs-builder-step-',
-        tagName: 'li' 
-      };
-      this.stepNum = 1;
+    this.hopscotchJSON = {
+      id: 'untitledTest',
+      steps: []
+    };
+  },
 
-      this.hopscotchJSON = {
-        id: '',
-        steps: []
-      };
+  getHtml: function(){
+    var _this = this;
 
-      /*this.hopscotchJSON = {
-        id: '',
-        steps: []
-      };
-      this.stepInfo = {
-        stepIdBase: 'hs-builder-step-',
-        tagName: 'li' 
-      };
-      this.stepNum = 1;
+    $.ajax('sidewalkchalk/sidewalkchalk.html', {
+      crossDomain: true,
+      success: function(resp){
+        _this.drawBuilderContainer(resp);
+      }
+    });
+  },
 
-      this.injectjQuery();
-      this.drawBuilderContainer();*/
-    },
+  drawBuilderContainer: function(content){
+    this.container = $('#hopscotch-builder')[0] || $('<div id="hopscotch-builder"></div>').html(content);
+    this.steps = this.container.find('li.step');
+    $('body').append(this.container);
 
-    getHtml: function(){
-      var _this = this;
+    $(this.steps[0]).css('display', 'block');
 
-      $.ajax('sidewalkchalk/sidewalkchalk.html', {
-        crossDomain: true,
-        success: function(resp){
-          _this.drawBuilderContainer(resp);
-        }
-      });
-    },
+    this.stepInfo.template = this.getStepFormTemplate();
+    this.stepInfo.stepsContainer = $('#forms-list');
+    this.stepsTOC = $('.steps-list');
+    this.tocTemplate = this.stepsTOC.find('li')[0].innerHTML;
+    this.initContainerEvents();
+  },
 
-    drawBuilderContainer: function(content){
-      this.container = $('#hopscotch-builder')[0] || $('<div id="hopscotch-builder"></div>').html(content);
-      this.steps = this.container.find('li.step');
-      $('body').append(this.container);
+  initContainerEvents: function(){
+    var addStepEl = this.container.find('.add-step'),
+        exportFullEl = this.container.find('.export-full'),
+        exportStepEl = this.container.find('.export-step'),
+        updateEl = this.container.find('.update'),
+        testTourEl = this.container.find('.test-tour'),
+        targetElementBtn = this.container.find('.target-element .button-up'),
+        _this = this;
 
-      $(this.steps[0]).css('display', 'block');
+    addStepEl.on('click', function(){
+      _this.insertStep();
+    });
 
-      this.stepInfo.template = this.getStepFormTemplate();
-      this.stepInfo.stepsContainer = $('#forms-list');
-      this.stepsTOC = $('.steps-list');
-      this.tocTemplate = this.stepsTOC.find('li')[0].innerHTML;
-      this.initContainerEvents();
-    },
+    /* TOC functionality */
+    this.container.find('.steps-list').on('click', function(e){
+      var target = $(e.target),
+          steps = _this.container.find('.step'),
+          stepNum;
 
-    initContainerEvents: function(){
-      var addStepEl = this.container.find('.add-step'),
-          exportFullEl = this.container.find('.export-full'),
-          exportStepEl = this.container.find('.export-step'),
-          targetElementBtn = this.container.find('.target-element .button-up'),
-          _this = this;
+      while(!target.is('li')){
+        target = $(target.parent());
+      }
 
-      addStepEl.on('click', function(){
-        _this.insertStep();
-      });
+      stepNum = target.parents('.steps-list').find('li').index(target);
 
-      /* TOC functionality */
-      this.container.find('.steps-list').on('click', function(e){
-        var target = $(e.target),
-            steps = _this.container.find('.step'),
-            stepNum;
+      steps.css('display','none');
 
-        while(!target.is('li')){
-          target = $(target.parent());
-        }
+      $(steps[stepNum]).css('display','block');
+      _this.stepNum = stepNum+1;
+    });
 
-        stepNum = target.parents('.steps-list').find('li').index(target);
+    this.container.find('.orientation button').on('click', function(e){
+      var target = $(e.target),
+          orientInput = target.siblings('input[name=orientation]');
+      
+      if(target.hasClass('orient-up')){
+        orientInput.val('top');
+      }else if(target.hasClass('orient-left')){
+        orientInput.val('left');
+      }else if(target.hasClass('orient-right')){
+        orientInput.val('right');
+      }else if(target.hasClass('orient-down')){
+        orientInput.val('bottom');
+      }
+    });
 
-        steps.css('display','none');
+    this.container.find('.steps-list').on('keyup', 'input', function(e){
+      var $this = $(this),
+          currPosition = _this.container.find('.steps-list li').index($this.parent()),
+          step = $(_this.container.find('.step')[currPosition]),
+          newPosition = $this.val() - 1;
 
-        $(steps[stepNum]).css('display','block');
-        _this.stepNum = stepNum+1;
-      });
+      step.attr('data-position', newPosition);
+    });
 
-      this.container.find('.steps-toc .nav').on('click', function(e){
-        var target = $(e.target),
-            steps = _this.container.find('.step');
+    this.container.find('.steps-toc .nav').on('click', function(e){
+      var target = $(e.target),
+          steps = _this.container.find('.step');
 
-        if(target.hasClass('next') && _this.stepNum < steps.length){
-          _this.stepNum++;
-        }else if(target.hasClass('prev') && _this.stepNum > 1){
-          _this.stepNum--;
-        }
+      if(target.hasClass('next') && _this.stepNum < steps.length){
+        _this.stepNum++;
+      }else if(target.hasClass('prev') && _this.stepNum > 1){
+        _this.stepNum--;
+      }
 
-        steps.css('display','none');
+      steps.css('display','none');
 
-        _this.container.find('.current-step')[0].innerHTML = _this.stepNum;
+      _this.container.find('.current-step')[0].innerHTML = _this.stepNum;
 
-        $(steps[_this.stepNum-1]).css('display','block');
-      });
+      $(steps[_this.stepNum-1]).css('display','block');
+    });
 
-      /* Event listeners for Target functionality */
-      targetElementBtn.on('click', function() {
+    /* Event listeners for Target functionality */
+    this.container.on('click', function(e) {
+      var target = $(e.target);
+
+      if(target.is('button[name=targetCursor]') || target.parents('button[name=targetCursor]')[0]){
         var outerTargetSelectorEl = document.getElementById('outer-target-selector');
         if (outerTargetSelectorEl) {
           document.getElementsByTagName('body')[0].removeChild(outerTargetSelectorEl);
           return;
         }
         _this.selectPageElement();
+      }
+    });
+    $(document).on('keyup', function(e) {
+      var target = $(e.target);
+      // Esc key
+      if (e.keyCode == 27) {
+        targetElementBtn.click(); 
+      }
+
+      if(target.attr('name') == 'title') {
+        var form = target.parents('#hs-steps-form'),
+            stepTOCel = $(form.find('.steps-list li')[_this.stepNum-1]);
+
+        stepTOCel.find('label').text(target.val());
+      }
+    });
+    $(document).on('click', function(e) {
+      var builder = $('#hopscotch-builder'),
+          thisNode = $(e.target);
+
+      if (thisNode.parents('#hopscotch-builder').length > 0){
+        return false;
+      }
+
+      if (thisNode.attr('id') && thisNode.attr('id') != '') {
+        $('.target-element input')[0].value = thisNode.attr('id');
+      } else if (thisNode.attr('class') && thisNode.attr('class') != '') {
+        $('.target-element input')[0].value = "document.getElementsByClassName('" + thisNode.attr('class') + "')[0]";
+      }
+
+    });
+
+    /* Event listeners for Export functionality */
+    exportFullEl.on('click', function() {
+      _this.exportFull();
+    });
+    exportStepEl.on('click', function() {
+      console.log(_this.exportStep(_this.stepNum));
+    });
+    updateEl.on('click', function(){
+      _this.exportFull();
+    });
+    testTourEl.on('click', function(){
+      _this.exportFull();
+
+      hopscotch.startTour(_this.hopscotchJSON);
+    });
+
+  },
+
+  getStepFormTemplate: function(){
+    this.stepForm = this.container.find('.step')[0];
+
+    return this.stepForm.innerHTML;
+  },
+
+  insertStep: function(){
+    var steps = this.container.find('.step'),
+        newStep = $('<'+this.stepInfo.tagName+'>');
+
+    this.stepNum++;
+
+    newStep.html(this.stepInfo.template);
+    newStep.addClass('step');
+
+    steps.css('display','none');
+    newStep.css('display','block');
+    this.stepInfo.stepsContainer.append(newStep);
+    newStep.attr('data-position', this.stepNum-1);
+
+
+    var newTOCstep = $('<li></li>');
+    newTOCstep.html(this.tocTemplate);
+    $(newTOCstep.find('input')[0]).val(this.stepNum);
+
+    this.stepsTOC.append(newTOCstep);
+
+    this.container.find('.current-step')[0].innerHTML = this.stepNum;
+    this.container.find('.total-steps')[0].innerHTML = $('#forms-list').find('.step').length;
+    
+  },
+
+  selectPageElement: function() {
+    var box = $("<div id='outer-target-selector' />").appendTo("body"),
+        last = +new Date;
+
+    $("body").mousemove(function(e){
+      var offset, el = e.target,
+          now = +new Date;
+
+      if (now-last < 25) { return }
+
+      last = now;
+
+      if (el === document.body) {
+        box.hide();
+        return;
+      } else if (el.id === "outer-target-selector") {
+        box.hide();
+        el = document.elementFromPoint(e.clientX, e.clientY);
+      }
+
+      el = $(el);
+      offset = el.offset();
+      box.css({
+          width:  el.outerWidth()  - 1,
+          height: el.outerHeight() - 1,
+          left:   offset.left,
+          top:    offset.top
       });
-      $(document).on('keyup', function(e) {
-        var target = $(e.target);
-        // Esc key
-        if (e.keyCode == 27) {
-          targetElementBtn.click(); 
+      box.show();
+    });
+  },
+
+  exportFull: function() {
+    var steps = this.container.find('.step'),
+        _this = this;
+
+    this.hopscotchJSON.id = this.container.find('input[name=id]').val();
+
+    this.reorderSteps();
+
+    steps.each(function(idx){
+      _this.hopscotchJSON.steps[idx] = _this.exportStep(idx);
+    });
+  },
+
+  exportStep: function(stepNum) {
+    var stepObj = {},
+        currentStep = $(this.container.find('.step')[stepNum]),
+        data = currentStep.find('input, textarea').serializeArray();
+
+    $.each(data, function() {
+        if (stepObj[this.name] !== undefined) {
+            if (!stepObj[this.name].push) {
+                stepObj[this.name] = [stepObj[this.name]];
+            }
+            stepObj[this.name].push(this.value || '');
+        } else {
+            stepObj[this.name] = this.value || '';
         }
+    });
 
-        if(target.attr('name') == 'title') {
-          var form = target.parents('#hs-steps-form'),
-              stepTOCel = $(form.find('.steps-list li')[_this.stepNum-1]);
+    return stepObj;
+  },
 
-          stepTOCel.find('label').text(target.val());
-        }
-      });
-      $(document).on('click', function(e) {
-        var builder = $('#hopscotch-builder'),
-            thisNode = $(e.target);
+  reorderSteps: function(){
+    var legendList = this.container.find('.steps-list');
+        currentLegendOrder = legendList.find('li'),
+        currentStepOrder = this.container.find('.step'),
+        stepList = this.container.find('#forms-list');
 
-        if (thisNode.parents('#hopscotch-builder').length > 0){
-          return false;
-        }
-
-        if (thisNode.attr('id') && thisNode.attr('id') != '') {
-          $('.target-element input')[0].value = thisNode.attr('id');
-        } else if (thisNode.attr('class') && thisNode.attr('class') != '') {
-          $('.target-element input')[0].value = "document.getElementsByClassName('" + thisNode.attr('class') + "')[0]";
-        }
-
-      });
-
-      /* Event listeners for Export functionality */
-      exportFullEl.on('click', function() {
-        _this.exportFull();
-      });
-      exportStepEl.on('click', function() {
-        _this.exportStep(_this.stepNum);
-      });
-
-
-
-
-    },
-
-    getStepFormTemplate: function(){
-      this.stepForm = this.container.find('.step')[0];
-
-      return this.stepForm.innerHTML;
-    },
-
-    insertStep: function(){
-      var steps = this.container.find('.step'),
-          newStep = $('<'+this.stepInfo.tagName+' id="'+(this.stepInfo.stepIdBase + (this.stepNum+1))+'">'),
-          previousStep = $('#'+(this.stepInfo.stepIdBase + (this.stepNum)));
-
-      this.stepNum++;
-
-      newStep.html(this.stepInfo.template);
-      newStep.addClass('step');
-
-      steps.css('display','none');
-      newStep.css('display','block');
-      this.stepInfo.stepsContainer.append(newStep);
-
-      var newTOCstep = $('<li id="'+('toc-step-' + this.stepNum)+'"></li>');
-      newTOCstep.html(this.tocTemplate);
-      $(newTOCstep.find('input')[0]).val(this.stepNum);
-
-      this.stepsTOC.append(newTOCstep);
-
-      this.container.find('.current-step')[0].innerHTML = this.stepNum;
-      this.container.find('.total-steps')[0].innerHTML = $('#forms-list').find('.step').length;
-      
-    },
-
-    selectPageElement: function() {
-      var box = $("<div id='outer-target-selector' />").appendTo("body"),
-          last = +new Date;
-
-      $("body").mousemove(function(e){
-        var offset, el = e.target,
-            now = +new Date;
-
-        if (now-last < 25) { return }
-
-        last = now;
-
-        if (el === document.body) {
-          box.hide();
-          return;
-        } else if (el.id === "outer-target-selector") {
-          box.hide();
-          el = document.elementFromPoint(e.clientX, e.clientY);
-        }
-
-        el = $(el);
-        offset = el.offset();
-        box.css({
-            width:  el.outerWidth()  - 1,
-            height: el.outerHeight() - 1,
-            left:   offset.left,
-            top:    offset.top
-        });
-        box.show();
-      });
-    },
-
-    exportFull: function() {
-      var obj = {
-        target: 'subheading',
-        orientation: 'bottom',
-        title: 'Welcome to the Hopscotch Demo Page!',
-        content: 'Hey there! Welcome to the Hopscotch Demo Page! Please excuse our dust; this is still a work in progress. To proceed, click the next button below. (And as you do, watch the title of the page turn red!!!)'
-      };
-
-      return {chill: 'I didn\'t implement this yet'};
-    },
-
-    exportStep: function(stepNum) {
-      var stepObj = {},
-          currentStep = $(this.container.find('.step')[this.stepNum-1]),
-          data = currentStep.find('input,textarea').serializeArray();
-
-      $.each(data, function() {
-          if (stepObj[this.name] !== undefined) {
-              if (!stepObj[this.name].push) {
-                  stepObj[this.name] = [stepObj[this.name]];
-              }
-              stepObj[this.name].push(this.value || '');
-          } else {
-              stepObj[this.name] = this.value || '';
-          }
-      });
-
-      //this.hopscotchJSON.steps[stepNum-1] = stepObj;
-      console.log(stepObj);
-    },
-
-    injectjQuery: function() {
-      var jq = document.createElement('script');
-      jq.src = "http://code.jquery.com/jquery-latest.min.js";
-      document.getElementsByTagName('head')[0].appendChild(jq);
-      jQuery.noConflict();    
-    }
-  };
-
-  
-  /** TODO: Fetch assets (js/css) when bookmarklet is initiated.
-   * For now we'll just assume their there and use this demo page: http://gkoo-ld.linkedin.biz/gkoo/hopscotch/
-  **/
-
-  //hopscotchBuilder.init();
-//}());
+    currentStepOrder.detach().sort(function(a,b){
+      console.log('a :' + $(a).attr('data-position'));
+      console.log('b :' + $(b).attr('data-position'));
+      return $(a).attr('data-position') - $(b).attr('data-position');
+    });
+    stepList.append(currentStepOrder);
+    
+    currentLegendOrder.detach().sort(function(a,b){
+      return $(a).find('input').val() - $(b).find('input').val();
+    });
+    legendList.append(currentLegendOrder);
+  }
+};
