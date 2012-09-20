@@ -26,7 +26,7 @@ var sidewalkchalk = {
   },
 
   drawBuilderContainer: function(content){
-    this.container = $('#hopscotch-builder')[0] || $('<div id="hopscotch-builder"></div>').html(content);
+    this.container = $('#hopscotch-builder')[0] || $('<div id="hopscotch-builder" class="ui-draggable"></div>').html(content);
     this.steps = this.container.find('li.step');
     $('body').append(this.container);
 
@@ -70,21 +70,6 @@ var sidewalkchalk = {
       _this.stepNum = stepNum+1;
     });
 
-    this.container.find('.orientation button').on('click', function(e){
-      var target = $(e.target),
-          orientInput = target.siblings('input[name=orientation]');
-      
-      if(target.hasClass('orient-up')){
-        orientInput.val('top');
-      }else if(target.hasClass('orient-left')){
-        orientInput.val('left');
-      }else if(target.hasClass('orient-right')){
-        orientInput.val('right');
-      }else if(target.hasClass('orient-down')){
-        orientInput.val('bottom');
-      }
-    });
-
     this.container.find('.steps-list').on('keyup', 'input', function(e){
       var $this = $(this),
           currPosition = _this.container.find('.steps-list li').index($this.parent()),
@@ -112,6 +97,23 @@ var sidewalkchalk = {
     });
 
     /* Event listeners for Target functionality */
+    this.captureTargetElement = function(e) {
+      var builder = $('#sidewalkChalk'),
+          thisNode = $(e.target),
+          currentStep = $(builder.find('.step')[_this.stepNum-1]);
+
+      
+      if (thisNode.parents('#hopscotch-builder').length > 0){
+        return false;
+      }
+
+      if (thisNode.attr('id')) {
+        currentStep.find('.target-element input')[0].value = thisNode.attr('id');
+      } else if (thisNode.attr('class')) {
+        currentStep.find('.target-element input')[0].value = "document.getElementsByClassName('" + thisNode.attr('class') + "')[0]";
+      }
+    };
+
     this.container.on('click', function(e) {
       var target = $(e.target);
 
@@ -119,11 +121,30 @@ var sidewalkchalk = {
         var outerTargetSelectorEl = document.getElementById('outer-target-selector');
         if (outerTargetSelectorEl) {
           document.getElementsByTagName('body')[0].removeChild(outerTargetSelectorEl);
+          document.removeEventListener('click', _this.captureTargetElement);
           return;
         }
         _this.selectPageElement();
+        document.addEventListener('click', _this.captureTargetElement);
       }
+
+      if(target.parents('.orientation')[0] && (target.is('button') || target.parents('button')[0])){
+        var target = $(e.target),
+          orientInput = target.siblings('input[name=orientation]');
+
+        if(target.hasClass('orient-up')){
+          orientInput.val('top');
+        }else if(target.hasClass('orient-left')){
+          orientInput.val('left');
+        }else if(target.hasClass('orient-right')){
+          orientInput.val('right');
+        }else if(target.hasClass('orient-down')){
+          orientInput.val('bottom');
+        }
+      }
+
     });
+
     $(document).on('keyup', function(e) {
       var target = $(e.target);
       // Esc key
@@ -137,21 +158,6 @@ var sidewalkchalk = {
 
         stepTOCel.find('label').text(target.val());
       }
-    });
-    $(document).on('click', function(e) {
-      var builder = $('#hopscotch-builder'),
-          thisNode = $(e.target);
-
-      if (thisNode.parents('#hopscotch-builder').length > 0){
-        return false;
-      }
-
-      if (thisNode.attr('id') && thisNode.attr('id') != '') {
-        $('.target-element input')[0].value = thisNode.attr('id');
-      } else if (thisNode.attr('class') && thisNode.attr('class') != '') {
-        $('.target-element input')[0].value = "document.getElementsByClassName('" + thisNode.attr('class') + "')[0]";
-      }
-
     });
 
     /* Event listeners for Export functionality */
@@ -168,6 +174,12 @@ var sidewalkchalk = {
       _this.exportFull();
 
       hopscotch.startTour(_this.hopscotchJSON);
+    });
+
+
+    /* Draggable */
+    this.container.mouseover(function() {    
+      $("#sidewalkChalk").draggable();
     });
 
   },

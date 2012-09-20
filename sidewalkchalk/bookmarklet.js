@@ -3,27 +3,28 @@ javascript:(function(){
 
     init: function(){
       this.stepNum = 1;
-      this.getJquery();
+      this.getJquery('http://code.jquery.com/jquery-latest.min.js', true);
+      this.getJquery('http://code.jquery.com/ui/1.8.23/jquery-ui.min.js', false);
     },
 
-    getJquery: function() {
+    getJquery: function(url, hasDependencies) {
       var jq = document.createElement('script'),
-          ready,
           _this = this;
-      jq.src = "http://code.jquery.com/jquery-latest.min.js";
+      jq.src = url;
       jq.type = "text/javascript";
 
-      jq.onload = jq.onreadystatechange = function() {
-        if ( !ready && (!this.readyState || this.readyState == 'complete') ) {
-          ready = true;
-          _this.getDependencies();
-        }
-      };
-      document.getElementsByTagName('head')[0].appendChild(jq);
+      if (hasDependencies) {
+        jq.onload = jq.onreadystatechange = function() {
+          if (!this.readyState || this.readyState == 'complete') {
+            _this.getDependencies();
+          }
+        };
+      }
+      document.getElementsByTagName('body')[0].appendChild(jq);
+      jQuery.noConflict();
     },
 
     getDependencies: function(){
-      jQuery.noConflict();    
       $('head').append('<link rel="stylesheet" type="text/css" href="sidewalkchalk/sidewalkchalk.css" />');
       $.getScript("sidewalkchalk/sidewalkchalk.js", function(){
         sidewalkchalk.init();
@@ -35,6 +36,5 @@ javascript:(function(){
 
 
   sidewalkchalkInit.init();
-
 
 }());
