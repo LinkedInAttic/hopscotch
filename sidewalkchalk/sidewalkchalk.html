@@ -1,0 +1,121 @@
+  <div id="sidewalkChalk">
+    
+    <form id="hs-steps-form">
+      <div class="tour-type">
+        <label>Tour type:</label>
+        <select>
+          <option value=""></option>
+          <option value="Sightsee">Sightsee</option>
+          <option value="Othersee">Othersee</option>
+          <option value="WideOpenSea">WideOpenSea</option>
+        </select>
+      </div>
+      
+      <div class="minmax-container">
+        <button type="button" name="maximized" class="button-down maximize"><span class="SWChalkGlyph"></span></button>
+        <button type="button" name="minimized" class="button-up minimize"><span class="SWChalkGlyph">📷</span></button>
+      </div>
+         
+      <ol id="forms-list">
+        <li id="hs-builder-step-1" class="step">
+          <div class="target-element">
+            <label>Target element:</label>
+            <button type="button" name="targetCursor" class="button-up"><span class="SWChalkGlyph">🎯</span></button>
+            <input type="text" name="target" class="greyed" />
+          </div>
+          
+          <div class="this-box">
+            <div class="orientation">
+              <label>Orientation:</label>
+              <button type="button" class="button-up orient-up SWChalkGlyph"></button>
+              <button type="button" class="button-up orient-left SWChalkGlyph"></button>
+              <button type="button" class="button-up orient-right SWChalkGlyph"></button>
+              <button type="button" class="button-up orient-down SWChalkGlyph"></button>
+
+              <input type="hidden" name="orientation" value="" />
+            </div>
+
+            <div class="bubble-offset last">
+              <label><input type="checkbox" name="bubbleOffsetCheck" /> Bubble offset:</label>
+              <p>X: <input type="text" name="xOffset" class="greyed" /> px</p>
+              <p>Y: <input type="text" name="yOffset" class="greyed" /> px</p>
+            </div>
+            
+            <div class="pixel-pusher">
+              <div class="tooltip-offset">
+                <label><input type="checkbox" name="showArrowOffset" /> Arrow offset:</label>
+                <input type="text" name="arrowOffset" class="greyed" /> px
+              </div>
+                
+              <div class="box-width last">
+                <label><input type="checkbox" name="boxSizeCheck" /> Box width:</label>
+                <input type="text" name="width" class="greyed" /> px
+              </div>
+            </div>
+            
+          </div>
+          
+          <div class="title">
+            <label>Title:</label>
+            <input type="text" name="title" value="" />
+          </div>
+          
+          <div class="content">
+            <label>Content:</label>
+            <input type="checkbox" />
+            <textarea name="content"></textarea>
+          </div>
+          
+          <div class="buttons">
+            <label>Buttons:</label>
+            <ul>
+              <li>
+                <input type="checkbox" name="showNextButton" />
+                <label class="normal-label">Next</label>
+              </li>
+              <li>
+                <input type="checkbox" name="showPrevButton" />
+                <label class="normal-label">Previous</label>
+              </li>
+              <li>
+                <input type="checkbox" name="showSkip" />
+                <label class="normal-label">Skip</label>
+              </li>
+              <!--<li class="last">
+                <input type="checkbox" name="" />
+                <label class="normal-label">Done</label>
+              </li>-->
+            </ul>
+          </div>
+        </li>
+      </ol>
+
+      <div class="steps-toc">
+        <label>Steps:</label>
+        <button type="button" class="nav prev">&lt;</button> 
+        <span class="current-step">1</span>/<span class="total-steps">1</span>
+        <button type="button" class="nav next">&gt;</button>
+      
+        <div class="steps-controls">
+          <ol class="steps-list">
+            <li id="toc-step-1">
+              <input type="text" value="1" name="stepOrder" /> <label>Untitled</label>
+            </li>
+          </ol>
+          
+          <button type="button" name="addStep" class="button-up add-step">+</button>
+          <button type="button" name="removeStep" class="button-up remove-step">-</button>
+        </div>
+      </div>
+      
+      <div class="actions">
+        <button type="button" name="Update" class="update">Update</button>
+        <button type="button" name="Test tour" class="test-tour">Test tour</button>
+        
+        <p> <!-- TODO: need something better than p. Pee is gross! -->
+          <a class="export-full" href="javascript:void(0);" name="Export full tour">Export full tour</a> |
+          <a class="export-step" href="javascript:void(0);" name="Export steps only">Export steps only</a>
+        </p>
+      </div>
+    </form> 	
+  </div>

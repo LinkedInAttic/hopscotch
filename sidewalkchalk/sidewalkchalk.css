@@ -1,0 +1,344 @@
+@charset "UTF-8";
+@font-face {
+    /* SIL Licensed fonts via: */
+    /* https://github.com/danielbruce/entypo */
+    /* https://github.com/somerandomdude/Iconic */
+      font-family: SWChalkGlyph;
+      src: url("data:font/opentype;base64,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A/gXBJj7FvqL+ZIFHAFpDxwAABAcAY4RHAANHBWeEgAUAgABAAgADwAWAB0AJAArADIAOQBAAEcATgBVAFsAYQBmAHYApQDaAOcA9HVuaTIxQjN1bmkyNjMwdW5pMjdGM3VuaUU3MzR1bmlFNzM1dW5pRTc0NHVuaUU3NDZ1bmlFNzVDdW5pRTc1RHVuaUU3NUV1bmlFNzVGdW5pRTgwMHUxRjNBRnUxRjRGNy5udWxsbm9ubWFya2luZ3JldHVybjAwMS4wMDAgOyB0dGZhdXRvaGludCAodjAuOCkgLXIgNTAgLUcgMjAwIC1mIC1zQ29weXJpZ2h0IChDKSAyMDEyIGJ5IG9yaWdpbmFsIGF1dGhvcnMgQCBmb250ZWxsby5jb21zd2NoYWxrZ2x5cGhzc3djaGFsa2dseXBocwAAAAAMAA4BhwGIAYkBigGLAYwBjQGOAY8BkAGRAZIBkwGUAZUBlgATAgABABgB9gLkAz0FdQaTB0EIaQiaCMoJpgqSC3AMUg2DEBcT4BPjE+b8XawW9535LvudBqz9DRX47Pdb/OwHDvjJ9/IV+2b3ZgaL/wAIqqz///2AAP8ABqqohv8ABKqshv8ABKqs///6gAD/AALVVIWMhYz///dVVv8AAIAA///0qqqL///vVVaL///zgAD///4qrP//96qq///8VVT///eqqv///FZ4///71VX///fVVP8AAAAB///zVDQI+2b7Zgf///dVVYv///lVVv///YAA///7VVWG///7VVWG///9Kqv///qAAIqFioX///+AAP//91VWi///9Kqq/////////+9VVv8AAdVV///zgAD/AAOqrP//96qq/wADqqv///eqq/8ACCqq///71VX/AAyqq4sI92b7ZgaL///3VVX/AAKAAP//+VVWkP//+1VVkP//+1VV/wAFgAD///0qq5GKkYr/AAiqqv///4AA/wALVVaL/wAQqqqL/wAMgAD/AAHVVf8ACFVW/wADqqv/AAhVVv8AA6qr/wAEKqr/AAgqqov/AAyqqwj3ZvdmB/8ACKqsi/8ABqqo/wACgAD/AASqrJD/AASqrJD/AALVVP8ABYAAjJGMkf8AAIAA/wAIqqqL/wALVVaL/wAQqqr///4qrP8ADIAA///8VVT/AAhVVv///FZ4/wAIVVb///fVVP8ABCqq///zVDSLCA74yffyFfycBv//91VVi///+VVW///9gAD///tVVYb///tVVYb///0qq///+oAAioWKhf///4AA///3VVaL///0qqr/////////71VW/wAB1VX///OAAP8AA6qs///3qqr/AAOqq///96qr/wAIKqr///vVVf8ADKqriwj4nAb/AAiqrIv/AAaqqP8AAoAA/wAEqqyQ/wAEqqyQ/wAC1VT/AAWAAIyRjJH/AACAAP8ACKqqi/8AC1VWi/8AEKqq///+Kqz/AAyAAP///FVU/wAIVVb///xWeP8ACFVW///31VT/AAQqqv//81Q0iwgOXfcH9yoV+Cn7Kgb3hPdw+4T3cIv7KvwBi4v3yvsgi4v78gWL///kqqv/AAnVVf//6IAA/wATqqv//+xVVf8AE6qq///sVVX/ABeAAP//9iqr/wAbVVaLCA4w+S338hX87AZ9i///9Cqr///7Kqr///ZVVf//9lVW///2VVb///ZVVv//+yqq///0KqqLfYt9/wAE1VX///Qqqv8ACaqr///2VVb/AAmqq///9lVV/wAL1VX///sqq5mLCPjsBpmL/wAL1VT/AATVVf8ACaqs/wAJqqv/AAmqrP8ACaqq/wAE1VT/AAvVVouZi5n///sqrP8AC9VW///2VVT/AAmqqv//9lVU/wAJqqr///QqrP8ABNVWfYsI/OzvFfjsBpmL/wAL1VT/AATVVv8ACaqs/wAJqqr/AAmqrP8ACaqq/wAE1VT/AAvVVouZi5n///sqrP8AC9VU///2VVT/AAmqrP//9lVU/wAJqqz///QqrP8ABNVUfYsI/OwGfYv///Qqq///+yqs///2VVX///ZVVP//9lVW///2VVT///sqqv//9Cqsi32Lff8ABNVV///0Kqr/AAmqq///9lVW/wAJqqv///ZVVv8AC9VV///7KqqZiwj47PvAFfzsBn2L///0Kqv///sqq///9lVV///2VVX///ZVVv//9lVW///7Kqr///Qqqot9i33/AATVVf//9Cqq/wAJqqv///ZVVv8ACaqr///2VVX/AAvVVf//+yqrmYsI+OwGmYv/AAvVVP8ABNVV/wAJqqz/AAmqq/8ACaqs/wAJqqr/AATVVP8AC9VWi5mLmf//+yqs/wAL1Vb///ZVVP8ACaqq///2VVT/AAmqq///9Cqs/wAE1VV9iwgO9yn4PPlaFf//j1VWi///n6qqYzs7Oztj//+fVVaL//+OqqqL//+Oqqqz//+fVVbbO/8AT//9O/8AYFVVY/8AcKqui/8AXVVUi/8AU6qsqNXFCEXWBf//yKqsY///w6qqd///vqqqi///q1VWi///t6qq/wAeKqtP/wA8VVVP/wA8VVNt/wBIgACL/wBUqq2L/wBUqqqp/wBIVVbHx8fH/wBIVVap/wBUqqqL/wBSqqiL0v//4yqs/wA7VVj//8ZVVAj/ADtVVP//xlVWqv//udVU/wACqqz//61VVgj7I4v3TPth90z3YfsPiwX///1VVP8Ab1VWYv8AXn/+//+wqqz/AE2qrP//sKqs/wBNqqws/wAm1VT//5FVVIsIDvb6I/kiFSAK+ML7cxX3BPzC+wQH+hH74xUgCvky+3MV9wT9MvsEB/oRxBWL/wAOqqv///qAAP8ADNVVgJaAlv//8yqs/wAFgAD///FVVIt7i///8oAA///6gACAgICA///6gAB+i3yLfP8ABaqs///y1Vb/AAtVVP//9Kqq/wALVVT///Sqqv8ADSqs///6VVaaiwiai5j/AAWAAJaWlpb/AAWAAP8ADYAAi5sIDvb6I/kiFSAK+ML7cxX3BPzC+wQH+hH7dRX3A/4R+wMH+6gEZf8AEqqqeP8AJVVWHv8AJVVSi/8AEqqqnv8AAAAEsQj/ACSqq///7VVV/wASVVX//9qqq///2qqr///tVVX//+2qqv//21VWHveswhV7i///8oAA///6gACAgICA///6gAB+i3yLfP8ABYAA///y1VaW///0qqqW///0qqr/AA2AAP//+lVWm4v/AA6qqov/AAzVVv8ABaqqlv8AC1VWlv8AC1VW/wAFgAD/AA0qqouaCIua///6gACYgJaAlv//8yqq/wAFgAD///FVVosI9zpUFWWeeLH/ACSqrP8AElVUnrH/ACSqq///7aqs/wASVVX//9tVVGV4///tqqr//9tVVh4OlPiv+ToV2T37Ivsk7if3Ivcj2Tyg96wF/MP8XBX7IvsjPdl2+6v3qKA92vci9yQFDqj51/jzFSXy+yX7Jzzcdfuz96+hO9wF/Kb71BX7Jfsn8ST3Jfcn2jqh97P7r3UFDvjX+AgVlf8ACqqq/wAFKqz/AA1VVv8AAFVUm/8AAFWgm///+tVU/wANqqr///VVDP8AC1VW///nVVT/ABiqqv//5aqsi2///+dVVgj7V/tQ+1f3UAVv/wAYqqr//+Wqqov//+dVVv//51VW///1VVb///Sqqv//+tVV///yVVb/AABVVXv/AABVVXv/AAUqq///8qqqlf//9VVW/wANVVZ9/wBOVVZA/wCPVVT7HP8AC1VW///0qquY///6VVX/AA6qqov/AA6qqouY/wAFqqv/AAtVVv8AC1VVCA78V/eV+NIVff//8qqsQP//saqo+xz//3CqrP//9Kqr///0qqr///pVVX6L///xVVb/////////8VVW/wAFqqt+/wALVVb///Sqqgj3dft/Bf8ACqqqgf8ADVVW///61VWb////qqub////qqv/AA2qqv8ABSqq/wALVVb/AAqqq/8AGKqq/wAYqqqL/wAaVVX//+dVVv8AHAABCPtQ91f3UPdXBf8AGKqqp4v/ABpVVP//51VW/wAYqqz///Sqqv8ACqqs///yVVb/AAUqqHv///+qrHv///+qrP//8qqq///61VT///VVVoEIDvxX9wX40hX///VVVpX///Kqqv8ABSqse/8AAFVUe/8AAFeg///yVVX///rVVP//9Kqr///1Uwz//+dVVf//51VUi///5aqs/wAYqqtvCPdQ+1f7UPtXBf//51VVb4v//+Wqqv8AGKqr///nVVb/AAtVVf//9VVV/wANqqv///rVVpv/AABVVZv/AABVVf8ADVVW/wAFKqv/AAqqqpWZ/wANVVbW/wBOVVX3HP8Aj1VV/wALVVb/AAtVVv8ABaqqmIv/AA6qqov/AA6qqv//+lVWmP//9Kqq/wALVVYIDvjX93gV///yqqyZ//+xqqjW//9wqqz3HP//9Kqq/wALVVZ+/wAFqqr///FVVov///FVVot+///6VVb///Sqqv//9KqqCPt/+3UFgf//9VVV///61VX///Kqq////6qre////6qre/8ABSqq///yVVX/AAqqq///9Kqr/wAYqqr//+dVVv8AGlVWi6f/ABiqqgj3V/dQ91f7UAWn///nVVb/ABpVVIv/ABiqrP8AGKqq/wAKqqz/AAtVVf8ABSqo/wANqqv///+qrJv///+qrJv///rVVP8ADVVVgf8ACqqrCA7Q+FH5bhX//4lVVov//5qqqmE3Nzc3Yf//mqqqi///iVVWi///iVVWtf//mqqq3zf/AFP//zf/AGVVVWH/AHaqrIv/AHaqrIv/AGVVVLXf39//AFQAAbX/AGVVVYv/AHaqqgiL/wB2qqph/wBlVVY33zff//+aqqy1//+JVVSLCK79nhX3VUX7VQf//61VVpP//7kqqv8AIYAAUMZQxv//3oAA/wBG1VWD/wBSqqsI91XR+1UGk/8AUqqq/wAhgAD/AEbVVsbGxsb/AEbVVv8AIYAA/wBSqqqTCPtV0fdVB/8AUqqsg/8ARtVU///egADGUMZQ/wAhgAD//7kqqpP//61VVgj7VUX3VQaD//+tVVb//96AAP//uSqqUFBQUP//uSqs///egAD//61VVIMIDvb4nfgMFfc2Bv//9VX8/wAnVVb//+xVVP8AIiqq///jVLCo///jVVSo///dqqz/ABPVVGP/AAqqrAj7pwT7Ngez/wAKqqr/ACJVVP8AE9VW/wAcqqyo/wAcqqyo/wATqqj/ACIqq/8ACqqs/wAnVVUI+6f3BRX3Ngdj///1VVT//92qqv//7Cqq///jVVb//+MAAv//41VWbv//7FVU///d1Vb///VVVv//2KqqCPc2+wUV+zYG/wAKqor//9iqq/8AE6qq///d1VX/AByqzG7/AByqqm7/ACJVVv//7Cqqs///9VVWCPcF+LwV0X//ADyqrP//4Kqs/wAzVVT//81VVP8AM1VU///NVVb/AB+qrE6X//+4qqoI9wUGff8AZqqc///U1VT/AFeAAP//t6qs/wBIVWT//7eqrP8ASFVU//+pKqj/ACqAAP//mqqs/wAMqqwI/Br8GhWX/wBHVVb/AB+AAMi+/wAyqqq+/wAyqqz/ADzVVv8AH1VU/wBGqqqXCPcFB///mVVW///zVVT//6iAAP//1Sqs//+3qqpC//+3qqpC///VgAD//6jVVv//81VW//+aqqoI+Br8GhX//7lVVpf//8Mqqv8AH1VVWP8AMqqrWP8AMqqr///ggAD/ADz//3//AEdVVgj7BQb/AAyqq///mqqq/wAqf////6jVVf8ASFVW//+3AAH/AEhVVkL/AFeAAP//1Sqq/wBmqqr///NVVgj4GvgaFX///7iqrf//4FVUTv//zKqs///NVVP//8yqrP//zVVV///DVVT//+Cqq0V/CPsFB/8AZVUs/wAMqqr/AFbVVP8AKqqr/wBIVYD/AEiqq/8ASFVU/wBIqqr/ACsqrP8AV1VWmfEIDvdl+Jf4JBX//9aqyIv//9yqqv//8VVW///iqo7//+Kqqv//4qqq///iqr7///FVVv//3Kqqi///1qqYi///1qqr/wAOqqr//9yqqv8AHVVW///iqqv/AB1VVv//4qqq/wAjVVT///FVVv8AKVVWi/8AKVUQi/8AI1VU/wAOqqr/AB1VnP8AHVVW/wAdVVT/AB1VVP8ADqqs/wAjVVWL/wApVVcIi/8AKVVW///xVVT/ACNVVP//4qqs/wAdVVb//+KqrP8AHVVW///cqqj/AA6qqv//1qqsiwj4JPcqFfsMBv//91VUi4P/AAKqrP//+Kqs/wAFVVT///iqrP8ABVVUhv8ABqqs///9VVSTCGvoBf///Vgkk///+tVU/wAG1VT///hSiP8ABaqs///4VVT/AAWqrP//+Cqs/wAC1VSDiwj76Ab///dVVouD///9Kqz///iqqv//+lVU///4qqr///pVVIb///kqrP///VVWgwhrLgX///1VVoP///rVVP//+VVU///4VVb///qqrP//+FVV///6qqz///gqq////VVUg4sI+wwG///kqqqL///ogAD///YqrP//7FVW///sVVT//+xVVf//7FVW///2Kqv//+iAAIv//+Sqqgj8VgeL///kqqv/AAnVVf//6H///wATqqv//+xVVv8AE6qq///sVVb/ABeAAP//9iqq/wAbVVaLCPm0Bv8AG1VUi/8AF4AA/wAJ1Vb/ABOqrP8AE6qq/wATqqz/ABOqqv8ACdVU/wAXgACL/wAbVVYI+FYHi/8AG1VW///2Kqz/ABeAAP//7FVU/wATqqr//+xVVP8AE6qs///ogAD/AAnVVP//5Kqsiwj8JPy6Ff//u1VWi///xSqq/wAYVVVa/wAwqqta/wAwqqv//+eAAP8AOv//i/8ARVVWi/8ARVVW/wAYgADGvP8AMKqqvP8AMKqq/wA61Vb/ABhVVv8ARKqqi/8ARKqsi/8AOtVU///nqqq8///PVVa8///PVVb/ABiAAFCL//+6qqoIi///uqqt///ngABQWv//z1VTWv//z1VV///FKqz//+eqq///u1VUiwj4AfgQFf//9qqsi///99VU/wADgACEkoSS///8gAD/AAgqqov/AAlVVov/AAlVVv8AA4AA/wAIKqqSkpKS/wAIKqz/AAOAAP8ACVVUi/8ACVVUi/8ACCqs///8gACShJKE/wADgAD///fVVov///aqqgiL///2qqr///yAAP//99VWhISEhP//99VU///8gAD///aqrIsIDv3JDvx8Dvj2FPnJFYsMChwADRMAAQEBCfcE/hH7BAcLAAEAAAAOAAAAGAAAAAAAAgABAAEAEgABAAQAAAACAAABbAAhAmIADwJiAA8DBwAPAtoADwPKAA8DoAASA6AAEgM+AA8DUgAPAmIADwFyAA8BcgANAmIADwN6AA8DoAASBAYADwAAAAABTQAAAAAAAQAAAADJiW8xAAAAAMx/OjkAAAAAzH86OQ==");
+    }
+/* Main elements */
+/*html {
+    font-size: 62.5%;
+    background: #e9e9e9 url(http://static01.linkedin.com/scds/common/u/img/bg/bg_grain_200x200.png) repeat;
+}
+body {
+    padding: 40px;
+    font-family: Helvetica, Arial, sans-serif;
+    font-size: 1.2em;
+}*/
+#sidewalkChalk p {
+    margin: 0;
+    padding: 0;
+}
+#sidewalkChalk label {
+    display: block;
+    margin-top: 5px;
+    font-weight: bold;
+    font-size: 1em;
+    color: #777;
+    margin-bottom: 3px;
+}
+#sidewalkChalk button {
+    background-color: #fff;
+    border: 1px solid #a6a6a6;
+    margin: 0;
+    padding: 8px 6px;
+    -webkit-border-radius: 3px;
+    -khtml-border-radius: 3px;
+    border-radius: 3px;
+}
+#sidewalkChalk button.button-up, 
+#sidewalkChalk .button-up button {
+    -webkit-box-shadow:  0px 1px 1px rgba(0,0,0,0.10);
+    box-shadow:  0px 1px 1px rgba(0,0,0,0.10);
+    background-image: -webkit-linear-gradient(top, #fff 0%,#ececec 100%);
+    background-image: -moz-linear-gradient(top, #fff 0%,#ececec 100%);
+    background-image: -ms-linear-gradient(top, #fff 0%,#ececec 100%);
+    background-image: linear-gradient(top, #fff 0%,#ececec 100%);
+}
+#sidewalkChalk button.button-down, 
+#sidewalkChalk .button-down button, 
+#sidewalkChalk input[type="text"].greyed, 
+#sidewalkChalk textarea.greyed {
+    -webkit-box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3) inset;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3) inset;
+    background-color: #eee;
+}
+#sidewalkChalk input[type="text"], 
+#sidewalkChalk textarea {
+    width: 50px;
+    height:25px;
+    border: 1px solid #a6a6a6;
+    padding: 0 3px 0 3px;
+    margin: 3px 2px;
+    -webkit-box-shadow: 1px 1px 3px #dde inset;
+    box-shadow: 1px 1px 3px #dde inset;
+    -webkit-border-radius: 3px;
+    -khtml-border-radius: 3px;
+    border-radius: 3px;
+}
+
+
+/* Common classes */
+#sidewalkChalk  .normal-label {
+    font-size: 1.0em;
+    font-weight: normal;
+    color: #666;
+}
+#sidewalkChalk  .last {
+    margin-right: 0;
+}
+
+/* Main containers */
+#sidewalkChalk  {
+    background-color: #fff;
+    border: 1px solid #aaa;
+    -webkit-box-shadow:  0px 5px 16px rgba(0, 0, 0, 0.3);
+    box-shadow:  0px 5px 16px rgba(0, 0, 0, 0.3);
+    width: 315px;
+    padding: 15px 30px;
+    position: absolute;
+    top:10px;
+    left: 10px;
+    font-size: 80%;
+    -webkit-border-radius: 3px;
+    -moz-border-radius: 3px;
+    border-radius: 3px;
+    z-index: 101011;
+}
+
+#sidewalkChalk ol {
+	padding: 0;
+	clear: both;
+}
+#sidewalkChalk ol li {
+	list-style-type: none;
+}
+#sidewalkChalk .typeAndToggle {
+    display:inline-block;
+}
+#sidewalkChalk .this-box {
+    overflow: hidden;
+}
+
+#sidewalkChalk .tour-type {
+    width:100px;
+    float:left;
+	margin-bottom: 10px;
+}
+
+/* What section, yo? */
+#sidewalkChalk .minmax-container {
+	margin-bottom: 10px;
+	  float:right;
+    text-align: right;
+}
+#sidewalkChalk .minmax-container button {
+    margin-left:5px;
+    margin-top:17px;
+}
+#sidewalkChalk .minmax-container button, 
+#sidewalkChalk .target-element button, 
+#sidewalkChalk .orientation button {
+    padding: 3px 3px;
+    width: 25px;
+    height: 25px;
+}
+#sidewalkChalk .minmax-container button.button-down, 
+#sidewalkChalk .target-element button.button-down {
+/*    padding-top:4px;
+    padding-bottom:2px; */
+}
+#sidewalkChalk .maximize {
+    
+}
+#sidewalkChalk .maximize span, 
+#sidewalkChalk .minimize span {
+    
+}
+#sidewalkChalk .minimize {
+    
+}
+#sidewalkChalk .minimize span {
+    
+}
+
+#sidewalkChalk .target-element button {
+    padding-top: 4px;
+    padding-bottom: 2px;
+}
+#sidewalkChalk .target-element input[type="text"] {
+    display: inline-block;
+    width: 215px;
+}
+#sidewalkChalk .orientation, 
+#sidewalkChalk .pixel-pusher, 
+#sidewalkChalk .bubble-offset {
+    float: left;
+    margin-right: 10px;
+    display:inline-block;
+/*    border: 1px solid #000; */
+/*    width: 102px; */
+}
+
+#sidewalkChalk .orientation button {
+    margin:0px;
+    float:left;
+}
+#sidewalkChalk button.orient-up, 
+#sidewalkChalk button.orient-down {
+    margin-left: 25px;
+}
+#sidewalkChalk button.orient-left, 
+#sidewalkChalk button.orient-down {
+    clear:left;
+}
+#sidewalkChalk button.orient-right {
+    margin-left:25px;
+}
+
+
+
+
+
+#sidewalkChalk .bubble-offset {
+/*    width: 100px; */
+}
+#sidewalkChalk .tooltip-offset input[type="checkbox"], 
+#sidewalkChalk .box-width input[type="checkbox"] {
+/*    margin-left: -20px; */
+}
+#sidewalkChalk .bubble-offset input[type="checkbox"] {
+  /*   float: left;
+   margin-top: 27px;
+    margin-right: 5px;
+    margin-left: -14px;*/
+}
+#sidewalkChalk .bubble-offset label {
+/*    margin-left: 4px; */
+}
+
+#sidewalkChalk .title input {
+    width: 250px;
+}
+
+#sidewalkChalk .content input[type="checkbox"] {
+    vertical-align: top;
+    margin: 6px 2px 0 -16px;
+}
+#sidewalkChalk .content textarea {
+    width: 250px;
+    height: 40px;
+}
+
+#sidewalkChalk .buttons ul {
+    margin: 0;
+    padding: 0;
+}
+#sidewalkChalk .buttons li {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: inline-block;
+    margin-right: 15px;
+}
+#sidewalkChalk .buttons li label {
+    margin-top: 0;
+}
+#sidewalkChalk .buttons .normal-label {
+    display: inline-block;
+}
+
+#sidewalkChalk .step2 label {
+    display: inline-block;
+    margin-right: 10px;
+}
+#sidewalkChalk button.prev, 
+#sidewalkChalk button.next {
+    border: 0;
+    font-weight: bold;
+    display: inline-block;
+    font-size: 1.2em;
+    color: #2e8dd7;
+    text-shadow: 0px 0px 0px #fff;
+}
+#sidewalkChalk .step2 ol {
+    margin: 0;
+    padding-left: 1.3em;;
+}
+#sidewalkChalk .step2 li {
+    margin: 7px 0;
+    padding: 0;
+}
+#sidewalkChalk .step2 a, 
+#sidewalkChalk .step2 a:link {
+    color: #000;
+    text-decoration: none;
+}
+#sidewalkChalk .step2 .button-up {
+    width: 20px;
+    height: 20px;
+    font-size: 1.2em;
+    padding: 0;
+    margin-right: 5px;
+    
+}
+
+#sidewalkChalk .actions {
+    margin-top: 25px;
+}
+#sidewalkChalk .actions button {
+    -moz-box-shadow: 0 1px 2px rgba(0,0,0,0.25);
+    -webkit-box-shadow: 0 1px 2px rgba(0, 0, 0, 0.25);
+    -o-box-shadow: 0 1px 2px rgba(0,0,0,0.25);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.25);
+    background-image: -webkit-linear-gradient(top, #287bbc 0%,#23639a 100%);
+    background-image: -moz-linear-gradient(top, #287bbc 0%,#23639a 100%);
+    background-image: -ms-linear-gradient(top, #287bbc 0%,#23639a 100%);
+    background-image: linear-gradient(top, #287bbc 0%,#23639a 100%);
+    border: 1px solid #1b5480;
+    color: #fff;
+    font-size: 1.1em;
+    font-weight: bold;
+}
+#sidewalkChalk .actions p {
+    margin-top: 10px;
+}
+#sidewalkChalk .actions a {
+    text-decoration: none;
+    color: #1b5480;
+}
+#sidewalkChalk .SWChalkGlyph {
+    font-family: SWChalkGlyph;
+    font-size: 16px;
+}
+
+#sidewalkChalk .steps-toc label {
+  display: inline;
+}
+
+#sidewalkChalk .steps-list {
+  border: #ccc solid 1px;
+  max-height: 125px;
+  overflow-y: auto;
+}
+
+#sidewalkChalk .steps-list li {
+  border-bottom: #ccc solid 1px;
+  padding: 5px;
+}
+
+
+#sidewalkChalk .steps-list li label {
+  font-size: 100%;
+  color: #666;
+  font-weight: normal;
+}
+
+	
+#sidewalkChalk .steps-list li input {
+  width: 20px;
+  text-align: center;
+
+}
+
+#outer-target-selector {
+	position: absolute;
+	display: none;
+	z-index: 101010;
+	background: #F57428;
+	opacity: .3;
+	pointer-events:none;
+}
+
+​
