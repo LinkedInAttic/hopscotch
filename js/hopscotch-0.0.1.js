@@ -1017,7 +1017,7 @@
             }
           }
           if (!foundTarget) {
-            return this.endTour(true);
+            return self.endTour(true);
           }
         }
         else if (currStepNum + direction >= 0 && currStepNum + direction < currTour.steps.length) {
@@ -1026,7 +1026,7 @@
           step = getCurrStep();
           if (!utils.getStepTarget(step)) {
             utils.invokeCallbacks('error', [currTour.id, currStepNum]);
-            return this.endTour(true, false);
+            return self.endTour(true, false);
           }
         }
 
