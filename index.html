@@ -98,7 +98,7 @@
     -->
     <script src="js/jquery-1.7.2.js"></script>
     <!--<script src="js/hopscotch_jquery.js"></script>-->
-    <script src="js/hopscotch-0.0.1.min.js"></script>
+    <script src="js/hopscotch-0.0.2.js"></script>
     <script src="js/exampletour.js"></script>
     <script src="js/debug.js"></script>
     <script>
@@ -106,8 +106,13 @@
       var printLog = function(str) {
         var el = document.getElementById('debug-output'),
             newEl = document.createElement('p');
-        newEl.innerHTML = str;
-        el.appendChild(newEl);
+        if (el) {
+          newEl.innerHTML = str;
+          el.appendChild(newEl);
+        }
+        else {
+          console.log(str);
+        }
       },
       onStart = function(tourId) {
         printLog('global start ' + tourId);
