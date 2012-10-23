@@ -760,6 +760,7 @@
    */
   Hopscotch = function(initOptions) {
     var cookieName = 'hopscotch.tour.state',
+        self       = this,
         bubble,
         opt,
         currTour,
@@ -860,6 +861,10 @@
       return false;
     },
     */
+
+    targetClickNextFn = function() {
+      self.nextStep(false);
+    },
 
     /**
      * adjustWindowScroll
@@ -1270,7 +1275,6 @@
             cookieVal    = currTour.id + ':' + stepNum,
             bubble       = getBubble(),
             targetEl     = utils.getStepTarget(step),
-            nextStepFn,
             isLast;
 
         // Update bubble for current step
@@ -1289,19 +1293,6 @@
         }
         */
 
-        // When nextOnTargetClick is true, attach nextStepFn to the click event
-        // of the target element.
-        if (step.nextOnTargetClick) {
-          /**
-           * @private
-           */
-          nextStepFn = function() {
-            self.nextStep(false);
-            // Detach the listener after we've clicked on the target.
-            return targetEl.removeEventListener ? targetEl.removeEventListener('click', nextStepFn) : targetEl.detachEvent('click', nextStepFn);
-          };
-        }
-
         isLast = (stepNum === numTourSteps - 1) || (substepNum >= step.length - 1);
         bubble.renderStep(step, stepNum, substepNum, isLast, function() {
           // when done adjusting window scroll, call bubble.show()
@@ -1313,7 +1304,7 @@
 
           // If we want to advance to next step when user clicks on target.
           if (step.nextOnTargetClick) {
-            utils.addClickListener(targetEl, nextStepFn);
+            utils.addClickListener(targetEl, targetClickNextFn);
           }
         });
         utils.invokeCallbacks('show', [currTour.id, currStepNum]);
@@ -1349,6 +1340,13 @@
      * @returns {Object} Hopscotch
      */
     this.nextStep = function(doCallbacks) {
+      var step = getCurrStep(),
+          targetEl = utils.getStepTarget(step);
+
+      if (step.nextOnTargetClick) {
+        // Detach the listener after we've clicked on the target OR the next button.
+        targetEl.removeEventListener ? targetEl.removeEventListener('click', targetClickNextFn) : targetEl.detachEvent('click', targetClickNextFn);
+      }
       changeStep.call(this, doCallbacks, 1);
       return this;
     };
