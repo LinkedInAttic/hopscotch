@@ -35,7 +35,7 @@
   };
 
   if (window.addEventListener) {
-    window.addEventListener('load', winLoadHandler);
+    window.addEventListener('load', winLoadHandler, false);
   }
   else if (window.attachEvent) {
     window.attachEvent('onload', winLoadHandler);
@@ -159,7 +159,7 @@
     },
 
     addClickListener: function(el, fn) {
-      return el.addEventListener ? el.addEventListener('click', fn) : el.attachEvent('onclick', fn);
+      return el.addEventListener ? el.addEventListener('click', fn, false) : el.attachEvent('onclick', fn);
     },
 
     evtPreventDefault: function(evt) {
@@ -445,11 +445,11 @@
       };
 
       if (window.addEventListener) {
-        window.addEventListener('resize', onWinResize);
+        window.addEventListener('resize', onWinResize, false);
       }
 
       else if (window.attachEvent) {
-        window.attachEvent('onresize', onWinResize);
+        window.attachEvent('onresize', onWinResize, false);
       }
 
       this.hide();
@@ -1345,7 +1345,7 @@
 
       if (step.nextOnTargetClick) {
         // Detach the listener after we've clicked on the target OR the next button.
-        targetEl.removeEventListener ? targetEl.removeEventListener('click', targetClickNextFn) : targetEl.detachEvent('click', targetClickNextFn);
+        targetEl.removeEventListener ? targetEl.removeEventListener('click', targetClickNextFn, false) : targetEl.detachEvent('click', targetClickNextFn);
       }
       changeStep.call(this, doCallbacks, 1);
       return this;
