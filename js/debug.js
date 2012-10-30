@@ -13,7 +13,7 @@ var i,
 
 addClickListener = function(el, fn) {
   if (el.addEventListener) {
-    el.addEventListener('click', fn);
+    el.addEventListener('click', fn, false);
   }
   else {
     el.attachEvent('onclick', fn);
@@ -27,7 +27,7 @@ attachListenerForOption = function(checkbox, optionName) {
     hopscotch.configure(options);
   };
   if (checkbox.addEventListener) {
-    checkbox.addEventListener('change', fn);
+    checkbox.addEventListener('change', fn, false);
   }
   else {
     checkbox.attachEvent('onchange', fn);
@@ -60,7 +60,7 @@ for (i = 0, len = booleanControls.length; i < len; i++) {
   };
 
   if (checkbox.addEventListener) {
-    checkbox.addEventListener('change', fn);
+    checkbox.addEventListener('change', fn, false);
   }
   else {
     checkbox.attachEvent('onchange', fn);
@@ -89,4 +89,73 @@ for (i = 0, len = booleanControls.length; i < len; i++) {
     hopscotch.endTour();
   });
 
+  // ===========
+  // START TOUR2
+  // ===========
+  //addClickListener(document.getElementById('startBtn2'), function() {
+    //hopscotch.startTour(tour2);
+  //});
 }());
+
+var tour2 = {
+  id: 'hello-hopscotch2',
+  steps: [
+    {
+      title: 'Debug controls',
+      content: 'Here are the debug controls. They\'re pretty self-explanatory: start a tour, end a tour, clear the tour cookie (if you want the tour to forget what step you are on).',
+      targetId: 'debug',
+      orientation: 'left',
+      width: 320,
+      height: 480,
+      onPrev: function() {
+        document.getElementById('pageTitle').style.color = '#000';
+      }
+    },
+    {
+      title: 'Python decorator',
+      content: 'Whoa, did you notice that the page just scrolled? If you didn\'t, you aren\'t very observant. (Or you have a very tall monitor)',
+      targetId: 'python',
+      orientation: 'top',
+      xOffset: 200
+    }
+  ],
+  animate: false,
+  //smoothScroll: false,
+  //showCloseButton: false,
+  //scrollTopMargin: 200,
+  showPrevButton: true,
+  showNextButton: true,
+  arrowWidth: 20,
+  scrollDuration: 500,
+  cookieName: 'li_hs',
+  onNext: function(tourId, idx) {
+    var newLi,
+        list = document.getElementById('my-list');
+    if (list) {
+      newLi = document.createElement('li');
+      newLi.innerHTML = 'going from step ' + (idx + 1) + ' to step ' + (idx+2) + '. (can use this callback for tracking)';
+      list.appendChild(newLi);
+    }
+  },
+  onPrev: function(tourId, idx) {
+    console.log('tour2 prev ' + tourId + ' ' + idx);
+  },
+  onStart: function(tourId) {
+    console.log('tour2 start ' + tourId);
+  },
+  onEnd: function(tourId) {
+    console.log('tour2 end ' + tourId);
+  },
+  i18n: {
+    //nextBtn: 'Forward',
+    //prevBtn: 'Backward',
+    stepNums: [
+      '&#x4e00;',
+      '&#x4e8c;',
+      '&#x4e09;',
+      '&#x56db;',
+      '&#x4e94;',
+      '&#x516d;'
+    ]
+  }
+};
