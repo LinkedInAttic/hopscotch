@@ -181,8 +181,28 @@
     },
 
     getStepTarget: function(step) {
-      if (!step) { return null; }
+      if (!step || !step.target) { return null; }
       if (typeof step.target === 'string') {
+        // Check if it's querySelector-eligible. Only accepting IDs and classes,
+        // because that's the only thing that makes sense. Tag name and pseudo-class
+        // are just silly.
+        if (/[#\.].*/.test(step.target)) {
+          if (document.querySelector) {
+            return document.querySelector(step.target);
+          }
+          if (hasJquery) {
+            return jQuery(step.target);
+          }
+          if (window.Sizzle) {
+            return Sizzle(step.target);
+          }
+          if (step.target[0] === '#') {
+            return document.getElementById(step.target.substring(1));
+          }
+          // Can't extract element. Likely IE <=7 and no jQuery/Sizzle.
+          return null;
+        }
+        // Else assume it's a string id.
         return document.getElementById(step.target);
       }
       return step.target;
@@ -760,7 +780,7 @@
    */
   Hopscotch = function(initOptions) {
     var cookieName = 'hopscotch.tour.state',
-        self       = this,
+        self       = this, // for targetClickNextFn
         bubble,
         opt,
         currTour,
