@@ -181,6 +181,8 @@
     },
 
     getStepTarget: function(step) {
+      var result;
+
       if (!step || !step.target) { return null; }
       if (typeof step.target === 'string') {
         // Check if it's querySelector-eligible. Only accepting IDs and classes,
@@ -191,12 +193,14 @@
             return document.querySelector(step.target);
           }
           if (hasJquery) {
-            return jQuery(step.target);
+            result = jQuery(step.target);
+            return result.length ? result[0] : null;
           }
           if (window.Sizzle) {
-            return Sizzle(step.target);
+            result = Sizzle(step.target);
+            return result.length ? result[0] : null;
           }
-          if (step.target[0] === '#') {
+          if (step.target[0] === '#' && step.target.indexOf(' ') === -1) {
             return document.getElementById(step.target.substring(1));
           }
           // Can't extract element. Likely IE <=7 and no jQuery/Sizzle.
@@ -1478,7 +1482,7 @@
     */
 
     /**
-     * addCallback
+     * listen
      *
      * Adds a callback for one of the event types. Valid event types are:
      *
@@ -1488,7 +1492,7 @@
      *    For internal use only!
      * @returns {Object} Hopscotch
      */
-    this.addCallback = function(evtType, cb, isTourCb) {
+    this.listen = function(evtType, cb, isTourCb) {
       if (evtType && cb) {
         callbacks[evtType].push({ cb: cb, fromTour: isTourCb });
       }
@@ -1522,7 +1526,7 @@
      *
      * Remove callbacks for a hopscotch event. If tourOnly is set to true, only
      * removes callbacks specified by a tour (callbacks set by external calls
-     * to hopscotch.configure or hopscotch.addCallback will not be removed).
+     * to hopscotch.configure or hopscotch.listen will not be removed).
      *
      * @param {boolean} tourOnly Flag to indicate we should only remove callbacks added
      *    by a tour. Defaults to false.
@@ -1612,13 +1616,13 @@
         utils.extend(HopscotchI18N, options.i18n);
       }
 
-      this.addCallback('next', options.onNext, isTourOptions)
-          .addCallback('prev', options.onPrev, isTourOptions)
-          .addCallback('start', options.onStart, isTourOptions)
-          .addCallback('end', options.onEnd, isTourOptions)
-          .addCallback('show', options.onShow, isTourOptions)
-          .addCallback('error', options.onError, isTourOptions)
-          .addCallback('close', options.onClose, isTourOptions);
+      this.listen('next', options.onNext, isTourOptions)
+          .listen('prev', options.onPrev, isTourOptions)
+          .listen('start', options.onStart, isTourOptions)
+          .listen('end', options.onEnd, isTourOptions)
+          .listen('show', options.onShow, isTourOptions)
+          .listen('error', options.onError, isTourOptions)
+          .listen('close', options.onClose, isTourOptions);
 
       bubble = getBubble();
 

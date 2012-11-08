@@ -25,7 +25,7 @@ var tour = {
       zindex: 15,
       showPrevButton: true,
       showNextButton: true,
-      delay: 5000,
+      delay: 1000,
       onPrev: function() {
         document.getElementById('pageTitle').style.color = '#000';
       }
@@ -33,7 +33,7 @@ var tour = {
     {
       title: 'Mission district',
       content: 'Some sort of sound heat map in the mission? Did you notice that this bubble isn\'t completely aligned with this image? That\'s because I\'m using xOffset and yOffset options, which are available if you need to make slight positioning adjustments! Hopscotch has never been more fun!',
-      target: 'mission',
+      target: '.mission',
       orientation: 'top',
       xOffset: 100,
       arrowOffset: 100

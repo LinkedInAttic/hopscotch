@@ -54,7 +54,7 @@
         <img id="python" src="http://i.imgur.com/mIgyw.jpg">
       </div>
       <div class="img-container">
-        <img id="mission" src="http://cdn.theatlanticcities.com/img/upload/2012/07/19/20120719-mission1/largest.jpg">
+        <img class="mission" src="http://cdn.theatlanticcities.com/img/upload/2012/07/19/20120719-mission1/largest.jpg">
       </div>
     </div>
     <div id="debug">
@@ -126,10 +126,10 @@
       onPrev = function(tourId, stepNum) {
         printLog('global prev ' + tourId + ' ' + stepNum);
       };
-      hopscotch.addCallback('start', onStart)
-               .addCallback('end', onEnd)
-               .addCallback('next', onNext)
-               .addCallback('prev', onPrev);
+      hopscotch.listen('start', onStart)
+               .listen('end', onEnd)
+               .listen('next', onNext)
+               .listen('prev', onPrev);
 
       hopscotch.startTour(tour);
     </script>
