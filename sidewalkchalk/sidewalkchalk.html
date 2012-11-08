@@ -5,9 +5,9 @@
         <label>Tour type:</label>
         <select>
           <option value=""></option>
-          <option value="Sightsee">Sightsee</option>
-          <option value="Othersee">Othersee</option>
-          <option value="WideOpenSea">WideOpenSea</option>
+          <option value="sightsee">Sightsee</option>
+          <option value="activity">Activity</option>
+          <option value="help">Help</option>
         </select>
       </div>
       
@@ -27,18 +27,18 @@
           <div class="this-box">
             <div class="orientation">
               <label>Orientation:</label>
-              <button type="button" class="button-up orient-up SWChalkGlyph"></button>
+              <button type="button" class="button-down orient-up SWChalkGlyph"></button>
               <button type="button" class="button-up orient-left SWChalkGlyph"></button>
               <button type="button" class="button-up orient-right SWChalkGlyph"></button>
               <button type="button" class="button-up orient-down SWChalkGlyph"></button>
 
-              <input type="hidden" name="orientation" value="" />
+              <input type="hidden" name="orientation" value="top" />
             </div>
 
             <div class="bubble-offset last">
               <label><input type="checkbox" name="bubbleOffsetCheck" /> Bubble offset:</label>
-              <p>X: <input type="text" name="xOffset" class="greyed" /> px</p>
-              <p>Y: <input type="text" name="yOffset" class="greyed" /> px</p>
+              <p>X: <input type="text" name="xOffset" class="greyed" value="0" /> px</p>
+              <p>Y: <input type="text" name="yOffset" class="greyed" value="0" /> px</p>
             </div>
             
             <div class="pixel-pusher">
@@ -109,12 +109,12 @@
       </div>
       
       <div class="actions">
-        <button type="button" name="Update" class="update">Update</button>
-        <button type="button" name="Test tour" class="test-tour">Test tour</button>
+        <button type="button" name="Update" class="update"><span class="SWChalkGlyph">⟳</span> Update</button>
+        <button type="button" name="Test tour" class="test-tour"><span class="SWChalkGlyph">↳</span> Test tour</button>
         
         <p> <!-- TODO: need something better than p. Pee is gross! -->
           <a class="export-full" href="javascript:void(0);" name="Export full tour">Export full tour</a> |
-          <a class="export-step" href="javascript:void(0);" name="Export steps only">Export steps only</a>
+          <a class="export-step" href="javascript:void(0);" name="Export steps only">Export this step</a>
         </p>
       </div>
     </form> 	

@@ -97,40 +97,36 @@ var sidewalkchalk = {
     });
 
     /* Event listeners for Target functionality */
-    this.captureTargetElement = function(e) {
-      var builder = $('#sidewalkChalk'),
-          thisNode = $(e.target),
-          currentStep = $(builder.find('.step')[_this.stepNum-1]);
-
-      
-      if (thisNode.parents('#hopscotch-builder').length > 0){
-        return false;
-      }
-
-      if (thisNode.attr('id')) {
-        currentStep.find('.target-element input')[0].value = thisNode.attr('id');
-      } else if (thisNode.attr('class')) {
-        currentStep.find('.target-element input')[0].value = "document.getElementsByClassName('" + thisNode.attr('class') + "')[0]";
-      }
-    };
-
     this.container.on('click', function(e) {
       var target = $(e.target);
 
       if(target.is('button[name=targetCursor]') || target.parents('button[name=targetCursor]')[0]){
-        var outerTargetSelectorEl = document.getElementById('outer-target-selector');
-        if (outerTargetSelectorEl) {
-          document.getElementsByTagName('body')[0].removeChild(outerTargetSelectorEl);
-          document.removeEventListener('click', _this.captureTargetElement);
+        target = (target.is('button[name=targetCursor]')) ? target : $(target.parents('button[name=targetCursor]')[0]);
+
+        if (document.getElementById('outer-target-selector')) {
+          _this.removePageElement();
+          $(document).unbind('click');
           return;
+        } else {
+          _this.selectPageElement(target);
+          $(document).click(function(e) {
+            if ($(e.target)[0] !== $('.target-element span')[_this.stepNum-1] && $(e.target)[0] !== $('.target-element button')[_this.stepNum-1] &&
+                $(e.target)[0] !== $('.target-element')[_this.stepNum-1]) {
+              _this.removePageElement(_this);
+              $(document).unbind('click');
+            }
+          });          
         }
-        _this.selectPageElement();
-        document.addEventListener('click', _this.captureTargetElement);
+
+        target.addClass('activeTarget').addClass('button-down').removeClass('button-up');
       }
 
       if(target.parents('.orientation')[0] && (target.is('button') || target.parents('button')[0])){
         var target = $(e.target),
           orientInput = target.siblings('input[name=orientation]');
+
+        target.siblings('button').removeClass('button-down').addClass('button-up');
+        target.addClass('button-down').removeClass('button-up');
 
         if(target.hasClass('orient-up')){
           orientInput.val('top');
@@ -163,12 +159,30 @@ var sidewalkchalk = {
     /* Event listeners for Export functionality */
     exportFullEl.on('click', function() {
       _this.exportFull();
+      var $swcJsonDialog = ($('#swcJsonDialog')[0]) ? $('#swcJsonDialog') : $('<div id="swcJsonDialog" class="dialog"></div>');
+
+      $swcJsonDialog.html('<a href="#" class="close">close</a><textarea>' + JSON.stringify(_this.hopscotchJSON) + '</textarea>');
+      $('body').append($swcJsonDialog);
+
+      $swcJsonDialog.find('.close').on('click', function(e){
+        e.preventDefault();
+        $swcJsonDialog.remove();
+      });
     });
     exportStepEl.on('click', function() {
-      console.log(_this.exportStep(_this.stepNum));
+      var $swcJsonDialog = ($('#swcJsonDialog')[0]) ? $('#swcJsonDialog') : $('<div id="swcJsonDialog" class="dialog"></div>');
+
+      $swcJsonDialog.html('<a href="#" class="close">close</a><textarea>' + JSON.stringify(_this.exportStep(_this.stepNum-1)) + '</textarea>');
+      $('body').append($swcJsonDialog);
+
+      $swcJsonDialog.find('.close').on('click', function(e){
+        e.preventDefault();
+        $swcJsonDialog.remove();
+      });
     });
     updateEl.on('click', function(){
       _this.exportFull();
+      hopscotch.startTour(_this.hopscotchJSON, (_this.stepNum-1));
     });
     testTourEl.on('click', function(){
       _this.exportFull();
@@ -216,9 +230,10 @@ var sidewalkchalk = {
     
   },
 
-  selectPageElement: function() {
+  selectPageElement: function(targetButton) {
     var box = $("<div id='outer-target-selector' />").appendTo("body"),
-        last = +new Date;
+        last = +new Date,
+        _this = this;
 
     $("body").mousemove(function(e){
       var offset, el = e.target,
@@ -245,8 +260,33 @@ var sidewalkchalk = {
           top:    offset.top
       });
       box.show();
+
+      _this.captureTargetElement(e);
+
     });
   },
+
+  removePageElement: function(scope) {
+    $("body").unbind('mousemove');
+    $('#outer-target-selector').remove();
+    $($('.target-element button')[scope.stepNum-1]).removeClass('activeTarget').removeClass('button-down').addClass('button-up');
+  },
+
+  captureTargetElement: function(e) {
+    var builder = $('#hopscotch-builder'),
+        thisNode = $(e.target);
+
+    if (thisNode.parents('#hopscotch-builder').length > 0){
+      return false;
+    }
+
+    if (thisNode.attr('id')) {
+      $('.target-element input')[this.stepNum-1].value = thisNode.attr('id');
+    } else if (thisNode.attr('class')) {
+      $('.target-element input')[this.stepNum-1].value = "document.getElementsByClassName('" + thisNode.attr('class') + "')[0]";
+    }
+  },
+
 
   exportFull: function() {
     var steps = this.container.find('.step'),
@@ -267,14 +307,14 @@ var sidewalkchalk = {
         data = currentStep.find('input, textarea').serializeArray();
 
     $.each(data, function() {
-        if (stepObj[this.name] !== undefined) {
-            if (!stepObj[this.name].push) {
-                stepObj[this.name] = [stepObj[this.name]];
-            }
-            stepObj[this.name].push(this.value || '');
-        } else {
-            stepObj[this.name] = this.value || '';
+      if (stepObj[this.name] !== undefined) {
+        if (!stepObj[this.name].push) {
+            stepObj[this.name] = [stepObj[this.name]];
         }
+        stepObj[this.name].push(this.value || '');
+      } else {
+        stepObj[this.name] = this.value || '';
+      }
     });
 
     return stepObj;
@@ -287,8 +327,6 @@ var sidewalkchalk = {
         stepList = this.container.find('#forms-list');
 
     currentStepOrder.detach().sort(function(a,b){
-      console.log('a :' + $(a).attr('data-position'));
-      console.log('b :' + $(b).attr('data-position'));
       return $(a).attr('data-position') - $(b).attr('data-position');
     });
     stepList.append(currentStepOrder);

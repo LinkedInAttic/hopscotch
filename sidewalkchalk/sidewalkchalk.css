@@ -55,7 +55,8 @@ body {
     background-color: #eee;
 }
 #sidewalkChalk input[type="text"], 
-#sidewalkChalk textarea {
+#sidewalkChalk textarea,
+.dialog textarea {
     width: 50px;
     height:25px;
     border: 1px solid #a6a6a6;
@@ -80,7 +81,8 @@ body {
 }
 
 /* Main containers */
-#sidewalkChalk  {
+#sidewalkChalk,
+.dialog  {
     background-color: #fff;
     border: 1px solid #aaa;
     -webkit-box-shadow:  0px 5px 16px rgba(0, 0, 0, 0.3);
@@ -95,6 +97,31 @@ body {
     -moz-border-radius: 3px;
     border-radius: 3px;
     z-index: 101011;
+}
+
+.dialog {
+	width: 500px;
+	height: 420px;
+	top: 50%;
+	left: 50%;
+	margin: -215px 0 0 -280px;
+	padding: 20px 30px;
+}
+
+.dialog textarea {
+	width: 500px;
+	height: 400px;
+	overflow-y: auto;
+	overflow-x: hidden;
+	font-size: 12px;
+}
+
+.dialog .close {
+	position: absolute;
+	top: 5px;
+	right: 8px;
+	color: #333;
+	text-decoration: none;
 }
 
 #sidewalkChalk ol {
@@ -341,4 +368,22 @@ body {
 	pointer-events:none;
 }
 
-​
+#sidewalkChalk .target-element button.activeTarget {
+	border-color:#E04C4C;
+  
+  -webkit-box-shadow: 0px 0px 10px #E04C4C;
+  -webkit-animation-name: 'activeTargetOn';
+  -webkit-animation-duration: 0.5s;
+  -webkit-animation-direction: alternate;
+  -webkit-animation-iteration-count: infinite;
+  -webkit-animation-timing-function: ease-in-out;
+}
+
+@-webkit-keyframes 'activeTargetOn'{    
+  0% {
+    -webkit-box-shadow: 0px 0px 10px #E04C4C;
+  }
+  100% {
+    -webkit-box-shadow: 0px 0px 0px #E04C4C;
+  }
+}
