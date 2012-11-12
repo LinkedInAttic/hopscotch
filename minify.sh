@@ -7,9 +7,9 @@ echo "/Users/gkoo/workspace/yuicompressor-2.4.7/build/yuicompressor-2.4.7.jar"
 echo ""
 echo "INPUT FILES:"
 echo "============"
-echo "hopscotch-0.0.2.js"
+echo "hopscotch-0.0.3.js"
 
-java -jar /Users/gkoo/workspace/yuicompressor-2.4.7/build/yuicompressor-2.4.7.jar --type js /Users/gkoo/Sites/hopscotch/js/hopscotch-0.0.2.js > /Users/gkoo/Sites/hopscotch/js/hopscotch-0.0.2.min.js
+java -jar /Users/gkoo/workspace/yuicompressor-2.4.7/build/yuicompressor-2.4.7.jar --type js /Users/gkoo/Sites/hopscotch/js/hopscotch-0.0.3.js > /Users/gkoo/Sites/hopscotch/js/hopscotch-0.0.3.min.js
 
 echo "Done minifying..."
 
