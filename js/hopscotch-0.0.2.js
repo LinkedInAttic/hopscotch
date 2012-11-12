@@ -886,6 +886,7 @@
     },
     */
 
+    // Used for nextOnTargetClick
     targetClickNextFn = function() {
       self.nextStep(false);
     },
@@ -926,7 +927,6 @@
           // This is our final target scroll value.
           scrollToVal    = targetTop - opt.scrollTopMargin,
 
-          self           = this,
           scrollEl,
           yuiAnim,
           yuiEase,
@@ -1020,27 +1020,38 @@
      * @param {Number} direction Either 1 for incrementing or -1 for decrementing
      * @returns {Number} step number we landed on
      */
-    goToStepWithTarget = function(direction) {
-      var foundTarget = false,
+    goToStepWithTarget = function(direction, cb) {
+      var target,
           step;
 
-      while (!foundTarget &&
-             currStepNum + direction >= 0 &&
-             currStepNum + direction < currTour.steps.length) {
+      if (currStepNum + direction >= 0 &&
+          currStepNum + direction < currTour.steps.length) {
+
         currStepNum += direction;
         step = getCurrStep();
-        foundTarget = utils.getStepTarget(step);
 
-        if (!foundTarget) {
-          utils.invokeCallbacks('error', [currTour.id, currStepNum]);
-        }
+        // This setTimeout is here because the next step may have a delay
+        // (e.g., if the state of the page changed that introduced the target
+        // for the next step, then we need to respect delay before calling
+        // utils.getStepTarget)
+        setTimeout(function() {
+          target = utils.getStepTarget(step);
+
+          if (target) {
+            // We're done! Return the step number via the callback.
+            cb(currStepNum);
+          }
+          else {
+            // Haven't found a valid target yet. Recursively call
+            // goToStepWithTarget.
+            utils.invokeCallbacks('error', [currTour.id, currStepNum]);
+            goToStepWithTarget(direction, cb);
+          }
+        }, utils.valOrDefault(step.delay, 0));
       }
-
-      if (!foundTarget) {
-        currStepNum = -1;
+      else {
+        cb(-1); // signal that we didn't find any step with a valid target
       }
-
-      return currStepNum;
     },
 
     /**
@@ -1054,22 +1065,44 @@
      * @param {Number} direction Either 1 for "next" or -1 for "prev"
      */
     changeStep = function(doCallbacks, direction) {
-      var bubble = getBubble();
-
-      doCallbacks = utils.valOrDefault(doCallbacks, true);
+      var bubble = getBubble(),
+          self = this,
+          step,
+          origStepNum,
+          changeStepCb;
 
       bubble.hide();
 
-      var step = getCurrStep(),
-          origStepNum = currStepNum;
+      doCallbacks = utils.valOrDefault(doCallbacks, true);
+      step = getCurrStep();
+      origStepNum = currStepNum;
 
-      if (opt.skipIfNoElement) {
-        goToStepWithTarget(direction);
-
-        if (currStepNum === -1) {
+      // Callback for goToStepWithTarget
+      changeStepCb = function(stepNum) {
+        if (stepNum === -1) {
           // Wasn't able to find a step with an existing element. End tour.
           return this.endTour(true);
         }
+
+        if (doCallbacks) {
+          // invoke callbacks
+          if (direction > 0 && step.onNext) {
+            step.onNext();
+          }
+          else if (direction < 0 && step.onPrev) {
+            step.onPrev();
+          }
+          utils.invokeCallbacks(direction > 0 ? 'next' : 'prev', [currTour.id, origStepNum]);
+        }
+
+        //this.showStep(currStepNum, currSubstepNum);
+        this.showStep(stepNum);
+      };
+
+      if (opt.skipIfNoElement) {
+        goToStepWithTarget(direction, function(stepNum) {
+          changeStepCb.call(self, stepNum);
+        });
       }
       else if (currStepNum + direction >= 0 && currStepNum + direction < currTour.steps.length) {
         // only try incrementing once, and invoke error callback if no target is found
@@ -1079,21 +1112,8 @@
           utils.invokeCallbacks('error', [currTour.id, currStepNum]);
           return this.endTour(true, false);
         }
+        this.changeStepCb(currStepNum);
       }
-
-      if (doCallbacks) {
-        // invoke callbacks
-        if (direction > 0 && step.onNext) {
-          step.onNext();
-        }
-        else if (direction < 0 && step.onPrev) {
-          step.onPrev();
-        }
-        utils.invokeCallbacks(direction > 0 ? 'next' : 'prev', [currTour.id, origStepNum]);
-      }
-
-      //this.showStep(currStepNum, currSubstepNum);
-      this.showStep(currStepNum);
 
       return this;
     },
@@ -1108,7 +1128,6 @@
      */
     loadTour = function(tour) {
       var tmpOpt = {},
-          bubble,
           prop,
           stepPair,
           tourState,
@@ -1290,8 +1309,7 @@
      * @returns {Object} Hopscotch
      */
     this.showStep = function(stepNum, substepNum) {
-      var self = this,
-          step = currTour.steps[stepNum];
+      var step = currTour.steps[stepNum];
 
       setTimeout(function() {
         var tourSteps    = currTour.steps,
@@ -1633,8 +1651,6 @@
         bubble.removeAnimate();
       }
 
-      bubble.showPrevButton(options.showPrevButton, typeof options.showPrevButton !== undefinedStr);
-      bubble.showNextButton(options.showNextButton, typeof options.showNextButton !== undefinedStr);
       bubble.showCloseButton(options.showCloseButton, typeof options.showCloseButton !== undefinedStr);
 
       return this;

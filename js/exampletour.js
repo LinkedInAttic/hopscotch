@@ -19,13 +19,12 @@ var tour = {
       orientation: 'left',
       width: 320,
       height: 480,
-      showSkip: true,
+      //showSkip: true,
       fixedElement: true,
       //xOffset: 20,
       zindex: 15,
-      showPrevButton: true,
-      showNextButton: true,
-      delay: 1000,
+      showPrevButton: false,
+      //delay: 1000,
       onPrev: function() {
         document.getElementById('pageTitle').style.color = '#000';
       }
@@ -61,7 +60,7 @@ var tour = {
       content: 'We made it!! Polar bears are very interesting creatures.',
       target: 'polarbears',
       orientation: 'right',
-      showPrevButton: false
+      //showPrevButton: false
     },
     {
       title: 'Returning to the first page',
@@ -69,7 +68,7 @@ var tour = {
       target: 'firstpagelink',
       orientation: 'bottom',
       showNextButton: false,
-      showPrevButton: false,
+      //showPrevButton: false,
       multipage: true // this indicates that next step will be on a different page
     },
     {
@@ -83,6 +82,7 @@ var tour = {
   //animate: true,
   //smoothScroll: false,
   //showCloseButton: false,
+  showPrevButton: true,
   scrollTopMargin: 50,
   arrowWidth: 20,
   //scrollDuration: 2000,
