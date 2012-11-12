@@ -1018,6 +1018,7 @@
      *
      * @private
      * @param {Number} direction Either 1 for incrementing or -1 for decrementing
+     * @param {Function} cb The callback function to be invoked when the step has been found
      * @returns {Number} step number we landed on
      */
     goToStepWithTarget = function(direction, cb) {
