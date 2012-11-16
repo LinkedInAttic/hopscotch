@@ -290,13 +290,15 @@
    * @private
    */
   HopscotchBubble = function(opt) {
-    var isShowing = false,
-        currStep,
+    this.init(opt);
+  };
 
-    /**
-     * @private
-     */
-    createButton = function(id, text) {
+  HopscotchBubble.prototype = {
+    isShowing: false,
+
+    currStep: undefined,
+
+    createButton: function(id, text) {
       var btnEl = document.createElement('input');
       btnEl.id = id;
       btnEl.type = 'button';
@@ -309,25 +311,8 @@
       else {
         utils.addClass(btnEl, 'next');
       }
+
       return btnEl;
-    },
-
-    /**
-     * @private
-     */
-    showButton = function(btnEl, show, permanent) {
-      var classname = 'hide';
-
-      if (permanent) {
-        // permanent is a flag that indicates we should never show the button
-        classname = 'hide-all';
-      }
-      if (typeof show === undefinedStr) {
-        show = true;
-      }
-
-      if (show) { utils.removeClass(btnEl, classname); }
-      else { utils.addClass(btnEl, classname); }
     },
 
     /**
@@ -336,10 +321,8 @@
      * Sets the position of the bubble using the bounding rectangle of the
      * target element and the orientation and offset information specified by
      * the step JSON.
-     *
-     * @private
      */
-    setPosition = function(step) {
+    setPosition: function(step) {
       var bubbleWidth,
           bubbleHeight,
           bubblePadding,
@@ -352,28 +335,28 @@
           arrowEl      = this.arrowEl,
           arrowOffset  = utils.getPixelValue(step.arrowOffset);
 
-      bubbleWidth   = utils.getPixelValue(step.width) || opt.bubbleWidth;
-      bubblePadding = utils.valOrDefault(step.padding, opt.bubblePadding);
+      bubbleWidth   = utils.getPixelValue(step.width) || this.opt.bubbleWidth;
+      bubblePadding = utils.valOrDefault(step.padding, this.opt.bubblePadding);
       utils.removeClass(el, 'fade-in-down fade-in-up fade-in-left fade-in-right');
 
       // SET POSITION
       boundingRect = targetEl.getBoundingClientRect();
       if (step.orientation === 'top') {
         bubbleHeight = el.offsetHeight;
-        top = (boundingRect.top - bubbleHeight) - opt.arrowWidth;
+        top = (boundingRect.top - bubbleHeight) - this.opt.arrowWidth;
         left = boundingRect.left;
       }
       else if (step.orientation === 'bottom') {
-        top = boundingRect.bottom + opt.arrowWidth;
+        top = boundingRect.bottom + this.opt.arrowWidth;
         left = boundingRect.left;
       }
       else if (step.orientation === 'left') {
         top = boundingRect.top;
-        left = boundingRect.left - bubbleWidth - 2*bubblePadding - 2*bubbleBorder - opt.arrowWidth;
+        left = boundingRect.left - bubbleWidth - 2*bubblePadding - 2*bubbleBorder - this.opt.arrowWidth;
       }
       else if (step.orientation === 'right') {
         top = boundingRect.top;
-        left = boundingRect.right + opt.arrowWidth;
+        left = boundingRect.right + this.opt.arrowWidth;
       }
 
       // SET (OR RESET) ARROW OFFSETS
@@ -403,7 +386,7 @@
       // ACCOUNT FOR FIXED POSITION ELEMENTS
       el.style.position = (step.fixedElement ? 'fixed' : 'absolute');
 
-      if (opt.animate && hasJquery && !hasCssTransitions) {
+      if (this.opt.animate && hasJquery && !hasCssTransitions) {
         $(el).animate({
           top: top + 'px',
           left: left + 'px'
@@ -415,78 +398,12 @@
       }
     },
 
-    /**
-     * @private
-     */
-    init = function() {
-      var el              = document.createElement('div'),
-          containerEl     = document.createElement('div'),
-          bubbleContentEl = document.createElement('div'),
-          self            = this,
-          resizeCooldown  = false, // for updating after window resize
-          onWinResize,
-          winResizeTimeout;
-
-      this.element         = el;
-      this.containerEl     = containerEl;
-      this.titleEl         = document.createElement('h3');
-      this.numberEl        = document.createElement('span');
-      this.contentEl       = document.createElement('p');
-
-      el.id = 'hopscotch-bubble';
-      utils.addClass(el, 'animated'); // for fade css animation
-      containerEl.id = 'hopscotch-bubble-container';
-      this.numberEl.id = 'hopscotch-bubble-number';
-      containerEl.appendChild(this.numberEl);
-      bubbleContentEl.appendChild(this.titleEl);
-      bubbleContentEl.appendChild(this.contentEl);
-      bubbleContentEl.id = 'hopscotch-bubble-content';
-      containerEl.appendChild(bubbleContentEl);
-      el.appendChild(containerEl);
-
-      this.initNavButtons();
-      this.initCloseButton();
-
-      this.initArrow();
-
-      /**
-       * Not pretty, but IE doesn't support Function.bind(), so I'm
-       * relying on closures to keep a handle of "this".
-       * Reset position of bubble when window is resized
-       *
-       * @private
-       */
-      onWinResize = function() {
-        if (resizeCooldown || !isShowing) {
-          return;
-        }
-
-        resizeCooldown = true;
-        winResizeTimeout = setTimeout(function() {
-          setPosition.call(self, currStep, false);
-          resizeCooldown = false;
-        }, 200);
-      };
-
-      if (window.addEventListener) {
-        window.addEventListener('resize', onWinResize, false);
-      }
-
-      else if (window.attachEvent) {
-        window.attachEvent('onresize', onWinResize, false);
-      }
-
-      this.hide();
-      document.body.appendChild(el);
-      return this;
-    };
-
-    this.initNavButtons = function() {
+    initNavButtons: function() {
       var buttonsEl  = document.createElement('div');
 
-      this.prevBtnEl = createButton('hopscotch-prev', HopscotchI18N.prevBtn);
-      this.nextBtnEl = createButton('hopscotch-next', HopscotchI18N.nextBtn);
-      this.doneBtnEl = createButton('hopscotch-done', HopscotchI18N.doneBtn);
+      this.prevBtnEl = this.createButton('hopscotch-prev', HopscotchI18N.prevBtn);
+      this.nextBtnEl = this.createButton('hopscotch-next', HopscotchI18N.nextBtn);
+      this.doneBtnEl = this.createButton('hopscotch-done', HopscotchI18N.doneBtn);
       utils.addClass(this.doneBtnEl, 'hide');
 
       buttonsEl.appendChild(this.prevBtnEl);
@@ -508,9 +425,9 @@
 
       this.containerEl.appendChild(buttonsEl);
       return this;
-    };
+    },
 
-    this.initCloseButton = function() {
+    initCloseButton: function() {
       var closeBtnEl = document.createElement('a');
 
       closeBtnEl.id = 'hopscotch-bubble-close';
@@ -538,9 +455,9 @@
       this.closeBtnEl = closeBtnEl;
       this.containerEl.appendChild(closeBtnEl);
       return this;
-    };
+    },
 
-    this.initArrow = function() {
+    initArrow: function() {
       var arrowEl,
           arrowBorderEl;
 
@@ -558,12 +475,12 @@
 
       this.element.appendChild(this.arrowEl);
       return this;
-    };
+    },
 
-    this.renderStep = function(step, idx, isLast, callback) {
+    renderStep: function(step, idx, isLast, callback) {
       var self     = this,
-          showNext = utils.valOrDefault(step.showNextButton, opt.showNextButton),
-          showPrev = utils.valOrDefault(step.showPrevButton, opt.showPrevButton),
+          showNext = utils.valOrDefault(step.showNextButton, this.opt.showNextButton),
+          showPrev = utils.valOrDefault(step.showPrevButton, this.opt.showPrevButton),
           bubbleWidth,
           bubblePadding;
 
@@ -587,8 +504,8 @@
       this.setArrow(step.orientation);
 
       // Set dimensions
-      bubbleWidth   = utils.getPixelValue(step.width) || opt.bubbleWidth;
-      bubblePadding = utils.valOrDefault(step.padding, opt.bubblePadding);
+      bubbleWidth   = utils.getPixelValue(step.width) || this.opt.bubbleWidth;
+      bubblePadding = utils.valOrDefault(step.padding, this.opt.bubblePadding);
       this.containerEl.style.width = bubbleWidth + 'px';
       this.containerEl.style.padding = bubblePadding + 'px';
 
@@ -597,7 +514,7 @@
       if (step.orientation === 'top') {
         // Timeout to get correct height of bubble for positioning.
         setTimeout(function() {
-          setPosition.call(self, step);
+          self.setPosition(step);
           // only want to adjust window scroll for non-fixed elements
           if (callback) {
             if (!step.fixedElement) { callback(); }
@@ -607,7 +524,7 @@
       }
       else {
         // Don't care about height for the other orientations.
-        setPosition.call(this, step);
+        this.setPosition(step);
         // only want to adjust window scroll for non-fixed elements
         if (callback) {
           if (!step.fixedElement) { callback(); }
@@ -616,9 +533,9 @@
       }
 
       return this;
-    };
+    },
 
-    this.setTitle = function(titleStr) {
+    setTitle: function(titleStr) {
       if (titleStr) {
         this.titleEl.innerHTML = titleStr;
         utils.removeClass(this.titleEl, 'hide');
@@ -627,9 +544,9 @@
         utils.addClass(this.titleEl, 'hide');
       }
       return this;
-    };
+    },
 
-    this.setContent = function(contentStr) {
+    setContent: function(contentStr) {
       // CAREFUL!! Using innerHTML, so don't use any user-generated
       // content here. (or if you must, escape it first)
       if (contentStr) {
@@ -640,9 +557,9 @@
         utils.addClass(this.contentEl, 'hide');
       }
       return this;
-    };
+    },
 
-    this.setNum = function(idx) {
+    setNum: function(idx) {
       if (HopscotchI18N.stepNums && idx < HopscotchI18N.stepNums.length) {
         idx = HopscotchI18N.stepNums[idx];
       }
@@ -650,9 +567,9 @@
         idx = idx + 1;
       }
       this.numberEl.innerHTML = idx;
-    };
+    },
 
-    this.setArrow = function(orientation) {
+    setArrow: function(orientation) {
       // Whatever the orientation is, we want to arrow to appear
       // "opposite" of the orientation. E.g., a top orientation
       // requires a bottom arrow.
@@ -668,9 +585,9 @@
       else if (orientation === 'right') {
         this.arrowEl.className = 'left';
       }
-    };
+    },
 
-    this.getArrowDirection = function() {
+    getArrowDirection: function() {
       if (this.orientation === 'top') {
         return 'down';
       }
@@ -683,15 +600,15 @@
       if (this.orientation === 'right') {
         return 'left';
       }
-    };
+    },
 
-    this.show = function() {
+    show: function() {
       var self      = this,
           className = 'fade-in-' + this.getArrowDirection(),
           fadeDur   = 1000;
 
       utils.removeClass(this.element, 'hide');
-      if (opt.animate) {
+      if (this.opt.animate) {
         setTimeout(function() {
           utils.addClass(self.element, 'animate');
         }, 50);
@@ -707,9 +624,9 @@
       }
       isShowing = true;
       return this;
-    };
+    },
 
-    this.hide = function(remove) {
+    hide: function(remove) {
       var el = this.element;
 
       remove = utils.valOrDefault(remove, true);
@@ -724,26 +641,41 @@
       // opacity: 0
       else {
         utils.removeClass(el, 'hide');
-        if (!opt.animate) {
+        if (!this.opt.animate) {
           utils.addClass(el, 'invisible');
         }
       }
       utils.removeClass(el, 'animate fade-in-up fade-in-down fade-in-right fade-in-left');
       isShowing = false;
       return this;
-    };
+    },
 
-    this.showPrevButton = function(show, permanent) {
-      showButton(this.prevBtnEl, show, permanent);
-    };
+    showButton: function(btnEl, show, permanent) {
+      var classname = 'hide';
 
-    this.showNextButton = function(show, permanent) {
-      showButton(this.nextBtnEl, show, permanent);
-    };
+      if (permanent) {
+        // permanent is a flag that indicates we should never show the button
+        classname = 'hide-all';
+      }
+      if (typeof show === undefinedStr) {
+        show = true;
+      }
 
-    this.showCloseButton = function(show, permanent) {
-      showButton(this.closeBtnEl, show, permanent);
-    };
+      if (show) { utils.removeClass(btnEl, classname); }
+      else { utils.addClass(btnEl, classname); }
+    },
+
+    showPrevButton: function(show, permanent) {
+      this.showButton(this.prevBtnEl, show, permanent);
+    },
+
+    showNextButton: function(show, permanent) {
+      this.showButton(this.nextBtnEl, show, permanent);
+    },
+
+    showCloseButton: function(show, permanent) {
+      this.showButton(this.closeBtnEl, show, permanent);
+    },
 
 
     /**
@@ -761,18 +693,80 @@
      * Solution is to add the animate class (which defines our transition)
      * only after the element is created.
      */
-    this.initAnimate = function() {
+    initAnimate: function() {
       var self = this;
       setTimeout(function() {
         utils.addClass(self.element, 'animate');
       }, 50);
-    };
+    },
 
-    this.removeAnimate = function() {
+    removeAnimate: function() {
       utils.removeClass(this.element, 'animate');
-    };
+    },
 
-    init.call(this);
+    init: function(opt) {
+      var el              = document.createElement('div'),
+          containerEl     = document.createElement('div'),
+          bubbleContentEl = document.createElement('div'),
+          self            = this,
+          resizeCooldown  = false, // for updating after window resize
+          onWinResize,
+          winResizeTimeout;
+
+      this.element        = el;
+      this.containerEl    = containerEl;
+      this.titleEl        = document.createElement('h3');
+      this.numberEl       = document.createElement('span');
+      this.contentEl      = document.createElement('p');
+
+      el.id = 'hopscotch-bubble';
+      utils.addClass(el, 'animated'); // for fade css animation
+      containerEl.id = 'hopscotch-bubble-container';
+      this.numberEl.id = 'hopscotch-bubble-number';
+      containerEl.appendChild(this.numberEl);
+      bubbleContentEl.appendChild(this.titleEl);
+      bubbleContentEl.appendChild(this.contentEl);
+      bubbleContentEl.id = 'hopscotch-bubble-content';
+      containerEl.appendChild(bubbleContentEl);
+      el.appendChild(containerEl);
+
+      this.initNavButtons();
+      this.initCloseButton();
+
+      this.initArrow();
+
+      /**
+       * Not pretty, but IE doesn't support Function.bind(), so I'm
+       * relying on closures to keep a handle of "this".
+       * Reset position of bubble when window is resized
+       *
+       * @private
+       */
+      onWinResize = function() {
+        if (resizeCooldown || !self.isShowing) {
+          return;
+        }
+
+        resizeCooldown = true;
+        winResizeTimeout = setTimeout(function() {
+          self.setPosition(currStep);
+          resizeCooldown = false;
+        }, 200);
+      };
+
+      if (window.addEventListener) {
+        window.addEventListener('resize', onWinResize, false);
+      }
+
+      else if (window.attachEvent) {
+        window.attachEvent('onresize', onWinResize, false);
+      }
+
+      this.hide();
+      document.body.appendChild(el);
+
+      this.opt = opt;
+    }
   };
 
   /**
