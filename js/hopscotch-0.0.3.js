@@ -560,7 +560,7 @@
       return this;
     };
 
-    this.renderStep = function(step, idx, subIdx, isLast, callback) {
+    this.renderStep = function(step, idx, isLast, callback) {
       var self     = this,
           showNext = utils.valOrDefault(step.showNextButton, opt.showNextButton),
           showPrev = utils.valOrDefault(step.showPrevButton, opt.showPrevButton),
@@ -573,7 +573,7 @@
       this.setNum(idx);
       this.orientation = step.orientation;
 
-      this.showPrevButton(this.prevBtnEl && showPrev && (idx > 0 || subIdx > 0));
+      this.showPrevButton(this.prevBtnEl && showPrev && idx > 0);
       this.showNextButton(this.nextBtnEl && showNext && !isLast);
       this.nextBtnEl.value = step.showSkip ? HopscotchI18N.skipBtn : HopscotchI18N.nextBtn;
 
@@ -789,10 +789,8 @@
         opt,
         currTour,
         currStepNum,
-        currSubstepNum,
         cookieTourId,
         cookieTourStep,
-        cookieTourSubstep,
         _configure,
 
     /**
@@ -826,65 +824,8 @@
         step = currTour.steps[currStepNum];
       }
 
-      return (step.length > 0) ? step[currSubstepNum] : step;
+      return step;
     },
-
-    // isInMultiPartStep, incrementStep, AND decrementStep ARE ONLY USEFUL FOR MULTI-PART
-    // STEPS, WHICH HAVE YET TO BE FULLY IMPLEMENTED.
-    /*
-    isInMultiPartStep = function() {
-      return currTour.steps[currStepNum].length > 0;
-    },
-    */
-
-    /**
-     * incrementStep
-     *
-     * Sets current step num and substep num to the next step in the tour.
-     * Returns true if successful, false if not.
-     */
-    /*
-    incrementStep = function() {
-      var numSubsteps = currTour.steps[currStepNum].length;
-      if (currSubstepNum < numSubsteps-1) {
-        ++currSubstepNum;
-        return true;
-      }
-      else if (currStepNum < currTour.steps.length-1) {
-        ++currStepNum;
-        currSubstepNum = isInMultiPartStep() ? 0 : undefined;
-        return true;
-      }
-      return false;
-    },
-    */
-
-    /**
-     * decrementStep
-     *
-     * Sets current step num and substep num to the previous step in the tour.
-     * Returns true if successful, false if not.
-     */
-    /*
-    decrementStep = function() {
-      var numPrevSubsteps;
-      if (currSubstepNum > 0) {
-        --currSubstepNum;
-        return true;
-      }
-      else if (currStepNum > 0) {
-        numPrevSubsteps = currTour.steps[--currStepNum].length;
-        if (numPrevSubsteps) {
-          currSubstepNum = numPrevSubsteps-1;
-        }
-        else {
-          currSubstepNum = undefined;
-        }
-        return true;
-      }
-      return false;
-    },
-    */
 
     // Used for nextOnTargetClick
     targetClickNextFn = function() {
@@ -1096,7 +1037,6 @@
           utils.invokeCallbacks(direction > 0 ? 'next' : 'prev', [currTour.id, origStepNum]);
         }
 
-        //this.showStep(currStepNum, currSubstepNum);
         this.showStep(stepNum);
       };
 
@@ -1130,7 +1070,6 @@
     loadTour = function(tour) {
       var tmpOpt = {},
           prop,
-          stepPair,
           tourState,
           tourPair;
 
@@ -1154,31 +1093,14 @@
         tourPair            = tourState.split(':');
         cookieTourId        = tourPair[0]; // selecting tour is not supported by this framework.
         cookieTourStep      = tourPair[1];
-        cookieTourSubstep   = undefined;
-        stepPair            = cookieTourStep.split('-');
 
-        if (stepPair.length > 1) {
-          cookieTourStep    = parseInt(stepPair[0], 10);
-          cookieTourSubstep = parseInt(stepPair[1], 10);
-        }
-        else {
-          cookieTourStep    = parseInt(cookieTourStep, 10);
-        }
+        cookieTourStep    = parseInt(cookieTourStep, 10);
 
         // Check for multipage flag
         if (tourPair.length > 2 && tourPair[2] === 'mp') {
           // Increment cookie step
-          if (cookieTourSubstep && cookieTourSubstep < currTour.steps[cookieTourStep].length-1) {
-            ++cookieTourSubstep;
-          }
-          else if (cookieTourStep < currTour.steps.length-1) {
+          if (cookieTourStep < currTour.steps.length-1) {
             ++cookieTourStep;
-            if (currTour.steps[cookieTourStep].length > 0) {
-              cookieTourSubstep = 0;
-            }
-            else {
-              cookieTourSubstep = undefined;
-            }
           }
         }
       }
@@ -1206,11 +1128,10 @@
      *
      * @param {Object} tour The tour JSON object
      * @stepNum {Number} stepNum __Optional__ The step number to start from
-     * @substepNum {Number} substepNum __Optional__ The substep number to start from
      * @returns {Object} Hopscotch
      *
      */
-    this.startTour = function(tour, stepNum, substepNum) {
+    this.startTour = function(tour, stepNum) {
       var bubble,
           step,
           foundTarget;
@@ -1223,7 +1144,6 @@
 
       if (typeof stepNum !== undefinedStr) {
         currStepNum    = stepNum;
-        currSubstepNum = substepNum;
       }
 
       // If document isn't ready, wait for it to finish loading.
@@ -1237,7 +1157,6 @@
         // Check if we are resuming state.
         if (currTour.id === cookieTourId && typeof cookieTourStep !== undefinedStr) {
           currStepNum    = cookieTourStep;
-          currSubstepNum = cookieTourSubstep;
           step           = getCurrStep();
           foundTarget    = utils.getStepTarget(step);
           if (!foundTarget) {
@@ -1269,13 +1188,6 @@
         }
       }
 
-      /*
-      if (!currSubstepNum && isInMultiPartStep()) {
-        // Multi-part step
-        currSubstepNum = 0;
-      }
-      */
-
       utils.invokeCallbacks('start', [currTour.id, currStepNum]);
 
       bubble = getBubble();
@@ -1294,7 +1206,7 @@
         }
       }
       else {
-        this.showStep(currStepNum, currSubstepNum);
+        this.showStep(currStepNum);
       }
 
       return this;
@@ -1306,10 +1218,9 @@
      * Skips to a specific step and renders the corresponding bubble.
      *
      * @stepNum {Number} stepNum The step number to show
-     * @substepNum {Number} substepNum __Optional__ The substep number to show
      * @returns {Object} Hopscotch
      */
-    this.showStep = function(stepNum, substepNum) {
+    this.showStep = function(stepNum) {
       var step = currTour.steps[stepNum];
 
       setTimeout(function() {
@@ -1322,22 +1233,14 @@
 
         // Update bubble for current step
         currStepNum    = stepNum;
-        currSubstepNum = substepNum;
 
         // Only do fade if we're not animating.
         if (!opt.animate) {
           bubble.hide(false);
         }
 
-        /* UNCOMMENT WHEN MULTI-PART STEPS ARE FINISHED
-        if (typeof substepNum !== undefinedStr && isInMultiPartStep()) {
-          step = step[substepNum];
-          cookieVal += '-' + substepNum;
-        }
-        */
-
-        isLast = (stepNum === numTourSteps - 1) || (substepNum >= step.length - 1);
-        bubble.renderStep(step, stepNum, substepNum, isLast, function() {
+        isLast = (stepNum === numTourSteps - 1);
+        bubble.renderStep(step, stepNum, isLast, function() {
           // when done adjusting window scroll, call bubble.show()
           adjustWindowScroll(function() {
             bubble.show();
@@ -1408,7 +1311,6 @@
       clearState     = utils.valOrDefault(clearState, true);
       doCallbacks    = utils.valOrDefault(doCallbacks, true);
       currStepNum    = 0;
-      currSubstepNum = undefined;
       cookieTourStep = undefined;
 
       bubble.hide();
@@ -1445,60 +1347,6 @@
     this.getCurrStepNum = function() {
       return currStepNum;
     };
-
-    /*
-    this.getCurrSubstepNum = function() {
-      return currSubstepNum;
-    };
-    */
-
-    /** WORK IN PROGRESS
-    this.hasTakenTour = function(tourId) {
-      if (hasSessionStorage) {
-        utils.getState(opt.cookieName + '_history');
-      }
-      return false;
-    };
-
-    this.setHasTakenTour = function(tourId) {
-      var history;
-      if (hasSessionStorage && !this.hasTakenTour(tourId)) {
-        history = utils.getState(opt.cookieName + '_history');
-        if (history) {
-          history += ';'+tourId;
-        }
-        else {
-          history = tourId;
-        }
-      }
-    };
-
-    this.clearHasTakenTour = function(tourId) {
-      var history,
-          tourIds,
-          i,
-          len,
-          historyName = opt.cookieName + '_history',
-          found = false;
-
-      if (hasSessionStorage) {
-        history = utils.getState(historyName);
-        if (history) {
-          tourIds = history.split(';');
-          for (i=0, len=tourIds.length; i<len; ++i) {
-            if (tourIds[i] === tourId) {
-              tourIds.splice(i, 1);
-              found = true;
-              break;
-            }
-          }
-          if (found) {
-            utils.setState(historyName, tourIds.join(';'));
-          }
-        }
-      }
-    };
-    */
 
     /**
      * listen
