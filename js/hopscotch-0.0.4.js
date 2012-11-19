@@ -517,7 +517,7 @@
          * @private
          */
         this.closeFn = function(evt) {
-          if (self.opt.id && !this.opt.isTourBubble) {
+          if (self.opt.id && !self.opt.isTourBubble) {
             // Remove via the HopscotchCalloutManager.
             // removeCallout() calls HopscotchBubble.destroy internally.
             winHopscotch.getCalloutManager().removeCallout(self.opt.id);
