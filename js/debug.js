@@ -90,6 +90,30 @@ for (i = 0, len = booleanControls.length; i < len; i++) {
   });
 
   // ===========
+  // ADD CALLOUT
+  // ===========
+  addClickListener(document.getElementById('addCallout'), function() {
+    var mgr = hopscotch.getCalloutManager();
+    mgr.createCallout({
+      id: 'mycallout',
+      title: 'Title',
+      content: 'Content',
+      target: 'python',
+      orientation: 'left',
+      showNavButtons: false,
+      showNumber: false
+    });
+  });
+
+  // ==============
+  // REMOVE CALLOUT
+  // ==============
+  addClickListener(document.getElementById('rmCallout'), function() {
+    var mgr = hopscotch.getCalloutManager();
+    mgr.removeCallout('mycallout');
+  });
+
+  // ===========
   // START TOUR2
   // ===========
   //addClickListener(document.getElementById('startBtn2'), function() {
