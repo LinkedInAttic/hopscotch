@@ -98,8 +98,8 @@ for (i = 0, len = booleanControls.length; i < len; i++) {
       id: 'mycallout',
       title: 'Title',
       content: 'Content',
-      target: 'python',
-      orientation: 'left',
+      target: 'google',
+      orientation: 'top',
       showNavButtons: false,
       showNumber: false
     });
@@ -138,7 +138,7 @@ var tour2 = {
     {
       title: 'Python decorator',
       content: 'Whoa, did you notice that the page just scrolled? If you didn\'t, you aren\'t very observant. (Or you have a very tall monitor)',
-      targetId: 'python',
+      targetId: 'google',
       orientation: 'top',
       xOffset: 200
     }

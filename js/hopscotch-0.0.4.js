@@ -526,12 +526,7 @@
             self.destroy();
           }
 
-          if (evt.preventDefault) {
-            evt.preventDefault();
-          }
-          else if (event) {
-            event.returnValue = false;
-          }
+          utils.evtPreventDefault(evt);
         };
       }
       return this.closeFn;
@@ -607,7 +602,7 @@
      * @param {Function} callback Function to be invoked after rendering is finished.
      */
     render: function(step, idx, isLast, callback) {
-      var self = this,
+      var el = this.element,
           showNext,
           showPrev,
           bubbleWidth,
@@ -652,20 +647,25 @@
       this.containerEl.style.width = bubbleWidth + 'px';
       this.containerEl.style.padding = bubblePadding + 'px';
 
-      this.element.style.zIndex = (step.zindex ? step.zindex : '');
+      el.style.zIndex = (step.zindex ? step.zindex : '');
 
       if (step.orientation === 'top') {
-        // Timeout to get correct height of bubble for positioning.
-        setTimeout(function() {
-          self.setPosition(step);
-          // only want to adjust window scroll for non-fixed elements
-          if (callback && !step.fixedElement) {
-            callback();
-          }
-          else {
-            self.show();
-          }
-        }, 5);
+        // For bubbles placed on top of elements, we need to get the
+        // bubble height to correctly calculate the bubble position.
+        // Show it briefly offscreen to calculate height, then hide
+        // it again.
+        el.style.top = '-9999px';
+        el.style.left = '-9999px';
+        utils.removeClass(el, 'hide');
+        this.setPosition(step);
+        utils.addClass(el, 'hide');
+        // only want to adjust window scroll for non-fixed elements
+        if (callback && !step.fixedElement) {
+          callback();
+        }
+        else {
+          this.show();
+        }
       }
       else {
         // Don't care about height for the other orientations.

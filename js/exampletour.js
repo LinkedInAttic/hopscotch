@@ -74,7 +74,7 @@ var tour = {
     {
       title: 'Python decorator',
       content: 'Whoa, did you notice that the page just scrolled? If you didn\'t, you aren\'t very observant. (Or you have a very tall monitor)',
-      target: 'python',
+      target: 'google',
       orientation: 'top',
       xOffset: 200
     }
