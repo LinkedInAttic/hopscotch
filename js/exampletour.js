@@ -85,7 +85,7 @@ var tour = {
   showPrevButton: true,
   scrollTopMargin: 50,
   arrowWidth: 20,
-  //scrollDuration: 2000,
+  scrollDuration: 500,
   cookieName: 'li_hs',
   skipIfNoElement: true,
   onNext: function(tourId, idx) {

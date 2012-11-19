@@ -1150,7 +1150,8 @@
           yuiEase,
           direction,
           scrollIncr,
-          scrollInt;
+          scrollTimeout,
+          scrollTimeoutFn;
 
       // Target and bubble are both visible in viewport
       if (targetTop >= windowTop && (targetTop <= windowTop + opt.scrollTopMargin || targetBottom <= windowBottom)) {
@@ -1200,7 +1201,7 @@
           // To increase or decrease duration, change the divisor of scrollIncr.
           direction = (windowTop > targetTop) ? -1 : 1; // -1 means scrolling up, 1 means down
           scrollIncr = Math.abs(windowTop - scrollToVal) / (opt.scrollDuration/10);
-          scrollInt = setInterval(function() {
+          scrollTimeoutFn = function() {
             var scrollTop = utils.getScrollTop(),
                 scrollTarget = scrollTop + (direction * scrollIncr);
 
@@ -1209,7 +1210,6 @@
               // Overshot our target. Just manually set to equal the target
               // and clear the interval
               scrollTarget = scrollToVal;
-              clearInterval(scrollInt);
               if (cb) { cb(); } // HopscotchBubble.show
               window.scrollTo(0, scrollTarget);
               return;
@@ -1218,12 +1218,16 @@
             window.scrollTo(0, scrollTarget);
 
             if (utils.getScrollTop() === scrollTop) {
-              // Couldn't scroll any further. Clear interval.
-              clearInterval(scrollInt);
-
+              // Couldn't scroll any further.
               if (cb) { cb(); } // HopscotchBubble.show
+              return;
             }
-          }, 10);
+
+            // If we reached this point, that means there's still more to scroll.
+            setTimeout(scrollTimeoutFn, 10);
+          };
+
+          scrollTimeoutFn();
         }
       }
     },
