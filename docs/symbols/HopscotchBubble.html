@@ -195,6 +195,8 @@ ul.inheritsList
 	
 	<li><a href="../symbols/HopscotchBubble.html">HopscotchBubble</a></li>
 	
+	<li><a href="../symbols/HopscotchCalloutManager.html">HopscotchCalloutManager</a></li>
+	
 </ul>
 <hr />
 			<!-- end publish.classesIndex -->
@@ -212,10 +214,10 @@ ul.inheritsList
 				
 				
 			
-				The HopscotchBubble class is a singleton class which manages the properties of the bubble.
+				The HopscotchBubble class represents the view of a bubble. This class is also used for Hopscotch callouts.
 				
 				
-					<br /><i>Defined in: </i> <a href="../symbols/src/_Users_gkoo_Sites_hopscotch_js_hopscotch.js.html">hopscotch.js</a>.
+					<br /><i>Defined in: </i> <a href="../symbols/src/_Users_gkoo_Sites_hopscotch_js_hopscotch-0.0.3.js.html">hopscotch-0.0.3.js</a>.
 				
 			</p>
 
@@ -263,7 +265,7 @@ ul.inheritsList
 						<tr>
 							<td class="attributes">&nbsp;</td>
 							<td class="nameDescription">
-								<div class="fixedFont"><b><a href="../symbols/HopscotchBubble.html#getArrowDirection">getArrowDirection</a></b>()
+								<div class="fixedFont"><b><a href="../symbols/HopscotchBubble.html#destroy">destroy</a></b>()
 								</div>
 								<div class="description"></div>
 							</td>
@@ -281,18 +283,7 @@ ul.inheritsList
 						<tr>
 							<td class="attributes">&nbsp;</td>
 							<td class="nameDescription">
-								<div class="fixedFont"><b><a href="../symbols/HopscotchBubble.html#initAnimate">initAnimate</a></b>()
-								</div>
-								<div class="description">initAnimate
-===========
-This function exists due to how Chrome handles initial CSS transitions.</div>
-							</td>
-						</tr>
-					
-						<tr>
-							<td class="attributes">&nbsp;</td>
-							<td class="nameDescription">
-								<div class="fixedFont"><b><a href="../symbols/HopscotchBubble.html#initArrow">initArrow</a></b>()
+								<div class="fixedFont"><b><a href="../symbols/HopscotchBubble.html#init">init</a></b>(initOpt)
 								</div>
 								<div class="description"></div>
 							</td>
@@ -301,45 +292,9 @@ This function exists due to how Chrome handles initial CSS transitions.</div>
 						<tr>
 							<td class="attributes">&nbsp;</td>
 							<td class="nameDescription">
-								<div class="fixedFont"><b><a href="../symbols/HopscotchBubble.html#initCloseButton">initCloseButton</a></b>()
+								<div class="fixedFont"><b><a href="../symbols/HopscotchBubble.html#render">render</a></b>(step, idx, isLast, callback)
 								</div>
-								<div class="description"></div>
-							</td>
-						</tr>
-					
-						<tr>
-							<td class="attributes">&nbsp;</td>
-							<td class="nameDescription">
-								<div class="fixedFont"><b><a href="../symbols/HopscotchBubble.html#initNavButtons">initNavButtons</a></b>()
-								</div>
-								<div class="description"></div>
-							</td>
-						</tr>
-					
-						<tr>
-							<td class="attributes">&nbsp;</td>
-							<td class="nameDescription">
-								<div class="fixedFont"><b><a href="../symbols/HopscotchBubble.html#removeAnimate">removeAnimate</a></b>()
-								</div>
-								<div class="description"></div>
-							</td>
-						</tr>
-					
-						<tr>
-							<td class="attributes">&nbsp;</td>
-							<td class="nameDescription">
-								<div class="fixedFont"><b><a href="../symbols/HopscotchBubble.html#renderStep">renderStep</a></b>(step, idx, subIdx, isLast, callback)
-								</div>
-								<div class="description"></div>
-							</td>
-						</tr>
-					
-						<tr>
-							<td class="attributes">&nbsp;</td>
-							<td class="nameDescription">
-								<div class="fixedFont"><b><a href="../symbols/HopscotchBubble.html#setArrow">setArrow</a></b>(orientation)
-								</div>
-								<div class="description"></div>
+								<div class="description">Renders the bubble according to the step JSON.</div>
 							</td>
 						</tr>
 					
@@ -358,6 +313,19 @@ This function exists due to how Chrome handles initial CSS transitions.</div>
 								<div class="fixedFont"><b><a href="../symbols/HopscotchBubble.html#setNum">setNum</a></b>(idx)
 								</div>
 								<div class="description"></div>
+							</td>
+						</tr>
+					
+						<tr>
+							<td class="attributes">&nbsp;</td>
+							<td class="nameDescription">
+								<div class="fixedFont"><b><a href="../symbols/HopscotchBubble.html#setPosition">setPosition</a></b>(step)
+								</div>
+								<div class="description">setPosition
+
+Sets the position of the bubble using the bounding rectangle of the
+target element and the orientation and offset information specified by
+the JSON.</div>
 							</td>
 						</tr>
 					
@@ -465,11 +433,11 @@ This function exists due to how Chrome handles initial CSS transitions.</div>
 					Method Detail
 				</div>
 				
-					<a name="getArrowDirection"> </a>
+					<a name="destroy"> </a>
 					<div class="fixedFont">
 					
 					
-					<b>getArrowDirection</b>()
+					<b>destroy</b>()
 					
 					</div>
 					<div class="description">
@@ -526,148 +494,11 @@ This function exists due to how Chrome handles initial CSS transitions.</div>
 
 					<hr />
 				
-					<a name="initAnimate"> </a>
+					<a name="init"> </a>
 					<div class="fixedFont">
 					
 					
-					<b>initAnimate</b>()
-					
-					</div>
-					<div class="description">
-						initAnimate
-===========
-This function exists due to how Chrome handles initial CSS transitions.
-Most other browsers will not animate a transition until the element
-exists on the page. Chrome treats DOM elements as starting from the
-(0, 0) position, and will animate from the upper left corner on creation
-of the DOM element. (e.g., if you create a new DOM element using
-Javascript and specify CSS top: 100px, left: 50px, then append the
-DOM element to the document.body, it will create it at 0, 0 and then
-animate it to 50, 100)
-
-Solution is to add the animate class (which defines our transition)
-only after the element is created.
-						
-						
-					</div>
-					
-					
-					
-						
-						
-						
-						
-						
-						
-						
-
-					<hr />
-				
-					<a name="initArrow"> </a>
-					<div class="fixedFont">
-					
-					
-					<b>initArrow</b>()
-					
-					</div>
-					<div class="description">
-						
-						
-						
-					</div>
-					
-					
-					
-						
-						
-						
-						
-						
-						
-						
-
-					<hr />
-				
-					<a name="initCloseButton"> </a>
-					<div class="fixedFont">
-					
-					
-					<b>initCloseButton</b>()
-					
-					</div>
-					<div class="description">
-						
-						
-						
-					</div>
-					
-					
-					
-						
-						
-						
-						
-						
-						
-						
-
-					<hr />
-				
-					<a name="initNavButtons"> </a>
-					<div class="fixedFont">
-					
-					
-					<b>initNavButtons</b>()
-					
-					</div>
-					<div class="description">
-						
-						
-						
-					</div>
-					
-					
-					
-						
-						
-						
-						
-						
-						
-						
-
-					<hr />
-				
-					<a name="removeAnimate"> </a>
-					<div class="fixedFont">
-					
-					
-					<b>removeAnimate</b>()
-					
-					</div>
-					<div class="description">
-						
-						
-						
-					</div>
-					
-					
-					
-						
-						
-						
-						
-						
-						
-						
-
-					<hr />
-				
-					<a name="renderStep"> </a>
-					<div class="fixedFont">
-					
-					
-					<b>renderStep</b>(step, idx, subIdx, isLast, callback)
+					<b>init</b>(initOpt)
 					
 					</div>
 					<div class="description">
@@ -683,31 +514,7 @@ only after the element is created.
 							<dt class="heading">Parameters:</dt>
 							
 								<dt>
-									<b>step</b>
-									
-								</dt>
-								<dd></dd>
-							
-								<dt>
-									<b>idx</b>
-									
-								</dt>
-								<dd></dd>
-							
-								<dt>
-									<b>subIdx</b>
-									
-								</dt>
-								<dd></dd>
-							
-								<dt>
-									<b>isLast</b>
-									
-								</dt>
-								<dd></dd>
-							
-								<dt>
-									<b>callback</b>
+									<b>initOpt</b>
 									
 								</dt>
 								<dd></dd>
@@ -723,15 +530,15 @@ only after the element is created.
 
 					<hr />
 				
-					<a name="setArrow"> </a>
+					<a name="render"> </a>
 					<div class="fixedFont">
 					
 					
-					<b>setArrow</b>(orientation)
+					<b>render</b>(step, idx, isLast, callback)
 					
 					</div>
 					<div class="description">
-						
+						Renders the bubble according to the step JSON.
 						
 						
 					</div>
@@ -743,10 +550,28 @@ only after the element is created.
 							<dt class="heading">Parameters:</dt>
 							
 								<dt>
-									<b>orientation</b>
+									<span class="light fixedFont">{Object}</span> <b>step</b>
 									
 								</dt>
-								<dd></dd>
+								<dd>Information defining how the bubble should look.</dd>
+							
+								<dt>
+									<span class="light fixedFont">{Number}</span> <b>idx</b>
+									
+								</dt>
+								<dd>The index of the step in the tour. Not used for callouts.</dd>
+							
+								<dt>
+									<span class="light fixedFont">{Boolean}</span> <b>isLast</b>
+									
+								</dt>
+								<dd>Flag indicating if the step is the last in the tour. Not used for callouts.</dd>
+							
+								<dt>
+									<span class="light fixedFont">{Function}</span> <b>callback</b>
+									
+								</dt>
+								<dd>Function to be invoked after rendering is finished.</dd>
 							
 							</dl>
 						
@@ -816,6 +641,46 @@ only after the element is created.
 							
 								<dt>
 									<b>idx</b>
+									
+								</dt>
+								<dd></dd>
+							
+							</dl>
+						
+						
+						
+						
+						
+						
+						
+
+					<hr />
+				
+					<a name="setPosition"> </a>
+					<div class="fixedFont">
+					
+					
+					<b>setPosition</b>(step)
+					
+					</div>
+					<div class="description">
+						setPosition
+
+Sets the position of the bubble using the bounding rectangle of the
+target element and the orientation and offset information specified by
+the JSON.
+						
+						
+					</div>
+					
+					
+					
+						
+							<dl class="detailList">
+							<dt class="heading">Parameters:</dt>
+							
+								<dt>
+									<b>step</b>
 									
 								</dt>
 								<dd></dd>
@@ -1030,7 +895,7 @@ only after the element is created.
 <!-- ============================== footer ================================= -->
 		<div class="fineprint" style="clear:both">
 			
-			Documentation generated by <a href="http://code.google.com/p/jsdoc-toolkit/" target="_blank">JsDoc Toolkit</a> 2.4.0 on Tue Sep 11 2012 11:30:46 GMT-0700 (PDT)
+			Documentation generated by <a href="http://code.google.com/p/jsdoc-toolkit/" target="_blank">JsDoc Toolkit</a> 2.4.0 on Mon Nov 19 2012 14:07:13 GMT-0800 (PST)
 		</div>
 	</body>
 </html>

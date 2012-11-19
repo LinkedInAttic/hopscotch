@@ -72,6 +72,8 @@
      * ========
      * Adds a class to a DOM element.
      * Note: does not support adding multiple classes at once yet
+     *
+     * @private
      */
     addClass: function(domEl, classToAdd) {
       var domClasses,
@@ -97,6 +99,8 @@
      * ===========
      * Remove a class from a DOM element.
      * Note: this one DOES support removing multiple classes.
+     *
+     * @private
      */
     removeClass: function(domEl, classToRemove) {
       var domClasses,
@@ -123,6 +127,9 @@
       domEl.className = domClasses.join(' ');
     },
 
+    /**
+     * @private
+     */
     getPixelValue: function(val) {
       var valType = typeof val;
       if (valType === 'number') { return val; }
@@ -130,11 +137,18 @@
       return 0;
     },
 
-    // Inspired by Python...
+    /**
+     * Inspired by Python... returns val if it's defined, otherwise returns the default.
+     *
+     * @private
+     */
     valOrDefault: function(val, valDefault) {
       return typeof val !== undefinedStr ? val : valDefault;
     },
 
+    /**
+     * @private
+     */
     invokeCallbacks: function(evtType, args) {
       var cbArr = callbacks[evtType],
           i = 0,
@@ -145,6 +159,9 @@
       }
     },
 
+    /**
+     * @private
+     */
     getScrollTop: function() {
       if (typeof window.pageYOffset !== undefinedStr) {
         return window.pageYOffset;
@@ -155,6 +172,9 @@
       }
     },
 
+    /**
+     * @private
+     */
     getScrollLeft: function() {
       if (typeof window.pageXOffset !== undefinedStr) {
         return window.pageXOffset;
@@ -165,18 +185,37 @@
       }
     },
 
+    /**
+     * @private
+     */
     getWindowHeight: function() {
       return window.innerHeight ? window.innerHeight : document.documentElement.clientHeight;
     },
 
+    /**
+     * @private
+     */
     getWindowWidth: function() {
       return window.innerWidth ? window.innerWidth : document.documentElement.clientWidth;
     },
 
+    /**
+     * @private
+     */
     addClickListener: function(el, fn) {
       return el.addEventListener ? el.addEventListener('click', fn, false) : el.attachEvent('onclick', fn);
     },
 
+    /**
+     * @private
+     */
+    removeClickListener: function(el, fn) {
+      el.removeEventListener ? el.removeEventListener('click', fn, false) : el.detachEvent('click', fn);
+    },
+
+    /**
+     * @private
+     */
     evtPreventDefault: function(evt) {
       if (evt.preventDefault) {
         evt.preventDefault();
@@ -186,6 +225,9 @@
       }
     },
 
+    /**
+     * @private
+     */
     extend: function(obj1, obj2) {
       var prop;
       for (prop in obj2) {
@@ -195,6 +237,9 @@
       }
     },
 
+    /**
+     * @private
+     */
     getStepTarget: function(step) {
       var result;
 
@@ -233,6 +278,9 @@
     // The following cookie-related logic is borrowed from:
     // http://www.quirksmode.org/js/cookies.html
 
+    /**
+     * @private
+     */
     setState: function(name,value,days) {
       var expires = '',
           date;
@@ -250,6 +298,9 @@
       }
     },
 
+    /**
+     * @private
+     */
     getState: function(name) {
       var nameEQ = name + "=",
           ca = document.cookie.split(';'),
@@ -269,6 +320,9 @@
       }
     },
 
+    /**
+     * @private
+     */
     clearState: function(name) {
       if (hasSessionStorage) {
         sessionStorage.removeItem(name);
@@ -301,8 +355,7 @@
   /**
    * HopscotchBubble
    *
-   * @class The HopscotchBubble class is a singleton class which manages the properties of the bubble.
-   * @private
+   * @class The HopscotchBubble class represents the view of a bubble. This class is also used for Hopscotch callouts.
    */
   HopscotchBubble = function(opt) {
     this.init(opt);
@@ -313,7 +366,12 @@
 
     currStep: undefined,
 
-    createButton: function(id, text) {
+    /**
+     * Helper function for creating buttons in the bubble.
+     *
+     * @private
+     */
+    _createButton: function(id, text) {
       var btnEl = document.createElement('input');
       btnEl.id = id;
       btnEl.type = 'button';
@@ -413,12 +471,15 @@
       }
     },
 
-    initNavButtons: function() {
+    /**
+     * @private
+     */
+    _initNavButtons: function() {
       var buttonsEl  = document.createElement('div');
 
-      this.prevBtnEl = this.createButton('hopscotch-prev', HopscotchI18N.prevBtn);
-      this.nextBtnEl = this.createButton('hopscotch-next', HopscotchI18N.nextBtn);
-      this.doneBtnEl = this.createButton('hopscotch-done', HopscotchI18N.doneBtn);
+      this.prevBtnEl = this._createButton('hopscotch-prev', HopscotchI18N.prevBtn);
+      this.nextBtnEl = this._createButton('hopscotch-next', HopscotchI18N.nextBtn);
+      this.doneBtnEl = this._createButton('hopscotch-done', HopscotchI18N.doneBtn);
       utils.addClass(this.doneBtnEl, 'hide');
 
       buttonsEl.appendChild(this.prevBtnEl);
@@ -442,9 +503,45 @@
       return this;
     },
 
+    /*
+     * Define the close button callback here so that we have a handle on it
+     * for when we want to remove it (see HopscotchBubble.destroy).
+     *
+     * @private
+     */
+    _getCloseFn: function() {
+      var self = this;
+
+      if (!this.closeFn) {
+        /**
+         * @private
+         */
+        this.closeFn = function(evt) {
+          if (self.opt.id && !this.opt.isTourBubble) {
+            // Remove via the HopscotchCalloutManager.
+            // removeCallout() calls HopscotchBubble.destroy internally.
+            winHopscotch.getCalloutManager().removeCallout(self.opt.id);
+          }
+          else {
+            self.destroy();
+          }
+
+          if (evt.preventDefault) {
+            evt.preventDefault();
+          }
+          else if (event) {
+            event.returnValue = false;
+          }
+        };
+      }
+      return this.closeFn;
+    },
+
+    /**
+     * @private
+     */
     initCloseButton: function() {
-      var closeBtnEl = document.createElement('a'),
-          self       = this;
+      var closeBtnEl = document.createElement('a');
 
       closeBtnEl.className = 'hopscotch-bubble-close';
       closeBtnEl.href = '#';
@@ -470,15 +567,7 @@
         });
       }
       else {
-        utils.addClickListener(closeBtnEl, function(evt) {
-          utils.addClass(self.element, 'hide');
-          if (evt.preventDefault) {
-            evt.preventDefault();
-          }
-          else if (event) {
-            event.returnValue = false;
-          }
-        });
+        utils.addClickListener(closeBtnEl, this._getCloseFn());
       }
 
       this.closeBtnEl = closeBtnEl;
@@ -486,7 +575,10 @@
       return this;
     },
 
-    initArrow: function() {
+    /**
+     * @private
+     */
+    _initArrow: function() {
       var arrowEl,
           arrowBorderEl;
 
@@ -506,14 +598,30 @@
       return this;
     },
 
+    /**
+     * Renders the bubble according to the step JSON.
+     *
+     * @param {Object} step Information defining how the bubble should look.
+     * @param {Number} idx The index of the step in the tour. Not used for callouts.
+     * @param {Boolean} isLast Flag indicating if the step is the last in the tour. Not used for callouts.
+     * @param {Function} callback Function to be invoked after rendering is finished.
+     */
     render: function(step, idx, isLast, callback) {
-      var self     = this,
-          showNext = utils.valOrDefault(step.showNextButton, this.opt.showNextButton),
-          showPrev = utils.valOrDefault(step.showPrevButton, this.opt.showPrevButton),
+      var self = this,
+          showNext,
+          showPrev,
           bubbleWidth,
           bubblePadding;
 
-      this.currStep = step;
+      if (step) {
+        this.currStep = step;
+      }
+      else if (this.currStep) {
+        step = this.currStep;
+      }
+
+      showNext = utils.valOrDefault(step.showNextButton, this.opt.showNextButton),
+      showPrev = utils.valOrDefault(step.showPrevButton, this.opt.showPrevButton),
       this.setTitle(step.title ? step.title : '');
       this.setContent(step.content ? step.content : '');
 
@@ -536,7 +644,7 @@
         }
       }
 
-      this.setArrow(step.orientation);
+      this._setArrow(step.orientation);
 
       // Set dimensions
       bubbleWidth   = utils.getPixelValue(step.width) || this.opt.bubbleWidth;
@@ -551,9 +659,11 @@
         setTimeout(function() {
           self.setPosition(step);
           // only want to adjust window scroll for non-fixed elements
-          if (callback) {
-            if (!step.fixedElement) { callback(); }
-            else { self.show(); }
+          if (callback && !step.fixedElement) {
+            callback();
+          }
+          else {
+            self.show();
           }
         }, 5);
       }
@@ -561,9 +671,11 @@
         // Don't care about height for the other orientations.
         this.setPosition(step);
         // only want to adjust window scroll for non-fixed elements
-        if (callback) {
-          if (!step.fixedElement) { callback(); }
-          else { self.show(); }
+        if (callback && !step.fixedElement) {
+          callback();
+        }
+        else {
+          self.show();
         }
       }
 
@@ -604,7 +716,12 @@
       this.numberEl.innerHTML = idx;
     },
 
-    setArrow: function(orientation) {
+    /**
+     * Sets which side the arrow is on.
+     *
+     * @private
+     */
+    _setArrow: function(orientation) {
       utils.removeClass(this.arrowEl, 'down up right left');
 
       // Whatever the orientation is, we want to arrow to appear
@@ -624,7 +741,10 @@
       }
     },
 
-    getArrowDirection: function() {
+    /**
+     * @private
+     */
+    _getArrowDirection: function() {
       if (this.orientation === 'top') {
         return 'down';
       }
@@ -641,7 +761,7 @@
 
     show: function() {
       var self      = this,
-          className = 'fade-in-' + this.getArrowDirection(),
+          className = 'fade-in-' + this._getArrowDirection(),
           fadeDur   = 1000;
 
       utils.removeClass(this.element, 'hide');
@@ -687,7 +807,10 @@
       return this;
     },
 
-    showButton: function(btnEl, show, permanent) {
+    /**
+     * @private
+     */
+    _showButton: function(btnEl, show, permanent) {
       var classname = 'hide';
 
       if (permanent) {
@@ -703,20 +826,20 @@
     },
 
     showPrevButton: function(show, permanent) {
-      this.showButton(this.prevBtnEl, show, permanent);
+      this._showButton(this.prevBtnEl, show, permanent);
     },
 
     showNextButton: function(show, permanent) {
-      this.showButton(this.nextBtnEl, show, permanent);
+      this._showButton(this.nextBtnEl, show, permanent);
     },
 
     showCloseButton: function(show, permanent) {
-      this.showButton(this.closeBtnEl, show, permanent);
+      this._showButton(this.closeBtnEl, show, permanent);
     },
 
 
     /**
-     * initAnimate
+     * _initAnimate
      * ===========
      * This function exists due to how Chrome handles initial CSS transitions.
      * Most other browsers will not animate a transition until the element
@@ -729,16 +852,27 @@
      *
      * Solution is to add the animate class (which defines our transition)
      * only after the element is created.
+     *
+     * @private
      */
-    initAnimate: function() {
+    _initAnimate: function() {
       var self = this;
       setTimeout(function() {
         utils.addClass(self.element, 'animate');
       }, 50);
     },
 
-    removeAnimate: function() {
+    /**
+     * @private
+     */
+    _removeAnimate: function() {
       utils.removeClass(this.element, 'animate');
+    },
+
+    destroy: function() {
+      var el = this.element;
+      el.parentNode.removeChild(el);
+      utils.removeClickListener(this.closeBtnEl, this._getCloseFn());
     },
 
     init: function(initOpt) {
@@ -791,11 +925,11 @@
       el.appendChild(containerEl);
 
       if (opt.showNavButtons) {
-        this.initNavButtons();
+        this._initNavButtons();
       }
       this.initCloseButton();
 
-      this.initArrow();
+      this._initArrow();
 
       /**
        * Not pretty, but IE doesn't support Function.bind(), so I'm
@@ -829,36 +963,78 @@
     }
   };
 
+  /**
+   * HopscotchCalloutManager
+   *
+   * @class Manages the creation and destruction of single callouts.
+   * @constructor
+   */
   HopscotchCalloutManager = function() {
     var callouts = {};
 
-    this.createCallout = function(id, opt) {
+    /**
+     * createCallout
+     *
+     * Creates a standalone callout. This callout has the same API
+     * as a Hopscotch tour bubble.
+     *
+     * @param {Object} opt The options for the callout. For the most
+     * part, these are the same options as you would find in a tour
+     * step.
+     */
+    this.createCallout = function(opt) {
       var callout;
 
-      opt.isTourBubble = false;
-      callout = new HopscotchBubble(opt);
-      callouts[id] = callout;
-      if (opt.target) {
-        if (opt.title) {
-          callout.setTitle(opt.title);
+      if (opt.id) {
+        opt.isTourBubble = false;
+        callout = new HopscotchBubble(opt);
+        callouts[opt.id] = callout;
+        if (opt.target) {
+          callout.render(opt);
         }
-
-        if (opt.content) {
-          callout.setContent(opt.content);
-        }
-
-        callout.render(opt);
-        callout.show();
+      }
+      else {
+        throw "Must specify a callout id.";
       }
     };
 
+    /**
+     * createCallout
+     *
+     * Returns a callout by its id.
+     *
+     * @param {String} id The id of the callout to fetch.
+     * @returns {Object} HopscotchBubble
+     */
     this.getCallout = function(id) {
       return callouts[id];
     };
 
+    /**
+     * removeAllCallouts
+     *
+     * Removes all existing callouts.
+     */
+    this.removeAllCallouts = function() {
+      var calloutId,
+          callout;
+
+      for (calloutId in callouts) {
+        this.removeCallout(calloutId);
+      }
+    };
+
+    /**
+     * removeAllCallout
+     *
+     * Removes an existing callout by id.
+     *
+     * @param {String} id The id of the callout to remove.
+     */
     this.removeCallout = function(id) {
       var callout = callouts[id];
 
+      callouts[id] = null;
       if (!callout) { return; }
 
       callout.destroy();
@@ -924,7 +1100,11 @@
       return step;
     },
 
-    // Used for nextOnTargetClick
+    /**
+     * Used for nextOnTargetClick
+     *
+     * @private
+     */
     targetClickNextFn = function() {
       self.nextStep(false);
     },
@@ -1116,7 +1296,11 @@
       step = getCurrStep();
       origStepNum = currStepNum;
 
-      // Callback for goToStepWithTarget
+      /**
+       * Callback for goToStepWithTarget
+       *
+       * @private
+       */
       changeStepCb = function(stepNum) {
         if (stepNum === -1) {
           // Wasn't able to find a step with an existing element. End tour.
@@ -1218,6 +1402,14 @@
       }
     };
 
+    /**
+     * getCalloutManager
+     *
+     * Gets the callout manager.
+     *
+     * @returns {Object} HopscotchCalloutManager
+     *
+     */
     this.getCalloutManager = function() {
       if (typeof calloutMgr === undefinedStr) {
         calloutMgr = new HopscotchCalloutManager();
@@ -1300,7 +1492,7 @@
 
       this.isActive = true;
       if (opt.animate) {
-        bubble.initAnimate();
+        bubble._initAnimate();
       }
 
       if (!utils.getStepTarget(getCurrStep())) {
@@ -1396,7 +1588,7 @@
 
       if (step.nextOnTargetClick) {
         // Detach the listener after we've clicked on the target OR the next button.
-        targetEl.removeEventListener ? targetEl.removeEventListener('click', targetClickNextFn, false) : targetEl.detachEvent('click', targetClickNextFn);
+        utils.removeClickListener(targetEl, targetClickNextFn);
       }
       changeStep.call(this, doCallbacks, 1);
       return this;
@@ -1587,10 +1779,10 @@
       bubble = getBubble();
 
       if (opt.animate) {
-        bubble.initAnimate();
+        bubble._initAnimate();
       }
       else {
-        bubble.removeAnimate();
+        bubble._removeAnimate();
       }
 
       bubble.showCloseButton(options.showCloseButton, typeof options.showCloseButton !== undefinedStr);

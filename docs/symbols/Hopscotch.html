@@ -193,6 +193,10 @@ ul.inheritsList
 	
 	<li><a href="../symbols/Hopscotch.html">Hopscotch</a></li>
 	
+	<li><a href="../symbols/HopscotchBubble.html">HopscotchBubble</a></li>
+	
+	<li><a href="../symbols/HopscotchCalloutManager.html">HopscotchCalloutManager</a></li>
+	
 </ul>
 <hr />
 			<!-- end publish.classesIndex -->
@@ -213,7 +217,7 @@ ul.inheritsList
 				Creates the Hopscotch object. Used to manage tour progress and configurations.
 				
 				
-					<br /><i>Defined in: </i> <a href="../symbols/src/_Users_gkoo_Sites_hopscotch_js_hopscotch.js.html">hopscotch.js</a>.
+					<br /><i>Defined in: </i> <a href="../symbols/src/_Users_gkoo_Sites_hopscotch_js_hopscotch-0.0.3.js.html">hopscotch-0.0.3.js</a>.
 				
 			</p>
 
@@ -261,17 +265,6 @@ ul.inheritsList
 						<tr>
 							<td class="attributes">&nbsp;</td>
 							<td class="nameDescription">
-								<div class="fixedFont"><b><a href="../symbols/Hopscotch.html#addCallback">addCallback</a></b>(evtType, cb, isTourCb)
-								</div>
-								<div class="description">addCallback
-
-Adds a callback for one of the event types.</div>
-							</td>
-						</tr>
-					
-						<tr>
-							<td class="attributes">&nbsp;</td>
-							<td class="nameDescription">
 								<div class="fixedFont"><b><a href="../symbols/Hopscotch.html#configure">configure</a></b>(options)
 								</div>
 								<div class="description">configure
@@ -295,6 +288,17 @@ Cancels out of an active tour.</div>
 						<tr>
 							<td class="attributes">&nbsp;</td>
 							<td class="nameDescription">
+								<div class="fixedFont"><b><a href="../symbols/Hopscotch.html#getCalloutManager">getCalloutManager</a></b>()
+								</div>
+								<div class="description">getCalloutManager
+
+Gets the callout manager.</div>
+							</td>
+						</tr>
+					
+						<tr>
+							<td class="attributes">&nbsp;</td>
+							<td class="nameDescription">
 								<div class="fixedFont"><b><a href="../symbols/Hopscotch.html#getCurrStepNum">getCurrStepNum</a></b>()
 								</div>
 								<div class="description">getCurrStepNum</div>
@@ -307,6 +311,17 @@ Cancels out of an active tour.</div>
 								<div class="fixedFont"><b><a href="../symbols/Hopscotch.html#getCurrTour">getCurrTour</a></b>()
 								</div>
 								<div class="description">getCurrTour</div>
+							</td>
+						</tr>
+					
+						<tr>
+							<td class="attributes">&nbsp;</td>
+							<td class="nameDescription">
+								<div class="fixedFont"><b><a href="../symbols/Hopscotch.html#listen">listen</a></b>(evtType, cb, isTourCb)
+								</div>
+								<div class="description">listen
+
+Adds a callback for one of the event types.</div>
 							</td>
 						</tr>
 					
@@ -380,7 +395,7 @@ tour persistence.</div>
 						<tr>
 							<td class="attributes">&nbsp;</td>
 							<td class="nameDescription">
-								<div class="fixedFont"><b><a href="../symbols/Hopscotch.html#showStep">showStep</a></b>(stepNum, substepNum)
+								<div class="fixedFont"><b><a href="../symbols/Hopscotch.html#showStep">showStep</a></b>(stepNum)
 								</div>
 								<div class="description">showStep
 
@@ -391,7 +406,7 @@ Skips to a specific step and renders the corresponding bubble.</div>
 						<tr>
 							<td class="attributes">&nbsp;</td>
 							<td class="nameDescription">
-								<div class="fixedFont"><b><a href="../symbols/Hopscotch.html#startTour">startTour</a></b>(tour, stepNum, substepNum)
+								<div class="fixedFont"><b><a href="../symbols/Hopscotch.html#startTour">startTour</a></b>(tour, stepNum)
 								</div>
 								<div class="description">startTour
 
@@ -457,64 +472,6 @@ Begins the tour.</div>
 				<div class="sectionTitle">
 					Method Detail
 				</div>
-				
-					<a name="addCallback"> </a>
-					<div class="fixedFont">
-					
-					<span class="light">{Object}</span>
-					<b>addCallback</b>(evtType, cb, isTourCb)
-					
-					</div>
-					<div class="description">
-						addCallback
-
-Adds a callback for one of the event types. Valid event types are:
-						
-						
-					</div>
-					
-					
-					
-						
-							<dl class="detailList">
-							<dt class="heading">Parameters:</dt>
-							
-								<dt>
-									<span class="light fixedFont">{string}</span> <b>evtType</b>
-									
-								</dt>
-								<dd>"start", "end", "next", "prev", "show", "close", or "error"</dd>
-							
-								<dt>
-									<span class="light fixedFont">{Function}</span> <b>cb</b>
-									
-								</dt>
-								<dd>The callback to add.</dd>
-							
-								<dt>
-									<span class="light fixedFont">{Boolean}</span> <b>isTourCb</b>
-									
-								</dt>
-								<dd>Flag indicating callback is from a tour definition.
-   For internal use only!</dd>
-							
-							</dl>
-						
-						
-						
-						
-						
-							<dl class="detailList">
-							<dt class="heading">Returns:</dt>
-							
-								<dd><span class="light fixedFont">{Object}</span> Hopscotch</dd>
-							
-							</dl>
-						
-						
-						
-
-					<hr />
 				
 					<a name="configure"> </a>
 					<div class="fixedFont">
@@ -694,6 +651,40 @@ Cancels out of an active tour.
 
 					<hr />
 				
+					<a name="getCalloutManager"> </a>
+					<div class="fixedFont">
+					
+					<span class="light">{Object}</span>
+					<b>getCalloutManager</b>()
+					
+					</div>
+					<div class="description">
+						getCalloutManager
+
+Gets the callout manager.
+						
+						
+					</div>
+					
+					
+					
+						
+						
+						
+						
+						
+							<dl class="detailList">
+							<dt class="heading">Returns:</dt>
+							
+								<dd><span class="light fixedFont">{Object}</span> HopscotchCalloutManager</dd>
+							
+							</dl>
+						
+						
+						
+
+					<hr />
+				
 					<a name="getCurrStepNum"> </a>
 					<div class="fixedFont">
 					
@@ -750,6 +741,64 @@ Cancels out of an active tour.
 							<dt class="heading">Returns:</dt>
 							
 								<dd><span class="light fixedFont">{Object}</span> The currently loaded tour.</dd>
+							
+							</dl>
+						
+						
+						
+
+					<hr />
+				
+					<a name="listen"> </a>
+					<div class="fixedFont">
+					
+					<span class="light">{Object}</span>
+					<b>listen</b>(evtType, cb, isTourCb)
+					
+					</div>
+					<div class="description">
+						listen
+
+Adds a callback for one of the event types. Valid event types are:
+						
+						
+					</div>
+					
+					
+					
+						
+							<dl class="detailList">
+							<dt class="heading">Parameters:</dt>
+							
+								<dt>
+									<span class="light fixedFont">{string}</span> <b>evtType</b>
+									
+								</dt>
+								<dd>"start", "end", "next", "prev", "show", "close", or "error"</dd>
+							
+								<dt>
+									<span class="light fixedFont">{Function}</span> <b>cb</b>
+									
+								</dt>
+								<dd>The callback to add.</dd>
+							
+								<dt>
+									<span class="light fixedFont">{Boolean}</span> <b>isTourCb</b>
+									
+								</dt>
+								<dd>Flag indicating callback is from a tour definition.
+   For internal use only!</dd>
+							
+							</dl>
+						
+						
+						
+						
+						
+							<dl class="detailList">
+							<dt class="heading">Returns:</dt>
+							
+								<dd><span class="light fixedFont">{Object}</span> Hopscotch</dd>
 							
 							</dl>
 						
@@ -911,7 +960,7 @@ Removes a callback for one of the event types, e.g. 'start', 'next', etc.
 
 Remove callbacks for a hopscotch event. If tourOnly is set to true, only
 removes callbacks specified by a tour (callbacks set by external calls
-to hopscotch.configure or hopscotch.addCallback will not be removed).
+to hopscotch.configure or hopscotch.listen will not be removed).
 						
 						
 					</div>
@@ -1031,7 +1080,7 @@ tour persistence.
 					<div class="fixedFont">
 					
 					<span class="light">{Object}</span>
-					<b>showStep</b>(stepNum, substepNum)
+					<b>showStep</b>(stepNum)
 					
 					</div>
 					<div class="description">
@@ -1050,12 +1099,6 @@ Skips to a specific step and renders the corresponding bubble.
 							
 								<dt>
 									<b>stepNum</b>
-									
-								</dt>
-								<dd></dd>
-							
-								<dt>
-									<b>substepNum</b>
 									
 								</dt>
 								<dd></dd>
@@ -1082,7 +1125,7 @@ Skips to a specific step and renders the corresponding bubble.
 					<div class="fixedFont">
 					
 					<span class="light">{Object}</span>
-					<b>startTour</b>(tour, stepNum, substepNum)
+					<b>startTour</b>(tour, stepNum)
 					
 					</div>
 					<div class="description">
@@ -1107,12 +1150,6 @@ Begins the tour.
 							
 								<dt>
 									<b>stepNum</b>
-									
-								</dt>
-								<dd></dd>
-							
-								<dt>
-									<b>substepNum</b>
 									
 								</dt>
 								<dd></dd>
@@ -1147,7 +1184,7 @@ Begins the tour.
 <!-- ============================== footer ================================= -->
 		<div class="fineprint" style="clear:both">
 			
-			Documentation generated by <a href="http://code.google.com/p/jsdoc-toolkit/" target="_blank">JsDoc Toolkit</a> 2.4.0 on Tue Sep 11 2012 14:23:31 GMT-0700 (PDT)
+			Documentation generated by <a href="http://code.google.com/p/jsdoc-toolkit/" target="_blank">JsDoc Toolkit</a> 2.4.0 on Mon Nov 19 2012 14:07:13 GMT-0800 (PST)
 		</div>
 	</body>
 </html>
