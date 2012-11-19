@@ -2,7 +2,7 @@
 @import "vars.less";
 @import "fade.less";
 
-div#hopscotch-bubble {
+div.hopscotch-bubble {
   background-color: @bubbleColor;
   border: @bubbleBorderWidth solid #000; /* default */
   border: @bubbleBorderWidth solid @borderColor; /* transparent, if supported */
@@ -58,7 +58,7 @@ div#hopscotch-bubble {
     padding: 0;
   }
 
-  #hopscotch-bubble-container {
+  .hopscotch-bubble-container {
     padding: @bubblePadding;
     position: relative;
     -webkit-font-smoothing: antialiased; /* to fix text flickering */
@@ -71,11 +71,15 @@ div#hopscotch-bubble {
     }
   }
 
-  #hopscotch-bubble-content {
+  .hopscotch-bubble-content {
     margin: 0 0 0 (@circleWidth + 10px);
   }
 
-  #hopscotch-bubble-close {
+  &.no-number .hopscotch-bubble-content {
+    margin: 0;
+  }
+
+  .hopscotch-bubble-close {
     color: #000;
     background: transparent @spriteUrl -200px -100px no-repeat;
     display: block;
@@ -96,7 +100,7 @@ div#hopscotch-bubble {
     }
   }
 
-  #hopscotch-bubble-number {
+  .hopscotch-bubble-number {
     background: transparent @spriteUrl 0 0 no-repeat;
     color: #fff;
     display: block;
@@ -108,7 +112,7 @@ div#hopscotch-bubble {
     height: @circleWidth;
   }
 
-  #hopscotch-bubble-arrow-container {
+  .hopscotch-bubble-arrow-container {
     @arrowWidth: 20px;
     position: absolute;
 
@@ -197,7 +201,7 @@ div#hopscotch-bubble {
     }
   }
 
-  #hopscotch-actions {
+  .hopscotch-actions {
     margin: 10px 0 0;
     text-align: right;
   }

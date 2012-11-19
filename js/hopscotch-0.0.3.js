@@ -1,6 +1,7 @@
 (function(context, namespace) {
   var Hopscotch,
       HopscotchBubble,
+      HopscotchCalloutManager,
       HopscotchI18N,
       utils,
       callbacks,
@@ -9,6 +10,20 @@
       undefinedStr      = 'undefined',
       waitingToStart    = false, // is a tour waiting for the document to finish
                                  // loading so that it can start?
+      defaultOpts       = {
+        animate:         false,
+        smoothScroll:    true,
+        scrollDuration:  1000,
+        scrollTopMargin: 200,
+        showCloseButton: true,
+        showPrevButton:  false,
+        showNextButton:  true,
+        bubbleWidth:     280,
+        bubblePadding:   15,
+        arrowWidth:      20,
+        skipIfNoElement: true,
+        cookieName:      'hopscotch.tour.state'
+      },
       hasJquery         = (typeof window.jQuery !== undefinedStr),
       hasSessionStorage = (typeof window.sessionStorage !== undefinedStr),
       docStyle          = document.body.style,
@@ -66,7 +81,7 @@
         domEl.className = classToAdd;
       }
       else {
-        domClasses = domEl.className.split(' ');
+        domClasses = domEl.className.split(/\s+/);
         for (i = 0, len = domClasses.length; i < len; ++i) {
           if (domClasses[i] === classToAdd) {
             return;
@@ -92,8 +107,8 @@
           toRemoveLen,
           domClassLen;
 
-      classesToRemove = classToRemove.split(' ');
-      domClasses = domEl.className.split(' ');
+      classesToRemove = classToRemove.split(/\s+/);
+      domClasses = domEl.className.split(/\s+/);
       for (i = 0, toRemoveLen = classesToRemove.length; i < toRemoveLen; ++i) {
         currClass = classesToRemove[i];
         for (j = 0, domClassLen = domClasses.length; j < domClassLen; ++j) {
@@ -320,7 +335,7 @@
      *
      * Sets the position of the bubble using the bounding rectangle of the
      * target element and the orientation and offset information specified by
-     * the step JSON.
+     * the JSON.
      */
     setPosition: function(step) {
       var bubbleWidth,
@@ -420,7 +435,7 @@
       });
       utils.addClickListener(this.doneBtnEl, winHopscotch.endTour);
 
-      buttonsEl.id = 'hopscotch-actions';
+      buttonsEl.className = 'hopscotch-actions';
       this.buttonsEl = buttonsEl;
 
       this.containerEl.appendChild(buttonsEl);
@@ -428,29 +443,43 @@
     },
 
     initCloseButton: function() {
-      var closeBtnEl = document.createElement('a');
+      var closeBtnEl = document.createElement('a'),
+          self       = this;
 
-      closeBtnEl.id = 'hopscotch-bubble-close';
+      closeBtnEl.className = 'hopscotch-bubble-close';
       closeBtnEl.href = '#';
       closeBtnEl.title = HopscotchI18N.closeTooltip;
       closeBtnEl.innerHTML = HopscotchI18N.closeTooltip;
 
-      utils.addClickListener(closeBtnEl, function(evt) {
-        var currStepNum   = winHopscotch.getCurrStepNum(),
-            currTour      = winHopscotch.getCurrTour(),
-            doEndCallback = (currStepNum === currTour.steps.length-1);
+      if (this.opt.isTourBubble) {
+        utils.addClickListener(closeBtnEl, function(evt) {
+          var currStepNum   = winHopscotch.getCurrStepNum(),
+              currTour      = winHopscotch.getCurrTour(),
+              doEndCallback = (currStepNum === currTour.steps.length-1);
 
-        utils.invokeCallbacks('close', [currTour.id, currStepNum]);
+          utils.invokeCallbacks('close', [currTour.id, currStepNum]);
 
-        winHopscotch.endTour(true, doEndCallback);
+          winHopscotch.endTour(true, doEndCallback);
 
-        if (evt.preventDefault) {
-          evt.preventDefault();
-        }
-        else if (event) {
-          event.returnValue = false;
-        }
-      });
+          if (evt.preventDefault) {
+            evt.preventDefault();
+          }
+          else if (event) {
+            event.returnValue = false;
+          }
+        });
+      }
+      else {
+        utils.addClickListener(closeBtnEl, function(evt) {
+          utils.addClass(self.element, 'hide');
+          if (evt.preventDefault) {
+            evt.preventDefault();
+          }
+          else if (event) {
+            event.returnValue = false;
+          }
+        });
+      }
 
       this.closeBtnEl = closeBtnEl;
       this.containerEl.appendChild(closeBtnEl);
@@ -462,7 +491,7 @@
           arrowBorderEl;
 
       this.arrowEl = document.createElement('div');
-      this.arrowEl.id = 'hopscotch-bubble-arrow-container';
+      this.arrowEl.className = 'hopscotch-bubble-arrow-container';
 
       arrowBorderEl = document.createElement('div');
       arrowBorderEl.className = 'hopscotch-bubble-arrow-border';
@@ -477,28 +506,34 @@
       return this;
     },
 
-    renderStep: function(step, idx, isLast, callback) {
+    render: function(step, idx, isLast, callback) {
       var self     = this,
           showNext = utils.valOrDefault(step.showNextButton, this.opt.showNextButton),
           showPrev = utils.valOrDefault(step.showPrevButton, this.opt.showPrevButton),
           bubbleWidth,
           bubblePadding;
 
-      currStep = step;
+      this.currStep = step;
       this.setTitle(step.title ? step.title : '');
       this.setContent(step.content ? step.content : '');
-      this.setNum(idx);
+
+      if (this.opt.showNumber) {
+        this.setNum(idx);
+      }
+
       this.orientation = step.orientation;
 
-      this.showPrevButton(this.prevBtnEl && showPrev && idx > 0);
-      this.showNextButton(this.nextBtnEl && showNext && !isLast);
-      this.nextBtnEl.value = step.showSkip ? HopscotchI18N.skipBtn : HopscotchI18N.nextBtn;
+      if (this.opt.showNavButtons) {
+        this.showPrevButton(this.prevBtnEl && showPrev && idx > 0);
+        this.showNextButton(this.nextBtnEl && showNext && !isLast);
+        this.nextBtnEl.value = step.showSkip ? HopscotchI18N.skipBtn : HopscotchI18N.nextBtn;
 
-      if (isLast) {
-        utils.removeClass(this.doneBtnEl, 'hide');
-      }
-      else {
-        utils.addClass(this.doneBtnEl, 'hide');
+        if (isLast) {
+          utils.removeClass(this.doneBtnEl, 'hide');
+        }
+        else {
+          utils.addClass(this.doneBtnEl, 'hide');
+        }
       }
 
       this.setArrow(step.orientation);
@@ -570,20 +605,22 @@
     },
 
     setArrow: function(orientation) {
+      utils.removeClass(this.arrowEl, 'down up right left');
+
       // Whatever the orientation is, we want to arrow to appear
       // "opposite" of the orientation. E.g., a top orientation
       // requires a bottom arrow.
       if (orientation === 'top') {
-        this.arrowEl.className = 'down';
+        utils.addClass(this.arrowEl, 'down');
       }
       else if (orientation === 'bottom') {
-        this.arrowEl.className = 'up';
+        utils.addClass(this.arrowEl, 'up');
       }
       else if (orientation === 'left') {
-        this.arrowEl.className = 'right';
+        utils.addClass(this.arrowEl, 'right');
       }
       else if (orientation === 'right') {
-        this.arrowEl.className = 'left';
+        utils.addClass(this.arrowEl, 'left');
       }
     },
 
@@ -622,7 +659,7 @@
           utils.removeClass(self.element, className);
         }, fadeDur);
       }
-      isShowing = true;
+      this.isShowing = true;
       return this;
     },
 
@@ -646,7 +683,7 @@
         }
       }
       utils.removeClass(el, 'animate fade-in-up fade-in-down fade-in-right fade-in-left');
-      isShowing = false;
+      this.isShowing = false;
       return this;
     },
 
@@ -704,7 +741,7 @@
       utils.removeClass(this.element, 'animate');
     },
 
-    init: function(opt) {
+    init: function(initOpt) {
       var el              = document.createElement('div'),
           containerEl     = document.createElement('div'),
           bubbleContentEl = document.createElement('div'),
@@ -716,21 +753,46 @@
       this.element        = el;
       this.containerEl    = containerEl;
       this.titleEl        = document.createElement('h3');
-      this.numberEl       = document.createElement('span');
       this.contentEl      = document.createElement('p');
 
-      el.id = 'hopscotch-bubble';
-      utils.addClass(el, 'animated'); // for fade css animation
-      containerEl.id = 'hopscotch-bubble-container';
-      this.numberEl.id = 'hopscotch-bubble-number';
-      containerEl.appendChild(this.numberEl);
+      opt = {
+        animate:        defaultOpts.animate,
+        showPrevButton: defaultOpts.showPrevButton,
+        showNextButton: defaultOpts.showNextButton,
+        bubbleWidth:    defaultOpts.bubbleWidth,
+        bubblePadding:  defaultOpts.bubblePadding,
+        arrowWidth:     defaultOpts.arrowWidth,
+        showNumber:     true,
+        showNavButtons: true,
+        isTourBubble:   true
+      };
+
+      initOpt = (typeof initOpt === undefinedStr ? {} : initOpt);
+
+      utils.extend(opt, initOpt);
+      this.opt = opt;
+
+      el.className = 'hopscotch-bubble animated'; // "animated" for fade css animation
+      containerEl.className = 'hopscotch-bubble-container';
+
+      if (opt.showNumber) {
+        this.numberEl           = document.createElement('span');
+        this.numberEl.className = 'hopscotch-bubble-number';
+        containerEl.appendChild(this.numberEl);
+      }
+      else {
+        utils.addClass(el, 'no-number');
+      }
+
       bubbleContentEl.appendChild(this.titleEl);
       bubbleContentEl.appendChild(this.contentEl);
-      bubbleContentEl.id = 'hopscotch-bubble-content';
+      bubbleContentEl.className = 'hopscotch-bubble-content';
       containerEl.appendChild(bubbleContentEl);
       el.appendChild(containerEl);
 
-      this.initNavButtons();
+      if (opt.showNavButtons) {
+        this.initNavButtons();
+      }
       this.initCloseButton();
 
       this.initArrow();
@@ -749,9 +811,9 @@
 
         resizeCooldown = true;
         winResizeTimeout = setTimeout(function() {
-          self.setPosition(currStep);
+          self.setPosition(self.currStep);
           resizeCooldown = false;
-        }, 200);
+        }, 100);
       };
 
       if (window.addEventListener) {
@@ -764,9 +826,43 @@
 
       this.hide();
       document.body.appendChild(el);
-
-      this.opt = opt;
     }
+  };
+
+  HopscotchCalloutManager = function() {
+    var callouts = {};
+
+    this.createCallout = function(id, opt) {
+      var callout;
+
+      opt.isTourBubble = false;
+      callout = new HopscotchBubble(opt);
+      callouts[id] = callout;
+      if (opt.target) {
+        if (opt.title) {
+          callout.setTitle(opt.title);
+        }
+
+        if (opt.content) {
+          callout.setContent(opt.content);
+        }
+
+        callout.render(opt);
+        callout.show();
+      }
+    };
+
+    this.getCallout = function(id) {
+      return callouts[id];
+    };
+
+    this.removeCallout = function(id) {
+      var callout = callouts[id];
+
+      if (!callout) { return; }
+
+      callout.destroy();
+    };
   };
 
   /**
@@ -777,9 +873,9 @@
    * @param {Object} initOptions Options to be passed to `configure()`.
    */
   Hopscotch = function(initOptions) {
-    var cookieName = 'hopscotch.tour.state',
-        self       = this, // for targetClickNextFn
+    var self       = this, // for targetClickNextFn
         bubble,
+        calloutMgr,
         opt,
         currTour,
         currStepNum,
@@ -797,7 +893,14 @@
      */
     getBubble = function() {
       if (!bubble) {
-        bubble = new HopscotchBubble(opt);
+        bubble = new HopscotchBubble({
+          animate:        opt.animate,
+          bubblePadding:  opt.bubblePadding,
+          bubbleWidth:    opt.bubbleWidth,
+          showNextButton: opt.showNextButton,
+          showPrevButton: opt.showPrevButton,
+          arrowWidth:     opt.arrowWidth
+        });
       }
       return bubble;
     },
@@ -1115,6 +1218,14 @@
       }
     };
 
+    this.getCalloutManager = function() {
+      if (typeof calloutMgr === undefinedStr) {
+        calloutMgr = new HopscotchCalloutManager();
+      }
+
+      return calloutMgr;
+    };
+
     /**
      * startTour
      *
@@ -1234,7 +1345,7 @@
         }
 
         isLast = (stepNum === numTourSteps - 1);
-        bubble.renderStep(step, stepNum, isLast, function() {
+        bubble.render(step, stepNum, isLast, function() {
           // when done adjusting window scroll, call bubble.show()
           adjustWindowScroll(function() {
             bubble.show();
@@ -1426,7 +1537,6 @@
      * @returns {Object} Hopscotch
      */
     this.setCookieName = function(name) {
-      cookieName     = name;
       opt.cookieName = name;
       return this;
     };
@@ -1439,20 +1549,9 @@
      * @returns {Object} Hopscotch
      */
     this.resetDefaultOptions = function() {
-      opt = {
-        animate:         false,
-        smoothScroll:    true,
-        scrollDuration:  1000,
-        scrollTopMargin: 200,
-        showCloseButton: true,
-        showPrevButton:  false,
-        showNextButton:  true,
-        bubbleWidth:     280,
-        bubblePadding:   15,
-        arrowWidth:      20,
-        skipIfNoElement: true,
-        cookieName:      cookieName
-      };
+      if (!opt) { opt = {}; }
+
+      utils.extend(opt, defaultOpts);
       return this;
     };
 
