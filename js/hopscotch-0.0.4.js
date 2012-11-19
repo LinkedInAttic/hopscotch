@@ -986,6 +986,9 @@
       var callout;
 
       if (opt.id) {
+        if (callouts[opt.id]) {
+          throw "Callout by that id already exists. Please choose a unique id.";
+        }
         opt.isTourBubble = false;
         callout = new HopscotchBubble(opt);
         callouts[opt.id] = callout;
