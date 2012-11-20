@@ -675,7 +675,7 @@
           callback();
         }
         else {
-          self.show();
+          this.show();
         }
       }
 
