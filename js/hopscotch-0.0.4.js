@@ -517,6 +517,9 @@
          * @private
          */
         this.closeFn = function(evt) {
+          if (self.opt.onClose) {
+            self.opt.onClose();
+          }
           if (self.opt.id && !self.opt.isTourBubble) {
             // Remove via the HopscotchCalloutManager.
             // removeCallout() calls HopscotchBubble.destroy internally.
