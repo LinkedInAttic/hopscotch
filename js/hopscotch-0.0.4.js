@@ -1298,12 +1298,14 @@
           self = this,
           step,
           origStepNum,
+          wasMultiPage,
           changeStepCb;
 
       bubble.hide();
 
       doCallbacks = utils.valOrDefault(doCallbacks, true);
       step = getCurrStep();
+      wasMultiPage = step.multipage;
       origStepNum = currStepNum;
 
       /**
@@ -1318,20 +1320,26 @@
         }
 
         if (doCallbacks) {
-          // invoke callbacks
+          // Step-specific callbacks
           if (direction > 0 && step.onNext) {
             step.onNext();
           }
           else if (direction < 0 && step.onPrev) {
             step.onPrev();
           }
+
+          // Tour-wide next/prev callbacks
           utils.invokeCallbacks(direction > 0 ? 'next' : 'prev', [currTour.id, origStepNum]);
+
+          if (direction > 0 && wasMultiPage) {
+            return;
+          }
         }
 
         this.showStep(stepNum);
       };
 
-      if (opt.skipIfNoElement) {
+      if (!wasMultiPage && opt.skipIfNoElement) {
         goToStepWithTarget(direction, function(stepNum) {
           changeStepCb.call(self, stepNum);
         });
@@ -1340,7 +1348,7 @@
         // only try incrementing once, and invoke error callback if no target is found
         currStepNum += direction;
         step = getCurrStep();
-        if (!utils.getStepTarget(step)) {
+        if (!utils.getStepTarget(step) && !wasMultiPage) {
           utils.invokeCallbacks('error', [currTour.id, currStepNum]);
           return this.endTour(true, false);
         }
