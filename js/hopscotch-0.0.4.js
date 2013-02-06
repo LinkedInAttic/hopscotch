@@ -151,10 +151,10 @@
      */
     invokeCallbacks: function(evtType, args) {
       var cbArr = callbacks[evtType],
-          i = 0,
-          len = cbArr.length;
+          i,
+          len;
 
-      for (; i<len; ++i) {
+      for (i=0, len=cbArr.length; i<len; ++i) {
         cbArr[i].cb.apply(this, args);
       }
     },
@@ -189,14 +189,14 @@
      * @private
      */
     getWindowHeight: function() {
-      return window.innerHeight ? window.innerHeight : document.documentElement.clientHeight;
+      return window.innerHeight || document.documentElement.clientHeight;
     },
 
     /**
      * @private
      */
     getWindowWidth: function() {
-      return window.innerWidth ? window.innerWidth : document.documentElement.clientWidth;
+      return window.innerWidth || document.documentElement.clientWidth;
     },
 
     /**
@@ -313,8 +313,8 @@
       else {
         for(i=0;i < ca.length;i++) {
           c = ca[i];
-          while (c.charAt(0)===' ') c = c.substring(1,c.length);
-          if (c.indexOf(nameEQ) === 0) return c.substring(nameEQ.length,c.length);
+          while (c.charAt(0)===' ') {c = c.substring(1,c.length);}
+          if (c.indexOf(nameEQ) === 0) {return c.substring(nameEQ.length,c.length);}
         }
         return null;
       }
@@ -618,10 +618,10 @@
         step = this.currStep;
       }
 
-      showNext = utils.valOrDefault(step.showNextButton, this.opt.showNextButton),
-      showPrev = utils.valOrDefault(step.showPrevButton, this.opt.showPrevButton),
-      this.setTitle(step.title ? step.title : '');
-      this.setContent(step.content ? step.content : '');
+      showNext = utils.valOrDefault(step.showNextButton, this.opt.showNextButton);
+      showPrev = utils.valOrDefault(step.showPrevButton, this.opt.showPrevButton);
+      this.setTitle(step.title || '');
+      this.setContent(step.content || '');
 
       if (this.opt.showNumber) {
         this.setNum(idx);
@@ -650,7 +650,7 @@
       this.containerEl.style.width = bubbleWidth + 'px';
       this.containerEl.style.padding = bubblePadding + 'px';
 
-      el.style.zIndex = (step.zindex ? step.zindex : '');
+      el.style.zIndex = step.zindex || '';
 
       if (step.orientation === 'top') {
         // For bubbles placed on top of elements, we need to get the
@@ -1097,7 +1097,7 @@
       var step;
 
       if (currStepNum < 0 || currStepNum >= currTour.steps.length) {
-        return null;
+        step = null;
       }
       else {
         step = currTour.steps[currStepNum];
@@ -1212,7 +1212,7 @@
                 scrollTarget = scrollTop + (direction * scrollIncr);
 
             if ((direction > 0 && scrollTarget >= scrollToVal) ||
-                direction < 0 && scrollTarget <= scrollToVal) {
+                (direction < 0 && scrollTarget <= scrollToVal)) {
               // Overshot our target. Just manually set to equal the target
               // and clear the interval
               scrollTarget = scrollToVal;
@@ -1575,7 +1575,7 @@
         }
 
         utils.setState(opt.cookieName, cookieVal, 1);
-      }, step.delay ? step.delay : 0);
+      }, step.delay || 0);
       return this;
     };
 
