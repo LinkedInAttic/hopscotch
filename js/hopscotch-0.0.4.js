@@ -1296,6 +1296,7 @@
       var bubble = getBubble(),
           self = this,
           step,
+          origStep,
           origStepNum,
           wasMultiPage,
           changeStepCb;
@@ -1304,8 +1305,9 @@
 
       doCallbacks = utils.valOrDefault(doCallbacks, true);
       step = getCurrStep();
-      wasMultiPage = step.multipage;
+      origStep = step;
       origStepNum = currStepNum;
+      wasMultiPage = step.multipage;
 
       /**
        * Callback for goToStepWithTarget
@@ -1320,11 +1322,11 @@
 
         if (doCallbacks) {
           // Step-specific callbacks
-          if (direction > 0 && step.onNext) {
-            step.onNext();
+          if (direction > 0 && origStep.onNext) {
+            origStep.onNext();
           }
-          else if (direction < 0 && step.onPrev) {
-            step.onPrev();
+          else if (direction < 0 && origStep.onPrev) {
+            origStep.onPrev();
           }
 
           // Tour-wide next/prev callbacks
@@ -1351,7 +1353,7 @@
           utils.invokeCallbacks('error', [currTour.id, currStepNum]);
           return this.endTour(true, false);
         }
-        this.changeStepCb(currStepNum);
+        changeStepCb(currStepNum);
       }
 
       return this;
