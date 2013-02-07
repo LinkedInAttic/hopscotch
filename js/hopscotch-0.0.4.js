@@ -21,8 +21,7 @@
         bubbleWidth:     280,
         bubblePadding:   15,
         arrowWidth:      20,
-        skipIfNoElement: true,
-        cookieName:      'hopscotch.tour.state'
+        skipIfNoElement: true
       },
       hasJquery         = (typeof window.jQuery !== undefinedStr),
       hasSessionStorage = (typeof window.sessionStorage !== undefinedStr),
@@ -1416,6 +1415,7 @@
      */
     init = function(initOptions) {
       if (initOptions) {
+        initOptions.cookieName = initOptions.cookieName || 'hopscotch.tour.state';
         this.configure(initOptions);
       }
     };
