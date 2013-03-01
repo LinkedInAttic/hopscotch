@@ -1353,7 +1353,7 @@
           utils.invokeCallbacks('error', [currTour.id, currStepNum]);
           return this.endTour(true, false);
         }
-        changeStepCb(currStepNum);
+        changeStepCb.call(this, currStepNum);
       }
 
       return this;
