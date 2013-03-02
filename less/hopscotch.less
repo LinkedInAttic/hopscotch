@@ -47,11 +47,6 @@ div.hopscotch-bubble {
     display: none;
   }
 
-  .hopscotch-bubble-number {
-    font-size: 17px;
-    font-weight: bold;
-  }
-
   h3 {
     color: #000;
     font-family: @bubbleFontFamily;
@@ -105,13 +100,14 @@ div.hopscotch-bubble {
   }
 
   .hopscotch-bubble-number {
-    background: transparent @spriteUrl 3px 0 no-repeat;
+    background: transparent @spriteUrl 0 0 no-repeat;
     color: #fff;
     display: block;
     float: left;
+    font-size: 17px;
+    font-weight: bold;
     line-height: @circleWidth + 3px;
-    margin-left: -4px;
-    padding: 0 10px 0 4px;
+    padding: 0 10px 0 0;
     text-align: center;
     width: @circleWidth;
     height: @circleWidth;
