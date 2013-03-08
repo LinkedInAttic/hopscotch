@@ -1004,7 +1004,7 @@
     };
 
     /**
-     * createCallout
+     * getCallout
      *
      * Returns a callout by its id.
      *
