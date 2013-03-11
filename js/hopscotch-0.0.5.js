@@ -661,24 +661,15 @@
         utils.removeClass(el, 'hide');
         this.setPosition(step);
         utils.addClass(el, 'hide');
-        // only want to adjust window scroll for non-fixed elements
-        if (callback && !step.fixedElement) {
-          callback();
-        }
-        else {
-          this.show();
-        }
       }
       else {
         // Don't care about height for the other orientations.
         this.setPosition(step);
-        // only want to adjust window scroll for non-fixed elements
-        if (callback && !step.fixedElement) {
-          callback();
-        }
-        else {
-          this.show();
-        }
+      }
+
+      // only want to adjust window scroll for non-fixed elements
+      if (callback) {
+        callback(!step.fixedElement);
       }
 
       return this;
@@ -1557,11 +1548,16 @@
         }
 
         isLast = (stepNum === numTourSteps - 1);
-        bubble.render(step, stepNum, isLast, function() {
+        bubble.render(step, stepNum, isLast, function(adjustScroll) {
           // when done adjusting window scroll, call bubble.show()
-          adjustWindowScroll(function() {
+          if (adjustScroll) {
+            adjustWindowScroll(function() {
+              bubble.show();
+            });
+          }
+          else {
             bubble.show();
-          });
+          }
 
           if (step.onShow) { step.onShow(); }
 
