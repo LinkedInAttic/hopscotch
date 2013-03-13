@@ -162,26 +162,30 @@
      * @private
      */
     getScrollTop: function() {
+      var scrollTop;
       if (typeof window.pageYOffset !== undefinedStr) {
-        return window.pageYOffset;
+        scrollTop = window.pageYOffset;
       }
       else {
         // Most likely IE <=8, which doesn't support pageYOffset
-        return document.documentElement.scrollTop;
+        scrollTop = document.documentElement.scrollTop;
       }
+      return scrollTop;
     },
 
     /**
      * @private
      */
     getScrollLeft: function() {
+      var scrollLeft;
       if (typeof window.pageXOffset !== undefinedStr) {
-        return window.pageXOffset;
+        scrollLeft = window.pageXOffset;
       }
       else {
         // Most likely IE <=8, which doesn't support pageXOffset
-        return document.documentElement.scrollLeft;
+        scrollLeft = document.documentElement.scrollLeft;
       }
+      return scrollLeft;
     },
 
     /**
@@ -209,7 +213,7 @@
      * @private
      */
     removeClickListener: function(el, fn) {
-      el.removeEventListener ? el.removeEventListener('click', fn, false) : el.detachEvent('click', fn);
+      return el.removeEventListener ? el.removeEventListener('click', fn, false) : el.detachEvent('click', fn);
     },
 
     /**
@@ -247,7 +251,7 @@
         // Check if it's querySelector-eligible. Only accepting IDs and classes,
         // because that's the only thing that makes sense. Tag name and pseudo-class
         // are just silly.
-        if (/[#\.].*/.test(step.target)) {
+        if (/^[#\.]/.test(step.target)) {
           if (document.querySelector) {
             return document.querySelector(step.target);
           }
@@ -256,7 +260,7 @@
             return result.length ? result[0] : null;
           }
           if (window.Sizzle) {
-            result = Sizzle(step.target);
+            result = new Sizzle(step.target);
             return result.length ? result[0] : null;
           }
           if (step.target[0] === '#' && step.target.indexOf(' ') === -1) {
@@ -291,9 +295,9 @@
         if (days) {
           date = new Date();
           date.setTime(date.getTime()+(days*24*60*60*1000));
-          expires = "; expires="+date.toGMTString();
+          expires = '; expires='+date.toGMTString();
         }
-        document.cookie = name+"="+value+expires+"; path=/";
+        document.cookie = name+'='+value+expires+'; path=/';
       }
     },
 
@@ -301,22 +305,27 @@
      * @private
      */
     getState: function(name) {
-      var nameEQ = name + "=",
+      var nameEQ = name + '=',
           ca = document.cookie.split(';'),
           i,
-          c;
+          c,
+          state;
 
       if (hasSessionStorage) {
-        return sessionStorage.getItem(name);
+        state = sessionStorage.getItem(name);
       }
       else {
         for(i=0;i < ca.length;i++) {
           c = ca[i];
           while (c.charAt(0)===' ') {c = c.substring(1,c.length);}
-          if (c.indexOf(nameEQ) === 0) {return c.substring(nameEQ.length,c.length);}
+          if (c.indexOf(nameEQ) === 0) {
+            state = c.substring(nameEQ.length,c.length);
+            break;
+          }
         }
-        return null;
       }
+
+      return state;
     },
 
     /**
@@ -327,7 +336,7 @@
         sessionStorage.removeItem(name);
       }
       else {
-        this.setState(name,"",-1);
+        this.setState(name,'',-1);
       }
     }
   };
@@ -875,7 +884,8 @@
           self            = this,
           resizeCooldown  = false, // for updating after window resize
           onWinResize,
-          winResizeTimeout;
+          winResizeTimeout,
+          opt;
 
       this.element        = el;
       this.containerEl    = containerEl;
@@ -980,18 +990,21 @@
 
       if (opt.id) {
         if (callouts[opt.id]) {
-          throw "Callout by that id already exists. Please choose a unique id.";
+          throw 'Callout by that id already exists. Please choose a unique id.';
         }
         opt.isTourBubble = false;
         callout = new HopscotchBubble(opt);
         callouts[opt.id] = callout;
         if (opt.target) {
-          callout.render(opt);
+          callout.render(opt, null, null, function() {
+            callout.show();
+          });
         }
       }
       else {
-        throw "Must specify a callout id.";
+        throw 'Must specify a callout id.';
       }
+      return callout;
     };
 
     /**
@@ -1016,7 +1029,9 @@
           callout;
 
       for (calloutId in callouts) {
-        this.removeCallout(calloutId);
+        if (callouts.hasOwnProperty(calloutId)) {
+          this.removeCallout(calloutId);
+        }
       }
     };
 
@@ -1152,7 +1167,6 @@
       // Target and bubble are both visible in viewport
       if (targetTop >= windowTop && (targetTop <= windowTop + opt.scrollTopMargin || targetBottom <= windowBottom)) {
         if (cb) { cb(); } // HopscotchBubble.show
-        return;
       }
 
       // Abrupt scroll to scroll target
@@ -1160,7 +1174,6 @@
         window.scrollTo(0, scrollToVal);
 
         if (cb) { cb(); } // HopscotchBubble.show
-        return;
       }
 
       // Smooth scroll to scroll target
