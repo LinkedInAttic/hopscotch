@@ -16,5 +16,5 @@ echo "Done minifying..."
 
 echo ""
 echo "Compiling LESS > CSS..."
-lessc -x /Users/gkoo/Sites/hopscotch/css/hopscotch.less > /Users/gkoo/Sites/hopscotch/css/hopscotch.css
+lessc -x /Users/gkoo/Sites/hopscotch/less/hopscotch.less > /Users/gkoo/Sites/hopscotch/css/hopscotch.css
 echo "Done compiling..."
