@@ -3,6 +3,7 @@
       HopscotchBubble,
       HopscotchCalloutManager,
       HopscotchI18N,
+      Sizzle = window.Sizzle || null,
       utils,
       callbacks,
       winLoadHandler,
@@ -259,7 +260,7 @@
             result = jQuery(step.target);
             return result.length ? result[0] : null;
           }
-          if (window.Sizzle) {
+          if (Sizzle) {
             result = new Sizzle(step.target);
             return result.length ? result[0] : null;
           }
@@ -380,10 +381,9 @@
      * @private
      */
     _createButton: function(id, text) {
-      var btnEl = document.createElement('input');
+      var btnEl = document.createElement('button');
       btnEl.id = id;
-      btnEl.type = 'button';
-      btnEl.value = text;
+      btnEl.innerHTML = text;
       utils.addClass(btnEl, 'hopscotch-nav-button');
 
       if (id.indexOf('prev') >= 0) {
