@@ -6,6 +6,7 @@
       Sizzle = window.Sizzle || null,
       utils,
       callbacks,
+      helpers,
       winLoadHandler,
       winHopscotch      = context[namespace],
       undefinedStr      = 'undefined',
@@ -147,15 +148,71 @@
     },
 
     /**
+     * Invokes a single callback represented by an array.
+     * Example input: ["my_fn", "arg1", 2, "arg3"]
      * @private
      */
-    invokeCallbacks: function(evtType, args) {
+    invokeCallbackArrayHelper: function(arr) {
+      // Logic for a single callback
+      var fn;
+      if (utils.isArray(arr)) {
+        fn = helpers[arr[0]];
+        if (typeof fn === 'function') {
+          fn.apply(this, arr.slice(1));
+        }
+      }
+    },
+
+    /**
+     * Invokes one or more callbacks. Array should have at most one level of nesting.
+     * Example input:
+     * ["my_fn", "arg1", 2, "arg3"]
+     * [["my_fn_1", "arg1", "arg2"], ["my_fn_2", "arg2-1", "arg2-2"]]
+     * [["my_fn_1", "arg1", "arg2"], function() { ... }]
+     * @private
+     */
+    invokeCallbackArray: function(arr) {
+      var i, len;
+
+      if (utils.isArray(arr)) {
+        if (typeof arr[0] === 'string') {
+          // Assume there are no nested arrays. This is the one and only callback.
+          utils.invokeCallbackArrayHelper(arr);
+        }
+        else { // assume an array
+          for (i = 0, len = arr.length; i < len; ++i) {
+            utils.invokeCallback(arr[i]);
+          }
+        }
+      }
+    },
+
+    /**
+     * Helper function for invoking a callback, whether defined as a function literal
+     * or an array that references a registered helper function.
+     * @private
+     */
+    invokeCallback: function(cb) {
+      if (typeof cb === 'function') {
+        cb();
+      }
+      else { // assuming array
+        utils.invokeCallbackArray(cb);
+      }
+    },
+
+    /**
+     * @private
+     */
+    invokeEventCallbacks: function(evtType) {
       var cbArr = callbacks[evtType],
+          callback,
+          fn,
           i,
           len;
 
       for (i=0, len=cbArr.length; i<len; ++i) {
-        cbArr[i].cb.apply(this, args);
+        this.invokeCallback(cbArr[i].cb);
       }
     },
 
@@ -276,6 +333,13 @@
       return step.target;
     },
 
+    /**
+     * @private
+     */
+    isArray: function(obj) {
+      return typeof obj.length === 'number' && typeof obj.unshift === 'function' && typeof obj.push === 'function';
+    },
+
     // Tour session persistence for multi-page tours. Uses HTML5 sessionStorage if available, then
     // falls back to using cookies.
     //
@@ -351,6 +415,15 @@
     error: [],
     close: []
   };
+
+  /**
+   * helpers
+   * =======
+   * A map of functions to be used as callback listeners. Functions are
+   * added to and removed from the map using the functions
+   * Hopscotch.registerHelper() and Hopscotch.unregisterHelper().
+   */
+  helpers = {};
 
   HopscotchI18N = {
     stepNums: null,
@@ -526,7 +599,7 @@
          */
         this.closeFn = function(evt) {
           if (self.opt.onClose) {
-            self.opt.onClose();
+            utils.invokeCallback(self.opt.onClose);
           }
           if (self.opt.id && !self.opt.isTourBubble) {
             // Remove via the HopscotchCalloutManager.
@@ -560,7 +633,7 @@
               currTour      = winHopscotch.getCurrTour(),
               doEndCallback = (currStepNum === currTour.steps.length-1);
 
-          utils.invokeCallbacks('close', [currTour.id, currStepNum]);
+          utils.invokeEventCallbacks('close');
 
           winHopscotch.endTour(true, doEndCallback);
 
@@ -873,8 +946,12 @@
 
     destroy: function() {
       var el = this.element;
-      el.parentNode.removeChild(el);
-      utils.removeClickListener(this.closeBtnEl, this._getCloseFn());
+      if (el) {
+        el.parentNode.removeChild(el);
+      }
+      if (this.closeBtnEl) {
+        utils.removeClickListener(this.closeBtnEl, this._getCloseFn());
+      }
     },
 
     init: function(initOpt) {
@@ -1276,7 +1353,7 @@
           else {
             // Haven't found a valid target yet. Recursively call
             // goToStepWithTarget.
-            utils.invokeCallbacks('error', [currTour.id, currStepNum]);
+            utils.invokeEventCallbacks('error');
             goToStepWithTarget(direction, cb);
           }
         }, utils.valOrDefault(step.delay, 0));
@@ -1327,14 +1404,14 @@
         if (doCallbacks) {
           // Step-specific callbacks
           if (direction > 0 && origStep.onNext) {
-            origStep.onNext();
+            utils.invokeCallback(origStep.onNext);
           }
           else if (direction < 0 && origStep.onPrev) {
-            origStep.onPrev();
+            utils.invokeCallback(origStep.onPrev);
           }
 
           // Tour-wide next/prev callbacks
-          utils.invokeCallbacks(direction > 0 ? 'next' : 'prev', [currTour.id, origStepNum]);
+          utils.invokeEventCallbacks(direction > 0 ? 'next' : 'prev');
 
           if (direction > 0 && wasMultiPage) {
             return;
@@ -1354,7 +1431,7 @@
         currStepNum += direction;
         step = getCurrStep();
         if (!utils.getStepTarget(step) && !wasMultiPage) {
-          utils.invokeCallbacks('error', [currTour.id, currStepNum]);
+          utils.invokeEventCallbacks('error');
           return this.endTour(true, false);
         }
         changeStepCb.call(this, currStepNum);
@@ -1509,7 +1586,7 @@
         }
       }
 
-      utils.invokeCallbacks('start', [currTour.id, currStepNum]);
+      utils.invokeEventCallbacks('start');
 
       bubble = getBubble();
       bubble.hide(false); // make invisible for boundingRect calculations when opt.animate == true
@@ -1521,7 +1598,7 @@
 
       if (!utils.getStepTarget(getCurrStep())) {
         // First step element doesn't exist
-        utils.invokeCallbacks('error', [currTour.id, currStepNum]);
+        utils.invokeEventCallbacks('error');
         if (opt.skipIfNoElement) {
           this.nextStep(false);
         }
@@ -1572,14 +1649,16 @@
             bubble.show();
           }
 
-          if (step.onShow) { step.onShow(); }
+          if (step.onShow) {
+            utils.invokeCallback(step.onShow);
+          }
 
           // If we want to advance to next step when user clicks on target.
           if (step.nextOnTargetClick) {
             utils.addClickListener(targetEl, targetClickNextFn);
           }
         });
-        utils.invokeCallbacks('show', [currTour.id, currStepNum]);
+        utils.invokeEventCallbacks('show');
 
         if (step.multipage) {
           cookieVal += ':mp';
@@ -1646,7 +1725,7 @@
       winHopscotch.isActive = false;
 
       if (currTour && doCallbacks) {
-        utils.invokeCallbacks('end', [currTour.id]);
+        utils.invokeEventCallbacks('end');
       }
 
       winHopscotch.removeCallbacks(true);
@@ -1686,10 +1765,22 @@
      * @returns {Object} Hopscotch
      */
     this.listen = function(evtType, cb, isTourCb) {
-      if (evtType && cb) {
+      if (evtType) {
         callbacks[evtType].push({ cb: cb, fromTour: isTourCb });
       }
       return this;
+    };
+
+    this.unlisten = function(evtType, cb) {
+      var evtCallbacks = callbacks[evtType],
+          i,
+          len;
+
+      for (i = 0, len = evtCallbacks.length; i < len; ++i) {
+        if (evtCallbacks[i] === cb) {
+          evtCallbacks.splice(i, 1);
+        }
+      }
     };
 
     /**
@@ -1749,6 +1840,24 @@
     };
 
     /**
+     * registerHelper
+     * ==============
+     * Registers a helper function to be used as a callback function.
+     *
+     * @param {String} id The id of the function.
+     * @param {Function} id The callback function.
+     */
+    this.registerHelper = function(id, fn) {
+      if (typeof id === 'string' && typeof fn === 'function') {
+        helpers[id] = fn;
+      }
+    };
+
+    this.unregisterHelper = function(id) {
+      helpers[id] = null;
+    };
+
+    /**
      * setCookieName
      *
      * Sets the cookie name (or sessionStorage name, if supported) used for multi-page
@@ -1785,7 +1894,12 @@
      * @param {Boolean} isTourOptions Should be set to true when setting options from a tour definition.
      */
     _configure = function(options, isTourOptions) {
-      var bubble;
+      var bubble,
+          events = ['next', 'prev', 'start', 'end', 'show', 'error', 'close'],
+          eventPropName,
+          callbackProp,
+          i,
+          len;
 
       if (!opt) {
         this.resetDefaultOptions();
@@ -1797,13 +1911,16 @@
         utils.extend(HopscotchI18N, options.i18n);
       }
 
-      this.listen('next', options.onNext, isTourOptions)
-          .listen('prev', options.onPrev, isTourOptions)
-          .listen('start', options.onStart, isTourOptions)
-          .listen('end', options.onEnd, isTourOptions)
-          .listen('show', options.onShow, isTourOptions)
-          .listen('error', options.onError, isTourOptions)
-          .listen('close', options.onClose, isTourOptions);
+      for (i = 0, len = events.length; i < len; ++i) {
+        // At this point, options[eventPropName] may have changed from an array
+        // to a function.
+        eventPropName = 'on' + events[i][0].toUpperCase() + events[i].substring(1);
+        if (options[eventPropName]) {
+          this.listen(events[i],
+                      options[eventPropName],
+                      isTourOptions);
+        }
+      }
 
       bubble = getBubble();
 

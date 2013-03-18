@@ -14,10 +14,11 @@
     </div>
     <script src="js/exampletour.js"></script>
     <script src="js/hopscotch-0.0.5.js"></script>
+    <script src="js/li_helpers.js"></script>
+    <script src="js/toursetup.js"></script>
     <script>
       //hopscotch.clearCookie();
-      var printLog = function() {
-      };
+      hopscotch.registerHelper("printlog", printLog);
       hopscotch.startTour(tour);
     </script>
   </body>

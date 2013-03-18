@@ -51,15 +51,16 @@ var tour = {
       title: 'Multi-page test',
       content: 'Are you ready? We\'re going to try hopping to another page and then back!!! Where we\'re going, we won\'t need roads... (Please click this link.)',
       target: 'secpagelink',
-      orientation: 'bottom',
-      showNextButton: false,
+      orientation: 'right',
+      yOffset: -20,
+      onNext: ["goTo", "secondpage.html"],
       multipage: true
     },
     {
       title: 'Polar bears',
       content: 'We made it!! Polar bears are very interesting creatures.',
       target: 'polarbears',
-      orientation: 'right',
+      orientation: 'right'
       //showPrevButton: false
     },
     {
@@ -67,7 +68,8 @@ var tour = {
       content: 'Time to go back home... Please click this link to return to the first page.',
       target: 'firstpagelink',
       orientation: 'bottom',
-      showNextButton: false,
+      //showNextButton: false,
+      onNext: ['goTo', 'index.html'],
       //showPrevButton: false,
       multipage: true // this indicates that next step will be on a different page
     },
@@ -88,6 +90,13 @@ var tour = {
   scrollDuration: 500,
   cookieName: 'li_hs',
   skipIfNoElement: true,
+  onStart: ['printlog', 'tour-onstart: start'],
+  onNext: ['printlog', 'clicked next'],
+  onPrev: ['printlog', 'clicked prev'],
+  onShow: ['printlog', 'showing'],
+  onClose: [['printlog', 'clicked close'], ['alert', 'closing the tour']],
+  onEnd: ['printlog', 'end']
+  /*
   onNext: function(tourId, idx) {
     var newLi,
         list = document.getElementById('my-list');
@@ -123,6 +132,7 @@ var tour = {
   onClose: function() {
     printLog('closing');
   }
+  */
   //i18n: {
     ////nextBtn: 'Forward',
     ////prevBtn: 'Backward',

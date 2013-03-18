@@ -100,39 +100,9 @@
     <!--<script src="js/jquery-1.7.2.js"></script>-->
     <!--<script src="js/hopscotch_jquery.js"></script>-->
     <script src="js/hopscotch-0.0.5.js"></script>
+    <script src="js/li_helpers.js"></script>
     <script src="js/exampletour.js"></script>
     <script src="js/debug.js"></script>
-    <script>
-      //hopscotch.clearCookie();
-      var printLog = function(str) {
-        var el = document.getElementById('debug-output'),
-            newEl = document.createElement('p');
-        if (el) {
-          newEl.innerHTML = str;
-          el.appendChild(newEl);
-        }
-        else {
-          console.log(str);
-        }
-      },
-      onStart = function(tourId) {
-        printLog('global start ' + tourId);
-      },
-      onEnd = function(tourId) {
-        printLog('global end ' + tourId);
-      },
-      onNext = function(tourId, stepNum) {
-        printLog('global next ' + tourId + ' ' + stepNum);
-      },
-      onPrev = function(tourId, stepNum) {
-        printLog('global prev ' + tourId + ' ' + stepNum);
-      };
-      hopscotch.listen('start', onStart)
-               .listen('end', onEnd)
-               .listen('next', onNext)
-               .listen('prev', onPrev);
-
-      hopscotch.startTour(tour);
-    </script>
+    <script src="js/toursetup.js"></script>
   </body>
 </html>
