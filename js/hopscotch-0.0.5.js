@@ -336,7 +336,7 @@
     /**
      * @private
      */
-    isArray: function(obj) {
+    isArray: Array.isArray || function(obj) {
       return typeof obj.length === 'number' && typeof obj.unshift === 'function' && typeof obj.push === 'function';
     },
 
