@@ -27,7 +27,7 @@
       },
       hasJquery         = (typeof window.jQuery !== undefinedStr),
       hasSessionStorage = (typeof window.sessionStorage !== undefinedStr),
-      docStyle          = document.body.style,
+      docStyle          = document.head.style,
       hasCssTransitions = (typeof docStyle.MozTransition    !== undefinedStr ||
                            typeof docStyle.MsTransition     !== undefinedStr ||
                            typeof docStyle.webkitTransition !== undefinedStr ||
@@ -962,6 +962,7 @@
           resizeCooldown  = false, // for updating after window resize
           onWinResize,
           winResizeTimeout,
+          appendToBody,
           opt;
 
       this.element        = el;
@@ -1039,7 +1040,35 @@
       }
 
       this.hide();
-      document.body.appendChild(el);
+
+      /**
+       * Append to body once the DOM is ready.
+       */
+      if ( document.readyState === 'complete' ) {
+        document.body.appendChild(el);
+      }
+      else {
+        // Moz, webkit, Opera
+        if (document.addEventListener) {
+          appendToBody = function() {
+            document.removeEventListener('DOMContentLoaded', appendToBody);
+            document.body.appendChild(el);
+          };
+
+          document.addEventListener('DOMContentLoaded', appendToBody);
+        }
+        // IE
+        else {
+          appendToBody = function() {
+            if (document.readyState === 'complete') {
+              document.detachEvent('onreadystatechange', appendToBody);
+              document.body.appendChild(el);
+            }
+          };
+
+          document.attachEvent('onreadystatechange', appendToBody);
+        }
+      }
     }
   };
 
