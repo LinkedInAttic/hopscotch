@@ -1656,7 +1656,16 @@
             cookieVal    = currTour.id + ':' + stepNum,
             bubble       = getBubble(),
             targetEl     = utils.getStepTarget(step),
-            isLast;
+            isLast,
+            showBubble;
+
+        showBubble = function() {
+          bubble.show();
+          utils.invokeEventCallbacks('show');
+          if (step.onShow) {
+            utils.invokeCallback(step.onShow);
+          }
+        };
 
         // Update bubble for current step
         currStepNum    = stepNum;
@@ -1668,18 +1677,12 @@
 
         isLast = (stepNum === numTourSteps - 1);
         bubble.render(step, stepNum, isLast, function(adjustScroll) {
-          // when done adjusting window scroll, call bubble.show()
+          // when done adjusting window scroll, call showBubble helper fn
           if (adjustScroll) {
-            adjustWindowScroll(function() {
-              bubble.show();
-            });
+            adjustWindowScroll(showBubble);
           }
           else {
-            bubble.show();
-          }
-
-          if (step.onShow) {
-            utils.invokeCallback(step.onShow);
+            showBubble();
           }
 
           // If we want to advance to next step when user clicks on target.
@@ -1687,7 +1690,6 @@
             utils.addClickListener(targetEl, targetClickNextFn);
           }
         });
-        utils.invokeEventCallbacks('show');
 
         if (step.multipage) {
           cookieVal += ':mp';
