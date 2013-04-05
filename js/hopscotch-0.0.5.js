@@ -40,6 +40,12 @@
     return;
   }
 
+  if (!Array.isArray) {
+    Array.isArray = function(obj) {
+      return Object.prototype.toString.call(obj) === '[object Array]';
+    };
+  }
+
   /**
    * Called when the page is done loading.
    *
@@ -156,7 +162,7 @@
     invokeCallbackArrayHelper: function(arr) {
       // Logic for a single callback
       var fn;
-      if (utils.isArray(arr)) {
+      if (Array.isArray(arr)) {
         fn = helpers[arr[0]];
         if (typeof fn === 'function') {
           fn.apply(this, arr.slice(1));
@@ -175,7 +181,7 @@
     invokeCallbackArray: function(arr) {
       var i, len;
 
-      if (utils.isArray(arr)) {
+      if (Array.isArray(arr)) {
         if (typeof arr[0] === 'string') {
           // Assume there are no nested arrays. This is the one and only callback.
           utils.invokeCallbackArrayHelper(arr);
@@ -197,10 +203,8 @@
       if (typeof cb === 'function') {
         cb();
       }
-      if (typeof cb === 'string') { // name of a helper
-        if (helpers[cb]) {
-          helpers[cb]();
-        }
+      if (typeof cb === 'string' && helpers[cb]) { // name of a helper
+        helpers[cb]();
       }
       else { // assuming array
         utils.invokeCallbackArray(cb);
@@ -337,13 +341,6 @@
         return document.getElementById(step.target);
       }
       return step.target;
-    },
-
-    /**
-     * @private
-     */
-    isArray: Array.isArray || function(obj) {
-      return Object.prototype.toString.call(obj) === '[object Array]';
     },
 
     // Tour session persistence for multi-page tours. Uses HTML5 sessionStorage if available, then
@@ -1069,7 +1066,7 @@
       /**
        * Append to body once the DOM is ready.
        */
-      if ( document.readyState === 'complete' ) {
+      if (document.readyState === 'complete') {
         document.body.appendChild(el);
       }
       else {
@@ -1849,11 +1846,6 @@
       }
       return this;
     };
-
-    /**
-     * Alias for unlisten
-     */
-    this.removeCallback = this.unlisten;
 
     /**
      * removeCallbacks
