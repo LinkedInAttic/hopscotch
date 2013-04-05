@@ -27,6 +27,7 @@
       },
       hasJquery         = (typeof window.jQuery !== undefinedStr),
       hasSessionStorage = (typeof window.sessionStorage !== undefinedStr),
+      document          = window.document,
       docStyle          = document.head.style,
       hasCssTransitions = (typeof docStyle.MozTransition    !== undefinedStr ||
                            typeof docStyle.MsTransition     !== undefinedStr ||
