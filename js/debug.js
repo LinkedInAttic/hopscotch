@@ -1,3 +1,4 @@
+/* globals hopscotch:false */
 var i,
     len,
     optionName,
@@ -100,7 +101,9 @@ for (i = 0, len = booleanControls.length; i < len; i++) {
       content: 'Content',
       target: 'google',
       orientation: 'top',
-      showNavButtons: false,
+      showCTAButton: true,
+      ctaLabel: 'hello',
+      onCTA: function() { alert('test'); },
       showNumber: false
     });
   });
