@@ -196,6 +196,11 @@
       if (typeof cb === 'function') {
         cb();
       }
+      if (typeof cb === 'string') { // name of a helper
+        if (helpers[cb]) {
+          helpers[cb]();
+        }
+      }
       else { // assuming array
         utils.invokeCallbackArray(cb);
       }
@@ -337,7 +342,7 @@
      * @private
      */
     isArray: Array.isArray || function(obj) {
-      return typeof obj.length === 'number' && typeof obj.unshift === 'function' && typeof obj.push === 'function';
+      return Object.prototype.toString.call(obj) === '[object Array]';
     },
 
     // Tour session persistence for multi-page tours. Uses HTML5 sessionStorage if available, then
@@ -561,11 +566,13 @@
       this.prevBtnEl = this._createButton('hopscotch-prev', HopscotchI18N.prevBtn);
       this.nextBtnEl = this._createButton('hopscotch-next', HopscotchI18N.nextBtn);
       this.doneBtnEl = this._createButton('hopscotch-done', HopscotchI18N.doneBtn);
+      this.ctaBtnEl  = this._createButton('hopscotch-cta', HopscotchI18N.ctaBtn);
       utils.addClass(this.doneBtnEl, 'hide');
 
       buttonsEl.appendChild(this.prevBtnEl);
       buttonsEl.appendChild(this.nextBtnEl);
       buttonsEl.appendChild(this.doneBtnEl);
+      buttonsEl.appendChild(this.ctaBtnEl);
 
       // Attach click listeners
       utils.addClickListener(this.prevBtnEl, function(evt) {
@@ -710,17 +717,33 @@
 
       this.orientation = step.orientation;
 
-      if (this.opt.showNavButtons) {
-        this.showPrevButton(this.prevBtnEl && showPrev && idx > 0);
-        this.showNextButton(this.nextBtnEl && showNext && !isLast);
-        this.nextBtnEl.value = step.showSkip ? HopscotchI18N.skipBtn : HopscotchI18N.nextBtn;
+      this.showPrevButton(this.prevBtnEl && showPrev && idx > 0);
+      this.showNextButton(this.nextBtnEl && showNext && !isLast);
+      this.nextBtnEl.value = step.showSkip ? HopscotchI18N.skipBtn : HopscotchI18N.nextBtn;
 
-        if (isLast) {
-          utils.removeClass(this.doneBtnEl, 'hide');
+      if (isLast) {
+        utils.removeClass(this.doneBtnEl, 'hide');
+      }
+      else {
+        utils.addClass(this.doneBtnEl, 'hide');
+      }
+
+      // Show/hide CTA button
+      this._showButton(this.ctaBtnEl, !!step.showCTAButton);
+      this.ctaBtnEl.innerHTML = step.ctaLabel;
+
+      if (step.onCTA) {
+        if (this.onCTA) {
+          utils.removeClickListener(this.ctaBtnEl, this.onCTA);
         }
-        else {
-          utils.addClass(this.doneBtnEl, 'hide');
-        }
+
+        utils.addClickListener(this.ctaBtnEl, step.onCTA);
+        this.onCTA = step.onCTA; // cache for removing later
+      }
+      else if (this.onCTA) {
+        // Remove previous CTA callback.
+        utils.removeClickListener(this.ctaBtnEl, this.onCTA);
+        this.onCTA = null;
       }
 
       this._setArrow(step.orientation);
@@ -946,11 +969,15 @@
 
     destroy: function() {
       var el = this.element;
+
       if (el) {
         el.parentNode.removeChild(el);
       }
       if (this.closeBtnEl) {
         utils.removeClickListener(this.closeBtnEl, this._getCloseFn());
+      }
+      if (this.ctaBtnEl && this.onCTA) {
+        utils.removeClickListener(this.ctaBtnEl, this.onCTA);
       }
     },
 
@@ -978,7 +1005,6 @@
         bubblePadding:  defaultOpts.bubblePadding,
         arrowWidth:     defaultOpts.arrowWidth,
         showNumber:     true,
-        showNavButtons: true,
         isTourBubble:   true
       };
 
@@ -1005,15 +1031,13 @@
       containerEl.appendChild(bubbleContentEl);
       el.appendChild(containerEl);
 
-      if (opt.showNavButtons) {
-        this._initNavButtons();
-      }
+      this._initNavButtons();
       this.initCloseButton();
 
       this._initArrow();
 
       /**
-       * Not pretty, but IE doesn't support Function.bind(), so I'm
+       * Not pretty, but IE8 doesn't support Function.bind(), so I'm
        * relying on closures to keep a handle of "this".
        * Reset position of bubble when window is resized
        *
@@ -1098,6 +1122,7 @@
         if (callouts[opt.id]) {
           throw 'Callout by that id already exists. Please choose a unique id.';
         }
+        opt.showNextButton = opt.showPrevButton = false;
         opt.isTourBubble = false;
         callout = new HopscotchBubble(opt);
         callouts[opt.id] = callout;
@@ -1802,6 +1827,15 @@
       return this;
     };
 
+    /**
+     * unlisten
+     *
+     * Removes a callback for one of the event types, e.g. 'start', 'next', etc.
+     *
+     * @param {string} evtType "start", "end", "next", "prev", "show", "close", or "error"
+     * @param {Function} cb The callback to remove.
+     * @returns {Object} Hopscotch
+     */
     this.unlisten = function(evtType, cb) {
       var evtCallbacks = callbacks[evtType],
           i,
@@ -1812,34 +1846,18 @@
           evtCallbacks.splice(i, 1);
         }
       }
-    };
-
-    /**
-     * removeCallback
-     *
-     * Removes a callback for one of the event types, e.g. 'start', 'next', etc.
-     *
-     * @param {string} evtType "start", "end", "next", "prev", "show", "close", or "error"
-     * @param {Function} cb The callback to remove.
-     * @returns {Object} Hopscotch
-     */
-    this.removeCallback = function(evtType, cb) {
-      var cbs = callbacks[evtType],
-          i,
-          len;
-
-      for (i = 0, len = cbs.length; i < len; ++i) {
-        if (cb === cbs[i].cb) {
-          cbs.splice(i, 1);
-        }
-      }
       return this;
     };
 
     /**
+     * Alias for unlisten
+     */
+    this.removeCallback = this.unlisten;
+
+    /**
      * removeCallbacks
      *
-     * Remove callbacks for a hopscotch event. If tourOnly is set to true, only
+     * Remove callbacks for all hopscotch events. If tourOnly is set to true, only
      * removes callbacks specified by a tour (callbacks set by external calls
      * to hopscotch.configure or hopscotch.listen will not be removed).
      *
