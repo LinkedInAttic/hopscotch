@@ -212,9 +212,12 @@
     },
 
     /**
+     * First invoke tour-wide helper. If stepCb (the step-specific helper
+     * callback) is passed in, then invoke it afterwards.
+     *
      * @private
      */
-    invokeEventCallbacks: function(evtType) {
+    invokeEventCallbacks: function(evtType, stepCb) {
       var cbArr = callbacks[evtType],
           callback,
           fn,
@@ -223,6 +226,10 @@
 
       for (i=0, len=cbArr.length; i<len; ++i) {
         this.invokeCallback(cbArr[i].cb);
+      }
+
+      if (stepCb) {
+        this.invokeCallback(stepCb);
       }
     },
 
@@ -1379,7 +1386,6 @@
      * @private
      * @param {Number} direction Either 1 for incrementing or -1 for decrementing
      * @param {Function} cb The callback function to be invoked when the step has been found
-     * @returns {Number} step number we landed on
      */
     goToStepWithTarget = function(direction, cb) {
       var target,
@@ -1430,7 +1436,6 @@
           self = this,
           step,
           origStep,
-          origStepNum,
           wasMultiPage,
           changeStepCb;
 
@@ -1439,7 +1444,6 @@
       doCallbacks = utils.valOrDefault(doCallbacks, true);
       step = getCurrStep();
       origStep = step;
-      origStepNum = currStepNum;
       wasMultiPage = step.multipage;
 
       /**
@@ -1454,18 +1458,16 @@
         }
 
         if (doCallbacks) {
-          // Step-specific callbacks
-          if (direction > 0 && origStep.onNext) {
-            utils.invokeCallback(origStep.onNext);
+          if (direction > 0) {
+            utils.invokeEventCallbacks('next', origStep.onNext);
           }
-          else if (direction < 0 && origStep.onPrev) {
-            utils.invokeCallback(origStep.onPrev);
+          else {
+            utils.invokeEventCallbacks('prev', origStep.onPrev);
           }
-
-          // Tour-wide next/prev callbacks
-          utils.invokeEventCallbacks(direction > 0 ? 'next' : 'prev');
 
           if (direction > 0 && wasMultiPage) {
+            // Next step is on a different page, so no need to attempt to
+            // render it.
             return;
           }
         }
@@ -1684,10 +1686,8 @@
 
         showBubble = function() {
           bubble.show();
-          utils.invokeEventCallbacks('show');
-          if (step.onShow) {
-            utils.invokeCallback(step.onShow);
-          }
+          // tour-wide callback
+          utils.invokeEventCallbacks('show', step.onShow);
         };
 
         // Update bubble for current step
