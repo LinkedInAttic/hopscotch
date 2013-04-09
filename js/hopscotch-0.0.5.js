@@ -8,6 +8,7 @@
       callbacks,
       helpers,
       winLoadHandler,
+      hasCssTransitions,
       winHopscotch      = context[namespace],
       undefinedStr      = 'undefined',
       waitingToStart    = false, // is a tour waiting for the document to finish
@@ -27,13 +28,7 @@
       },
       hasJquery         = (typeof window.jQuery !== undefinedStr),
       hasSessionStorage = (typeof window.sessionStorage !== undefinedStr),
-      document          = window.document,
-      docStyle          = document.head.style,
-      hasCssTransitions = (typeof docStyle.MozTransition    !== undefinedStr ||
-                           typeof docStyle.MsTransition     !== undefinedStr ||
-                           typeof docStyle.webkitTransition !== undefinedStr ||
-                           typeof docStyle.OTransition      !== undefinedStr ||
-                           typeof docStyle.transition       !== undefinedStr);
+      document          = window.document;
 
   if (winHopscotch) {
     // Hopscotch already exists.
@@ -152,6 +147,15 @@
      */
     valOrDefault: function(val, valDefault) {
       return typeof val !== undefinedStr ? val : valDefault;
+    },
+
+    supportsCssTransitions: function() {
+      var docStyle = document.body.style;
+      return (typeof docStyle.MozTransition    !== undefinedStr ||
+              typeof docStyle.MsTransition     !== undefinedStr ||
+              typeof docStyle.webkitTransition !== undefinedStr ||
+              typeof docStyle.OTransition      !== undefinedStr ||
+              typeof docStyle.transition       !== undefinedStr);
     },
 
     /**
@@ -1073,8 +1077,9 @@
       /**
        * Append to body once the DOM is ready.
        */
-      if (document.readyState === 'complete') {
+      if (document.readyState === 'complete' || document.readyState === 'interactive') {
         document.body.appendChild(el);
+        hasCssTransitions = utils.supportsCssTransitions();
       }
       else {
         // Moz, webkit, Opera
@@ -1082,6 +1087,7 @@
           appendToBody = function() {
             document.removeEventListener('DOMContentLoaded', appendToBody);
             document.body.appendChild(el);
+            hasCssTransitions = utils.supportsCssTransitions();
           };
 
           document.addEventListener('DOMContentLoaded', appendToBody);
@@ -1093,6 +1099,7 @@
               document.detachEvent('onreadystatechange', appendToBody);
               document.body.appendChild(el);
             }
+            hasCssTransitions = utils.supportsCssTransitions();
           };
 
           document.attachEvent('onreadystatechange', appendToBody);
@@ -1686,7 +1693,6 @@
 
         showBubble = function() {
           bubble.show();
-          // tour-wide callback
           utils.invokeEventCallbacks('show', step.onShow);
         };
 
@@ -1956,7 +1962,7 @@
       for (i = 0, len = events.length; i < len; ++i) {
         // At this point, options[eventPropName] may have changed from an array
         // to a function.
-        eventPropName = 'on' + events[i][0].toUpperCase() + events[i].substring(1);
+        eventPropName = 'on' + events[i].charAt(0).toUpperCase() + events[i].substring(1);
         if (options[eventPropName]) {
           this.listen(events[i],
                       options[eventPropName],
