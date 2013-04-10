@@ -327,7 +327,6 @@
           queriedTarged;
 
       function runTargetTest(toTest){
-        alert("Checking for: " +  toTest);
         // Check if it's querySelector-eligible. Only accepting IDs and classes,
         // because that's the only thing that makes sense. Tag name and pseudo-class
         // are just silly.
