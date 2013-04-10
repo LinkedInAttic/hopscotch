@@ -353,7 +353,7 @@
      */
     getStepTarget: function(step) {
       var result,
-          queriedTarged;
+          queriedTarget;
 
       if (!step || !step.target) { return null; }
 
