@@ -323,34 +323,54 @@
      * @private
      */
     getStepTarget: function(step) {
-      var result;
+      var result,
+          queriedTarged;
 
-      if (!step || !step.target) { return null; }
-      if (typeof step.target === 'string') {
+      function runTargetTest(toTest){
+        alert("Checking for: " +  toTest);
         // Check if it's querySelector-eligible. Only accepting IDs and classes,
         // because that's the only thing that makes sense. Tag name and pseudo-class
         // are just silly.
-        if (/^[#\.]/.test(step.target)) {
+        if (/^[#\.]/.test(toTest)) {
           if (document.querySelector) {
-            return document.querySelector(step.target);
+            return document.querySelector(toTest);
           }
           if (hasJquery) {
-            result = jQuery(step.target);
+            result = jQuery(toTest);
             return result.length ? result[0] : null;
           }
           if (Sizzle) {
-            result = new Sizzle(step.target);
+            result = new Sizzle(toTest);
             return result.length ? result[0] : null;
           }
           if (step.target[0] === '#' && step.target.indexOf(' ') === -1) {
-            return document.getElementById(step.target.substring(1));
+            return document.getElementById(toTest.substring(1));
           }
           // Can't extract element. Likely IE <=7 and no jQuery/Sizzle.
           return null;
         }
         // Else assume it's a string id.
-        return document.getElementById(step.target);
+        return document.getElementById(toTest);
       }
+
+      if (!step || !step.target) { return null; }
+
+      if (typeof step.target === 'string') {
+        //Just one target to test. Check, cache, and return its results.
+        return step.target = runTargetTest(step.target);
+      }
+      else if (Array.isArray(step.target)) {
+        //Multiple items to check. Check each and break on first success.
+        var arrSize = step.target.length,
+            i;
+        for (i = 0; i < arrSize; i++){
+          queriedTarget = runTargetTest(step.target[i]);
+          if (queriedTarget !== null){ break; }
+        }
+        //Cache and return.
+        return step.target = queriedTarget;
+      }
+      //Hey, our result's already been cached. Sweet!
       return step.target;
     },
 
