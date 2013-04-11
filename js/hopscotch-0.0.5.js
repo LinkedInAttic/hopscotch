@@ -295,6 +295,10 @@
       return el.removeEventListener ? el.removeEventListener('click', fn, false) : el.detachEvent('click', fn);
     },
 
+    documentIsReady: function() {
+      return document.readyState === 'complete' || document.readyState === 'interactive';
+    },
+
     /**
      * @private
      */
@@ -320,59 +324,90 @@
     },
 
     /**
+     * Helper function to get a single target DOM element. We will try to
+     * locate the DOM element through several ways, in the following order:
+     *
+     * 1) Passing the string into document.querySelector
+     * 2) Passing the string to jQuery, if it exists
+     * 3) Passing the string to Sizzle, if it exists
+     * 4) Calling document.getElementById if it is a plain id
+     *
+     * Default case is to assume the string is a plain id and call
+     * document.getElementById on it.
+     *
      * @private
      */
-    runTargetTest: function(toTest){
+    getStepTargetHelper: function(target){
+      var result;
       // Check if it's querySelector-eligible. Only accepting IDs and classes,
       // because that's the only thing that makes sense. Tag name and pseudo-class
       // are just silly.
-      if (/^[#\.]/.test(toTest)) {
+      if (/^[#\.]/.test(target)) {
         if (document.querySelector) {
-          return document.querySelector(toTest);
+          return document.querySelector(target);
         }
         if (hasJquery) {
-          result = jQuery(toTest);
+          result = jQuery(target);
           return result.length ? result[0] : null;
         }
         if (Sizzle) {
-          result = new Sizzle(toTest);
+          result = new Sizzle(target);
           return result.length ? result[0] : null;
         }
-        if (step.target[0] === '#' && step.target.indexOf(' ') === -1) {
-          return document.getElementById(toTest.substring(1));
+        // Regex test for id. Following the HTML 4 spec for valid id formats.
+        // (http://www.w3.org/TR/html4/types.html#type-id)
+        if (/^#[a-zA-Z][\w-_:.]*$/.test(target)) {
+          return document.getElementById(target.substring(1));
         }
         // Can't extract element. Likely IE <=7 and no jQuery/Sizzle.
         return null;
       }
       // Else assume it's a string id.
-      return document.getElementById(toTest);
+      return document.getElementById(target);
     },
 
     /**
+     * Given a step, returns the target DOM element associated with it. It is
+     * recommended to only assign one target per step. However, there are
+     * some use cases which require multiple step targets to be supplied. In
+     * this event, we will use the first target in the array that we can
+     * locate on the page. See the comments for getStepTargetHelper for more
+     * information.
+     *
      * @private
      */
     getStepTarget: function(step) {
-      var result,
-          queriedTarget;
+      var queriedTarget;
 
-      if (!step || !step.target) { return null; }
+      if (!step || !step.target) {
+        return null;
+      }
 
       if (typeof step.target === 'string') {
         //Just one target to test. Check, cache, and return its results.
-        return step.target = utils.runTargetTest(step.target);
+        return step.target = utils.getStepTargetHelper(step.target);
       }
       else if (Array.isArray(step.target)) {
-        //Multiple items to check. Check each and break on first success.
-        var arrSize = step.target.length,
-            i;
-        for (i = 0; i < arrSize; i++){
-          queriedTarget = utils.runTargetTest(step.target[i]);
-          if (queriedTarget !== null){ break; }
+        // Multiple items to check. Check each and return the first success.
+        // Assuming they are all strings.
+        var i,
+            len;
+
+        for (i = 0, len = step.target.length; i < len; i++){
+          if (typeof step.target[i] === 'string') {
+            queriedTarget = utils.getStepTargetHelper(step.target[i]);
+
+            if (queriedTarget) {
+              // Replace step.target with result so we don't have to look it up again.
+              step.target = queriedTarget;
+              return queriedTarget;
+            }
+          }
         }
-        //Cache and return.
-        return step.target = queriedTarget;
+        return null;
       }
-      //Hey, our result's already been cached. Sweet!
+
+      // Assume that the step.target is a DOM element
       return step.target;
     },
 
@@ -1099,7 +1134,7 @@
       /**
        * Append to body once the DOM is ready.
        */
-      if (document.readyState === 'complete' || document.readyState === 'interactive') {
+      if (utils.documentIsReady()) {
         document.body.appendChild(el);
         hasCssTransitions = utils.supportsCssTransitions();
       }
@@ -1108,23 +1143,28 @@
         if (document.addEventListener) {
           appendToBody = function() {
             document.removeEventListener('DOMContentLoaded', appendToBody);
+            window.removeEventListener('load', appendToBody);
+
             document.body.appendChild(el);
             hasCssTransitions = utils.supportsCssTransitions();
           };
 
-          document.addEventListener('DOMContentLoaded', appendToBody);
+          document.addEventListener('DOMContentLoaded', appendToBody, false);
+          window.addEventListener('load', appendToBody, false);
         }
         // IE
         else {
           appendToBody = function() {
             if (document.readyState === 'complete') {
               document.detachEvent('onreadystatechange', appendToBody);
+              window.detachEvent('onload', appendToBody);
               document.body.appendChild(el);
             }
             hasCssTransitions = utils.supportsCssTransitions();
           };
 
           document.attachEvent('onreadystatechange', appendToBody);
+          window.attachEvent('onload', appendToBody);
         }
       }
     }
@@ -1537,8 +1577,6 @@
           tourState,
           tourPair;
 
-      currTour = tour;
-
       // Set tour-specific configurations
       for (prop in tour) {
         if (tour.hasOwnProperty(prop) &&
@@ -1570,6 +1608,51 @@
       }
 
       return this;
+    },
+
+    /**
+     * Find the first step to show for a tour. (What is the first step with a
+     * target on the page?)
+     */
+    findStartingStep = function(startStepNum, cb) {
+      var step,
+          target,
+          stepNum;
+
+      currStepNum = startStepNum || 0;
+      step        = getCurrStep();
+      target      = utils.getStepTarget(step);
+
+      if (target) {
+        // First step had an existing target.
+        cb(currStepNum);
+        return;
+      }
+      else if (currStepNum > 0) {
+        // No target found for the initial step. May have just refreshed the
+        // page. Try the previous step. (but don't change cookie)
+        --currStepNum;
+        step = getCurrStep();
+        target = utils.getStepTarget(step);
+      }
+
+      if (!target) {
+        // Previous target doesn't exist either. The user may have just
+        // clicked on a link that wasn't part of the tour. Another possibility is that
+        // the user clicked on the correct link, but the target is just missing for
+        // whatever reason. In either case, we should just advance until we find a step
+        // that has a target on the page or end the tour if we can't find such a step.
+        utils.invokeEventCallbacks('error');
+        if (opt.skipIfNoElement) {
+          ++currStepNum; // undo the previous decrement
+          goToStepWithTarget(1, cb);
+          return;
+        }
+        else {
+          currStepNum = -1;
+          cb(currStepNum);
+        }
+      }
     },
 
     /**
@@ -1614,81 +1697,66 @@
      */
     this.startTour = function(tour, stepNum) {
       var bubble,
-          step,
-          foundTarget;
+          self = this;
 
       // loadTour if we are calling startTour directly. (When we call startTour
       // from window onLoad handler, we'll use currTour)
       if (!currTour) {
+        currTour = tour;
         loadTour.call(this, tour);
       }
 
       if (typeof stepNum !== undefinedStr) {
-        currStepNum    = stepNum;
+        currStepNum = stepNum;
       }
 
       // If document isn't ready, wait for it to finish loading.
       // (so that we can calculate positioning accurately)
-      if (document.readyState !== 'complete') {
+      if (!utils.documentIsReady()) {
         waitingToStart = true;
         return this;
       }
 
-      if (typeof currStepNum === undefinedStr) {
-        // Check if we are resuming state.
-        if (currTour.id === cookieTourId && typeof cookieTourStep !== undefinedStr) {
-          currStepNum    = cookieTourStep;
-          step           = getCurrStep();
-          foundTarget    = utils.getStepTarget(step);
-          if (!foundTarget) {
-            // No target found for the step specified by the cookie. May have just refreshed
-            // the page. Try previous step. (but don't change cookie)
-            --currStepNum;
-            step = getCurrStep();
-            foundTarget = utils.getStepTarget(step);
-          }
-          if (!foundTarget && opt.skipIfNoElement) {
-            // Previous target doesn't exist either. The user may have just
-            // clicked on a link that wasn't part of the tour. Another possibility is that
-            // the user clicked on the correct link, but the target is just missing for
-            // whatever reason. In either case, we should just advance until we find a step
-            // that has a target on the page or end the tour if we can't find such a step.
-            goToStepWithTarget(1);
-            foundTarget = (currStepNum !== -1) && utils.getStepTarget(currTour.steps[currStepNum]);
-          }
-          if (!foundTarget) {
-            // Whether or not to trigger onEnd callback? Err on the safe side and don't
-            // trigger. Don't want weird stuff happening on a page that wasn't meant for
-            // the tour. Up to the developer to fix their tour.
-            this.endTour(false, false);
-            return this;
+      if (currTour.id === cookieTourId && typeof cookieTourStep !== undefinedStr) {
+        currStepNum = cookieTourStep;
+      }
+      else {
+        currStepNum = 0;
+      }
+
+      // Find the current step we should begin the tour on, and then actually start the tour.
+      findStartingStep(currStepNum, function(stepNum) {
+        var target = (stepNum !== -1) && utils.getStepTarget(currTour.steps[stepNum]);
+
+        if (!target) {
+          // Should we trigger onEnd callback? Let's err on the side of caution
+          // and not trigger it. Don't want weird stuff happening on a page that
+          // wasn't meant for the tour. Up to the developer to fix their tour.
+          self.endTour(false, false);
+          return;
+        }
+
+        utils.invokeEventCallbacks('start');
+
+        bubble = getBubble();
+        bubble.hide(false); // make invisible for boundingRect calculations when opt.animate == true
+
+        self.isActive = true;
+        if (opt.animate) {
+          bubble._initAnimate();
+        }
+
+        if (!utils.getStepTarget(getCurrStep())) {
+          // First step element doesn't exist
+          utils.invokeEventCallbacks('error');
+          if (opt.skipIfNoElement) {
+            self.nextStep(false);
           }
         }
         else {
-          currStepNum = 0;
+          self.showStep(stepNum);
         }
-      }
-
-      utils.invokeEventCallbacks('start');
-
-      bubble = getBubble();
-      bubble.hide(false); // make invisible for boundingRect calculations when opt.animate == true
-
-      this.isActive = true;
-      if (opt.animate) {
-        bubble._initAnimate();
-      }
-
-      if (!utils.getStepTarget(getCurrStep())) {
-        // First step element doesn't exist
-        utils.invokeEventCallbacks('error');
-        if (opt.skipIfNoElement) {
-          this.nextStep(false);
-        }
-      }
-      else {
-        this.showStep(currStepNum);
-      }
+      });
 
       return this;
     };
