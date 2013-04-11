@@ -527,7 +527,9 @@
     _createButton: function(id, text) {
       var btnEl = document.createElement('button');
       btnEl.id = id;
-      btnEl.innerHTML = text;
+      if (text) {
+        btnEl.innerHTML = text;
+      }
       utils.addClass(btnEl, 'hopscotch-nav-button');
 
       if (id.indexOf('prev') >= 0) {
@@ -632,7 +634,7 @@
       this.prevBtnEl = this._createButton('hopscotch-prev', HopscotchI18N.prevBtn);
       this.nextBtnEl = this._createButton('hopscotch-next', HopscotchI18N.nextBtn);
       this.doneBtnEl = this._createButton('hopscotch-done', HopscotchI18N.doneBtn);
-      this.ctaBtnEl  = this._createButton('hopscotch-cta', HopscotchI18N.ctaBtn);
+      this.ctaBtnEl  = this._createButton('hopscotch-cta');
       utils.addClass(this.doneBtnEl, 'hide');
 
       buttonsEl.appendChild(this.prevBtnEl);
@@ -796,15 +798,17 @@
 
       // Show/hide CTA button
       this._showButton(this.ctaBtnEl, !!step.showCTAButton);
-      this.ctaBtnEl.innerHTML = step.ctaLabel;
+      if (step.showCTAButton) {
+        this.ctaBtnEl.innerHTML = step.ctaLabel;
 
-      if (step.onCTA) {
-        if (this.onCTA) {
-          utils.removeClickListener(this.ctaBtnEl, this.onCTA);
+        if (step.onCTA) {
+          if (this.onCTA) {
+            utils.removeClickListener(this.ctaBtnEl, this.onCTA);
+          }
+
+          utils.addClickListener(this.ctaBtnEl, step.onCTA);
+          this.onCTA = step.onCTA; // cache for removing later
         }
-
-        utils.addClickListener(this.ctaBtnEl, step.onCTA);
-        this.onCTA = step.onCTA; // cache for removing later
       }
       else if (this.onCTA) {
         // Remove previous CTA callback.
