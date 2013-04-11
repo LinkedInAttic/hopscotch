@@ -228,12 +228,12 @@
           i,
           len;
 
-      for (i=0, len=cbArr.length; i<len; ++i) {
-        this.invokeCallback(cbArr[i].cb);
-      }
-
       if (stepCb) {
         this.invokeCallback(stepCb);
+      }
+
+      for (i=0, len=cbArr.length; i<len; ++i) {
+        this.invokeCallback(cbArr[i].cb);
       }
     },
 
