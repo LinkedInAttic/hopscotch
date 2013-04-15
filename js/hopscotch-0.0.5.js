@@ -1517,7 +1517,12 @@
       doCallbacks = utils.valOrDefault(doCallbacks, true);
       step = getCurrStep();
       origStep = step;
-      wasMultiPage = step.multipage;
+      if (direction > 0) {
+        wasMultiPage = origStep.multipage;
+      }
+      else {
+        wasMultiPage = (currStepNum > 0 && currTour.steps[currStepNum-1].multipage);
+      }
 
       /**
        * Callback for goToStepWithTarget
@@ -1538,9 +1543,8 @@
             utils.invokeEventCallbacks('prev', origStep.onPrev);
           }
 
-          if (direction > 0 && wasMultiPage) {
-            // Next step is on a different page, so no need to attempt to
-            // render it.
+          if (wasMultiPage) {
+            // Next step is on a different page, so no need to attempt to render it.
             return;
           }
         }
