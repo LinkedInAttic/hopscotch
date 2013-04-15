@@ -1701,10 +1701,6 @@
         loadTour.call(this, tour);
       }
 
-      if (typeof stepNum !== undefinedStr) {
-        currStepNum = stepNum;
-      }
-
       // If document isn't ready, wait for it to finish loading.
       // (so that we can calculate positioning accurately)
       if (!utils.documentIsReady()) {
@@ -1712,7 +1708,10 @@
         return this;
       }
 
-      if (currTour.id === cookieTourId && typeof cookieTourStep !== undefinedStr) {
+      if (typeof stepNum !== undefinedStr) {
+        currStepNum = stepNum;
+      }
+      else if (currTour.id === cookieTourId && typeof cookieTourStep !== undefinedStr) {
         currStepNum = cookieTourStep;
       }
       else {
