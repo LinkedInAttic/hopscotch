@@ -52,13 +52,6 @@
     }
   };
 
-  if (window.addEventListener) {
-    window.addEventListener('load', winLoadHandler, false);
-  }
-  else if (window.attachEvent) {
-    window.attachEvent('onload', winLoadHandler);
-  }
-
   /**
    * utils
    * =====
@@ -284,15 +277,15 @@
     /**
      * @private
      */
-    addClickListener: function(el, fn) {
-      return el.addEventListener ? el.addEventListener('click', fn, false) : el.attachEvent('onclick', fn);
+    addEvtListener: function(el, evtName, fn) {
+      return el.addEventListener ? el.addEventListener(evtName, fn, false) : el.attachEvent('on' + evtName, fn);
     },
 
     /**
      * @private
      */
-    removeClickListener: function(el, fn) {
-      return el.removeEventListener ? el.removeEventListener('click', fn, false) : el.detachEvent('click', fn);
+    removeEvtListener: function(el, evtName, fn) {
+      return el.removeEventListener ? el.removeEventListener(evtName, fn, false) : el.detachEvent('on' + evtName, fn);
     },
 
     documentIsReady: function() {
@@ -477,6 +470,8 @@
     }
   };
 
+  utils.addEvtListener(window, 'load', winLoadHandler);
+
   callbacks = {
     next:  [],
     prev:  [],
@@ -643,14 +638,14 @@
       buttonsEl.appendChild(this.ctaBtnEl);
 
       // Attach click listeners
-      utils.addClickListener(this.prevBtnEl, function(evt) {
+      utils.addEvtListener(this.prevBtnEl, 'click', function(evt) {
         winHopscotch.prevStep(true);
       });
 
-      utils.addClickListener(this.nextBtnEl, function(evt) {
+      utils.addEvtListener(this.nextBtnEl, 'click', function(evt) {
         winHopscotch.nextStep(true);
       });
-      utils.addClickListener(this.doneBtnEl, winHopscotch.endTour);
+      utils.addEvtListener(this.doneBtnEl, 'click', winHopscotch.endTour);
 
       buttonsEl.className = 'hopscotch-actions';
       this.buttonsEl = buttonsEl;
@@ -703,7 +698,7 @@
       closeBtnEl.innerHTML = HopscotchI18N.closeTooltip;
 
       if (this.opt.isTourBubble) {
-        utils.addClickListener(closeBtnEl, function(evt) {
+        utils.addEvtListener(closeBtnEl, 'click', function(evt) {
           var currStepNum   = winHopscotch.getCurrStepNum(),
               currTour      = winHopscotch.getCurrTour(),
               doEndCallback = (currStepNum === currTour.steps.length-1);
@@ -721,7 +716,7 @@
         });
       }
       else {
-        utils.addClickListener(closeBtnEl, this._getCloseFn());
+        utils.addEvtListener(closeBtnEl, 'click', this._getCloseFn());
       }
 
       this.closeBtnEl = closeBtnEl;
@@ -803,16 +798,16 @@
 
         if (step.onCTA) {
           if (this.onCTA) {
-            utils.removeClickListener(this.ctaBtnEl, this.onCTA);
+            utils.removeEvtListener(this.ctaBtnEl, 'click', this.onCTA);
           }
 
-          utils.addClickListener(this.ctaBtnEl, step.onCTA);
+          utils.addEvtListener(this.ctaBtnEl, 'click', step.onCTA);
           this.onCTA = step.onCTA; // cache for removing later
         }
       }
       else if (this.onCTA) {
         // Remove previous CTA callback.
-        utils.removeClickListener(this.ctaBtnEl, this.onCTA);
+        utils.removeEvtListener(this.ctaBtnEl, 'click', this.onCTA);
         this.onCTA = null;
       }
 
@@ -1044,10 +1039,10 @@
         el.parentNode.removeChild(el);
       }
       if (this.closeBtnEl) {
-        utils.removeClickListener(this.closeBtnEl, this._getCloseFn());
+        utils.removeEvtListener(this.closeBtnEl, 'click', this._getCloseFn());
       }
       if (this.ctaBtnEl && this.onCTA) {
-        utils.removeClickListener(this.ctaBtnEl, this.onCTA);
+        utils.removeEvtListener(this.ctaBtnEl, 'click', this.onCTA);
       }
     },
 
@@ -1058,7 +1053,6 @@
           self            = this,
           resizeCooldown  = false, // for updating after window resize
           onWinResize,
-          winResizeTimeout,
           appendToBody,
           opt;
 
@@ -1119,19 +1113,13 @@
         }
 
         resizeCooldown = true;
-        winResizeTimeout = setTimeout(function() {
+        setTimeout(function() {
           self.setPosition(self.currStep);
           resizeCooldown = false;
         }, 100);
       };
 
-      if (window.addEventListener) {
-        window.addEventListener('resize', onWinResize, false);
-      }
-
-      else if (window.attachEvent) {
-        window.attachEvent('onresize', onWinResize, false);
-      }
+      utils.addEvtListener(window, 'resize', onWinResize);
 
       this.hide();
 
@@ -1154,7 +1142,6 @@
           };
 
           document.addEventListener('DOMContentLoaded', appendToBody, false);
-          window.addEventListener('load', appendToBody, false);
         }
         // IE
         else {
@@ -1168,8 +1155,8 @@
           };
 
           document.attachEvent('onreadystatechange', appendToBody);
-          window.attachEvent('onload', appendToBody);
         }
+        utils.addEvtListener(window, 'load', appendToBody);
       }
     }
   };
@@ -1814,7 +1801,7 @@
 
           // If we want to advance to next step when user clicks on target.
           if (step.nextOnTargetClick) {
-            utils.addClickListener(targetEl, targetClickNextFn);
+            utils.addEvtListener(targetEl, 'click', targetClickNextFn);
           }
         });
 
@@ -1854,7 +1841,7 @@
 
       if (step.nextOnTargetClick) {
         // Detach the listener after we've clicked on the target OR the next button.
-        utils.removeClickListener(targetEl, targetClickNextFn);
+        utils.removeEvtListener(targetEl, 'click', targetClickNextFn);
       }
       changeStep.call(this, doCallbacks, 1);
       return this;
