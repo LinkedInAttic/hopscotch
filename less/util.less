@@ -17,7 +17,7 @@
 }
 .gradient(@color, @start, @stop) {
   background-color: @color;
-  filter:progid:DXImageTransform.Microsoft.gradient(gradientType=0, startColorstr='@start', endColorstr='@stop');
+  filter:progid:DXImageTransform.Microsoft.gradient(gradientType=0, startColorstr='@{start}', endColorstr='@{stop}');
   background-image:-webkit-gradient(linear,
                                     50% 0%,
                                     50% 100%,
