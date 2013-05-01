@@ -66,61 +66,52 @@
     /**
      * addClass
      * ========
-     * Adds a class to a DOM element.
-     * Note: does not support adding multiple classes at once yet
+     * Adds one or more classes to a DOM element.
      *
      * @private
      */
     addClass: function(domEl, classToAdd) {
       var domClasses,
-          i, len;
+          classToAddArr,
+          setClass,
+          i,
+          len;
 
-      if (domEl.className.length === 0) {
+      if (!domEl.className) {
         domEl.className = classToAdd;
       }
       else {
-        domClasses = domEl.className.split(/\s+/);
-        for (i = 0, len = domClasses.length; i < len; ++i) {
-          if (domClasses[i] === classToAdd) {
-            return;
+        classToAddArr = classToAdd.split(/\s+/);
+        domClasses = ' ' + domEl.className + ' ';
+        for (i = 0, len = classToAddArr.length; i < len; ++i) {
+          if (domClasses.indexOf(' ' + classToAddArr[i] + ' ') < 0) {
+            domClasses += classToAddArr[i] + ' ';
           }
         }
-        domClasses.splice(0, 0, classToAdd); // add new class to list
-        domEl.className = domClasses.join(' ');
+        domEl.className = domClasses.replace(/^\s+|\s+$/g,'');
       }
     },
 
     /**
      * removeClass
      * ===========
-     * Remove a class from a DOM element.
-     * Note: this one DOES support removing multiple classes.
+     * Remove one or more classes from a DOM element.
      *
      * @private
      */
     removeClass: function(domEl, classToRemove) {
       var domClasses,
-          classesToRemove,
+          classToRemoveArr,
           currClass,
           i,
-          j,
-          toRemoveLen,
-          domClassLen;
+          len;
 
-      classesToRemove = classToRemove.split(/\s+/);
-      domClasses = domEl.className.split(/\s+/);
-      for (i = 0, toRemoveLen = classesToRemove.length; i < toRemoveLen; ++i) {
-        currClass = classesToRemove[i];
-        for (j = 0, domClassLen = domClasses.length; j < domClassLen; ++j) {
-          if (domClasses[j] === currClass) {
-            break;
-          }
-        }
-        if (j < domClassLen) {
-          domClasses.splice(j, 1); // remove class from list
-        }
+      classToRemoveArr = classToRemove.split(/\s+/);
+      domClasses = ' ' + domEl.className + ' ';
+      for (i = 0, len = classToRemoveArr.length; i < len; ++i) {
+        domClasses = domClasses.replace(' ' + classToRemoveArr[i] + ' ', ' ');
       }
-      domEl.className = domClasses.join(' ');
+      domEl.className = domClasses.replace(/^\s+|\s+$/g,'');
     },
 
     /**
@@ -520,19 +511,22 @@
      * @private
      */
     _createButton: function(id, text) {
-      var btnEl = document.createElement('button');
+      var btnEl = document.createElement('button'),
+          className = 'hopscotch-nav-button';
+
       btnEl.id = id;
       if (text) {
         btnEl.innerHTML = text;
       }
-      utils.addClass(btnEl, 'hopscotch-nav-button');
 
       if (id.indexOf('prev') >= 0) {
-        utils.addClass(btnEl, 'prev');
+        className += ' prev';
       }
       else {
-        utils.addClass(btnEl, 'next');
+        className += ' next';
       }
+
+      utils.addClass(btnEl, className);
 
       return btnEl;
     },
