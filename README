@@ -141,8 +141,6 @@ Tour options can be specified either through the tour JSON object, or through a 
 
 **bubblePadding** [NUMBER] - Default bubble padding. *Default*: 15.
 
-**animate** [BOOLEAN] - Should the tour bubble animate between steps?  *Default*: false.
-
 **smoothScroll** [BOOLEAN] - Should the page scroll smoothly to the next step? *Default*: true.
 
 **scrollDuration** [NUMBER] - Duration of page scroll in milliseconds. Only relevant when smoothScroll is set to true. *Default*: 1000.
@@ -155,7 +153,7 @@ Tour options can be specified either through the tour JSON object, or through a 
 
 **showNextButton** [BOOLEAN] - Should the bubble have the Next button? *Default*: true.
 
-**arrowWidth** [NUMBER] - Default arrow width. (space between the bubble and the targetEl) Used for bubble position calculation. Need to provide the option to set this here in case developer wants to use own CSS. *Default*: 20.
+**arrowWidth** [NUMBER] - Default arrow width. (space between the bubble and the targetEl) Used for bubble position calculation. This option is provided for the case where the developer wants to use custom CSS to adjust the size of the arrow. *Default*: 20.
 
 **skipIfNoElement** [BOOLEAN] - If a specified target element is not found, should we skip to the next step? *Default*: true.
 

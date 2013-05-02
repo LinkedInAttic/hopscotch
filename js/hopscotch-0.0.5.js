@@ -8,13 +8,11 @@
       callbacks,
       helpers,
       winLoadHandler,
-      hasCssTransitions,
       winHopscotch      = context[namespace],
       undefinedStr      = 'undefined',
       waitingToStart    = false, // is a tour waiting for the document to finish
                                  // loading so that it can start?
       defaultOpts       = {
-        animate:         false,
         smoothScroll:    true,
         scrollDuration:  1000,
         scrollTopMargin: 200,
@@ -131,15 +129,6 @@
      */
     valOrDefault: function(val, valDefault) {
       return typeof val !== undefinedStr ? val : valDefault;
-    },
-
-    supportsCssTransitions: function() {
-      var docStyle = document.body.style;
-      return (typeof docStyle.MozTransition    !== undefinedStr ||
-              typeof docStyle.MsTransition     !== undefinedStr ||
-              typeof docStyle.webkitTransition !== undefinedStr ||
-              typeof docStyle.OTransition      !== undefinedStr ||
-              typeof docStyle.transition       !== undefinedStr);
     },
 
     /**
@@ -602,16 +591,8 @@
       // ACCOUNT FOR FIXED POSITION ELEMENTS
       el.style.position = (step.fixedElement ? 'fixed' : 'absolute');
 
-      if (this.opt.animate && hasJquery && !hasCssTransitions) {
-        $(el).animate({
-          top: top + 'px',
-          left: left + 'px'
-        });
-      }
-      else {
-        el.style.top = top + 'px';
-        el.style.left = left + 'px';
-      }
+      el.style.top = top + 'px';
+      el.style.left = left + 'px';
     },
 
     /**
@@ -918,24 +899,17 @@
 
     show: function() {
       var self      = this,
-          className = 'fade-in-' + this._getArrowDirection(),
+          fadeClass = 'fade-in-' + this._getArrowDirection(),
           fadeDur   = 1000;
 
       utils.removeClass(this.element, 'hide');
-      if (this.opt.animate) {
-        setTimeout(function() {
-          utils.addClass(self.element, 'animate');
-        }, 50);
-      }
-      else {
-        utils.addClass(this.element, className);
-        setTimeout(function() {
-          utils.removeClass(self.element, 'invisible');
-        }, 50);
-        setTimeout(function() {
-          utils.removeClass(self.element, className);
-        }, fadeDur);
-      }
+      utils.addClass(this.element, fadeClass);
+      setTimeout(function() {
+        utils.removeClass(self.element, 'invisible');
+      }, 50);
+      setTimeout(function() {
+        utils.removeClass(self.element, fadeClass);
+      }, fadeDur);
       this.isShowing = true;
       return this;
     },
@@ -955,9 +929,7 @@
       // opacity: 0
       else {
         utils.removeClass(el, 'hide');
-        if (!this.opt.animate) {
-          utils.addClass(el, 'invisible');
-        }
+        utils.addClass(el, 'invisible');
       }
       utils.removeClass(el, 'animate fade-in-up fade-in-down fade-in-right fade-in-left');
       this.isShowing = false;
@@ -994,38 +966,6 @@
       this._showButton(this.closeBtnEl, show, permanent);
     },
 
-
-    /**
-     * _initAnimate
-     * ===========
-     * This function exists due to how Chrome handles initial CSS transitions.
-     * Most other browsers will not animate a transition until the element
-     * exists on the page. Chrome treats DOM elements as starting from the
-     * (0, 0) position, and will animate from the upper left corner on creation
-     * of the DOM element. (e.g., if you create a new DOM element using
-     * Javascript and specify CSS top: 100px, left: 50px, then append the
-     * DOM element to the document.body, it will create it at 0, 0 and then
-     * animate it to 50, 100)
-     *
-     * Solution is to add the animate class (which defines our transition)
-     * only after the element is created.
-     *
-     * @private
-     */
-    _initAnimate: function() {
-      var self = this;
-      setTimeout(function() {
-        utils.addClass(self.element, 'animate');
-      }, 50);
-    },
-
-    /**
-     * @private
-     */
-    _removeAnimate: function() {
-      utils.removeClass(this.element, 'animate');
-    },
-
     destroy: function() {
       var el = this.element;
 
@@ -1056,7 +996,6 @@
       this.contentEl      = document.createElement('p');
 
       opt = {
-        animate:        defaultOpts.animate,
         showPrevButton: defaultOpts.showPrevButton,
         showNextButton: defaultOpts.showNextButton,
         bubbleWidth:    defaultOpts.bubbleWidth,
@@ -1122,7 +1061,6 @@
        */
       if (utils.documentIsReady()) {
         document.body.appendChild(el);
-        hasCssTransitions = utils.supportsCssTransitions();
       }
       else {
         // Moz, webkit, Opera
@@ -1132,7 +1070,6 @@
             window.removeEventListener('load', appendToBody);
 
             document.body.appendChild(el);
-            hasCssTransitions = utils.supportsCssTransitions();
           };
 
           document.addEventListener('DOMContentLoaded', appendToBody, false);
@@ -1145,7 +1082,6 @@
               window.detachEvent('onload', appendToBody);
               document.body.appendChild(el);
             }
-            hasCssTransitions = utils.supportsCssTransitions();
           };
 
           document.attachEvent('onreadystatechange', appendToBody);
@@ -1271,7 +1207,6 @@
     getBubble = function() {
       if (!bubble) {
         bubble = new HopscotchBubble({
-          animate:        opt.animate,
           bubblePadding:  opt.bubblePadding,
           bubbleWidth:    opt.bubbleWidth,
           showNextButton: opt.showNextButton,
@@ -1623,6 +1558,10 @@
         --currStepNum;
         step = getCurrStep();
         target = utils.getStepTarget(step);
+        if (target) {
+          cb(currStepNum);
+          return;
+        }
       }
 
       if (!target) {
@@ -1632,6 +1571,7 @@
         // whatever reason. In either case, we should just advance until we find a step
         // that has a target on the page or end the tour if we can't find such a step.
         utils.invokeEventCallbacks('error');
+
         if (opt.skipIfNoElement) {
           ++currStepNum; // undo the previous decrement
           goToStepWithTarget(1, cb);
@@ -1727,12 +1667,11 @@
         utils.invokeEventCallbacks('start');
 
         bubble = getBubble();
+        // TODO: do we still need this call to .hide()? No longer using opt.animate...
+        // Leaving it in for now to play it safe
         bubble.hide(false); // make invisible for boundingRect calculations when opt.animate == true
 
         self.isActive = true;
-        if (opt.animate) {
-          bubble._initAnimate();
-        }
 
         if (!utils.getStepTarget(getCurrStep())) {
           // First step element doesn't exist
@@ -1777,10 +1716,7 @@
         // Update bubble for current step
         currStepNum    = stepNum;
 
-        // Only do fade if we're not animating.
-        if (!opt.animate) {
-          bubble.hide(false);
-        }
+        bubble.hide(false);
 
         isLast = (stepNum === numTourSteps - 1);
         bubble.render(step, stepNum, isLast, function(adjustScroll) {
@@ -2050,13 +1986,6 @@
 
       bubble = getBubble();
 
-      if (opt.animate) {
-        bubble._initAnimate();
-      }
-      else {
-        bubble._removeAnimate();
-      }
-
       bubble.showCloseButton(options.showCloseButton, typeof options.showCloseButton !== undefinedStr);
 
       return this;
@@ -2070,8 +1999,6 @@
      *
      * - bubbleWidth:     Number   - Default bubble width. Defaults to 280.
      * - bubblePadding:   Number   - Default bubble padding. Defaults to 15.
-     * - animate:         Boolean  - should the tour bubble animate between steps?
-     *                               Defaults to FALSE.
      * - smoothScroll:    Boolean  - should the page scroll smoothly to the next
      *                               step? Defaults to TRUE.
      * - scrollDuration:  Number   - Duration of page scroll. Only relevant when
@@ -2132,10 +2059,9 @@
      *                                  ('4', '5', '6', etc.) will be used as default.
      * </pre>
      *
-     * @example hopscotch.configure({ animate: false, scrollTopMargin: 150 });
+     * @example hopscotch.configure({ scrollDuration: 1000, scrollTopMargin: 150 });
      * @example
      * hopscotch.configure({
-     *   animate: false,
      *   scrollTopMargin: 150,
      *   onStart: function() {
      *     alert("Have fun!");
