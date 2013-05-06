@@ -608,9 +608,9 @@
       utils.addClass(this.doneBtnEl, 'hide');
 
       buttonsEl.appendChild(this.prevBtnEl);
+      buttonsEl.appendChild(this.ctaBtnEl);
       buttonsEl.appendChild(this.nextBtnEl);
       buttonsEl.appendChild(this.doneBtnEl);
-      buttonsEl.appendChild(this.ctaBtnEl);
 
       // Attach click listeners
       utils.addEvtListener(this.prevBtnEl, 'click', function(evt) {
@@ -757,7 +757,7 @@
 
       this.showPrevButton(this.prevBtnEl && showPrev && idx > 0);
       this.showNextButton(this.nextBtnEl && showNext && !isLast);
-      this.nextBtnEl.value = step.showSkip ? HopscotchI18N.skipBtn : HopscotchI18N.nextBtn;
+      this.nextBtnEl.innerHTML = step.showSkip ? HopscotchI18N.skipBtn : HopscotchI18N.nextBtn;
 
       if (isLast) {
         utils.removeClass(this.doneBtnEl, 'hide');
@@ -1378,7 +1378,8 @@
      */
     goToStepWithTarget = function(direction, cb) {
       var target,
-          step;
+          step,
+          goToStepFn;
 
       if (currStepNum + direction >= 0 &&
           currStepNum + direction < currTour.steps.length) {
@@ -1386,11 +1387,7 @@
         currStepNum += direction;
         step = getCurrStep();
 
-        // This setTimeout is here because the next step may have a delay
-        // (e.g., if the state of the page changed that introduced the target
-        // for the next step, then we need to respect delay before calling
-        // utils.getStepTarget)
-        setTimeout(function() {
+        goToStepFn = function() {
           target = utils.getStepTarget(step);
 
           if (target) {
@@ -1403,7 +1400,14 @@
             utils.invokeEventCallbacks('error');
             goToStepWithTarget(direction, cb);
           }
-        }, utils.valOrDefault(step.delay, 0));
+        };
+
+        if (step.delay) {
+          setTimeout(goToStepFn, step.delay);
+        }
+        else {
+          goToStepFn();
+        }
       }
       else {
         cb(-1); // signal that we didn't find any step with a valid target
@@ -1584,6 +1588,49 @@
       }
     },
 
+    showStepHelper = function(stepNum) {
+      var step         = currTour.steps[stepNum],
+          tourSteps    = currTour.steps,
+          numTourSteps = tourSteps.length,
+          cookieVal    = currTour.id + ':' + stepNum,
+          bubble       = getBubble(),
+          targetEl     = utils.getStepTarget(step),
+          isLast,
+          showBubble;
+
+      showBubble = function() {
+        bubble.show();
+        utils.invokeEventCallbacks('show', step.onShow);
+      };
+
+      // Update bubble for current step
+      currStepNum    = stepNum;
+
+      bubble.hide(false);
+
+      isLast = (stepNum === numTourSteps - 1);
+      bubble.render(step, stepNum, isLast, function(adjustScroll) {
+        // when done adjusting window scroll, call showBubble helper fn
+        if (adjustScroll) {
+          adjustWindowScroll(showBubble);
+        }
+        else {
+          showBubble();
+        }
+
+        // If we want to advance to next step when user clicks on target.
+        if (step.nextOnTargetClick) {
+          utils.addEvtListener(targetEl, 'click', targetClickNextFn);
+        }
+      });
+
+      if (step.multipage) {
+        cookieVal += ':mp';
+      }
+
+      utils.setState(opt.cookieName, cookieVal, 1);
+    },
+
     /**
      * init
      *
@@ -1635,6 +1682,13 @@
         loadTour.call(this, tour);
       }
 
+      if (typeof stepNum !== undefinedStr) {
+        if (stepNum >= currTour.steps.length) {
+          throw 'Specified step number out of bounds.';
+        }
+        currStepNum = stepNum;
+      }
+
       // If document isn't ready, wait for it to finish loading.
       // (so that we can calculate positioning accurately)
       if (!utils.documentIsReady()) {
@@ -1642,13 +1696,10 @@
         return this;
       }
 
-      if (typeof stepNum !== undefinedStr) {
-        currStepNum = stepNum;
-      }
-      else if (currTour.id === cookieTourId && typeof cookieTourStep !== undefinedStr) {
+      if (!currStepNum && currTour.id === cookieTourId && typeof cookieTourStep !== undefinedStr) {
         currStepNum = cookieTourStep;
       }
-      else {
+      else if (!currStepNum) {
         currStepNum = 0;
       }
 
@@ -1698,48 +1749,14 @@
      */
     this.showStep = function(stepNum) {
       var step = currTour.steps[stepNum];
-
-      setTimeout(function() {
-        var tourSteps    = currTour.steps,
-            numTourSteps = tourSteps.length,
-            cookieVal    = currTour.id + ':' + stepNum,
-            bubble       = getBubble(),
-            targetEl     = utils.getStepTarget(step),
-            isLast,
-            showBubble;
-
-        showBubble = function() {
-          bubble.show();
-          utils.invokeEventCallbacks('show', step.onShow);
-        };
-
-        // Update bubble for current step
-        currStepNum    = stepNum;
-
-        bubble.hide(false);
-
-        isLast = (stepNum === numTourSteps - 1);
-        bubble.render(step, stepNum, isLast, function(adjustScroll) {
-          // when done adjusting window scroll, call showBubble helper fn
-          if (adjustScroll) {
-            adjustWindowScroll(showBubble);
-          }
-          else {
-            showBubble();
-          }
-
-          // If we want to advance to next step when user clicks on target.
-          if (step.nextOnTargetClick) {
-            utils.addEvtListener(targetEl, 'click', targetClickNextFn);
-          }
-        });
-
-        if (step.multipage) {
-          cookieVal += ':mp';
-        }
-
-        utils.setState(opt.cookieName, cookieVal, 1);
-      }, step.delay || 0);
+      if (step.delay) {
+        setTimeout(function() {
+          showStepHelper(stepNum);
+        }, step.delay);
+      }
+      else {
+        showStepHelper(stepNum);
+      }
       return this;
     };
 
