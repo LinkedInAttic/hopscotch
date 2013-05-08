@@ -5,5 +5,7 @@
 
 #mocha {
   border: 1px dashed #000;
+  max-height: 400px;
+  overflow: auto;
   padding-bottom: 15px;
 }

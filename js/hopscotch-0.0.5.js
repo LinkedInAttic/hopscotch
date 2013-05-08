@@ -3,6 +3,7 @@
       HopscotchBubble,
       HopscotchCalloutManager,
       HopscotchI18N,
+      customI18N,
       Sizzle = window.Sizzle || null,
       utils,
       callbacks,
@@ -22,7 +23,8 @@
         bubbleWidth:     280,
         bubblePadding:   15,
         arrowWidth:      20,
-        skipIfNoElement: true
+        skipIfNoElement: true,
+        cookieName:      'hopscotch.tour.state'
       },
       hasJquery         = (typeof window.jQuery !== undefinedStr),
       hasSessionStorage = (typeof window.sessionStorage !== undefinedStr),
@@ -189,8 +191,8 @@
     },
 
     /**
-     * First invoke tour-wide helper. If stepCb (the step-specific helper
-     * callback) is passed in, then invoke it afterwards.
+     * If stepCb (the step-specific helper callback) is passed in, then invoke
+     * it first. Then invoke tour-wide helper.
      *
      * @private
      */
@@ -384,6 +386,16 @@
       return step.target;
     },
 
+    /**
+     * Convenience method for getting an i18n string. Returns custom i18n value
+     * or the default i18n value if no custom value exists.
+     *
+     * @private
+     */
+    getI18NString: function(key) {
+      return customI18N[key] || HopscotchI18N[key];
+    },
+
     // Tour session persistence for multi-page tours. Uses HTML5 sessionStorage if available, then
     // falls back to using cookies.
     //
@@ -479,6 +491,8 @@
     skipBtn: 'Skip',
     closeTooltip: 'Close'
   };
+
+  customI18N = {}; // Developer's custom i18n strings goes here.
 
   /**
    * HopscotchBubble
@@ -601,9 +615,9 @@
     _initNavButtons: function() {
       var buttonsEl  = document.createElement('div');
 
-      this.prevBtnEl = this._createButton('hopscotch-prev', HopscotchI18N.prevBtn);
-      this.nextBtnEl = this._createButton('hopscotch-next', HopscotchI18N.nextBtn);
-      this.doneBtnEl = this._createButton('hopscotch-done', HopscotchI18N.doneBtn);
+      this.prevBtnEl = this._createButton('hopscotch-prev', utils.getI18NString('prevBtn'));
+      this.nextBtnEl = this._createButton('hopscotch-next', utils.getI18NString('nextBtn'));
+      this.doneBtnEl = this._createButton('hopscotch-done', utils.getI18NString('doneBtn'));
       this.ctaBtnEl  = this._createButton('hopscotch-cta');
       utils.addClass(this.doneBtnEl, 'hide');
 
@@ -669,8 +683,8 @@
 
       closeBtnEl.className = 'hopscotch-bubble-close';
       closeBtnEl.href = '#';
-      closeBtnEl.title = HopscotchI18N.closeTooltip;
-      closeBtnEl.innerHTML = HopscotchI18N.closeTooltip;
+      closeBtnEl.title = utils.getI18NString('closeTooltip');
+      closeBtnEl.innerHTML = utils.getI18NString('closeTooltip');
 
       if (this.opt.isTourBubble) {
         utils.addEvtListener(closeBtnEl, 'click', function(evt) {
@@ -692,6 +706,10 @@
       }
       else {
         utils.addEvtListener(closeBtnEl, 'click', this._getCloseFn());
+      }
+
+      if (!this.opt.showCloseButton) {
+        utils.addClass(closeBtnEl, 'hide');
       }
 
       this.closeBtnEl = closeBtnEl;
@@ -757,7 +775,7 @@
 
       this.showPrevButton(this.prevBtnEl && showPrev && idx > 0);
       this.showNextButton(this.nextBtnEl && showNext && !isLast);
-      this.nextBtnEl.innerHTML = step.showSkip ? HopscotchI18N.skipBtn : HopscotchI18N.nextBtn;
+      this.nextBtnEl.innerHTML = step.showSkip ? utils.getI18NString('skipBtn') : utils.getI18NString('nextBtn');
 
       if (isLast) {
         utils.removeClass(this.doneBtnEl, 'hide');
@@ -845,8 +863,9 @@
     },
 
     setNum: function(idx) {
-      if (HopscotchI18N.stepNums && idx < HopscotchI18N.stepNums.length) {
-        idx = HopscotchI18N.stepNums[idx];
+      var stepNumI18N = utils.getI18NString('stepNums');
+      if (stepNumI18N && idx < stepNumI18N.length) {
+        idx = stepNumI18N[idx];
       }
       else {
         idx = idx + 1;
@@ -954,16 +973,16 @@
       else { utils.addClass(btnEl, classname); }
     },
 
-    showPrevButton: function(show, permanent) {
-      this._showButton(this.prevBtnEl, show, permanent);
+    showPrevButton: function(show) {
+      this._showButton(this.prevBtnEl, show);
     },
 
-    showNextButton: function(show, permanent) {
-      this._showButton(this.nextBtnEl, show, permanent);
+    showNextButton: function(show) {
+      this._showButton(this.nextBtnEl, show);
     },
 
-    showCloseButton: function(show, permanent) {
-      this._showButton(this.closeBtnEl, show, permanent);
+    showCloseButton: function(show) {
+      this._showButton(this.closeBtnEl, show);
     },
 
     destroy: function() {
@@ -978,6 +997,25 @@
       if (this.ctaBtnEl && this.onCTA) {
         utils.removeEvtListener(this.ctaBtnEl, 'click', this.onCTA);
       }
+    },
+
+    /**
+     * updateButtons
+     *
+     * When the config options are changed, we should call this method to
+     * update the buttons.
+     *
+     * @param {Object} opt The options for the callout. For the most
+     * part, these are the same options as you would find in a tour
+     * step.
+     */
+    updateButtons: function() {
+      this.showPrevButton(this.opt.showPrevButton);
+      this.showNextButton(this.opt.showNextButton);
+      this.showCloseButton(this.opt.showCloseButton);
+      this.prevBtnEl.innerHTML = utils.getI18NString('prevBtn');
+      this.nextBtnEl.innerHTML = utils.getI18NString('nextBtn');
+      this.doneBtnEl.innerHTML = utils.getI18NString('doneBtn');
     },
 
     init: function(initOpt) {
@@ -1202,19 +1240,37 @@
      * Singleton accessor function for retrieving or creating bubble object.
      *
      * @private
+     * @param setOptions {Boolean} when true, transfers configuration options to the bubble
      * @returns {Object} HopscotchBubble
      */
-    getBubble = function() {
+    getBubble = function(setOptions) {
       if (!bubble) {
-        bubble = new HopscotchBubble({
-          bubblePadding:  opt.bubblePadding,
-          bubbleWidth:    opt.bubbleWidth,
-          showNextButton: opt.showNextButton,
-          showPrevButton: opt.showPrevButton,
-          arrowWidth:     opt.arrowWidth
+        bubble = new HopscotchBubble(opt);
+      }
+      if (setOptions) {
+        utils.extend(bubble.opt, {
+          bubblePadding:   getOption('bubblePadding'),
+          bubbleWidth:     getOption('bubbleWidth'),
+          showNextButton:  getOption('showNextButton'),
+          showPrevButton:  getOption('showPrevButton'),
+          showCloseButton: getOption('showCloseButton'),
+          arrowWidth:      getOption('arrowWidth')
         });
+        bubble.updateButtons();
       }
       return bubble;
+    },
+
+    /**
+     * Convenience method for getting an option. Returns custom config option
+     * or the default config option if no custom value exists.
+     *
+     * @private
+     * @param name {String} config option name
+     * @returns {Object} config option value
+     */
+    getOption = function(name) {
+      return utils.valOrDefault(opt[name], defaultOpts[name]);
     },
 
     /**
@@ -1279,7 +1335,7 @@
           windowBottom   = windowTop + utils.getWindowHeight(),
 
           // This is our final target scroll value.
-          scrollToVal    = targetTop - opt.scrollTopMargin,
+          scrollToVal    = targetTop - getOption('scrollTopMargin'),
 
           scrollEl,
           yuiAnim,
@@ -1290,12 +1346,12 @@
           scrollTimeoutFn;
 
       // Target and bubble are both visible in viewport
-      if (targetTop >= windowTop && (targetTop <= windowTop + opt.scrollTopMargin || targetBottom <= windowBottom)) {
+      if (targetTop >= windowTop && (targetTop <= windowTop + getOption('scrollTopMargin') || targetBottom <= windowBottom)) {
         if (cb) { cb(); } // HopscotchBubble.show
       }
 
       // Abrupt scroll to scroll target
-      else if (!opt.smoothScroll) {
+      else if (!getOption('smoothScroll')) {
         window.scrollTo(0, scrollToVal);
 
         if (cb) { cb(); } // HopscotchBubble.show
@@ -1313,14 +1369,14 @@
           yuiEase = YAHOO.util.Easing ? YAHOO.util.Easing.easeOut : undefined;
           yuiAnim = new YAHOO.util.Scroll(scrollEl, {
             scroll: { to: [0, scrollToVal] }
-          }, opt.scrollDuration/1000, yuiEase);
+          }, getOption('scrollDuration')/1000, yuiEase);
           yuiAnim.onComplete.subscribe(cb);
           yuiAnim.animate();
         }
 
         // Use jQuery if it exists
         else if (hasJquery) {
-          $('body, html').animate({ scrollTop: scrollToVal }, opt.scrollDuration, cb);
+          $('body, html').animate({ scrollTop: scrollToVal }, getOption('scrollDuration'), cb);
         }
 
         // Use my crummy setInterval scroll solution if we're using plain, vanilla Javascript.
@@ -1334,7 +1390,7 @@
           // setInterval overhead.
           // To increase or decrease duration, change the divisor of scrollIncr.
           direction = (windowTop > targetTop) ? -1 : 1; // -1 means scrolling up, 1 means down
-          scrollIncr = Math.abs(windowTop - scrollToVal) / (opt.scrollDuration/10);
+          scrollIncr = Math.abs(windowTop - scrollToVal) / (getOption('scrollDuration')/10);
           scrollTimeoutFn = function() {
             var scrollTop = utils.getScrollTop(),
                 scrollTarget = scrollTop + (direction * scrollIncr);
@@ -1472,7 +1528,7 @@
         this.showStep(stepNum);
       };
 
-      if (!wasMultiPage && opt.skipIfNoElement) {
+      if (!wasMultiPage && getOption('skipIfNoElement')) {
         goToStepWithTarget(direction, function(stepNum) {
           changeStepCb.call(self, stepNum);
         });
@@ -1514,11 +1570,12 @@
         }
       }
 
-      this.resetDefaultOptions(); // reset all options so there are no surprises
+      //this.resetDefaultOptions(); // reset all options so there are no surprises
+      // TODO check number of config properties of tour
       _configure.call(this, tmpOpt, true);
 
       // Get existing tour state, if it exists.
-      tourState = utils.getState(opt.cookieName);
+      tourState = utils.getState(getOption('cookieName'));
       if (tourState) {
         tourPair            = tourState.split(':');
         cookieTourId        = tourPair[0]; // selecting tour is not supported by this framework.
@@ -1545,7 +1602,8 @@
     findStartingStep = function(startStepNum, cb) {
       var step,
           target,
-          stepNum;
+          stepNum,
+          decrementedStep = false;
 
       currStepNum = startStepNum || 0;
       step        = getCurrStep();
@@ -1560,6 +1618,7 @@
         // No target found for the initial step. May have just refreshed the
         // page. Try the previous step. (but don't change cookie)
         --currStepNum;
+        decrementedStep = true;
         step = getCurrStep();
         target = utils.getStepTarget(step);
         if (target) {
@@ -1576,8 +1635,10 @@
         // that has a target on the page or end the tour if we can't find such a step.
         utils.invokeEventCallbacks('error');
 
-        if (opt.skipIfNoElement) {
-          ++currStepNum; // undo the previous decrement
+        if (getOption('skipIfNoElement')) {
+          if (decrementedStep) {
+            ++currStepNum; // undo the previous decrement
+          }
           goToStepWithTarget(1, cb);
           return;
         }
@@ -1628,7 +1689,7 @@
         cookieVal += ':mp';
       }
 
-      utils.setState(opt.cookieName, cookieVal, 1);
+      utils.setState(getOption('cookieName'), cookieVal, 1);
     },
 
     /**
@@ -1640,7 +1701,7 @@
      */
     init = function(initOptions) {
       if (initOptions) {
-        initOptions.cookieName = initOptions.cookieName || 'hopscotch.tour.state';
+        //initOptions.cookieName = initOptions.cookieName || 'hopscotch.tour.state';
         this.configure(initOptions);
       }
     };
@@ -1727,7 +1788,7 @@
         if (!utils.getStepTarget(getCurrStep())) {
           // First step element doesn't exist
           utils.invokeEventCallbacks('error');
-          if (opt.skipIfNoElement) {
+          if (getOption('skipIfNoElement')) {
             self.nextStep(false);
           }
         }
@@ -1811,15 +1872,18 @@
 
       bubble.hide();
       if (clearState) {
-        utils.clearState(opt.cookieName);
+        utils.clearState(getOption('cookieName'));
       }
-      winHopscotch.isActive = false;
+      if (this.isActive) {
+        this.isActive = false;
 
-      if (currTour && doCallbacks) {
-        utils.invokeEventCallbacks('end');
+        if (currTour && doCallbacks) {
+          utils.invokeEventCallbacks('end');
+        }
       }
 
-      winHopscotch.removeCallbacks(true);
+      this.removeCallbacks(true);
+      this.resetDefaultOptions();
 
       currTour = null;
 
@@ -1958,10 +2022,19 @@
      * @returns {Object} Hopscotch
      */
     this.resetDefaultOptions = function() {
-      if (!opt) { opt = {}; }
-
-      utils.extend(opt, defaultOpts);
+      opt = {};
       return this;
+    };
+
+    /**
+     * resetDefaultI18N
+     *
+     * Resets all i18n.
+     *
+     * @returns {Object} Hopscotch
+     */
+    this.resetDefaultI18N = function() {
+      customI18N = {};
     };
 
     /**
@@ -1987,7 +2060,7 @@
       utils.extend(opt, options);
 
       if (options) {
-        utils.extend(HopscotchI18N, options.i18n);
+        utils.extend(customI18N, options.i18n);
       }
 
       for (i = 0, len = events.length; i < len; ++i) {
@@ -2001,9 +2074,7 @@
         }
       }
 
-      bubble = getBubble();
-
-      bubble.showCloseButton(options.showCloseButton, typeof options.showCloseButton !== undefinedStr);
+      bubble = getBubble(true);
 
       return this;
     };
