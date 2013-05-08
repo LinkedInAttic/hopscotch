@@ -649,6 +649,7 @@ describe('HopscotchBubble', function() {
       title = document.querySelector('.hopscotch-bubble-content h3').innerHTML;
       expect(title).to.be('Shopping List');
     });
+
     it('should show the Content of the step', function() {
       var content;
       hopscotch.startTour({
@@ -693,6 +694,7 @@ describe('HopscotchBubble', function() {
       expect($nextBtnEl.html()).to.be('Skip');
       hopscotch.endTour();
     });
+
     it('should show Done button on the last step', function() {
       var doneBtnEl;
 
@@ -719,6 +721,7 @@ describe('HopscotchBubble', function() {
       expect(doneBtnEl.html()).to.be('Done');
       hopscotch.endTour();
     });
+
     it('should hide Previous button when specified', function() {
       var $el,
       tour = {
@@ -739,6 +742,7 @@ describe('HopscotchBubble', function() {
       expect($el.hasClass('hide')).to.be.ok();
       hopscotch.endTour();
     });
+
     it('should hide Next button when specified', function() {
       var $el,
       tour = {
@@ -1002,4 +1006,76 @@ describe('HopscotchBubble', function() {
 });
 
 describe('HopscotchCalloutManager', function() {
+  describe('CalloutManager', function() {
+    it('should create no more than one instance of the callout manager', function() {
+      var mgr = hopscotch.getCalloutManager();
+      expect(mgr).to.be(hopscotch.getCalloutManager());
+    });
+    it('should create a callout using createCallout() and remove it with removeCallout()', function() {
+      var mgr = hopscotch.getCalloutManager(),
+          $el;
+
+      mgr.createCallout({
+        id: 'shopping-callout',
+        target: 'shopping-list',
+        orientation: 'left',
+        title: 'Shopping List Callout',
+        content: 'It\'s a shopping list'
+      });
+
+      $el = $('.hopscotch-bubble.hopscotch-callout');
+      expect($el.length).to.be(1);
+      expect($el.html().indexOf('Shopping List Callout')).to.be.greaterThan(-1);
+      mgr.removeCallout('shopping-callout');
+      expect($('.hopscotch-bubble.hopscotch-callout').length).to.be(0);
+    });
+    it('should remove all callouts using removeAllCallouts()', function() {
+      var mgr = hopscotch.getCalloutManager(),
+          callout;
+
+      mgr.createCallout({
+        id: 'shopping-callout',
+        target: 'shopping-list',
+        orientation: 'left',
+        title: 'Shopping List Callout',
+        content: 'It\'s a shopping list'
+      });
+      mgr.createCallout({
+        id: 'shopping-callout2',
+        target: 'shopping-list',
+        orientation: 'left',
+        title: 'Shopping List Callout',
+        content: 'It\'s a shopping list'
+      });
+      mgr.createCallout({
+        id: 'shopping-callout3',
+        target: 'shopping-list',
+        orientation: 'left',
+        title: 'Shopping List Callout',
+        content: 'It\'s a shopping list'
+      });
+
+      expect($('.hopscotch-bubble.hopscotch-callout').length).to.be(3);
+      mgr.removeAllCallouts();
+      expect($('.hopscotch-bubble.hopscotch-callout').length).to.be(0);
+    });
+    it('should return instance of HopscotchBubble using getCallout()', function() {
+      var mgr = hopscotch.getCalloutManager(),
+          callout;
+
+      callout = mgr.createCallout({
+        id: 'shopping-callout',
+        target: 'shopping-list',
+        orientation: 'left',
+        title: 'Shopping List Callout',
+        content: 'It\'s a shopping list'
+      });
+
+      // Test the existence of some known methods of HopscotchBubble
+      expect(callout.render).to.be.ok();
+      expect(callout.destroy).to.be.ok();
+      expect(callout.setPosition).to.be.ok();
+      mgr.removeCallout('shopping-callout');
+    });
+  });
 });

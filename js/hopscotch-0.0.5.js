@@ -1051,6 +1051,10 @@
       el.className = 'hopscotch-bubble animated'; // "animated" for fade css animation
       containerEl.className = 'hopscotch-bubble-container';
 
+      if (!opt.isTourBubble) {
+        el.className += ' hopscotch-callout';
+      }
+
       if (opt.showNumber) {
         this.numberEl           = document.createElement('span');
         this.numberEl.className = 'hopscotch-bubble-number';
