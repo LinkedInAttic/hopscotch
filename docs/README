@@ -1,5 +1,5 @@
-Overview
-========
+Hopscotch
+=========
 Hopscotch is a framework to make it easy for developers to add product tours to their pages. Hopscotch accepts a tour JSON object as input and provides an API for the developer to control rendering the tour display and managing the tour progress.
 
 Features
@@ -11,7 +11,7 @@ Features
 General Usage
 =============
 
-To get started using the Hopscotch framework, simply include hopscotch.js on your page. This will load the hopscotch object into the global window object for you. Also be sure to include hopscotch.css to get the default styling.
+To get started using the Hopscotch framework, simply include `hopscotch.css` and `hopscotch.js` on your page. This will load the hopscotch object into the global window object for you.
 
     <html>
       <head>
@@ -19,12 +19,40 @@ To get started using the Hopscotch framework, simply include hopscotch.js on you
         <link rel="stylesheet" href="css/hopscotch.css"></link>
       </head>
       <body>
-        <div>
+        <h1 id="header">My First Hopscotch Tour</h1>
+        <div id="content">
           <p>Content goes here...</p>
         </div>
         <script src="js/hopscotch.js"></script>
+        <script src="js/my_first_tour.js"></script> <!-- define and start your tour in this file -->
       </body>
     </html>
+
+Then in your `my_first_tour.js` file, define and start your tour.
+
+    // Define the tour!
+    var tour = {
+      id: "hello-hopscotch",
+      steps: [
+        {
+          title: "My Header",
+          content: "This is the header of my page.",
+          target: "header",
+          orientation: "right"
+        },
+        {
+          title: "My content",
+          content: "Here is where I put my content.",
+          target: document.querySelector("#content p"),
+          orientation: "bottom"
+        }
+      ]
+    };
+
+    // Start the tour!
+    hopscotch.startTour(tour);
+
+That's all there is to it!
 
 Defining a Tour
 ===============
@@ -271,3 +299,56 @@ To specify several helpers for a certain event:
 Callbacks will be invoked in the order that they are specified.
 
 To remove a helper, simply call `hopscotch.unregisterHelper('myHelperId')`.
+
+Demo Tour
+=========
+
+    {
+      "id": "hello-hopscotch",
+      "steps: [
+        {
+          "title: "Welcome to the Hopscotch Demo Page!",
+          "content": "Hey there! Welcome to the Hopscotch Demo Page!",
+          "target": "subheading",
+          "orientation": "bottom",
+          "arrowOffset": 30,
+          "onNext": function() {
+            document.getElementById("pageTitle").style.color = "#f00";
+          },
+        },
+        {
+          "title": "Mission District",
+          "content": "Here is a heat map of in the Mission District!",
+          "target": "mission",
+          "orientation": "top",
+          "xOffset": 100,
+          "arrowOffset": 100
+        },
+        {
+          "title": "Cool wave",
+          "content": "This is a <b>colorful</b> wave. Here is the the <a href="http://imgur.com/s632o" target="_new">page</a> where I found it.",
+          "target": "wave",
+          "orientation": "bottom",
+          "width": 500,
+        },
+        {
+          "title": "Multi-page test",
+          "content": "Are you ready? We\'re going to try hopping to another page and then back!!! Where we\'re going, we won\'t need roads...",
+          "target": "secpagelink",
+          "orientation": "bottom",
+          "showNextButton": false,
+          "onNext": ['goTo', 'secondpage.html'],
+          "multipage": true
+        },
+        {
+          "title": "Polar bears",
+          "content": "We made it!! Polar bears are very interesting creatures.",
+          "target": "polarbears",
+          "orientation": "right",
+          "showPrevButton": false
+        }
+      ],
+      "onNext": function(tourId, idx) {
+        console.log("Next step");
+      }
+    }

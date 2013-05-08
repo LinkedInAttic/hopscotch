@@ -38,6 +38,4 @@ hopscotch.listen('start', onStart)
          */
 
 hopscotch.listen('start', ['printlog', 'global start']);
-//hopscotch.listen('start', function() { alert('starting'); });
 hopscotch.startTour(tour);
-

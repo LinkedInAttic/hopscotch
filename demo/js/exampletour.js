@@ -23,7 +23,6 @@ var tour = {
       fixedElement: true,
       //xOffset: 20,
       zindex: 15,
-      showPrevButton: false,
       //delay: 1000,
       onPrev: function() {
         document.getElementById('pageTitle').style.color = '#000';
@@ -53,7 +52,7 @@ var tour = {
       target: 'secpagelink',
       orientation: 'right',
       yOffset: -20,
-      onNext: ["goTo", "secondpage.html"],
+      onNext: ['goTo', 'secondpage.html'],
       multipage: true
     },
     {
@@ -81,68 +80,20 @@ var tour = {
       xOffset: 200
     }
   ],
-  //animate: true,
   //smoothScroll: false,
   //showCloseButton: false,
+  //bubblePadding: 20,
+  bubbleWidth: 480,
   showPrevButton: true,
   scrollTopMargin: 50,
-  arrowWidth: 20,
-  scrollDuration: 500,
-  cookieName: 'li_hs',
+  //arrowWidth: 20,
+  //scrollDuration: 500,
+  //cookieName: 'li_hs',
   skipIfNoElement: true,
   onStart: ['printlog', 'tour-onstart: start'],
   onNext: ['printlog', 'clicked next'],
   onPrev: ['printlog', 'clicked prev'],
   onShow: ['printlog', 'showing'],
-  onClose: [['printlog', 'clicked close'], ['alert', 'closing the tour']],
+  onClose: ['printlog', 'clicked close'],
   onEnd: ['printlog', 'end']
-  /*
-  onNext: function(tourId, idx) {
-    var newLi,
-        list = document.getElementById('my-list');
-    if (list) {
-      newLi = document.createElement('li');
-      newLi.innerHTML = 'clicked next on step ' + (idx + 1);
-      //newLi.innerHTML = 'going from step ' + (idx + 1) + ' to step ' + (idx+2) + '. (can use this callback for tracking)';
-      list.appendChild(newLi);
-    }
-  },
-  onPrev: function(tourId, idx) {
-    printLog('tour prev ' + tourId + ' ' + idx);
-  },
-  onStart: function(tourId, idx) {
-    printLog('tour start ' + tourId + ' and idx is: ' + idx);
-  },
-  onEnd: function(tourId) {
-    printLog('tour end ' + tourId);
-  },
-  onShow: function(tourId, idx) {
-    printLog('showing step: ' + tourId + ' ' + idx);
-  },
-  onError: function(tourId, idx) {
-    var newLi,
-        list = document.getElementById('my-list');
-    if (list) {
-      newLi = document.createElement('li');
-      newLi.innerHTML = 'error on step ' + (idx + 1);
-      //newLi.innerHTML = 'going from step ' + (idx + 1) + ' to step ' + (idx+2) + '. (can use this callback for tracking)';
-      list.appendChild(newLi);
-    }
-  },
-  onClose: function() {
-    printLog('closing');
-  }
-  */
-  //i18n: {
-    ////nextBtn: 'Forward',
-    ////prevBtn: 'Backward',
-    //stepNums: [
-      //'&#x4e00;',
-      //'&#x4e8c;',
-      //'&#x4e09;',
-      //'&#x56db;',
-      //'&#x4e94;',
-      //'&#x516d;'
-    //]
-  //}
 };
