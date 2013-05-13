@@ -1,8 +1,8 @@
+![Example Hopscotch tour](/demo/img/screenshot.png)
+
 Hopscotch
 =========
 Hopscotch is a framework to make it easy for developers to add product tours to their pages. Hopscotch accepts a tour JSON object as input and provides an API for the developer to control rendering the tour display and managing the tour progress.
-
-![Example Hopscotch tour](/demo/img/steve.jpg)
 
 Features
 ========
