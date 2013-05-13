@@ -1,15 +1,8 @@
-"center" option (for block-level elements that span width of document)
-"left", "right", and "center" options for bubble arrow placement
-
-problematic situation
-- step 2 is on a regular (non-fixed) element, but page is scrolled
-- step 3 is on a fixed element
-- if animate is set to true, it screws up.
-
-support horizontal smooth scroll????????
-
 NICETOHAVE:
 ===========
-flag to see if user has already taken a tour?
-support > 1 bubble at a time?
+Flag to see if user has already taken a tour?
+Support > 1 bubble at a time?
 UI for multi-part steps
+"center" option (for block-level elements that span width of document)
+"left", "right", and "center" options for bubble arrow placement
+Support horizontal smooth scroll????????

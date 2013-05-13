@@ -25,26 +25,28 @@
       callbacks,
       helpers,
       winLoadHandler,
+      defaultOpts,
       winHopscotch      = context[namespace],
       undefinedStr      = 'undefined',
       waitingToStart    = false, // is a tour waiting for the document to finish
                                  // loading so that it can start?
-      defaultOpts       = {
-        smoothScroll:    true,
-        scrollDuration:  1000,
-        scrollTopMargin: 200,
-        showCloseButton: true,
-        showPrevButton:  false,
-        showNextButton:  true,
-        bubbleWidth:     280,
-        bubblePadding:   15,
-        arrowWidth:      20,
-        skipIfNoElement: true,
-        cookieName:      'hopscotch.tour.state'
-      },
       hasJquery         = (typeof window.jQuery !== undefinedStr),
       hasSessionStorage = (typeof window.sessionStorage !== undefinedStr),
       document          = window.document;
+
+  defaultOpts       = {
+    smoothScroll:    true,
+    scrollDuration:  1000,
+    scrollTopMargin: 200,
+    showCloseButton: true,
+    showPrevButton:  false,
+    showNextButton:  true,
+    bubbleWidth:     280,
+    bubblePadding:   15,
+    arrowWidth:      20,
+    skipIfNoElement: true,
+    cookieName:      'hopscotch.tour.state'
+  };
 
   if (winHopscotch) {
     // Hopscotch already exists.
@@ -376,7 +378,8 @@
 
       if (typeof step.target === 'string') {
         //Just one target to test. Check, cache, and return its results.
-        return step.target = utils.getStepTargetHelper(step.target);
+        step.target = utils.getStepTargetHelper(step.target);
+        return step.target;
       }
       else if (Array.isArray(step.target)) {
         // Multiple items to check. Check each and return the first success.
@@ -574,22 +577,28 @@
       bubblePadding = utils.valOrDefault(step.padding, this.opt.bubblePadding);
       utils.removeClass(el, 'fade-in-down fade-in-up fade-in-left fade-in-right');
 
+      // Originally called it orientation, but placement is more intuitive.
+      // Allowing both for now for backwards compatibility.
+      if (!step.placement && step.orientation) {
+        step.placement = step.orientation;
+      }
+
       // SET POSITION
       boundingRect = targetEl.getBoundingClientRect();
-      if (step.orientation === 'top') {
+      if (step.placement === 'top') {
         bubbleHeight = el.offsetHeight;
         top = (boundingRect.top - bubbleHeight) - this.opt.arrowWidth;
         left = boundingRect.left;
       }
-      else if (step.orientation === 'bottom') {
+      else if (step.placement === 'bottom') {
         top = boundingRect.bottom + this.opt.arrowWidth;
         left = boundingRect.left;
       }
-      else if (step.orientation === 'left') {
+      else if (step.placement === 'left') {
         top = boundingRect.top;
         left = boundingRect.left - bubbleWidth - 2*bubblePadding - 2*bubbleBorder - this.opt.arrowWidth;
       }
-      else if (step.orientation === 'right') {
+      else if (step.placement === 'right') {
         top = boundingRect.top;
         left = boundingRect.right + this.opt.arrowWidth;
       }
@@ -599,11 +608,11 @@
         arrowEl.style.top = '';
         arrowEl.style.left = '';
       }
-      else if (step.orientation === 'top' || step.orientation === 'bottom') {
+      else if (step.placement === 'top' || step.placement === 'bottom') {
         arrowEl.style.top = '';
         arrowEl.style.left = arrowOffset + 'px';
       }
-      else if (step.orientation === 'left' || step.orientation === 'right') {
+      else if (step.placement === 'left' || step.placement === 'right') {
         arrowEl.style.left = '';
         arrowEl.style.top = arrowOffset + 'px';
       }
@@ -650,7 +659,9 @@
       utils.addEvtListener(this.nextBtnEl, 'click', function(evt) {
         winHopscotch.nextStep(true);
       });
-      utils.addEvtListener(this.doneBtnEl, 'click', winHopscotch.endTour);
+      utils.addEvtListener(this.doneBtnEl, 'click', function(evt) {
+        winHopscotch.endTour();
+      });
 
       buttonsEl.className = 'hopscotch-actions';
       this.buttonsEl = buttonsEl;
@@ -724,7 +735,7 @@
         utils.addEvtListener(closeBtnEl, 'click', this._getCloseFn());
       }
 
-      if (!this.opt.showCloseButton) {
+      if (!utils.valOrDefault(this.opt.showCloseButton, true)) {
         utils.addClass(closeBtnEl, 'hide');
       }
 
@@ -778,16 +789,22 @@
         step = this.currStep;
       }
 
+      // Originally called it orientation, but placement is more intuitive.
+      // Allowing both for now for backwards compatibility.
+      if (!step.placement && step.orientation) {
+        step.placement = step.orientation;
+      }
+
       showNext = utils.valOrDefault(step.showNextButton, this.opt.showNextButton);
       showPrev = utils.valOrDefault(step.showPrevButton, this.opt.showPrevButton);
       this.setTitle(step.title || '');
       this.setContent(step.content || '');
 
-      if (this.opt.showNumber) {
+      if (this.opt.isTourBubble) {
         this.setNum(idx);
       }
 
-      this.orientation = step.orientation;
+      this.placement = step.placement;
 
       this.showPrevButton(this.prevBtnEl && showPrev && idx > 0);
       this.showNextButton(this.nextBtnEl && showNext && !isLast);
@@ -820,7 +837,7 @@
         this.onCTA = null;
       }
 
-      this._setArrow(step.orientation);
+      this._setArrow(step.placement);
 
       // Set dimensions
       bubbleWidth   = utils.getPixelValue(step.width) || this.opt.bubbleWidth;
@@ -830,7 +847,7 @@
 
       el.style.zIndex = step.zindex || '';
 
-      if (step.orientation === 'top') {
+      if (step.placement === 'top') {
         // For bubbles placed on top of elements, we need to get the
         // bubble height to correctly calculate the bubble position.
         // Show it briefly offscreen to calculate height, then hide
@@ -918,16 +935,16 @@
      * @private
      */
     _getArrowDirection: function() {
-      if (this.orientation === 'top') {
+      if (this.placement === 'top') {
         return 'down';
       }
-      if (this.orientation === 'bottom') {
+      if (this.placement === 'bottom') {
         return 'up';
       }
-      if (this.orientation === 'left') {
+      if (this.placement === 'left') {
         return 'right';
       }
-      if (this.orientation === 'right') {
+      if (this.placement === 'right') {
         return 'left';
       }
     },
@@ -1071,7 +1088,7 @@
         el.className += ' hopscotch-callout';
       }
 
-      if (opt.showNumber) {
+      if (opt.isTourBubble) {
         this.numberEl           = document.createElement('span');
         this.numberEl.className = 'hopscotch-bubble-number';
         containerEl.appendChild(this.numberEl);
@@ -1290,6 +1307,9 @@
      * @returns {Object} config option value
      */
     getOption = function(name) {
+      if (typeof opt === 'undefined') {
+        return defaultOpts[name];
+      }
       return utils.valOrDefault(opt[name], defaultOpts[name]);
     },
 
@@ -2055,6 +2075,18 @@
      */
     this.resetDefaultI18N = function() {
       customI18N = {};
+      return this;
+    };
+
+    /**
+     * hasState
+     *
+     * Returns state from a previous tour run, if it exists.
+     *
+     * @returns {String} State of previous tour run, or empty string if none exists.
+     */
+    this.getState = function() {
+      return utils.getState(getOption('cookieName'));
     };
 
     /**
