@@ -14,7 +14,7 @@ var tour = {
       arrowOffset: 60
     },
     {
-      target: document.querySelectorAll('#general-usage code')[1],
+      target: document.querySelectorAll('#general-use-desc code')[1],
       title: 'Where to begin',
       content: 'At the very least, you\'ll need to include these two files in your project to get started.',
       placement: 'right',
@@ -48,7 +48,7 @@ var tour = {
       content: 'Control your tour programmatically using these methods.',
     },
     {
-      target: 'demo-tour',
+      target: 'tour-example',
       placement: 'top',
       title: 'This tour\'s code',
       content: 'This is the JSON for the current tour! Pretty simple, right?',
@@ -58,7 +58,7 @@ var tour = {
       placement: 'bottom',
       title: 'You\'re all set!',
       content: 'Now go and build some great tours!',
-    },
+    }
   ],
   showPrevButton: true,
   scrollTopMargin: 100

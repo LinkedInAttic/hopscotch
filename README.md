@@ -9,6 +9,7 @@ Features
 * Callbacks for tour events (e.g. onStart, onEnd, onShow, onNext, onPrev, onClose)
 * Multi-page persistence using HTML5 sessionStorage using cookies as a fallback
 * I18N support
+* Lightweight single callouts
 
 General Usage
 =============
@@ -165,7 +166,7 @@ The comprehensive list of step options are listed below:
 
 Setting tour options
 --------------------
-Tour options can be specified either through the tour JSON object, or through a call to hopscotch.configure().
+Tour options can be specified either through the tour JSON object, or through a call to hopscotch.configure(). These options apply to the entire tour. In cases where there is both a value specified in the tour options and in a step definition, (e.g. "showPrevButton") the step definition takes priority. When multiple callbacks are defined in both step and tour options, step callbacks are invoked before tour-wide callbacks.
 
 * `bubbleWidth` [NUMBER] - Default bubble width. *Default*: 280.
 
@@ -215,17 +216,42 @@ Tour options can be specified either through the tour JSON object, or through a 
 
 * `i18n.stepNums` [ARRAY<STRING>] - Provide a list of strings to be shown as the step number, based on index of array. Unicode characters are supported. (e.g., ['&#x4e00;', '&#x4e8c;', '&#x4e09;']) If there are more steps than provided numbers, Arabic numerals ('4', '5', '6', etc.) will be used as default.
 
-Running, Managing, and Ending a Tour
-====================================
+API Methods
+===========
 
-The Hopscotch framework comes with a simple set of API calls:
+The Hopscotch framework comes with a simple set of API calls with which you can run and manage tours:
 
 * `hopscotch.startTour(tour, stepNum)` - Actually starts the tour. Optional stepNum argument specifies what step to start at.
+
 * `hopscotch.showStep(idx)` - Skips to a given step in the tour
+
 * `hopscotch.prevStep()` - Goes back one step in the tour
+
 * `hopscotch.nextStep()` - Goes forward one step in the tour
+
 * `hopscotch.endTour([clearCookie])` - Ends the current tour. If clearCookie is set to false, the tour state is preserved. Otherwise, if clearCookie is set to true or is not provided, the tour state is cleared.
+
 * `hopscotch.configure(options)` - Sets options for running the tour. Note: if this method is called after loading a tour, the options specified will override the options defined in the tour. See above section "Setting tour options" for a list of configuration options.
+
+* `hopscotch.getCurrTour()` - Returns the currently running tour.
+
+* `hopscotch.getCurrStepNum()` - Returns the current zero-based step number.
+
+* `hopscotch.getState()` - Checks for tour state saved in sessionStorage/cookies and returns the state if it exists. Use this method to determine whether or not you should resume a tour.
+
+* `hopscotch.listen(eventName, callback)` - Adds a callback for one of the event types. Valid event types are: *start*, *end*, *next*, *prev*, *show*, *close*, *error*
+
+* `hopscotch.unlisten(eventName, callback)` - Removes a callback for one of the event types.
+
+* `hopscotch.removeCallbacks(eventName[, tourOnly])` - Remove callbacks for hopscotch events. If tourOnly is set to true, only removes callbacks specified by a tour (callbacks set by hopscotch.configure or hopscotch.listen will remain). If eventName is null or undefined, callbacks for all events will be removed.
+
+* `hopscotch.registerHelper(id, fn)` - Registers a callback helper. See the section about Helpers below.
+
+* `hopscotch.unregisterHelper(id)` - Unregisters a callback helper. See the section about Helpers below.
+
+* `hopscotch.resetDefaultI18N()` - Resets i18n strings to original default values.
+
+* `hopscotch.resetDefaultOptions()` - Resets all config options to original values.
 
 Defining callbacks
 ==================
@@ -255,8 +281,8 @@ If you are specifying your tour as an object literal in Javascript, you can prov
       }
     };
 
-Helpers
--------
+Callback Helpers
+----------------
 In some situations, you may want to specify your tour in JSON. This may be because you are dynamically creating a tour on the server. Since functions are not valid JSON, specifying a function literal will not work. Instead, you can use Hopscotch helpers to specify your callback. Using helpers will look something like the following.
 
 First register the helper with Hopscotch.
@@ -302,44 +328,46 @@ Callbacks will be invoked in the order that they are specified.
 
 To remove a helper, simply call `hopscotch.unregisterHelper('myHelperId')`.
 
-Demo Tour
-=========
+Tour Example
+============
+
+Here is an example of a Hopscotch tour.
 
     {
-      id: 'hello-hopscotch',
+      id: "hello-hopscotch",
       steps: [
         {
-          target: 'hopscotch-title',
-          title: 'Welcome to Hopscotch!',
-          content: 'Hey there! This is an example Hopscotch tour. There will be plenty of time to read documentation and sample code, but let\'s just take some time to see how Hopscotch actually works.',
-          placement: 'bottom',
+          target: "hopscotch-title",
+          title: "Welcome to Hopscotch!",
+          content: "Hey there! This is an example Hopscotch tour. There will be plenty of time to read documentation and sample code, but let\'s just take some time to see how Hopscotch actually works.",
+          placement: "bottom",
           arrowOffset: 60
         },
         {
-          target: document.querySelectorAll('#general-usage code')[1],
-          title: 'Where to begin',
-          content: 'At the very least, you\'ll need to include these two files in your project to get started.',
-          placement: 'right',
+          target: document.querySelectorAll("#general-usage code")[1],
+          title: "Where to begin",
+          content: "At the very least, you\'ll need to include these two files in your project to get started.",
+          placement: "right",
           yOffset: -20
         },
         {
-          target: 'my-first-tour-file',
-          placement: 'top',
-          title: 'Define and start your tour',
-          content: 'Once you have Hopscotch on your page, you\'re ready to start making your tour! The biggest part of your tour definition will probably be the tour steps.'
+          target: "my-first-tour-file",
+          placement: "top",
+          title: "Define and start your tour",
+          content: "Once you have Hopscotch on your page, you\'re ready to start making your tour! The biggest part of your tour definition will probably be the tour steps."
         },
         {
-          target: 'start-tour',
-          placement: 'right',
-          title: 'Starting your tour',
-          content: 'After you\'ve created your tour, pass it in to the startTour() method to start it.',
+          target: "start-tour",
+          placement: "right",
+          title: "Starting your tour",
+          content: "After you\'ve created your tour, pass it in to the startTour() method to start it.",
           yOffset: -25
         },
         {
-          target: 'basic-options',
-          placement: 'top',
-          title: 'Basic step options',
-          content: 'These are the most basic step options: <b>target</b>, <b>title</b>, <b>content</b>, and <b>placement</b>. For some steps, they may be all you need.',
+          target: "basic-options",
+          placement: "top",
+          title: "Basic step options",
+          content: "These are the most basic step options: <b>target</b>, <b>title</b>, <b>content</b>, and <b>placement</b>. For some steps, they may be all you need.",
           arrowOffset: 120,
           xOffset: 100
         }

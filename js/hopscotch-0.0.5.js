@@ -1923,7 +1923,7 @@
         }
       }
 
-      this.removeCallbacks(true);
+      this.removeCallbacks(null, true);
       this.resetDefaultOptions();
 
       currTour = null;
@@ -1943,7 +1943,7 @@
     /**
      * getCurrStepNum
      *
-     * @return {number} The current step number.
+     * @return {number} The current zero-based step number.
      */
     this.getCurrStepNum = function() {
       return currStepNum;
@@ -1992,32 +1992,37 @@
     /**
      * removeCallbacks
      *
-     * Remove callbacks for all hopscotch events. If tourOnly is set to true, only
+     * Remove callbacks for hopscotch events. If tourOnly is set to true, only
      * removes callbacks specified by a tour (callbacks set by external calls
-     * to hopscotch.configure or hopscotch.listen will not be removed).
+     * to hopscotch.configure or hopscotch.listen will not be removed). If
+     * evtName is null or undefined, callbacks for all events will be removed.
      *
-     * @param {boolean} tourOnly Flag to indicate we should only remove callbacks added
+     * @param {string} evtName Optional Event name for which we should remove callbacks 
+     * @param {boolean} tourOnly Optional flag to indicate we should only remove callbacks added
      *    by a tour. Defaults to false.
      * @returns {Object} Hopscotch
      */
-    this.removeCallbacks = function(tourOnly) {
+    this.removeCallbacks = function(evtName, tourOnly) {
       var cbArr,
           i,
           len,
-          evtType;
+          evt;
 
-      for (evtType in callbacks) {
-        if (tourOnly) {
-          cbArr = callbacks[evtType];
-          for (i=0, len=cbArr.length; i < len; ++i) {
-            if (cbArr[i].fromTour) {
-              cbArr.splice(i--, 1);
-              --len;
+      // If evtName is null or undefined, remove callbacks for all events.
+      for (evt in callbacks) {
+        if (!evtName || evtName === evt) {
+          if (tourOnly) {
+            cbArr = callbacks[evt];
+            for (i=0, len=cbArr.length; i < len; ++i) {
+              if (cbArr[i].fromTour) {
+                cbArr.splice(i--, 1);
+                --len;
+              }
             }
           }
-        }
-        else {
-          callbacks[evtType] = [];
+          else {
+            callbacks[evt] = [];
+          }
         }
       }
       return this;
