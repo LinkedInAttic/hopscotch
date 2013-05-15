@@ -768,6 +768,12 @@
       return this;
     },
 
+    /**
+     * Set up the CTA button, using the `showCTAButton`, `ctaLabel`, and
+     * `onCTA` properties.
+     *
+     * @private
+     */
     _setupCTAButton: function(step) {
       var callback,
           self = this;
@@ -775,16 +781,21 @@
       this._showButton(this.ctaBtnEl, !!step.showCTAButton);
       if (step.showCTAButton && step.ctaLabel) {
         this.ctaBtnEl.innerHTML = step.ctaLabel;
+
+        // Create callback to remove the callout. If a onCTA callback is
+        // provided, call it from within this one.
         callback = function() {
           utils.removeEvtListener(self.ctaBtnEl, 'click', callback);
           if (!self.opt.isTourBubble) {
             // This is a callout. Close the callout when CTA is clicked.
             winHopscotch.getCalloutManager().removeCallout(step.id);
           }
+          // Call onCTA callback if one is provided
           if (step.onCTA && typeof step.onCTA === 'function') {
             step.onCTA();
           }
         };
+
         utils.addEvtListener(this.ctaBtnEl, 'click', callback);
       }
     },
