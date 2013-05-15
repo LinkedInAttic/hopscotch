@@ -2061,6 +2061,19 @@
       helpers[id] = null;
     };
 
+    this.invokeHelper = function(id) {
+      var args = [],
+          i,
+          len;
+
+      for (i = 1, len = arguments.length; i < len; ++i) {
+        args.push(arguments[i]);
+      }
+      if (helpers[id]) {
+        helpers[id].call(null, args);
+      }
+    };
+
     /**
      * setCookieName
      *
