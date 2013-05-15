@@ -768,6 +768,27 @@
       return this;
     },
 
+    _setupCTAButton: function(step) {
+      var callback,
+          self = this;
+
+      this._showButton(this.ctaBtnEl, !!step.showCTAButton);
+      if (step.showCTAButton && step.ctaLabel) {
+        this.ctaBtnEl.innerHTML = step.ctaLabel;
+        callback = function() {
+          utils.removeEvtListener(self.ctaBtnEl, 'click', callback);
+          if (!self.opt.isTourBubble) {
+            // This is a callout. Close the callout when CTA is clicked.
+            winHopscotch.getCalloutManager().removeCallout(step.id);
+          }
+          if (step.onCTA && typeof step.onCTA === 'function') {
+            step.onCTA();
+          }
+        };
+        utils.addEvtListener(this.ctaBtnEl, 'click', callback);
+      }
+    },
+
     /**
      * Renders the bubble according to the step JSON.
      *
@@ -819,24 +840,7 @@
       }
 
       // Show/hide CTA button
-      this._showButton(this.ctaBtnEl, !!step.showCTAButton);
-      if (step.showCTAButton) {
-        this.ctaBtnEl.innerHTML = step.ctaLabel;
-
-        if (step.onCTA) {
-          if (this.onCTA) {
-            utils.removeEvtListener(this.ctaBtnEl, 'click', this.onCTA);
-          }
-
-          utils.addEvtListener(this.ctaBtnEl, 'click', step.onCTA);
-          this.onCTA = step.onCTA; // cache for removing later
-        }
-      }
-      else if (this.onCTA) {
-        // Remove previous CTA callback.
-        utils.removeEvtListener(this.ctaBtnEl, 'click', this.onCTA);
-        this.onCTA = null;
-      }
+      this._setupCTAButton(step);
 
       this._setArrow(step.placement);
 
