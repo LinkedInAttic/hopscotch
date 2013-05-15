@@ -2,10 +2,6 @@
 <html>
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-    <!--
-    <link href="less/hopscotch.less" rel="stylesheet/less"></link>
-    <script src="js/less-1.3.0.min.js"></script>
-    -->
     <link href="../css/hopscotch.css" rel="stylesheet"></link>
     <link href="css/bootstrap.css" rel="stylesheet"></link>
     <link href="css/flat-ui.css" rel="stylesheet"></link>
@@ -38,6 +34,7 @@
           </ul>
         </li>
         <li><a href="#tour-example">Tour Example</a></li>
+        <li><a href="#hopscotch-callouts">Hopscotch Callouts</a></li>
       </ul>
     </div>
     <div id="content">
@@ -431,18 +428,19 @@
   }
       </code></pre>
 
-      <h1>Hopscotch Callouts</h1>
+      <h1 id="hopscotch-callouts">Hopscotch Callouts</h1>
 
       <p>Sometimes all you need is a simple callout. You can use Hopscotch Callouts to achieve this.</p>
 
-      <pre><code>var calloutMgr = hopscotch.getCalloutManager();
-      calloutMgr.createCallout({
-        id: 'attach-icon',
-        target: 'attach-btn',
-        placement: 'bottom',
-        title: 'Now you can share images &amp;amp; files!',
-        content: 'Share a project you\'re proud of, a photo from a recent event, or an interesting presentation.'
-      });
+      <pre><code>
+  var calloutMgr = hopscotch.getCalloutManager();
+  calloutMgr.createCallout({
+    id: 'attach-icon',
+    target: 'attach-btn',
+    placement: 'bottom',
+    title: 'Now you can share images &amp;amp; files!',
+    content: 'Share a project you\'re proud of, a photo from a recent event, or an interesting presentation.'
+  });
       </code></pre>
 
       <p>Callouts come with the same options available as tour steps, so you can specify things like width, placement, offsets, and z-index. The most important difference between tour steps and callouts is that you <strong>must</strong> supply an <code>id</code> when creating a callout for later reference.</p>
