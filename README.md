@@ -16,48 +16,48 @@ General Usage
 
 To get started using the Hopscotch framework, simply include `hopscotch.css` and `hopscotch.js` on your page. This will load the hopscotch object into the global window object for you.
 
-    ```html
-    <html>
-      <head>
-        <title>My First Hopscotch Tour</title>
-        <link rel="stylesheet" href="css/hopscotch.css"></link>
-      </head>
-      <body>
-        <h1 id="header">My First Hopscotch Tour</h1>
-        <div id="content">
-          <p>Content goes here...</p>
-        </div>
-        <script src="js/hopscotch.js"></script>
-        <script src="js/my_first_tour.js"></script> <!-- define and start your tour in this file -->
-      </body>
-    </html>
-    ```
+```html
+<html>
+  <head>
+    <title>My First Hopscotch Tour</title>
+    <link rel="stylesheet" href="css/hopscotch.css"></link>
+  </head>
+  <body>
+    <h1 id="header">My First Hopscotch Tour</h1>
+    <div id="content">
+      <p>Content goes here...</p>
+    </div>
+    <script src="js/hopscotch.js"></script>
+    <script src="js/my_first_tour.js"></script> <!-- define and start your tour in this file -->
+  </body>
+</html>
+```
 
 Then in your `my_first_tour.js` file, define and start your tour.
 
-    ```javascript
-    // Define the tour!
-    var tour = {
-      id: "hello-hopscotch",
-      steps: [
-        {
-          title: "My Header",
-          content: "This is the header of my page.",
-          target: "header",
-          placement: "right"
-        },
-        {
-          title: "My content",
-          content: "Here is where I put my content.",
-          target: document.querySelector("#content p"),
-          placement: "bottom"
-        }
-      ]
-    };
+```javascript
+// Define the tour!
+var tour = {
+  id: "hello-hopscotch",
+  steps: [
+    {
+      title: "My Header",
+      content: "This is the header of my page.",
+      target: "header",
+      placement: "right"
+    },
+    {
+      title: "My content",
+      content: "Here is where I put my content.",
+      target: document.querySelector("#content p"),
+      placement: "bottom"
+    }
+  ]
+};
 
-    // Start the tour!
-    hopscotch.startTour(tour);
-    ```
+// Start the tour!
+hopscotch.startTour(tour);
+```
 
 That's all there is to it!
 
@@ -69,50 +69,50 @@ Basic step options
 ------------------
 The step options below are the most basic options.
 
-    ```javascript
+```javascript
+{
+  id: {STRING - id of the tour},
+  steps: [
     {
-      id: {STRING - id of the tour},
-      steps: [
-        {
-          target:         STRING/ELEMENT - id of the target DOM element or DOM element itself,
-          placement:      STRING         - ["top", "bottom", "right", "left"]
-          title:          STRING         - step title,
-          content:        STRING         - step content
-        },
-        ...
-      ]
-    }
-    ```
+      target:         STRING/ELEMENT - id of the target DOM element or DOM element itself,
+      placement:      STRING         - ["top", "bottom", "right", "left"]
+      title:          STRING         - step title,
+      content:        STRING         - step content
+    },
+    ...
+  ]
+}
+```
 
 Note that title and content are both optional only because you can choose to have a step with only a title, only content, or both title and content.
 
 This is an example of a tour defined with only basic steps.
 
-    ```javascript
+```javascript
+{
+  id: "welcome_tour",
+  steps: [
     {
-      id: "welcome_tour",
-      steps: [
-        {
-          target: "header",
-          placement: "bottom",
-          title: "This is the navigation menu",
-          content: "Use the links here to get around on our site!"
-        },
-        {
-          target: "profile-pic",
-          placement: "right",
-          title: "Your profile picture",
-          content: "Upload a profile picture here. This is the image that others will see next to your activity."
-        },
-        {
-          target: "inbox",
-          placement: "bottom",
-          title: "Your inbox",
-          content: "Messages from other users will appear here."
-        }
-      ]
+      target: "header",
+      placement: "bottom",
+      title: "This is the navigation menu",
+      content: "Use the links here to get around on our site!"
+    },
+    {
+      target: "profile-pic",
+      placement: "right",
+      title: "Your profile picture",
+      content: "Upload a profile picture here. This is the image that others will see next to your activity."
+    },
+    {
+      target: "inbox",
+      placement: "bottom",
+      title: "Your inbox",
+      content: "Messages from other users will appear here."
     }
-    ```
+  ]
+}
+```
 
 **IMPORTANT** -- title and content are set using element.innerHTML. This allows the inclusion of very basic markup like links and lists. However, it also allows the inclusion of malicious script injections when used improperly. It is highly recommended to never show user-generated content in a Hopscotch tour. If it is absolutely necessary, you must properly escape the input, as always.
 
@@ -270,24 +270,24 @@ Function literals
 -----------------
 If you are specifying your tour as an object literal in Javascript, you can provide a function literal as the value of your callback. This would look like the following:
 
-    ```javascript
-    var tour = {
-      id: 'myTour',
-      steps: [
-        {
-          target: 'firststep',
-          placement: 'bottom',
-          title: 'My First Step',
-          onNext: function() {
-            $('#firststep').hide();
-          }
-        }
-      ],
-      onStart: function() {
-        $('#article').addClass('selected');
+```javascript
+var tour = {
+  id: 'myTour',
+  steps: [
+    {
+      target: 'firststep',
+      placement: 'bottom',
+      title: 'My First Step',
+      onNext: function() {
+        $('#firststep').hide();
       }
-    };
-    ```
+    }
+  ],
+  onStart: function() {
+    $('#article').addClass('selected');
+  }
+};
+```
 
 Callback Helpers
 ----------------
@@ -295,50 +295,50 @@ In some situations, you may want to specify your tour in JSON. This may be becau
 
 First register the helper with Hopscotch.
 
-    ```javascript
-    hopscotch.registerHelper('selectArticle', function() {
-      $('#article').addClass('selected');
-    });
-    ```
+```javascript
+hopscotch.registerHelper('selectArticle', function() {
+  $('#article').addClass('selected');
+});
+```
 
 An example with an argument passed in:
 
-    ```javascript
-    hopscotch.registerHelper('fillText', function(textFieldId, textStr) {
-      document.getElementById(textFieldId).value = textStr;
-    });
-    ```
+```javascript
+hopscotch.registerHelper('fillText', function(textFieldId, textStr) {
+  document.getElementById(textFieldId).value = textStr;
+});
+```
 
 Then, when you define your tour, you specify the callback as an array of the following form: `[helperId, arg, arg, ...]`. For example:
 
-    ```javascript
+```javascript
+{
+  id: "myTour",
+  steps: [
     {
-      id: "myTour",
-      steps: [
-        {
-          target: "firststep",
-          placement: "bottom",
-          title: "My First Step",
-          onNext: ["fillText", "searchField", "Example search query"]
-        }
-      ],
-      onStart: ["selectArticle"]
+      target: "firststep",
+      placement: "bottom",
+      title: "My First Step",
+      onNext: ["fillText", "searchField", "Example search query"]
     }
-    ```
+  ],
+  onStart: ["selectArticle"]
+}
+```
 
 In the above example, since the onStart callback has no arguments, it could be defined as a simple string "selectArticle" instead of being wrapped in a one-element array.
 
 To specify several helpers for a certain event:
 
-    ```javascript
-    {
-      id: "myTour",
-      steps: [
-        ...
-      ],
-      onStart: [["fillText", "searchField", "Example search query"], "selectArticle"]
-    }
-    ```
+```javascript
+{
+  id: "myTour",
+  steps: [
+    ...
+  ],
+  onStart: [["fillText", "searchField", "Example search query"], "selectArticle"]
+}
+```
 
 Callbacks will be invoked in the order that they are specified.
 
@@ -349,65 +349,65 @@ Tour Example
 
 Here is an example of a Hopscotch tour.
 
-    ```javascript
+```javascript
+{
+  id: "hello-hopscotch",
+  steps: [
     {
-      id: "hello-hopscotch",
-      steps: [
-        {
-          target: "hopscotch-title",
-          title: "Welcome to Hopscotch!",
-          content: "Hey there! This is an example Hopscotch tour. There will be plenty of time to read documentation and sample code, but let\'s just take some time to see how Hopscotch actually works.",
-          placement: "bottom",
-          arrowOffset: 60
-        },
-        {
-          target: document.querySelectorAll("#general-usage code")[1],
-          title: "Where to begin",
-          content: "At the very least, you\'ll need to include these two files in your project to get started.",
-          placement: "right",
-          yOffset: -20
-        },
-        {
-          target: "my-first-tour-file",
-          placement: "top",
-          title: "Define and start your tour",
-          content: "Once you have Hopscotch on your page, you\'re ready to start making your tour! The biggest part of your tour definition will probably be the tour steps."
-        },
-        {
-          target: "start-tour",
-          placement: "right",
-          title: "Starting your tour",
-          content: "After you\'ve created your tour, pass it in to the startTour() method to start it.",
-          yOffset: -25
-        },
-        {
-          target: "basic-options",
-          placement: "top",
-          title: "Basic step options",
-          content: "These are the most basic step options: <b>target</b>, <b>title</b>, <b>content</b>, and <b>placement</b>. For some steps, they may be all you need.",
-          arrowOffset: 120,
-          xOffset: 100
-        }
-      ],
-      showPrevButton: true,
-      scrollTopMargin: 100
+      target: "hopscotch-title",
+      title: "Welcome to Hopscotch!",
+      content: "Hey there! This is an example Hopscotch tour. There will be plenty of time to read documentation and sample code, but let\'s just take some time to see how Hopscotch actually works.",
+      placement: "bottom",
+      arrowOffset: 60
+    },
+    {
+      target: document.querySelectorAll("#general-usage code")[1],
+      title: "Where to begin",
+      content: "At the very least, you\'ll need to include these two files in your project to get started.",
+      placement: "right",
+      yOffset: -20
+    },
+    {
+      target: "my-first-tour-file",
+      placement: "top",
+      title: "Define and start your tour",
+      content: "Once you have Hopscotch on your page, you\'re ready to start making your tour! The biggest part of your tour definition will probably be the tour steps."
+    },
+    {
+      target: "start-tour",
+      placement: "right",
+      title: "Starting your tour",
+      content: "After you\'ve created your tour, pass it in to the startTour() method to start it.",
+      yOffset: -25
+    },
+    {
+      target: "basic-options",
+      placement: "top",
+      title: "Basic step options",
+      content: "These are the most basic step options: <b>target</b>, <b>title</b>, <b>content</b>, and <b>placement</b>. For some steps, they may be all you need.",
+      arrowOffset: 120,
+      xOffset: 100
     }
-    ```
+  ],
+  showPrevButton: true,
+  scrollTopMargin: 100
+}
+```
 
 Hopscotch Callouts
 ==================
 Sometimes all you need is a simple callout. You can use Hopscotch Callouts to achieve this.
 
-    ```javascript
-    var calloutMgr = hopscotch.getCalloutManager();
-    calloutMgr.createCallout({
-      id: 'attach-icon',
-      target: 'attach-btn',
-      placement: 'bottom',
-      title: 'Now you can share images &amp; files!',
-      content: 'Share a project you\'re proud of, a photo from a recent event, or an interesting presentation.'
-    });
-    ```
+```javascript
+var calloutMgr = hopscotch.getCalloutManager();
+calloutMgr.createCallout({
+  id: 'attach-icon',
+  target: 'attach-btn',
+  placement: 'bottom',
+  title: 'Now you can share images &amp; files!',
+  content: 'Share a project you\'re proud of, a photo from a recent event, or an interesting presentation.'
+});
+```
 
 Callouts come with the same options available as tour steps, so you can specify things like width, placement, offsets, and z-index. The most important difference between tour steps and callouts is that you **must** supply an `id` when creating a callout for later reference.
 
