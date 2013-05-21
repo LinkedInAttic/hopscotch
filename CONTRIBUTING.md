@@ -20,6 +20,6 @@ Use the [Less Compiler](http://lesscss.org/) to compile the CSS.
 
 Testing
 =======
-Tests are written using [http://visionmedia.github.io/mocha/](Mocha) and executed in a browser environment. Open test/index.html to run. The test suite is contained in test.hopscotch.js. Please add tests for any new functionality you introduce.
+Tests are written using [Mocha](http://visionmedia.github.io/mocha/) and executed in a browser environment. Open test/index.html to run. The test suite is contained in test.hopscotch.js. Please add tests for any new functionality you introduce.
 
 Eventually I will look at [mocha-phantomjs](https://github.com/metaskills/mocha-phantomjs) to see if it is suitable for running tests from CLI.

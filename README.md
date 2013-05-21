@@ -16,6 +16,7 @@ General Usage
 
 To get started using the Hopscotch framework, simply include `hopscotch.css` and `hopscotch.js` on your page. This will load the hopscotch object into the global window object for you.
 
+    ```html
     <html>
       <head>
         <title>My First Hopscotch Tour</title>
@@ -30,9 +31,11 @@ To get started using the Hopscotch framework, simply include `hopscotch.css` and
         <script src="js/my_first_tour.js"></script> <!-- define and start your tour in this file -->
       </body>
     </html>
+    ```
 
 Then in your `my_first_tour.js` file, define and start your tour.
 
+    ```javascript
     // Define the tour!
     var tour = {
       id: "hello-hopscotch",
@@ -54,6 +57,7 @@ Then in your `my_first_tour.js` file, define and start your tour.
 
     // Start the tour!
     hopscotch.startTour(tour);
+    ```
 
 That's all there is to it!
 
@@ -65,25 +69,26 @@ Basic step options
 ------------------
 The step options below are the most basic options.
 
+    ```javascript
     {
       id: {STRING - id of the tour},
       steps: [
         {
-          // MANDATORY
           target:         STRING/ELEMENT - id of the target DOM element or DOM element itself,
-          placement:    STRING         - ["top", "bottom", "right", "left"]
-          // OPTIONAL
+          placement:      STRING         - ["top", "bottom", "right", "left"]
           title:          STRING         - step title,
           content:        STRING         - step content
         },
         ...
       ]
-    };
+    }
+    ```
 
 Note that title and content are both optional only because you can choose to have a step with only a title, only content, or both title and content.
 
 This is an example of a tour defined with only basic steps.
 
+    ```javascript
     {
       id: "welcome_tour",
       steps: [
@@ -107,6 +112,7 @@ This is an example of a tour defined with only basic steps.
         }
       ]
     }
+    ```
 
 **IMPORTANT** -- title and content are set using element.innerHTML. This allows the inclusion of very basic markup like links and lists. However, it also allows the inclusion of malicious script injections when used improperly. It is highly recommended to never show user-generated content in a Hopscotch tour. If it is absolutely necessary, you must properly escape the input, as always.
 
@@ -122,9 +128,9 @@ The comprehensive list of step options are listed below:
 
 ### OPTIONAL ###
 
-* `title` [STRING] - step title
+* `title` [STRING] - step title. Note that while title is optional, at the least either title or content should be present.
 
-* `content` [STRING] - step content
+* `content` [STRING] - step content. Note that while content is optional, at the least either title or content should be present.
 
 * `width` [INT] - bubble width
 
@@ -264,6 +270,7 @@ Function literals
 -----------------
 If you are specifying your tour as an object literal in Javascript, you can provide a function literal as the value of your callback. This would look like the following:
 
+    ```javascript
     var tour = {
       id: 'myTour',
       steps: [
@@ -280,6 +287,7 @@ If you are specifying your tour as an object literal in Javascript, you can prov
         $('#article').addClass('selected');
       }
     };
+    ```
 
 Callback Helpers
 ----------------
@@ -287,18 +295,23 @@ In some situations, you may want to specify your tour in JSON. This may be becau
 
 First register the helper with Hopscotch.
 
+    ```javascript
     hopscotch.registerHelper('selectArticle', function() {
       $('#article').addClass('selected');
     });
+    ```
 
 An example with an argument passed in:
 
+    ```javascript
     hopscotch.registerHelper('fillText', function(textFieldId, textStr) {
       document.getElementById(textFieldId).value = textStr;
     });
+    ```
 
 Then, when you define your tour, you specify the callback as an array of the following form: `[helperId, arg, arg, ...]`. For example:
 
+    ```javascript
     {
       id: "myTour",
       steps: [
@@ -311,11 +324,13 @@ Then, when you define your tour, you specify the callback as an array of the fol
       ],
       onStart: ["selectArticle"]
     }
+    ```
 
 In the above example, since the onStart callback has no arguments, it could be defined as a simple string "selectArticle" instead of being wrapped in a one-element array.
 
 To specify several helpers for a certain event:
 
+    ```javascript
     {
       id: "myTour",
       steps: [
@@ -323,6 +338,7 @@ To specify several helpers for a certain event:
       ],
       onStart: [["fillText", "searchField", "Example search query"], "selectArticle"]
     }
+    ```
 
 Callbacks will be invoked in the order that they are specified.
 
@@ -333,6 +349,7 @@ Tour Example
 
 Here is an example of a Hopscotch tour.
 
+    ```javascript
     {
       id: "hello-hopscotch",
       steps: [
@@ -375,11 +392,13 @@ Here is an example of a Hopscotch tour.
       showPrevButton: true,
       scrollTopMargin: 100
     }
+    ```
 
 Hopscotch Callouts
 ==================
 Sometimes all you need is a simple callout. You can use Hopscotch Callouts to achieve this.
 
+    ```javascript
     var calloutMgr = hopscotch.getCalloutManager();
     calloutMgr.createCallout({
       id: 'attach-icon',
@@ -388,6 +407,7 @@ Sometimes all you need is a simple callout. You can use Hopscotch Callouts to ac
       title: 'Now you can share images &amp; files!',
       content: 'Share a project you\'re proud of, a photo from a recent event, or an interesting presentation.'
     });
+    ```
 
 Callouts come with the same options available as tour steps, so you can specify things like width, placement, offsets, and z-index. The most important difference between tour steps and callouts is that you **must** supply an `id` when creating a callout for later reference.
 
