@@ -114,7 +114,7 @@ This is an example of a tour defined with only basic steps.
 }
 ```
 
-**IMPORTANT** -- title and content are set using element.innerHTML. This allows the inclusion of very basic markup like links and lists. However, it also allows the inclusion of malicious script injections when used improperly. It is highly recommended to never show user-generated content in a Hopscotch tour. If it is absolutely necessary, you must properly escape the input, as always.
+**IMPORTANT** -- title and content are set using `element.innerHTML`. This allows the inclusion of very basic markup like links and lists. However, it also allows the inclusion of malicious script injections when used improperly. It is highly recommended to never show user-generated content in a Hopscotch tour. If it is absolutely necessary, you must properly escape the input, as always.
 
 All step options
 ----------------
@@ -227,7 +227,7 @@ API Methods
 
 The Hopscotch framework comes with a simple set of API calls with which you can run and manage tours:
 
-* `hopscotch.startTour(tour, stepNum)` - Actually starts the tour. Optional stepNum argument specifies what step to start at.
+* `hopscotch.startTour(tour[, stepNum])` - Actually starts the tour. Optional stepNum argument specifies what step to start at.
 
 * `hopscotch.showStep(idx)` - Skips to a given step in the tour
 
@@ -235,13 +235,13 @@ The Hopscotch framework comes with a simple set of API calls with which you can 
 
 * `hopscotch.nextStep()` - Goes forward one step in the tour
 
-* `hopscotch.endTour([clearCookie])` - Ends the current tour. If clearCookie is set to false, the tour state is preserved. Otherwise, if clearCookie is set to true or is not provided, the tour state is cleared.
+* `hopscotch.endTour([clearState])` - Ends the current tour. If clearState is set to false, the tour state is preserved. Otherwise, the tour state is cleared by default.
 
 * `hopscotch.configure(options)` - Sets options for running the tour. Note: if this method is called after loading a tour, the options specified will override the options defined in the tour. See above section "Setting tour options" for a list of configuration options.
 
 * `hopscotch.getCurrTour()` - Returns the currently running tour.
 
-* `hopscotch.getCurrStepNum()` - Returns the current zero-based step number.
+* `hopscotch.getCurrStepNum()` - Returns the zero-based step number of the currently running tour.
 
 * `hopscotch.getState()` - Checks for tour state saved in sessionStorage/cookies and returns the state if it exists. Use this method to determine whether or not you should resume a tour.
 

@@ -1,12 +1,24 @@
 Developing
 ==========
+
+Javascript
+----------
+
 All code is contained in hopscotch-X.X.X.js, where X.X.X denotes the version number.
 
 * `Hopscotch` - controls tour state and contains the exposed API methods such as `startTour()`, `endTour()`, `showStep()`, and so on. You can think of it as the controller.
 * `HopscotchBubble` - represents the tour step callout bubble that appears next to target elements. It is responsible for rendering, updating step content, and setting its position. You can think of it as the view.
 * `HopscotchCalloutManager` - manages the creation and destruction of single callouts.
 
+LESS
+----
 CSS is compiled using [LESS](http://lesscss.org/).
+
+* `hopscotch.less` - The top-level LESS file. Contains most style definitions for the Hopscotch bubble.
+* `buttons.less` - Everything related to buttons
+* `fade.less` - Everything related to the fade transition animation. The styles here are adopted from Dan Eden's [animate.css](http://daneden.me/animate/).
+* `util.less` - A number of utility mixins mostly relating to CSS3 properties.
+* `vars.less` - All LESS variables in one location.
 
 Compiling
 =========
