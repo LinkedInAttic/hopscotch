@@ -1,0 +1,24 @@
+body {
+  margin: 0;
+  padding: 20px;
+}
+#content button {
+  cursor: pointer;
+}
+h1 {
+  clear: left;
+  margin-top: 20px;
+}
+.text-center {
+  text-align: center;
+}
+.demo-headline {
+  text-align: left;
+  padding: 40px 0 0;
+}
+.tile {
+  min-height: 330px;
+}
+#credits {
+  margin-top: 100px;
+}
