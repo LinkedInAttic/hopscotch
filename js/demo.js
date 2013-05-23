@@ -35,11 +35,10 @@ var tour = {
     },
     {
       target: 'basic-options',
-      placement: 'left',
+      placement: 'top',
       title: 'Basic step options',
-      content: 'These are the most basic step options: <b>target</b>, <b>title</b>, <b>content</b>, and <b>placement</b>. For some steps, they may be all you need.',
-      arrowOffset: 100,
-      yOffset: -80
+      content: 'These are the most basic step options: <b>target</b>, <b>placement</b>, <b>title</b>, and <b>content</b>. For some steps, they may be all you need.',
+      arrowOffset: 100
     },
     {
       target: 'api-methods',

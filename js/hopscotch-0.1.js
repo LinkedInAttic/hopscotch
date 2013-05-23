@@ -706,7 +706,7 @@
     /**
      * @private
      */
-    initCloseButton: function() {
+    _initCloseButton: function() {
       var closeBtnEl = document.createElement('a');
 
       closeBtnEl.className = 'hopscotch-bubble-close';
@@ -721,18 +721,12 @@
               doEndCallback = (currStepNum === currTour.steps.length-1);
 
           utils.invokeEventCallbacks('close');
-
           winHopscotch.endTour(true, doEndCallback);
-
-          if (evt.preventDefault) {
-            evt.preventDefault();
-          }
-          else if (event) {
-            event.returnValue = false;
-          }
+          utils.evtPreventDefault(evt);
         });
       }
       else {
+        // For Callouts only
         utils.addEvtListener(closeBtnEl, 'click', this._getCloseFn());
       }
 
@@ -1120,7 +1114,7 @@
       el.appendChild(containerEl);
 
       this._initNavButtons();
-      this.initCloseButton();
+      this._initCloseButton();
 
       this._initArrow();
 
@@ -1323,7 +1317,7 @@
      * @returns {Object} config option value
      */
     getOption = function(name) {
-      if (typeof opt === 'undefined') {
+      if (typeof opt === undefinedStr) {
         return defaultOpts[name];
       }
       return utils.valOrDefault(opt[name], defaultOpts[name]);
@@ -1921,6 +1915,7 @@
      */
     this.endTour = function(clearState, doCallbacks) {
       var bubble     = getBubble();
+
       clearState     = utils.valOrDefault(clearState, true);
       doCallbacks    = utils.valOrDefault(doCallbacks, true);
       currStepNum    = 0;
@@ -2055,10 +2050,12 @@
       if (typeof id === 'string' && typeof fn === 'function') {
         helpers[id] = fn;
       }
+      return this;
     };
 
     this.unregisterHelper = function(id) {
       helpers[id] = null;
+      return this;
     };
 
     this.invokeHelper = function(id) {
@@ -2072,6 +2069,7 @@
       if (helpers[id]) {
         helpers[id].call(null, args);
       }
+      return this;
     };
 
     /**

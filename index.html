@@ -137,29 +137,7 @@
 
       <p>This is an example of a tour defined with only basic steps.</p>
 
-      <div class="row">
-        <div class="span7">
-          <pre><code>
-  {
-    id: {STRING - id of the tour},
-    steps: [
-      {
-        // MANDATORY
-        target: STRING/ELEMENT - id of the target DOM element or DOM element itself,
-        placement: STRING - ["top", "bottom", "right", "left"]
-        // OPTIONAL
-        title: STRING - step title,
-        content: STRING - step content
-      },
-      ...
-    ]
-  };
-          </code></pre>
-        </div>
-
-
-        <div class="span7">
-          <pre><code id="basic-options">
+      <pre><code id="basic-options">
   {
     id: "welcome_tour",
     steps: [
@@ -183,9 +161,7 @@
       }
     ]
   }
-          </code></pre>
-        </div>
-      </div>
+      </code></pre>
 
       <p><strong>IMPORTANT</strong> -- title and content are set using element.innerHTML. This allows the inclusion of very basic markup like links and lists. However, it also allows the inclusion of malicious script injections when used improperly. It is highly recommended to never show user-generated content in a Hopscotch tour. If it is absolutely necessary, you must properly escape the input, as always.</p>
 
@@ -231,6 +207,7 @@
       <p>Tour options can be specified either through the tour JSON object, or through a call to hopscotch.configure(). These options apply to the entire tour. In cases where there is both a value specified in the tour options and in a step definition, (e.g. "showPrevButton") the step definition takes priority. When multiple callbacks are defined in both step and tour options, step callbacks are invoked before tour-wide callbacks.</p>
 
       <ul>
+      <li><p><code>id</code> [STRING] - <em>Mandatory</em>A unique identifier string for your tour. Used for keeping state.</p></li>
       <li><p><code>bubbleWidth</code> [NUMBER] - Default bubble width. <em>Default</em>: 280.</p></li>
       <li><p><code>bubblePadding</code> [NUMBER] - Default bubble padding. <em>Default</em>: 15.</p></li>
       <li><p><code>smoothScroll</code> [BOOLEAN] - Should the page scroll smoothly to the next step? <em>Default</em>: true.</p></li>
@@ -400,7 +377,7 @@
         target: "basic-options",
         placement: "left",
         title: "Basic step options",
-        content: "These are the most basic step options: &lt;b&gt;target&lt;/b&gt;, &lt;b&gt;title&lt;/b&gt;, &lt;b&gt;content&lt;/b&gt;, and &lt;b&gt;placement&lt;/b&gt;. For some steps, they may be all you need.",
+        content: "These are the most basic step options: &lt;b&gt;target&lt;/b&gt;, &lt;b&gt;placement&lt;/b&gt;, &lt;b&gt;title&lt;/b&gt;, and &lt;b&gt;content&lt;/b&gt;. For some steps, they may be all you need.",
         arrowOffset: 100,
         yOffset: -80
       },
