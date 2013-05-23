@@ -174,6 +174,8 @@ Setting tour options
 --------------------
 Tour options can be specified either through the tour JSON object, or through a call to hopscotch.configure(). These options apply to the entire tour. In cases where there is both a value specified in the tour options and in a step definition, (e.g. "showPrevButton") the step definition takes priority. When multiple callbacks are defined in both step and tour options, step callbacks are invoked before tour-wide callbacks.
 
+* `id` [STRING] - *Mandatory* A unique identifier string for your tour. Used for keeping state.
+
 * `bubbleWidth` [NUMBER] - Default bubble width. *Default*: 280.
 
 * `bubblePadding` [NUMBER] - Default bubble padding. *Default*: 15.
