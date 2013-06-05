@@ -706,7 +706,7 @@
     /**
      * @private
      */
-    _initCloseButton: function() {
+    initCloseButton: function() {
       var closeBtnEl = document.createElement('a');
 
       closeBtnEl.className = 'hopscotch-bubble-close';
@@ -721,12 +721,18 @@
               doEndCallback = (currStepNum === currTour.steps.length-1);
 
           utils.invokeEventCallbacks('close');
+
           winHopscotch.endTour(true, doEndCallback);
-          utils.evtPreventDefault(evt);
+
+          if (evt.preventDefault) {
+            evt.preventDefault();
+          }
+          else if (event) {
+            event.returnValue = false;
+          }
         });
       }
       else {
-        // For Callouts only
         utils.addEvtListener(closeBtnEl, 'click', this._getCloseFn());
       }
 
@@ -1074,7 +1080,10 @@
       this.element        = el;
       this.containerEl    = containerEl;
       this.titleEl        = document.createElement('h3');
-      this.contentEl      = document.createElement('p');
+      this.contentEl      = document.createElement('div');
+
+      utils.addClass(this.titleEl, 'hopscotch-title');
+      utils.addClass(this.contentEl, 'hopscotch-content');
 
       opt = {
         showPrevButton: defaultOpts.showPrevButton,
@@ -1114,7 +1123,7 @@
       el.appendChild(containerEl);
 
       this._initNavButtons();
-      this._initCloseButton();
+      this.initCloseButton();
 
       this._initArrow();
 
@@ -1317,7 +1326,7 @@
      * @returns {Object} config option value
      */
     getOption = function(name) {
-      if (typeof opt === undefinedStr) {
+      if (typeof opt === 'undefined') {
         return defaultOpts[name];
       }
       return utils.valOrDefault(opt[name], defaultOpts[name]);
@@ -1915,7 +1924,6 @@
      */
     this.endTour = function(clearState, doCallbacks) {
       var bubble     = getBubble();
-
       clearState     = utils.valOrDefault(clearState, true);
       doCallbacks    = utils.valOrDefault(doCallbacks, true);
       currStepNum    = 0;
@@ -2050,12 +2058,10 @@
       if (typeof id === 'string' && typeof fn === 'function') {
         helpers[id] = fn;
       }
-      return this;
     };
 
     this.unregisterHelper = function(id) {
       helpers[id] = null;
-      return this;
     };
 
     this.invokeHelper = function(id) {
@@ -2069,7 +2075,6 @@
       if (helpers[id]) {
         helpers[id].call(null, args);
       }
-      return this;
     };
 
     /**
