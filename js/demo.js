@@ -11,7 +11,8 @@ var tour = {
       title: 'Welcome to Hopscotch!',
       content: 'Hey there! This is an example Hopscotch tour. There will be plenty of time to read documentation and sample code, but let\'s just take some time to see how Hopscotch actually works.',
       placement: 'bottom',
-      arrowOffset: 60
+      xOffset: 'center',
+      arrowOffset: 'center'
     },
     {
       target: document.querySelectorAll('#general-use-desc code')[1],
@@ -57,6 +58,8 @@ var tour = {
       placement: 'bottom',
       title: 'You\'re all set!',
       content: 'Now go and build some great tours!',
+      xOffset: 'center',
+      arrowOffset: 'center'
     }
   ],
   showPrevButton: true,
@@ -91,11 +94,11 @@ init = function() {
       mgr.createCallout({
         id: calloutId,
         target: startBtnId,
-        placement: 'right',
+        placement: 'top',
         title: 'Take an example tour',
         content: 'Start by taking an example tour to see Hopscotch in action!',
-        yOffset: -25,
-        arrowOffset: 20,
+        xOffset: 'center',
+        arrowOffset: 'center',
         width: 240
       });
     }, 100);
