@@ -136,11 +136,11 @@ The comprehensive list of step options are listed below:
 
 * `padding` [INT] - bubble padding
 
-* `xOffset` [INT] - horizontal position adjustment for bubble. *Default*: 0.
+* `xOffset` [INT] - horizontal position adjustment for bubble. Value can be number of pixels or "center". *Default*: 0.
 
-* `yOffset` [INT] - vertical position adjustment for bubble. *Default*: 0.
+* `yOffset` [INT] - vertical position adjustment for bubble. Value can be number of pixels or "center". *Default*: 0.
 
-* `arrowOffset` [INT] - offset for the bubble arrow. *Default*: 0.
+* `arrowOffset` [INT] - offset for the bubble arrow. Value can be number of pixels or "center". *Default*: 0.
 
 * `delay` [INT] - number in milliseconds to wait before showing step. *Default*: 0.
 
