@@ -11,8 +11,8 @@ div.hopscotch-bubble{background-color:#ffffff;border:5px solid #000000;border:5p
 div.hopscotch-bubble.invisible{opacity:0;}
 div.hopscotch-bubble.hide,div.hopscotch-bubble .hide,div.hopscotch-bubble .hide-all{display:none;}
 div.hopscotch-bubble h3{color:#000;font-family:Helvetica,Arial;font-size:16px;font-weight:bold;line-height:19px;margin:-1px 15px 0 0;padding:0;}
-div.hopscotch-bubble .hopscotch-bubble-container{padding:15px;position:relative;-webkit-font-smoothing:antialiased;}
-div.hopscotch-bubble .hopscotch-content{font-family:Helvetica,Arial;line-height:17px;margin:-5px 0 11px;padding-top:8px;}
+div.hopscotch-bubble .hopscotch-bubble-container{padding:15px;position:relative;text-align:left;-webkit-font-smoothing:antialiased;}
+div.hopscotch-bubble .hopscotch-content{font-family:Helvetica,Arial;font-weight:normal;line-height:17px;margin:-5px 0 11px;padding-top:8px;}
 div.hopscotch-bubble .hopscotch-bubble-content{margin:0 0 0 40px;}
 div.hopscotch-bubble.no-number .hopscotch-bubble-content{margin:0;}
 div.hopscotch-bubble .hopscotch-bubble-close{color:#000;background:transparent url(../img/sprite-green-0.3.png) -192px -92px no-repeat;display:block;padding:8px;position:absolute;text-decoration:none;text-indent:-9999px;width:8px;height:8px;top:0;right:0;}div.hopscotch-bubble .hopscotch-bubble-close.hide,div.hopscotch-bubble .hopscotch-bubble-close.hide-all{display:none;}

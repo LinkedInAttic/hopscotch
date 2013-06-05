@@ -1,12 +1,17 @@
 body {
   margin: 0;
   padding: 20px;
+  text-align: center;
+}
+#main {
+  text-align: left;
+  margin: 0 auto;
+  width: 940px;
 }
 #content button {
   cursor: pointer;
 }
 h1 {
-  clear: left;
   margin-top: 20px;
 }
 .text-center {
