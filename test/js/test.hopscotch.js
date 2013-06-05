@@ -214,7 +214,7 @@ describe('Hopscotch', function() {
       });
       hopscotch.showStep(2);
       expect(hopscotch.getCurrStepNum()).to.be(2);
-      content = $('.hopscotch-bubble-content p').html();
+      content = $('.hopscotch-bubble-content .hopscotch-content').html();
       expect(content).to.be('It\'s Mocha');
       hopscotch.endTour();
     });
@@ -661,7 +661,7 @@ describe('HopscotchBubble', function() {
           content: 'It\'s a shopping list'
         } ]
       });
-      content = document.querySelector('.hopscotch-bubble-content p').innerHTML;
+      content = document.querySelector('.hopscotch-bubble-content .hopscotch-content').innerHTML;
       expect(content).to.be('It\'s a shopping list');
       hopscotch.endTour();
     });

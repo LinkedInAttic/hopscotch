@@ -1080,7 +1080,10 @@
       this.element        = el;
       this.containerEl    = containerEl;
       this.titleEl        = document.createElement('h3');
-      this.contentEl      = document.createElement('p');
+      this.contentEl      = document.createElement('div');
+
+      utils.addClass(this.titleEl, 'hopscotch-title');
+      utils.addClass(this.contentEl, 'hopscotch-content');
 
       opt = {
         showPrevButton: defaultOpts.showPrevButton,
