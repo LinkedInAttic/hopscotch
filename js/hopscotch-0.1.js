@@ -568,11 +568,11 @@
           boundingRect,
           top,
           left,
+          arrowOffset,
           bubbleBorder = 6,
           targetEl     = utils.getStepTarget(step),
           el           = this.element,
-          arrowEl      = this.arrowEl,
-          arrowOffset  = utils.getPixelValue(step.arrowOffset);
+          arrowEl      = this.arrowEl;
 
       bubbleWidth   = utils.getPixelValue(step.width) || this.opt.bubbleWidth;
       bubblePadding = utils.valOrDefault(step.padding, this.opt.bubblePadding);
@@ -605,22 +605,53 @@
       }
 
       // SET (OR RESET) ARROW OFFSETS
+      if (step.arrowOffset !== 'center') {
+        arrowOffset = utils.getPixelValue(step.arrowOffset);
+      }
+      else {
+        arrowOffset = step.arrowOffset;
+      }
       if (!arrowOffset) {
         arrowEl.style.top = '';
         arrowEl.style.left = '';
       }
       else if (step.placement === 'top' || step.placement === 'bottom') {
         arrowEl.style.top = '';
-        arrowEl.style.left = arrowOffset + 'px';
+        if (arrowOffset === 'center') {
+          arrowEl.style.left = bubbleWidth/2 - this.opt.arrowWidth/2 + 'px';
+        }
+        else {
+          // Numeric pixel value
+          arrowEl.style.left = arrowOffset + 'px';
+        }
       }
       else if (step.placement === 'left' || step.placement === 'right') {
         arrowEl.style.left = '';
-        arrowEl.style.top = arrowOffset + 'px';
+        if (arrowOffset === 'center') {
+          bubbleHeight = bubbleHeight || el.offsetHeight;
+          arrowEl.style.top = bubbleHeight/2 - this.opt.arrowWidth/2 + 'px';
+        }
+        else {
+          // Numeric pixel value
+          arrowEl.style.top = arrowOffset + 'px';
+        }
       }
 
-      // SET OFFSETS
-      left += utils.getPixelValue(step.xOffset);
-      top += utils.getPixelValue(step.yOffset);
+      // HORIZONTAL OFFSET
+      if (step.xOffset === 'center') {
+        left = (boundingRect.left + boundingRect.width/2) - (bubbleWidth/2);
+      }
+      else {
+        left += utils.getPixelValue(step.xOffset);
+      }
+      // VERTICAL OFFSET
+      if (step.yOffset === 'center') {
+        bubbleHeight = bubbleHeight || el.offsetHeight;
+        top = (boundingRect.top + boundingRect.height/2) - (bubbleHeight/2);
+      }
+      else {
+        top += utils.getPixelValue(step.yOffset);
+      }
 
       // ADJUST TOP FOR SCROLL POSITION
       if (!step.fixedElement) {
