@@ -618,9 +618,21 @@
         arrowEl.style.top = arrowOffset + 'px';
       }
 
-      // SET OFFSETS
-      left += utils.getPixelValue(step.xOffset);
-      top += utils.getPixelValue(step.yOffset);
+      // HORIZONTAL OFFSET
+      if (step.xOffset === 'center') {
+        left = (boundingRect.left + boundingRect.width/2) - (bubbleWidth/2);
+      }
+      else {
+        left += utils.getPixelValue(step.xOffset);
+      }
+      // VERTICAL OFFSET
+      if (step.yOffset === 'center') {
+        bubbleHeight = bubbleHeight || el.offsetHeight;
+        top = (boundingRect.top + boundingRect.height/2) - (bubbleHeight/2);
+      }
+      else {
+        top += utils.getPixelValue(step.yOffset);
+      }
 
       // ADJUST TOP FOR SCROLL POSITION
       if (!step.fixedElement) {
