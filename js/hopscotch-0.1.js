@@ -618,7 +618,7 @@
       else if (step.placement === 'top' || step.placement === 'bottom') {
         arrowEl.style.top = '';
         if (arrowOffset === 'center') {
-          arrowEl.style.left = bubbleWidth/2 - this.opt.arrowWidth/2 + 'px';
+          arrowEl.style.left = bubbleWidth/2 + bubblePadding - arrowEl.getBoundingClientRect().width/2 + 'px';
         }
         else {
           // Numeric pixel value
@@ -629,7 +629,7 @@
         arrowEl.style.left = '';
         if (arrowOffset === 'center') {
           bubbleHeight = bubbleHeight || el.offsetHeight;
-          arrowEl.style.top = bubbleHeight/2 - this.opt.arrowWidth/2 + 'px';
+          arrowEl.style.top = bubbleHeight/2 + bubblePadding - arrowEl.getBoundingClientRect().height/2 + 'px';
         }
         else {
           // Numeric pixel value
@@ -639,7 +639,7 @@
 
       // HORIZONTAL OFFSET
       if (step.xOffset === 'center') {
-        left = (boundingRect.left + boundingRect.width/2) - (bubbleWidth/2);
+        left = (boundingRect.left + boundingRect.width/2) - (bubbleWidth/2) - bubblePadding;
       }
       else {
         left += utils.getPixelValue(step.xOffset);
@@ -647,7 +647,7 @@
       // VERTICAL OFFSET
       if (step.yOffset === 'center') {
         bubbleHeight = bubbleHeight || el.offsetHeight;
-        top = (boundingRect.top + boundingRect.height/2) - (bubbleHeight/2);
+        top = (boundingRect.top + boundingRect.height/2) - (bubbleHeight/2) - bubblePadding;
       }
       else {
         top += utils.getPixelValue(step.yOffset);
