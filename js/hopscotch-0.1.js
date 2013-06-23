@@ -1610,6 +1610,9 @@
           }
 
           if (wasMultiPage) {
+            // Update state for the next page
+            utils.setState(getOption('cookieName'), currTour.id + ':' + currStepNum, 1);
+
             // Next step is on a different page, so no need to attempt to render it.
             return;
           }
@@ -1672,14 +1675,6 @@
         cookieTourStep      = tourPair[1];
 
         cookieTourStep    = parseInt(cookieTourStep, 10);
-
-        // Check for multipage flag
-        if (tourPair.length > 2 && tourPair[2] === 'mp') {
-          // Increment cookie step
-          if (cookieTourStep < currTour.steps.length-1) {
-            ++cookieTourStep;
-          }
-        }
       }
 
       return this;
@@ -1774,10 +1769,6 @@
           utils.addEvtListener(targetEl, 'click', targetClickNextFn);
         }
       });
-
-      if (step.multipage) {
-        cookieVal += ':mp';
-      }
 
       utils.setState(getOption('cookieName'), cookieVal, 1);
     },
