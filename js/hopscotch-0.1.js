@@ -1685,7 +1685,7 @@
      * Find the first step to show for a tour. (What is the first step with a
      * target on the page?)
      */
-    findStartingStep = function(startStepNum, cb) {
+    findStartingStep = function(startStepNum, multiPage, cb) {
       var step,
           target,
           stepNum,
@@ -1700,7 +1700,7 @@
         cb(currStepNum);
         return;
       }
-      else if (currStepNum > 0) {
+      else if (!multiPage && currStepNum > 0) {
         // No target found for the initial step. May have just refreshed the
         // page. Try the previous step. (but don't change cookie)
         --currStepNum;
@@ -1847,7 +1847,7 @@
       }
 
       // Find the current step we should begin the tour on, and then actually start the tour.
-      findStartingStep(currStepNum, function(stepNum) {
+      findStartingStep(currStepNum, cookieTourStep, function(stepNum) {
         var target = (stepNum !== -1) && utils.getStepTarget(currTour.steps[stepNum]);
 
         if (!target) {
