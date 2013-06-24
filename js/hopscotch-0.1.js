@@ -1609,13 +1609,14 @@
             utils.invokeEventCallbacks('prev', origStep.onPrev);
           }
 
-          if (wasMultiPage) {
-            // Update state for the next page
-            utils.setState(getOption('cookieName'), currTour.id + ':' + currStepNum, 1);
+        }
 
-            // Next step is on a different page, so no need to attempt to render it.
-            return;
-          }
+        if (wasMultiPage) {
+          // Update state for the next page
+          utils.setState(getOption('cookieName'), currTour.id + ':' + currStepNum, 1);
+
+          // Next step is on a different page, so no need to attempt to render it.
+          return;
         }
 
         this.showStep(stepNum);
