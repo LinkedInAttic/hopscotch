@@ -1388,7 +1388,7 @@
      * @private
      */
     targetClickNextFn = function() {
-      self.nextStep(false);
+      self.nextStep();
     },
 
     /**
