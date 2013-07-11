@@ -1466,7 +1466,7 @@
 
         // Use jQuery if it exists
         else if (hasJquery) {
-          $('body, html').animate({ scrollTop: scrollToVal }, getOption('scrollDuration'), cb);
+          jQuery('body, html').animate({ scrollTop: scrollToVal }, getOption('scrollDuration'), cb);
         }
 
         // Use my crummy setInterval scroll solution if we're using plain, vanilla Javascript.
