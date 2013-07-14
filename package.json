@@ -1,0 +1,30 @@
+{
+  "name": "hopscotch",
+  "version": "0.1.0",
+  "description": "A framework to make it easy for developers to add product tours to their pages.",
+  "main": "Gruntfile.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/linkedin/hopscotch.git"
+  },
+  "author": "Gordon Koo",
+  "license": "Apache 2.0",
+  "readmeFilename": "README.md",
+  "gitHead": "d904b51ed9eefc88b655fff5d9367710e6ff4223",
+  "bugs": {
+    "url": "https://github.com/linkedin/hopscotch/issues"
+  },
+  "devDependencies": {
+    "grunt": "~0.4.1",
+    "uglify-js": "~2.3.6",
+    "grunt-contrib-uglify": "~0.2.2",
+    "grunt-contrib-less": "~0.6.4",
+    "grunt-contrib-jshint": "~0.6.0"
+  }
+}
