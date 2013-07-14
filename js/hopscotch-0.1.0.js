@@ -1388,7 +1388,7 @@
      * @private
      */
     targetClickNextFn = function() {
-      self.nextStep(false);
+      self.nextStep();
     },
 
     /**
@@ -1466,7 +1466,7 @@
 
         // Use jQuery if it exists
         else if (hasJquery) {
-          $('body, html').animate({ scrollTop: scrollToVal }, getOption('scrollDuration'), cb);
+          jQuery('body, html').animate({ scrollTop: scrollToVal }, getOption('scrollDuration'), cb);
         }
 
         // Use my crummy setInterval scroll solution if we're using plain, vanilla Javascript.
@@ -1608,14 +1608,14 @@
           else {
             utils.invokeEventCallbacks('prev', origStep.onPrev);
           }
+        }
 
-          if (wasMultiPage) {
-            // Update state for the next page
-            utils.setState(getOption('cookieName'), currTour.id + ':' + currStepNum, 1);
+        if (wasMultiPage) {
+          // Update state for the next page
+          utils.setState(getOption('cookieName'), currTour.id + ':' + currStepNum, 1);
 
-            // Next step is on a different page, so no need to attempt to render it.
-            return;
-          }
+          // Next step is on a different page, so no need to attempt to render it.
+          return;
         }
 
         this.showStep(stepNum);
@@ -1687,8 +1687,7 @@
     findStartingStep = function(startStepNum, cb) {
       var step,
           target,
-          stepNum,
-          decrementedStep = false;
+          stepNum;
 
       currStepNum = startStepNum || 0;
       step        = getCurrStep();
@@ -1698,18 +1697,6 @@
         // First step had an existing target.
         cb(currStepNum);
         return;
-      }
-      else if (currStepNum > 0) {
-        // No target found for the initial step. May have just refreshed the
-        // page. Try the previous step. (but don't change cookie)
-        --currStepNum;
-        decrementedStep = true;
-        step = getCurrStep();
-        target = utils.getStepTarget(step);
-        if (target) {
-          cb(currStepNum);
-          return;
-        }
       }
 
       if (!target) {
@@ -1721,9 +1708,6 @@
         utils.invokeEventCallbacks('error');
 
         if (getOption('skipIfNoElement')) {
-          if (decrementedStep) {
-            ++currStepNum; // undo the previous decrement
-          }
           goToStepWithTarget(1, cb);
           return;
         }
