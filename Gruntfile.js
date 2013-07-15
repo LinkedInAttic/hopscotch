@@ -18,6 +18,22 @@ module.exports = function(grunt) {
 
   grunt.initConfig({
     pkg: grunt.file.readJSON('package.json'),
+    jshint: {
+      hopscotch: {
+        src: ['js/hopscotch-<%= pkg.version %>.js'],
+      },
+      gruntfile: {
+        src: ['Gruntfile.js'],
+      },
+      options: {
+        curly:    true,
+        eqeqeq:   true,
+        eqnull:   true,
+        browser:  true,
+        jquery:   true,
+        yui:      true,
+      }
+    },
     uglify: {
       options: {
         banner: bannerComment
@@ -30,28 +46,29 @@ module.exports = function(grunt) {
     less: {
       development: {
         options: {
-          paths: ["less"]
+          paths: ['less']
         },
         files: {
-          "css/hopscotch-<%= pkg.version %>.css": "less/hopscotch.less"
+          'css/hopscotch-<%= pkg.version %>.css': 'less/hopscotch.less'
         }
       },
       production: {
         options: {
-          paths: ["less"],
+          paths: ['less'],
           yuicompress: true,
           banner: bannerComment
         },
         files: {
-          "css/hopscotch-<%= pkg.version %>.min.css": "less/hopscotch.less"
+          'css/hopscotch-<%= pkg.version %>.min.css': 'less/hopscotch.less'
         }
       }
     }
   });
 
-  // Load the plugin that provides the "uglify" task.
+  grunt.loadNpmTasks('grunt-contrib-jshint');
   grunt.loadNpmTasks('grunt-contrib-uglify');
   grunt.loadNpmTasks('grunt-contrib-less');
+
   // Default task(s).
-  grunt.registerTask('default', ['uglify', 'less']);
-}
+  grunt.registerTask('default', ['jshint', 'uglify', 'less']);
+};
