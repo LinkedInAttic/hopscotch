@@ -21,13 +21,20 @@
   <script src="../js/hopscotch-0.1.1.js"></script>
   <script src="js/jquery-1.7.2.js"></script>
   <script src="js/expect.js"></script>
-  <script src="js/mocha.js"></script>
-  <script>mocha.setup('bdd')</script>
+  <script src="../node_modules/mocha-phantomjs/node_modules/mocha/mocha.js"></script>
+  <script>
+    mocha.setup('bdd')
+  </script>
   <script src="js/test.hopscotch.js"></script>
   <script>
-    mocha.checkLeaks();
-    mocha.globals(['jQuery']);
-    mocha.run();
+    if (window.mochaPhantomJS) {
+      window.mochaPhantomJS.run();
+    }
+    else {
+      mocha.checkLeaks();
+      mocha.globals(['jQuery']);
+      mocha.run();
+    }
   </script>
 </body>
 </html>

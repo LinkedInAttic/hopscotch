@@ -62,13 +62,38 @@ module.exports = function(grunt) {
           'css/hopscotch-<%= pkg.version %>.min.css': 'less/hopscotch.less'
         }
       }
+    },
+    shell: {
+      'mocha-phantomjs': {
+        command: 'mocha-phantomjs test/index.html',
+        options: {
+          stdout: true,
+          stderr: true
+        }
+      }
+    },
+    watch: {
+      jsFiles: {
+        files: ['js/*.js'],
+        tasks: ['shell:mocha-phantomjs', 'jshint:hopscotch']
+      }
     }
   });
 
   grunt.loadNpmTasks('grunt-contrib-jshint');
   grunt.loadNpmTasks('grunt-contrib-uglify');
   grunt.loadNpmTasks('grunt-contrib-less');
+  grunt.loadNpmTasks('grunt-contrib-watch');
+  grunt.loadNpmTasks('grunt-shell');
 
   // Default task(s).
-  grunt.registerTask('default', ['jshint', 'uglify', 'less']);
+  grunt.registerTask('default', ['jshint', 'uglify', 'less', 'shell']);
+  // Aliasing 'test' task to run Mocha tests
+  grunt.registerTask('test', 'run mocha-phantomjs', function() {
+    var done = this.async();
+    require('child_process').exec('mocha-phantomjs ./test/index.html', function (err, stdout) {
+      grunt.log.write(stdout);
+      done(err);
+    });
+  });
 };

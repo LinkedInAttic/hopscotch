@@ -25,6 +25,9 @@
     "uglify-js": "~2.3.6",
     "grunt-contrib-uglify": "~0.2.2",
     "grunt-contrib-less": "~0.6.4",
-    "grunt-contrib-jshint": "~0.6.0"
+    "grunt-contrib-jshint": "~0.6.0",
+    "mocha-phantomjs": "~3.1.0",
+    "grunt-shell": "~0.3.1",
+    "grunt-contrib-watch": "~0.5.1"
   }
 }
