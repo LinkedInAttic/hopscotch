@@ -621,7 +621,7 @@
           arrowEl.style.left = bubbleWidth/2 + bubblePadding - arrowEl.getBoundingClientRect().width/2 + 'px';
         }
         else if (arrowOffset === 'right') {
-          arrowEl.style.left = bubbleWidth + bubblePadding - arrowEl.getBoundingClientRect().width + 'px';
+          arrowEl.style.left = bubbleWidth + bubblePadding - arrowEl.offsetWidth + 'px';
         }
         else {
           // Numeric pixel value
@@ -645,7 +645,7 @@
         left = (boundingRect.left + boundingRect.width/2) - (bubbleWidth/2) - bubblePadding;
       }
       else if (step.xOffset === 'right') {
-          left = (boundingRect.left + boundingRect.width/2) - (bubbleWidth) - bubblePadding;
+        left = boundingRect.right - (bubbleWidth + bubblePadding*2 + bubbleBorder*2);
       }
       else {
         left += utils.getPixelValue(step.xOffset);
