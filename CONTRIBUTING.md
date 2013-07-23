@@ -19,7 +19,7 @@ CSS is compiled using [LESS](http://lesscss.org/).
 
 Compiling
 =========
-Hopscotch uses Grunt for minification and hinting. Make sure you have [npm](https//npmjs.org) installed. Run `npm install` from the hopscotch directory to load in the dev dependencies, then run `grunt`.
+Hopscotch uses Grunt for minification and hinting. Make sure you have [`npm`](https://npmjs.org) installed. Run `npm install` from the hopscotch directory to load in the dev dependencies, then run `grunt`.
 
 Testing
 =======
