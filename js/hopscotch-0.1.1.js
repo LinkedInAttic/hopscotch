@@ -815,8 +815,7 @@
 
         // Create callback to remove the callout. If a onCTA callback is
         // provided, call it from within this one.
-        callback = function() {
-          utils.removeEvtListener(self.ctaBtnEl, 'click', callback);
+        this._ctaFn = function() {
           if (!self.opt.isTourBubble) {
             // This is a callout. Close the callout when CTA is clicked.
             winHopscotch.getCalloutManager().removeCallout(step.id);
@@ -827,8 +826,17 @@
           }
         };
 
-        utils.addEvtListener(this.ctaBtnEl, 'click', callback);
+        utils.addEvtListener(this.ctaBtnEl, 'click', this._ctaFn);
       }
+    },
+
+    /**
+     * Remove any previously attached CTA listener.
+     *
+     * @private
+     */
+    _removeCTACallback: function() {
+      utils.removeEvtListener(this.ctaBtnEl, 'click', this._ctaFn);
     },
 
     /**
@@ -1578,7 +1586,7 @@
           wasMultiPage,
           changeStepCb;
 
-      bubble.hide();
+      bubble.hide()._removeCTACallback();
 
       doCallbacks = utils.valOrDefault(doCallbacks, true);
       step = getCurrStep();

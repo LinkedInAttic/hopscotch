@@ -881,6 +881,75 @@ describe('HopscotchBubble', function() {
       $body.removeClass(testClassName);
     });
 
+    it('should invoke the CTA callback when the CTA button is clicked', function() {
+      var testClassName = "testingCTAButton",
+      tour = {
+        id: 'hopscotch-test-tour',
+        steps: [
+          {
+            target: 'shopping-list',
+            orientation: 'left',
+            title: 'Shopping List',
+            content: 'It\'s a shopping list',
+            showCTAButton: true,
+            ctaLabel: 'test',
+            onCTA: function() {
+              $body.addClass(testClassName);
+            }
+          }
+        ]
+      };
+
+      expect($body.hasClass(testClassName)).to.not.be.ok();
+      hopscotch.startTour(tour);
+      $('#hopscotch-cta').click();
+      expect($body.hasClass(testClassName)).to.be.ok();
+      hopscotch.endTour(tour);
+      $body.removeClass(testClassName);
+    });
+
+    it('should remove the CTA callback after advancing to the next step', function() {
+      var testClassName1 = "testingCTAButton1",
+      testClassName2 = "testingCTAButton2",
+      tour = {
+        id: 'hopscotch-test-tour',
+        steps: [
+          {
+            target: 'shopping-list',
+            orientation: 'left',
+            title: 'Shopping List',
+            content: 'It\'s a shopping list',
+            showCTAButton: true,
+            ctaLabel: 'test',
+            onCTA: function() {
+              $body.addClass(testClassName1);
+            }
+          },
+          {
+            target: 'shopping-list',
+            orientation: 'left',
+            title: 'Shopping List',
+            content: 'It\'s a shopping list',
+            showCTAButton: true,
+            ctaLabel: 'test',
+            onCTA: function() {
+              $body.addClass(testClassName2);
+            }
+          }
+        ]
+      };
+
+      expect($body.hasClass(testClassName1)).to.not.be.ok();
+      expect($body.hasClass(testClassName2)).to.not.be.ok();
+      hopscotch.startTour(tour);
+      hopscotch.nextStep();
+      $('#hopscotch-cta').click();
+      expect($body.hasClass(testClassName1)).to.not.be.ok();
+      expect($body.hasClass(testClassName2)).to.be.ok();
+      hopscotch.endTour(tour);
+      $body.removeClass(testClassName1).removeClass(testClassName2);
+    });
+
     it('should be able to invoke a callback that was registered as a helper', function() {
       var testClassName = 'testingOnNext',
           helperName = 'addClassToBody';
