@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <link href="css/hopscotch.css" rel="stylesheet"></link>
+    <link href="css/bootstrap.css" rel="stylesheet"></link>
+    <link href="css/flat-ui.css" rel="stylesheet"></link>
+    <link href="css/demo.css" rel="stylesheet"></link>
+  </head>
+  <body>
+    <div id="main">
+      <h1 id="title">Multipage Tour Landing Page</h1>
+      <p>Here we are!</p>
+      <p id="explanation">Note that on the second page, we'll need to include <code>hopscotch.js</code> as well as the tour javascript file (in this case, <code>multipage-demo.js</code>). On page 2, you can use <code>hopscotch.getState()</code> to determine if you should start the tour automatically.</p>
+      <pre><code>
+        if (hopscotch.getState() === "hello-hopscotch:1") {
+          hopscotch.startTour(tour);
+        }
+      </code></pre>
+      <p><code>hopscotch.getState()</code> returns a string of the form "tourId:tourStepNumber". Use it to make sure that the user is in the middle of the tour before starting the tour automatically.</p>
+      <p>In this example, we used the <code>onNext</code> callback to navigate to the second page. Another option is to disable the next button and have your Hopscotch step point to a link on the page. Such a tour would look something like the following:</p>
+      <pre><code>
+        var tour = {
+          id: "hello-hopscotch",
+          steps: [
+            {
+              title: "Multipage Example",
+              content: "We're going to the next page now...",
+              target: "#page2-link",
+              placement: "bottom",
+              multipage: true,
+              showNextButton: false
+            },
+            {
+              title: "Here we are!",
+              content: "Safe and sound!",
+              target: "explanation",
+              placement: "bottom",
+              xOffset: "center",
+              arrowOffset: "center"
+            }
+          ]
+        };
+      </code></pre>
+    </div>
+    <script src="js/jquery-2.0.3.min.js"></script>
+    <script src="js/hopscotch-0.1.1.js"></script>
+    <script src="js/multipage-demo.js"></script>
+  </body>
+</html>

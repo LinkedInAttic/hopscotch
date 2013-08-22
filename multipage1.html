@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <link href="css/hopscotch.css" rel="stylesheet"></link>
+    <link href="css/bootstrap.css" rel="stylesheet"></link>
+    <link href="css/flat-ui.css" rel="stylesheet"></link>
+    <link href="css/demo.css" rel="stylesheet"></link>
+  </head>
+  <body>
+    <div id="main">
+      <h1 id="title">Multipage Tour Example</h1>
+      <p>Here's how to take your tour across pages.</p>
+      <p class="text-center"><button id="startTourBtn" class="btn btn-large btn-primary">Try it out!</button></p>
+      <pre><code>
+        var tour = {
+          id: "hello-hopscotch",
+          steps: [
+            {
+              title: "Multipage Example",
+              content: "We're going to the next page now...",
+              target: "title",
+              placement: "bottom",
+              multipage: true,
+              onNext: function() {
+                window.location = "multipage2.html"
+              }
+            },
+            {
+              title: "My content",
+              content: "Here is where I put my content.",
+              target: document.querySelector("#content p"),
+              placement: "bottom"
+            }
+          ]
+        };
+      </code></pre>
+      <p>So what exactly is going on here? First, you'll notice that we added the <code>multipage</code> option to the first step in our tour. This tells Hopscotch that the following step (step 2) is going to be on a different page, so that the it doesn't try to advance the tour when the user clicks the Next button.</p>
+      <p>In the <code>onNext</code> callback for step 1, we change the <code>window.location</code> to the URL of the second page. This lets us actually change pages without leaving the context of the Hopscotch tour.</p>
+    </div>
+    <script src="js/jquery-2.0.3.min.js"></script>
+    <script src="js/hopscotch-0.1.1.js"></script>
+    <script src="js/multipage-demo.js"></script>
+  </body>
+</html>
