@@ -2029,7 +2029,7 @@
      * to hopscotch.configure or hopscotch.listen will not be removed). If
      * evtName is null or undefined, callbacks for all events will be removed.
      *
-     * @param {string} evtName Optional Event name for which we should remove callbacks 
+     * @param {string} evtName Optional Event name for which we should remove callbacks
      * @param {boolean} tourOnly Optional flag to indicate we should only remove callbacks added
      *    by a tour. Defaults to false.
      * @returns {Object} Hopscotch
@@ -2138,6 +2138,18 @@
      */
     this.getState = function() {
       return utils.getState(getOption('cookieName'));
+    };
+
+    /**
+     * Adjusts the position of the bubble. Can be called when the position of the target
+     * has changed
+     */
+    this.adjustBubblePosition = function() {
+      var bubble = getBubble();
+      if(bubble && currTour) {
+        var step = currTour.steps[currStepNum];
+        bubble.setPosition(step);
+      }
     };
 
     /**
