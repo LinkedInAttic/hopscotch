@@ -1988,6 +1988,15 @@
     };
 
     /**
+     * getCurrTarget
+     *
+     * @return {Object} The currently visible target.
+     */
+    this.getCurrTarget = function() {
+      return utils.getStepTarget(getCurrStep());
+    };
+
+    /**
      * getCurrStepNum
      *
      * @return {number} The current zero-based step number.
@@ -2044,7 +2053,7 @@
      * to hopscotch.configure or hopscotch.listen will not be removed). If
      * evtName is null or undefined, callbacks for all events will be removed.
      *
-     * @param {string} evtName Optional Event name for which we should remove callbacks 
+     * @param {string} evtName Optional Event name for which we should remove callbacks
      * @param {boolean} tourOnly Optional flag to indicate we should only remove callbacks added
      *    by a tour. Defaults to false.
      * @returns {Object} Hopscotch
