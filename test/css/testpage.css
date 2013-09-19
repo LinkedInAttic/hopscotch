@@ -3,6 +3,10 @@
   margin-bottom: 50px;
 }
 
+#right-aligned-button {
+  text-align: right;
+}
+
 #mocha {
   border: 1px dashed #000;
   max-height: 400px;
