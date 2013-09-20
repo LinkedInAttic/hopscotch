@@ -581,7 +581,7 @@
 
       // Don't exceed the width of the window.
       bubblePadding = utils.valOrDefault(step.padding, this.opt.bubblePadding);
-      if (this.opt.bubbleResize) {
+      if (this.opt.bubbleResize && (step.placement === 'top' || step.placement === 'bottom')) {
         // Resize base on screen width
         bubbleWidth = Math.min((utils.getPixelValue(step.width) || this.opt.bubbleWidth), (utils.getWindowWidth() - (2*bubblePadding) - (2*this.opt.bubbleMargin) - (2*this.opt.bubbleBorder)));
       } else {
@@ -617,7 +617,7 @@
       }
 
       // Adjust left and right if they are off screen
-      if (this.opt.bubbleResize) {
+      if (this.opt.bubbleResize && (step.placement === 'top' || step.placement === 'bottom')) {
         leftOvershoot = left - this.opt.bubbleMargin;
         if (leftOvershoot < 0) {
           left = left - leftOvershoot;
@@ -925,7 +925,7 @@
 
       // Set dimensions
       bubblePadding = utils.valOrDefault(step.padding, this.opt.bubblePadding);
-      if (this.opt.bubbleResize) {
+      if (this.opt.bubbleResize && (step.placement === 'top' || step.placement === 'bottom')) {
         // Resize base on screen width
         bubbleWidth = Math.min((utils.getPixelValue(step.width) || this.opt.bubbleWidth), (utils.getWindowWidth() - (2*bubblePadding) - (2*this.opt.bubbleMargin) - (2*this.opt.bubbleBorder)));
       } else {
