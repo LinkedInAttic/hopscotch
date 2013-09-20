@@ -44,6 +44,9 @@
     showNextButton:  true,
     bubbleWidth:     280,
     bubblePadding:   15,
+    bubbleMargin:    15,
+    bubbleBorder:    5,   // Currently set in css, so it's not a valid option right now
+    bubbleResize:    true,
     arrowWidth:      20,
     skipIfNoElement: true,
     cookieName:      'hopscotch.tour.state'
@@ -569,13 +572,22 @@
           top,
           left,
           arrowOffset,
-          bubbleBorder = 6,
-          targetEl     = utils.getStepTarget(step),
-          el           = this.element,
-          arrowEl      = this.arrowEl;
+          leftOvershoot,
+          rightOvershoot,
+          overshootArrowOffset  = 0,
+          targetEl              = utils.getStepTarget(step),
+          el                    = this.element,
+          arrowEl               = this.arrowEl;
 
-      bubbleWidth   = utils.getPixelValue(step.width) || this.opt.bubbleWidth;
+      // Don't exceed the width of the window.
       bubblePadding = utils.valOrDefault(step.padding, this.opt.bubblePadding);
+      if (this.opt.bubbleResize && (step.placement === 'top' || step.placement === 'bottom')) {
+        // Resize base on screen width
+        bubbleWidth = Math.min((utils.getPixelValue(step.width) || this.opt.bubbleWidth), (utils.getWindowWidth() - (2*bubblePadding) - (2*this.opt.bubbleMargin) - (2*this.opt.bubbleBorder)));
+      } else {
+        bubbleWidth = utils.getPixelValue(step.width) || this.opt.bubbleWidth;
+      }
+
       utils.removeClass(el, 'fade-in-down fade-in-up fade-in-left fade-in-right');
 
       // Originally called it orientation, but placement is more intuitive.
@@ -597,16 +609,30 @@
       }
       else if (step.placement === 'left') {
         top = boundingRect.top;
-        left = boundingRect.left - bubbleWidth - 2*bubblePadding - 2*bubbleBorder - this.opt.arrowWidth;
+        left = boundingRect.left - bubbleWidth - 2*bubblePadding - 2*this.opt.bubbleBorder - this.opt.arrowWidth;
       }
       else if (step.placement === 'right') {
         top = boundingRect.top;
         left = boundingRect.right + this.opt.arrowWidth;
       }
 
+      // Adjust left and right if they are off screen
+      if (this.opt.bubbleResize && (step.placement === 'top' || step.placement === 'bottom')) {
+        leftOvershoot = left - this.opt.bubbleMargin;
+        if (leftOvershoot < 0) {
+          left = left - leftOvershoot;
+          overshootArrowOffset = -leftOvershoot;
+        }
+        rightOvershoot = (left + bubbleWidth + (2*bubblePadding) + (this.opt.bubbleMargin) + (2*this.opt.bubbleBorder)) - utils.getWindowWidth();
+        if (rightOvershoot > 0) {
+          left = left - rightOvershoot;
+          overshootArrowOffset = rightOvershoot;
+        }
+      }
+
       // SET (OR RESET) ARROW OFFSETS
       if (step.arrowOffset !== 'center') {
-        arrowOffset = utils.getPixelValue(step.arrowOffset);
+        arrowOffset = utils.getPixelValue(step.arrowOffset) + overshootArrowOffset;
       }
       else {
         arrowOffset = step.arrowOffset;
@@ -898,8 +924,13 @@
       this._setArrow(step.placement);
 
       // Set dimensions
-      bubbleWidth   = utils.getPixelValue(step.width) || this.opt.bubbleWidth;
       bubblePadding = utils.valOrDefault(step.padding, this.opt.bubblePadding);
+      if (this.opt.bubbleResize && (step.placement === 'top' || step.placement === 'bottom')) {
+        // Resize base on screen width
+        bubbleWidth = Math.min((utils.getPixelValue(step.width) || this.opt.bubbleWidth), (utils.getWindowWidth() - (2*bubblePadding) - (2*this.opt.bubbleMargin) - (2*this.opt.bubbleBorder)));
+      } else {
+        bubbleWidth = utils.getPixelValue(step.width) || this.opt.bubbleWidth;
+      }
       this.containerEl.style.width = bubbleWidth + 'px';
       this.containerEl.style.padding = bubblePadding + 'px';
 
@@ -1132,6 +1163,9 @@
         showNextButton: defaultOpts.showNextButton,
         bubbleWidth:    defaultOpts.bubbleWidth,
         bubblePadding:  defaultOpts.bubblePadding,
+        bubbleMargin:   defaultOpts.bubbleMargin,
+        bubbleBorder:   defaultOpts.bubbleBorder,
+        bubbleResize:   defaultOpts.bubbleResize,
         arrowWidth:     defaultOpts.arrowWidth,
         showNumber:     true,
         isTourBubble:   true
@@ -1349,6 +1383,8 @@
         utils.extend(bubble.opt, {
           bubblePadding:   getOption('bubblePadding'),
           bubbleWidth:     getOption('bubbleWidth'),
+          bubbleMargin:    getOption('bubbleMargin'),
+          bubbleResize:    getOption('bubbleResize'),
           showNextButton:  getOption('showNextButton'),
           showPrevButton:  getOption('showPrevButton'),
           showCloseButton: getOption('showCloseButton'),
@@ -2214,6 +2250,9 @@
      *
      * - bubbleWidth:     Number   - Default bubble width. Defaults to 280.
      * - bubblePadding:   Number   - Default bubble padding. Defaults to 15.
+     * - bubbleMargin:    Number   - Default bubble margin. Defaults to 15.
+     * - bubbleResize:    Boolean  - Should the bubble auto resize if it is bigger
+     *                               than the screen? Defaults to true.
      * - smoothScroll:    Boolean  - should the page scroll smoothly to the next
      *                               step? Defaults to TRUE.
      * - scrollDuration:  Number   - Duration of page scroll. Only relevant when

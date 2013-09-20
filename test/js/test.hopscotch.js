@@ -8,6 +8,8 @@ var hasSessionStorage = typeof window.sessionStorage !== 'undefined',
 
 $body = $(document.body),
 
+defaultWindowWidth = 1000,
+
 setState = function(name,value,days) {
   var expires = '',
       date;
@@ -60,8 +62,17 @@ clearState = function(name) {
   }
 },
 
+setScreenWidth = function(width) {
+  window.innerWidth = width;
+},
+
+resetScreenWidth = function() {
+  setScreenWidth(defaultWindowWidth);
+},
+
 setup = function() {
   clearState('hopscotch-test-tour');
+  resetScreenWidth();
 };
 
 setup();
@@ -71,6 +82,12 @@ setup();
 // ==========================
 
 describe('Hopscotch', function() {
+  describe('window.innerWidth', function() {
+    it('should be set to ' + defaultWindowWidth + ' by default', function() {
+      expect(window.innerWidth).to.be(defaultWindowWidth);
+    });
+  });
+
   describe('#isActive', function() {
     it('should default to not active', function() {
       expect(hopscotch.isActive).to.not.be.ok();
@@ -634,6 +651,69 @@ describe('Hopscotch', function() {
  * These are specified in the tour definition.
  */
 describe('HopscotchBubble', function() {
+  describe('Size and Position', function() {
+
+    it('should shrink automatically if screen width is less than bubbleWidth', function() {
+      var el;
+      setScreenWidth(240);
+
+      hopscotch.startTour({
+        id: 'hopscotch-test-tour',
+        steps: [ {
+          target: 'shopping-list',
+          orientation: 'bottom',
+          title: 'Shopping List',
+          content: 'It\'s a shopping list'
+        } ],
+        bubbleWidth: 600
+      });
+      el = document.querySelector('.hopscotch-bubble-container');
+      expect(parseInt(el.style.width, 10)).to.be.lessThan(240); // also takes into account padding, margin, and border
+      resetScreenWidth();
+      hopscotch.endTour();
+    });
+
+    it('should not shrink automatically if bubbleAutoResize is set to false', function() {
+      var el;
+      setScreenWidth(240);
+
+      hopscotch.startTour({
+        id: 'hopscotch-test-tour',
+        steps: [ {
+          target: 'shopping-list',
+          orientation: 'bottom',
+          title: 'Shopping List',
+          content: 'It\'s a shopping list'
+        } ],
+        bubbleWidth: 600,
+        bubbleResize: false
+      });
+      el = document.querySelector('.hopscotch-bubble-container');
+      expect(parseInt(el.style.width, 10)).to.be.greaterThan(240); // also takes into account padding, margin, and border
+      resetScreenWidth();
+      hopscotch.endTour();
+    });
+
+    it('should move to the left if it is offscreen to the right', function() {
+      var el;
+      setScreenWidth(300);
+
+      hopscotch.startTour({
+        id: 'hopscotch-test-tour',
+        steps: [ {
+          target: '#right-aligned-button button',
+          orientation: 'bottom',
+          title: 'Button',
+          content: 'Dont... push... the button...'
+        } ],
+        bubbleWidth: 400,
+      });
+      el = document.querySelector('.hopscotch-bubble-container');
+      expect(el.getBoundingClientRect().right).to.be.lessThan(300); // also takes into account padding, margin, and border
+      resetScreenWidth();
+      hopscotch.endTour();
+    });
+  });
   describe('Title and Content', function() {
     it('should show the Title of the step', function() {
       var title;
