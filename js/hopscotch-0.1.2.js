@@ -2165,6 +2165,18 @@
     };
 
     /**
+     * Adjusts the position of the bubble. Can be called when the position of the target
+     * has changed
+     */
+    this.adjustBubblePosition = function() {
+      var bubble = getBubble();
+      if(bubble && currTour) {
+        var step = currTour.steps[currStepNum];
+        bubble.setPosition(step);
+      }
+    };
+
+    /**
      * _configure
      *
      * @see this.configure
