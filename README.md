@@ -243,6 +243,8 @@ The Hopscotch framework comes with a simple set of API calls with which you can 
 
 * `hopscotch.getCurrTour()` - Returns the currently running tour.
 
+* `hopscotch.getCurrTarget()` - Returns the target object of the currently running step.
+
 * `hopscotch.getCurrStepNum()` - Returns the zero-based step number of the currently running tour.
 
 * `hopscotch.getState()` - Checks for tour state saved in sessionStorage/cookies and returns the state if it exists. Use this method to determine whether or not you should resume a tour.
