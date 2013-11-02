@@ -32,8 +32,13 @@
       waitingToStart    = false, // is a tour waiting for the document to finish
                                  // loading so that it can start?
       hasJquery         = (typeof window.jQuery !== undefinedStr),
-      hasSessionStorage = (typeof window.sessionStorage !== undefinedStr),
+      hasSessionStorage = false,
       document          = window.document;
+
+  // If cookies are disabled, accessing sessionStorage can throw an error.
+  try {
+    hasSessionStorage = (typeof window.sessionStorage !== undefinedStr);
+  } catch (err) {}
 
   defaultOpts       = {
     smoothScroll:    true,
