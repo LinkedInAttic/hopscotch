@@ -1612,7 +1612,8 @@
        * @private
        */
       changeStepCb = function(stepNum) {
-        var doShowFollowingStep;
+        var doShowFollowingStep,
+            nextStepNum = stepNum;
 
         if (stepNum === -1) {
           // Wasn't able to find a step with an existing element. End tour.
@@ -1626,6 +1627,12 @@
           else {
             doShowFollowingStep = utils.invokeEventCallbacks('prev', origStep.onPrev);
           }
+        }
+
+        // If the state of the tour is updated in a callback, assume the client
+        // doesn't want to go to next step since they specifically updated.
+        if (nextStepNum !== currStepNum) {
+          return;
         }
 
         if (wasMultiPage) {

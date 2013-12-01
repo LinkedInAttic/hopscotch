@@ -881,6 +881,40 @@ describe('HopscotchBubble', function() {
       $body.removeClass(testClassName);
     });
 
+    it('should detect when a callback changes the state of a tour and not go to the next step when detected', function() {
+      var tour = {
+        id: 'hopscotch-test-tour',
+        steps: [
+          {
+            target: 'shopping-list',
+            orientation: 'left',
+            title: 'Shopping List',
+            content: 'It\'s a shopping list',
+            onNext: function() {
+              hopscotch.showStep(2);
+            }
+          },
+          {
+            target: 'milk',
+            orientation: 'left',
+            title: 'Milk',
+            content: 'It\'s milk'
+          },
+          {
+            target: 'eggs',
+            orientation: 'left',
+            title: 'Eggs',
+            content: 'It\'s eggs'
+          }
+        ]
+      };
+
+      hopscotch.startTour(tour);
+      hopscotch.nextStep();
+      expect(hopscotch.getCurrStepNum()).to.be(2);
+      hopscotch.endTour();
+    });
+
     it('should invoke the CTA callback when the CTA button is clicked', function() {
       var testClassName = "testingCTAButton",
       tour = {
