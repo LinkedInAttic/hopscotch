@@ -1856,7 +1856,7 @@
         return this;
       }
 
-      if (!currStepNum && currTour.id === cookieTourId && typeof cookieTourStep !== undefinedStr) {
+      if (typeof currStepNum === "undefined" && currTour.id === cookieTourId && typeof cookieTourStep !== undefinedStr) {
         currStepNum = cookieTourStep;
       }
       else if (!currStepNum) {
