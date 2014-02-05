@@ -826,8 +826,8 @@
             winHopscotch.getCalloutManager().removeCallout(step.id);
           }
           // Call onCTA callback if one is provided
-          if (step.onCTA && typeof step.onCTA === 'function') {
-            step.onCTA();
+          if (step.onCTA) {
+            utils.invokeCallback(step.onCTA);
           }
         };
 
