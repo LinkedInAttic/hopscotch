@@ -337,32 +337,30 @@
      * @private
      */
     getStepTargetHelper: function(target){
-      var result;
-      // Check if it's querySelector-eligible. Only accepting IDs and classes,
-      // because that's the only thing that makes sense. Tag name and pseudo-class
-      // are just silly.
-      if (/^[#\.]/.test(target)) {
-        if (document.querySelector) {
-          return document.querySelector(target);
-        }
-        if (hasJquery) {
-          result = jQuery(target);
-          return result.length ? result[0] : null;
-        }
-        if (Sizzle) {
-          result = new Sizzle(target);
-          return result.length ? result[0] : null;
-        }
-        // Regex test for id. Following the HTML 4 spec for valid id formats.
-        // (http://www.w3.org/TR/html4/types.html#type-id)
-        if (/^#[a-zA-Z][\w-_:.]*$/.test(target)) {
-          return document.getElementById(target.substring(1));
-        }
-        // Can't extract element. Likely IE <=7 and no jQuery/Sizzle.
-        return null;
+      var result = document.getElementById(target);
+
+      //Backwards compatibility: assume the string is an id
+      if (result) {
+        return result;
       }
-      // Else assume it's a string id.
-      return document.getElementById(target);
+      if (document.querySelector) {
+        return document.querySelector(target);
+      }
+      if (hasJquery) {
+        result = jQuery(target);
+        return result.length ? result[0] : null;
+      }
+      if (Sizzle) {
+        result = new Sizzle(target);
+        return result.length ? result[0] : null;
+      }
+      // Regex test for id. Following the HTML 4 spec for valid id formats.
+      // (http://www.w3.org/TR/html4/types.html#type-id)
+      if (/^#[a-zA-Z][\w-_:.]*$/.test(target)) {
+        return document.getElementById(target.substring(1));
+      }
+
+      return null;
     },
 
     /**

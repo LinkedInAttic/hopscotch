@@ -526,6 +526,22 @@ describe('Hopscotch', function() {
       hopscotch.endTour();
     });
 
+    it('supports arbitrary selectors as targets', function() {
+      hopscotch.startTour({
+        id: 'hopscotch-test-tour',
+        steps: [
+          {
+            target: 'div#shopping-list li[id]',
+            orientation: 'left',
+            title: 'Shopping List Item',
+            content: 'It\'s a thing on my shopping list'
+          }
+        ]
+      });
+      expect(hopscotch.isActive).to.be.ok();
+      hopscotch.endTour();
+    });
+
     it('should use the i18n strings provided in calls to configure()', function() {
       hopscotch.configure({
         i18n: {
