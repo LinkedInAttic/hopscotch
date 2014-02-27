@@ -20,7 +20,7 @@ module.exports = function(grunt) {
     pkg: grunt.file.readJSON('package.json'),
     jshint: {
       hopscotch: {
-        src: ['js/hopscotch-<%= pkg.version %>.js'],
+        src: ['js/hopscotch.js'],
       },
       gruntfile: {
         src: ['Gruntfile.js'],
@@ -39,8 +39,8 @@ module.exports = function(grunt) {
         banner: bannerComment
       },
       build: {
-        src:  'js/hopscotch-<%= pkg.version %>.js',
-        dest: 'js/hopscotch-<%= pkg.version %>.min.js'
+        src:  'dist/<%= pkg.version %>/hopscotch.js',
+        dest: 'dist/<%= pkg.version %>/hopscotch.min.js'
       }
     },
     less: {
@@ -49,7 +49,7 @@ module.exports = function(grunt) {
           paths: ['less']
         },
         files: {
-          'css/hopscotch-<%= pkg.version %>.css': 'less/hopscotch.less'
+          'dist/<%= pkg.version %>/css/hopscotch.css': 'less/hopscotch.less'
         }
       },
       production: {
@@ -59,13 +59,13 @@ module.exports = function(grunt) {
           banner: bannerComment
         },
         files: {
-          'css/hopscotch-<%= pkg.version %>.min.css': 'less/hopscotch.less'
+          'dist/<%= pkg.version %>/css/hopscotch.min.css': 'less/hopscotch.less'
         }
       }
     },
     shell: {
       'mocha-phantomjs': {
-        command: 'mocha-phantomjs test/index.html',
+        command: 'mocha-phantomjs test/index_versioned.html',
         options: {
           stdout: true,
           stderr: true
@@ -77,6 +77,50 @@ module.exports = function(grunt) {
         files: ['js/*.js'],
         tasks: ['shell:mocha-phantomjs', 'jshint:hopscotch']
       }
+    },
+    jst:{
+      jstBuild: {
+        options:{
+          namespace: 'hopscotch.templates'
+        },
+        files: {
+          '__build/tl_compiled.js': ['tl/*.jst']
+        }
+      }
+    },
+    concat:{
+      jstBuild: {
+        src: ['tl/_underscore_shim.js', '__build/tl_compiled.js'],
+        dest: '__build/tl_dist.js'
+      },
+      dist: {
+        src: ['js/hopscotch.js', '__build/tl_dist.js'],
+        dest: 'dist/<%= pkg.version %>/hopscotch.js'
+      }
+    },
+    clean:{
+      build:['__build'],
+      dist:['dist/<%= pkg.version %>'],
+      test:['test/index_versioned.html']
+    },
+    copy:{
+      imgDist: {
+        src: 'img/*',
+        dest: 'dist/<%= pkg.version %>/'
+      },
+      licenseDist: {
+        src: 'LICENSE',
+        dest: 'dist/<%= pkg.version %>/'
+      },
+      versionedTest: {
+        src: 'test/index.html',
+        dest: 'test/index_versioned.html',
+        options: {
+          process: function(content, srcpath){
+            return content.replace(new RegExp('~VERSION', 'g'), grunt.config('pkg').version);
+          }
+        }
+      }
     }
   });
 
@@ -85,15 +129,13 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-contrib-less');
   grunt.loadNpmTasks('grunt-contrib-watch');
   grunt.loadNpmTasks('grunt-shell');
+  grunt.loadNpmTasks('grunt-contrib-jst');
+  grunt.loadNpmTasks('grunt-contrib-concat');
+  grunt.loadNpmTasks('grunt-contrib-copy');
+  grunt.loadNpmTasks('grunt-contrib-clean');
 
-  // Default task(s).
-  grunt.registerTask('default', ['jshint', 'uglify', 'less', 'shell']);
-  // Aliasing 'test' task to run Mocha tests
-  grunt.registerTask('test', 'run mocha-phantomjs', function() {
-    var done = this.async();
-    require('child_process').exec('mocha-phantomjs ./test/index.html', function (err, stdout) {
-      grunt.log.write(stdout);
-      done(err);
-    });
-  });
+  grunt.registerTask('tl', 'Build default bubble templates', ['jst', 'concat:jstBuild']);
+  grunt.registerTask('dist', 'Create distribution from source files', ['jshint', 'tl', 'concat:dist', 'uglify', 'less', 'copy:imgDist', 'copy:licenseDist', 'clean:build']);
+  grunt.registerTask('test', 'Run unit tests using mocha-phantomjs', ['copy:versionedTest', 'shell']);
+  grunt.registerTask('default', 'Build versioned distribution and run unit tests', ['dist', 'test']);
 };

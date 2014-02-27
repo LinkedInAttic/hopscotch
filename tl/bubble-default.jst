@@ -1,0 +1,26 @@
+<%
+  function optEscape(str, safe){
+    if(safe){
+      return str;
+    }
+    return _.escape(str);
+  }
+%>
+<div style="width: 280px; padding: 15px;" class="hopscotch-bubble-container">
+  <span class="hopscotch-bubble-number"><%= stepNum %></span>
+  <div class="hopscotch-bubble-content">
+    <h3 class="hopscotch-title"><% optEscape(title, safe); %></h3>
+    <div class="hopscotch-content"><% optEscape(content, safe); %></div>
+  </div>
+  <div class="hopscotch-actions">
+    <% if(showPrevButton){ %><button class="hopscotch-nav-button prev" id="hopscotch-prev"><%= i18n.prevBtn %></button><% } %>
+    <% if(showCTAButton){ %><button class="hopscotch-nav-button next" id="hopscotch-cta"><%= ctaLabel %></button><% } %>
+    <% if(showNextButton){ %><button class="hopscotch-nav-button next" id="hopscotch-next"><%= i18n.nextBtn %></button><% } %>
+    <% if(showDoneButton){ %><button class="hopscotch-nav-button next hide" id="hopscotch-done"><%= i18n.done %></button><% } %>
+  </div>
+  <a title="<%= i18n.close %>" href="#" class="hopscotch-bubble-close" id="hopscotch-close"><%= i18n.close %></a>
+</div>
+<div style="left: 138px;" class="hopscotch-bubble-arrow-container up">
+  <div class="hopscotch-bubble-arrow-border"></div>
+  <div class="hopscotch-bubble-arrow"></div>
+</div>
