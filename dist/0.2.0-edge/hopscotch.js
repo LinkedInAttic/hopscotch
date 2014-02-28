@@ -2346,42 +2346,49 @@ with (obj) {
     }
     return _.escape(str);
   }
+
+  function getArrowDir(placement){
+    if(placement === 'top'){ return 'down'; }
+    if(placement === 'bottom'){ return 'up'; }
+    if(placement === 'left'){ return 'right'; }
+    if(placement === 'right'){ return 'left'; }
+  }
 ;
 __p += '\n<div style="width: 280px; padding: 15px;" class="hopscotch-bubble-container">\n  <span class="hopscotch-bubble-number">' +
-((__t = ( stepNum )) == null ? '' : __t) +
-'</span>\n  <div class="hopscotch-bubble-content">\n    <h3 class="hopscotch-title">';
- optEscape(title, safe); ;
-__p += '</h3>\n    <div class="hopscotch-content">';
- optEscape(content, safe); ;
-__p += '</div>\n  </div>\n  <div class="hopscotch-actions">\n    ';
- if(showPrevButton){ ;
+((__t = ( i18n.stepNum )) == null ? '' : __t) +
+'</span>\n  <div class="hopscotch-bubble-content">\n    <h3 class="hopscotch-title">' +
+((__t = ( optEscape(step.title, tour.safe) )) == null ? '' : __t) +
+'</h3>\n    <div class="hopscotch-content">' +
+((__t = ( optEscape(step.content, tour.safe) )) == null ? '' : __t) +
+'</div>\n  </div>\n  <div class="hopscotch-actions">\n    ';
+ if(buttons.showPrev){ ;
 __p += '<button class="hopscotch-nav-button prev" id="hopscotch-prev">' +
 ((__t = ( i18n.prevBtn )) == null ? '' : __t) +
 '</button>';
  } ;
 __p += '\n    ';
- if(showCTAButton){ ;
+ if(buttons.showCTA){ ;
 __p += '<button class="hopscotch-nav-button next" id="hopscotch-cta">' +
-((__t = ( ctaLabel )) == null ? '' : __t) +
+((__t = ( buttons.ctaLabel )) == null ? '' : __t) +
 '</button>';
  } ;
 __p += '\n    ';
- if(showNextButton){ ;
+ if(buttons.showNext){ ;
 __p += '<button class="hopscotch-nav-button next" id="hopscotch-next">' +
 ((__t = ( i18n.nextBtn )) == null ? '' : __t) +
 '</button>';
  } ;
-__p += '\n    ';
- if(showDoneButton){ ;
-__p += '<button class="hopscotch-nav-button next hide" id="hopscotch-done">' +
-((__t = ( i18n.done )) == null ? '' : __t) +
-'</button>';
- } ;
-__p += '\n  </div>\n  <a title="' +
-((__t = ( i18n.close )) == null ? '' : __t) +
+__p += '\n  </div>\n  ';
+ if(buttons.showCloseButton){ ;
+__p += '<a title="' +
+((__t = ( i18n.closeTooltip )) == null ? '' : __t) +
 '" href="#" class="hopscotch-bubble-close" id="hopscotch-close">' +
-((__t = ( i18n.close )) == null ? '' : __t) +
-'</a>\n</div>\n<div style="left: 138px;" class="hopscotch-bubble-arrow-container up">\n  <div class="hopscotch-bubble-arrow-border"></div>\n  <div class="hopscotch-bubble-arrow"></div>\n</div>';
+((__t = ( i18n.closeTooltip )) == null ? '' : __t) +
+'</a>';
+ } ;
+__p += '\n</div>\n<div style="left: 138px;" class="hopscotch-bubble-arrow-container ' +
+((__t = ( getArrowDir(step.placement) )) == null ? '' : __t) +
+'">\n  <div class="hopscotch-bubble-arrow-border"></div>\n  <div class="hopscotch-bubble-arrow"></div>\n</div>';
 
 }
 return __p

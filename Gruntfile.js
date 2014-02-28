@@ -136,6 +136,6 @@ module.exports = function(grunt) {
 
   grunt.registerTask('tl', 'Build default bubble templates', ['jst', 'concat:jstBuild']);
   grunt.registerTask('dist', 'Create distribution from source files', ['jshint', 'tl', 'concat:dist', 'uglify', 'less', 'copy:imgDist', 'copy:licenseDist', 'clean:build']);
-  grunt.registerTask('test', 'Run unit tests using mocha-phantomjs', ['copy:versionedTest', 'shell']);
+  grunt.registerTask('test', 'Run unit tests using mocha-phantomjs', ['copy:versionedTest', 'shell', 'clean:test']);
   grunt.registerTask('default', 'Build versioned distribution and run unit tests', ['dist', 'test']);
 };
