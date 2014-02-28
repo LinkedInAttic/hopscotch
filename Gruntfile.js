@@ -81,7 +81,11 @@ module.exports = function(grunt) {
     jst:{
       jstBuild: {
         options:{
-          namespace: 'hopscotch.templates'
+          namespace: 'hopscotch.templates',
+          processName: function(filename){
+            var splitName = filename.split('/');
+            return splitName[splitName.length - 1];
+          }
         },
         files: {
           '__build/tl_compiled.js': ['tl/*.jst']
