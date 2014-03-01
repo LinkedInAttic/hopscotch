@@ -83,8 +83,9 @@ module.exports = function(grunt) {
         options:{
           namespace: 'hopscotch.templates',
           processName: function(filename){
-            var splitName = filename.split('/');
-            return splitName[splitName.length - 1];
+            var splitName = filename.split('/'),
+                sanitized = splitName[splitName.length - 1].replace('.jst', '').replace(new RegExp('-', 'g'), '_');
+            return sanitized;
           }
         },
         files: {

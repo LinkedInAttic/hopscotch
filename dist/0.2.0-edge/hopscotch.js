@@ -139,6 +139,19 @@
     },
 
     /**
+     * hasClass
+     * ========
+     * Determine if a given DOM element has a class.
+     */
+    hasClass: function(domEl, classToCheck){
+      var classes;
+
+      if(!domEl.className){ return false; }
+      classes = ' ' + domEl.className + ' ';
+      return (classes.indexOf(' ' + classToCheck + ' ') !== -1);
+    },
+
+    /**
      * @private
      */
     getPixelValue: function(val) {
@@ -538,26 +551,26 @@
      *
      * @private
      */
-    _createButton: function(id, text) {
-      var btnEl = document.createElement('button'),
-          className = 'hopscotch-nav-button';
+    // _createButton: function(id, text) {
+    //   var btnEl = document.createElement('button'),
+    //       className = 'hopscotch-nav-button';
 
-      btnEl.id = id;
-      if (text) {
-        btnEl.innerHTML = text;
-      }
+    //   btnEl.id = id;
+    //   if (text) {
+    //     btnEl.innerHTML = text;
+    //   }
 
-      if (id.indexOf('prev') >= 0) {
-        className += ' prev';
-      }
-      else {
-        className += ' next';
-      }
+    //   if (id.indexOf('prev') >= 0) {
+    //     className += ' prev';
+    //   }
+    //   else {
+    //     className += ' next';
+    //   }
 
-      utils.addClass(btnEl, className);
+    //   utils.addClass(btnEl, className);
 
-      return btnEl;
-    },
+    //   return btnEl;
+    // },
 
     /**
      * setPosition
@@ -674,38 +687,38 @@
     /**
      * @private
      */
-    _initNavButtons: function() {
-      var buttonsEl  = document.createElement('div');
+    // _initNavButtons: function() {
+    //   var buttonsEl  = document.createElement('div');
 
-      this.prevBtnEl = this._createButton('hopscotch-prev', utils.getI18NString('prevBtn'));
-      this.nextBtnEl = this._createButton('hopscotch-next', utils.getI18NString('nextBtn'));
-      this.doneBtnEl = this._createButton('hopscotch-done', utils.getI18NString('doneBtn'));
-      this.ctaBtnEl  = this._createButton('hopscotch-cta');
-      utils.addClass(this.doneBtnEl, 'hide');
+    //   this.prevBtnEl = this._createButton('hopscotch-prev', utils.getI18NString('prevBtn'));
+    //   this.nextBtnEl = this._createButton('hopscotch-next', utils.getI18NString('nextBtn'));
+    //   this.doneBtnEl = this._createButton('hopscotch-done', utils.getI18NString('doneBtn'));
+    //   this.ctaBtnEl  = this._createButton('hopscotch-cta');
+    //   utils.addClass(this.doneBtnEl, 'hide');
 
-      buttonsEl.appendChild(this.prevBtnEl);
-      buttonsEl.appendChild(this.ctaBtnEl);
-      buttonsEl.appendChild(this.nextBtnEl);
-      buttonsEl.appendChild(this.doneBtnEl);
+    //   buttonsEl.appendChild(this.prevBtnEl);
+    //   buttonsEl.appendChild(this.ctaBtnEl);
+    //   buttonsEl.appendChild(this.nextBtnEl);
+    //   buttonsEl.appendChild(this.doneBtnEl);
 
-      // Attach click listeners
-      utils.addEvtListener(this.prevBtnEl, 'click', function(evt) {
-        winHopscotch.prevStep(true);
-      });
+    //   // Attach click listeners
+    //   utils.addEvtListener(this.prevBtnEl, 'click', function(evt) {
+    //     winHopscotch.prevStep(true);
+    //   });
 
-      utils.addEvtListener(this.nextBtnEl, 'click', function(evt) {
-        winHopscotch.nextStep(true);
-      });
-      utils.addEvtListener(this.doneBtnEl, 'click', function(evt) {
-        winHopscotch.endTour();
-      });
+    //   utils.addEvtListener(this.nextBtnEl, 'click', function(evt) {
+    //     winHopscotch.nextStep(true);
+    //   });
+    //   utils.addEvtListener(this.doneBtnEl, 'click', function(evt) {
+    //     winHopscotch.endTour();
+    //   });
 
-      buttonsEl.className = 'hopscotch-actions';
-      this.buttonsEl = buttonsEl;
+    //   buttonsEl.className = 'hopscotch-actions';
+    //   this.buttonsEl = buttonsEl;
 
-      this.containerEl.appendChild(buttonsEl);
-      return this;
-    },
+    //   this.containerEl.appendChild(buttonsEl);
+    //   return this;
+    // },
 
     /*
      * Define the close button callback here so that we have a handle on it
@@ -782,29 +795,6 @@
     },
 
     /**
-     * @private
-     */
-    _initArrow: function() {
-      var arrowEl,
-          arrowBorderEl;
-
-      this.arrowEl = document.createElement('div');
-      this.arrowEl.className = 'hopscotch-bubble-arrow-container';
-
-      arrowBorderEl = document.createElement('div');
-      arrowBorderEl.className = 'hopscotch-bubble-arrow-border';
-
-      arrowEl = document.createElement('div');
-      arrowEl.className = 'hopscotch-bubble-arrow';
-
-      this.arrowEl.appendChild(arrowBorderEl);
-      this.arrowEl.appendChild(arrowEl);
-
-      this.element.appendChild(this.arrowEl);
-      return this;
-    },
-
-    /**
      * Set up the CTA button, using the `showCTAButton`, `ctaLabel`, and
      * `onCTA` properties.
      *
@@ -860,8 +850,10 @@
           showNext,
           showPrev,
           bubbleWidth,
-          bubblePadding;
+          bubblePadding,
+          opts;
 
+      //Cache current step information. (But... why? Is currStep ever used?)
       if (step) {
         this.currStep = step;
       }
@@ -875,38 +867,77 @@
         step.placement = step.orientation;
       }
 
-      showNext = utils.valOrDefault(step.showNextButton, this.opt.showNextButton);
-      showPrev = utils.valOrDefault(step.showPrevButton, this.opt.showPrevButton);
-      this.setTitle(step.title || '');
-      this.setContent(step.content || '');
+      // showNext = utils.valOrDefault(step.showNextButton, this.opt.showNextButton);
+      // showPrev = utils.valOrDefault(step.showPrevButton, this.opt.showPrevButton);
+      // this.setTitle(step.title || '');
+      // this.setContent(step.content || '');
 
-      if (this.opt.isTourBubble) {
-        this.setNum(idx);
-      }
+      // if (this.opt.isTourBubble) {
+      //   this.setNum(idx);
+      // }
 
       this.placement = step.placement;
 
-      this.showPrevButton(this.prevBtnEl && showPrev && idx > 0);
-      this.showNextButton(this.nextBtnEl && showNext && !isLast);
-      this.nextBtnEl.innerHTML = step.showSkip ? utils.getI18NString('skipBtn') : utils.getI18NString('nextBtn');
+      //Setup the configuration options we want to pass along to the template
+      opts = {
+        i18n: {
+          prevBtn: utils.getI18NString('prevBtn'),
+          nextBtn: (step.showSkip ? utils.getI18NString('skipBtn') : utils.getI18NString('nextBtn')),
+          closeTooltip: utils.getI18NString('closeTooltip'),
+          stepNum: this._getStepI18nNum(idx),
+        },
+        buttons:{
+          showPrev: utils.valOrDefault(step.showPrevButton, this.opt.showPrevButton),
+          showNext: utils.valOrDefault(step.showNextButton, this.opt.showNextButton),
+          showCTA: utils.valOrDefault((step.showCTAButton && step.ctaLabel), this.opt.showNextButton),
+          ctaLabel: step.ctaLabel,
+          showClose: true
+        },
+        step:{
+          num: idx,
+          isLast: utils.valOrDefault(isLast, false),
+          title: (step.title || ''),
+          content: (step.content || ''),
+          placement: step.placement,
+          customData: {}
+        },
+        tour:{
+          isTour: this.opt.isTourBubble,
+          numSteps: 5,
+          safe: utils.valOrDefault(false, false),
+          customData: {}
+        }
+      };
 
-      if (isLast) {
-        utils.removeClass(this.doneBtnEl, 'hide');
+      //Render the bubble's content.
+      //Templates should be registered by now... if not, complain.
+      //TODO: We need an intermediary so renderer can be re-registered by API
+      if(!hopscotch.templates){
+        throw 'Bubble rendering failed - templates unavailable.';
       }
-      else {
-        utils.addClass(this.doneBtnEl, 'hide');
-      }
+      el.innerHTML = hopscotch.templates.bubble_default_content(opts);
+
+      // this.showPrevButton(this.prevBtnEl && showPrev && idx > 0);
+      // this.showNextButton(this.nextBtnEl && showNext && !isLast);
+      // this.nextBtnEl.innerHTML = step.showSkip ? utils.getI18NString('skipBtn') : utils.getI18NString('nextBtn');
+
+      // if (isLast) {
+      //   utils.removeClass(this.doneBtnEl, 'hide');
+      // }
+      // else {
+      //   utils.addClass(this.doneBtnEl, 'hide');
+      // }
 
       // Show/hide CTA button
-      this._setupCTAButton(step);
+      // this._setupCTAButton(step);
 
       this._setArrow(step.placement);
 
       // Set dimensions
-      bubbleWidth   = utils.getPixelValue(step.width) || this.opt.bubbleWidth;
-      bubblePadding = utils.valOrDefault(step.padding, this.opt.bubblePadding);
-      this.containerEl.style.width = bubbleWidth + 'px';
-      this.containerEl.style.padding = bubblePadding + 'px';
+      // bubbleWidth   = utils.getPixelValue(step.width) || this.opt.bubbleWidth;
+      // bubblePadding = utils.valOrDefault(step.padding, this.opt.bubblePadding);
+      // this.containerEl.style.width = bubbleWidth + 'px';
+      // this.containerEl.style.padding = bubblePadding + 'px';
 
       el.style.zIndex = step.zindex || '';
 
@@ -934,31 +965,42 @@
       return this;
     },
 
-    setTitle: function(titleStr) {
-      if (titleStr) {
-        this.titleEl.innerHTML = titleStr;
-        utils.removeClass(this.titleEl, 'hide');
-      }
-      else {
-        utils.addClass(this.titleEl, 'hide');
-      }
-      return this;
-    },
+    // setTitle: function(titleStr) {
+    //   if (titleStr) {
+    //     this.titleEl.innerHTML = titleStr;
+    //     utils.removeClass(this.titleEl, 'hide');
+    //   }
+    //   else {
+    //     utils.addClass(this.titleEl, 'hide');
+    //   }
+    //   return this;
+    // },
 
-    setContent: function(contentStr) {
-      // CAREFUL!! Using innerHTML, so don't use any user-generated
-      // content here. (or if you must, escape it first)
-      if (contentStr) {
-        this.contentEl.innerHTML = contentStr;
-        utils.removeClass(this.contentEl, 'hide');
-      }
-      else {
-        utils.addClass(this.contentEl, 'hide');
-      }
-      return this;
-    },
+    // setContent: function(contentStr) {
+    //   // CAREFUL!! Using innerHTML, so don't use any user-generated
+    //   // content here. (or if you must, escape it first)
+    //   if (contentStr) {
+    //     this.contentEl.innerHTML = contentStr;
+    //     utils.removeClass(this.contentEl, 'hide');
+    //   }
+    //   else {
+    //     utils.addClass(this.contentEl, 'hide');
+    //   }
+    //   return this;
+    // },
 
-    setNum: function(idx) {
+    // setNum: function(idx) {
+    //   var stepNumI18N = utils.getI18NString('stepNums');
+    //   if (stepNumI18N && idx < stepNumI18N.length) {
+    //     idx = stepNumI18N[idx];
+    //   }
+    //   else {
+    //     idx = idx + 1;
+    //   }
+    //   this.numberEl.innerHTML = idx;
+    // },
+
+    _getStepI18nNum: function(idx) {
       var stepNumI18N = utils.getI18NString('stepNums');
       if (stepNumI18N && idx < stepNumI18N.length) {
         idx = stepNumI18N[idx];
@@ -966,7 +1008,7 @@
       else {
         idx = idx + 1;
       }
-      this.numberEl.innerHTML = idx;
+      return idx;
     },
 
     /**
@@ -1054,32 +1096,32 @@
     /**
      * @private
      */
-    _showButton: function(btnEl, show, permanent) {
-      var classname = 'hide';
+    // _showButton: function(btnEl, show, permanent) {
+    //   var classname = 'hide';
 
-      if (permanent) {
-        // permanent is a flag that indicates we should never show the button
-        classname = 'hide-all';
-      }
-      if (typeof show === undefinedStr) {
-        show = true;
-      }
+    //   if (permanent) {
+    //     // permanent is a flag that indicates we should never show the button
+    //     classname = 'hide-all';
+    //   }
+    //   if (typeof show === undefinedStr) {
+    //     show = true;
+    //   }
 
-      if (show) { utils.removeClass(btnEl, classname); }
-      else { utils.addClass(btnEl, classname); }
-    },
+    //   if (show) { utils.removeClass(btnEl, classname); }
+    //   else { utils.addClass(btnEl, classname); }
+    // },
 
-    showPrevButton: function(show) {
-      this._showButton(this.prevBtnEl, show);
-    },
+    // showPrevButton: function(show) {
+    //   this._showButton(this.prevBtnEl, show);
+    // },
 
-    showNextButton: function(show) {
-      this._showButton(this.nextBtnEl, show);
-    },
+    // showNextButton: function(show) {
+    //   this._showButton(this.nextBtnEl, show);
+    // },
 
-    showCloseButton: function(show) {
-      this._showButton(this.closeBtnEl, show);
-    },
+    // showCloseButton: function(show) {
+    //   this._showButton(this.closeBtnEl, show);
+    // },
 
     destroy: function() {
       var el = this.element;
@@ -1105,33 +1147,31 @@
      * part, these are the same options as you would find in a tour
      * step.
      */
-    updateButtons: function() {
-      this.showPrevButton(this.opt.showPrevButton);
-      this.showNextButton(this.opt.showNextButton);
-      this.showCloseButton(this.opt.showCloseButton);
-      this.prevBtnEl.innerHTML = utils.getI18NString('prevBtn');
-      this.nextBtnEl.innerHTML = utils.getI18NString('nextBtn');
-      this.doneBtnEl.innerHTML = utils.getI18NString('doneBtn');
-    },
+    // updateButtons: function() {
+    //   this.showPrevButton(this.opt.showPrevButton);
+    //   this.showNextButton(this.opt.showNextButton);
+    //   this.showCloseButton(this.opt.showCloseButton);
+    //   this.prevBtnEl.innerHTML = utils.getI18NString('prevBtn');
+    //   this.nextBtnEl.innerHTML = utils.getI18NString('nextBtn');
+    //   this.doneBtnEl.innerHTML = utils.getI18NString('doneBtn');
+    // },
 
     init: function(initOpt) {
       var el              = document.createElement('div'),
-          containerEl     = document.createElement('div'),
-          bubbleContentEl = document.createElement('div'),
           self            = this,
           resizeCooldown  = false, // for updating after window resize
           onWinResize,
           appendToBody,
+          children,
+          numChildren,
+          node,
+          i,
           opt;
 
-      this.element        = el;
-      this.containerEl    = containerEl;
-      this.titleEl        = document.createElement('h3');
-      this.contentEl      = document.createElement('div');
+      //Register DOM element for this bubble.
+      this.element = el;
 
-      utils.addClass(this.titleEl, 'hopscotch-title');
-      utils.addClass(this.contentEl, 'hopscotch-content');
-
+      //Merge bubble options with defaults.
       opt = {
         showPrevButton: defaultOpts.showPrevButton,
         showNextButton: defaultOpts.showNextButton,
@@ -1141,38 +1181,37 @@
         showNumber:     true,
         isTourBubble:   true
       };
-
       initOpt = (typeof initOpt === undefinedStr ? {} : initOpt);
-
       utils.extend(opt, initOpt);
       this.opt = opt;
 
-      el.className = 'hopscotch-bubble animated'; // "animated" for fade css animation
-      containerEl.className = 'hopscotch-bubble-container';
+      //Render the bubble's shell (content container and arrow).
+      //Templates should be registered by now... if not, complain.
+      //TODO: We need an intermediary so renderer can be re-registered by API
+      if(!hopscotch.templates){
+        throw 'Bubble instantiation failed - templates unavailable.';
+      }
+      el.innerHTML = hopscotch.templates.bubble_default_shell(opt);
 
+      //Apply classes to bubble. Add "animated" for fade css animation
+      el.className = 'hopscotch-bubble animated';
       if (!opt.isTourBubble) {
-        el.className += ' hopscotch-callout';
+        utils.addClass(el, 'hopscotch-callout no-number');
       }
 
-      if (opt.isTourBubble) {
-        this.numberEl           = document.createElement('span');
-        this.numberEl.className = 'hopscotch-bubble-number';
-        containerEl.appendChild(this.numberEl);
+      //Find content container and arrow among new child elements.
+      children = el.children;
+      numChildren = children.length;
+      for (i = 0; i < numChildren; i++){
+        node = children[i];
+
+        if(!this.contentEl && utils.hasClass(node, 'hopscotch-container')){
+          this.contentEl = node;
+        }
+        if(!this.arrowEl && utils.hasClass(node, 'hopscotch-arrow')){
+          this.arrowEl = node;
+        }
       }
-      else {
-        utils.addClass(el, 'no-number');
-      }
-
-      bubbleContentEl.appendChild(this.titleEl);
-      bubbleContentEl.appendChild(this.contentEl);
-      bubbleContentEl.className = 'hopscotch-bubble-content';
-      containerEl.appendChild(bubbleContentEl);
-      el.appendChild(containerEl);
-
-      this._initNavButtons();
-      this.initCloseButton();
-
-      this._initArrow();
 
       /**
        * Not pretty, but IE8 doesn't support Function.bind(), so I'm
@@ -1193,13 +1232,13 @@
         }, 100);
       };
 
+      //Add listener to reset bubble position on window resize
       utils.addEvtListener(window, 'resize', onWinResize);
 
+      //Hide the bubble by default
       this.hide();
 
-      /**
-       * Append to body once the DOM is ready.
-       */
+      //Finally, append our new bubble to body once the DOM is ready.
       if (utils.documentIsReady()) {
         document.body.appendChild(el);
       }
@@ -2333,7 +2372,7 @@ if(!window._){
 this["hopscotch"] = this["hopscotch"] || {};
 this["hopscotch"]["templates"] = this["hopscotch"]["templates"] || {};
 
-this["hopscotch"]["templates"]["tl/bubble-default.jst"] = function(obj) {
+this["hopscotch"]["templates"]["bubble_default_content"] = function(obj) {
 obj || (obj = {});
 var __t, __p = '', __e = _.escape, __j = Array.prototype.join;
 function print() { __p += __j.call(arguments, '') }
@@ -2346,49 +2385,50 @@ with (obj) {
     }
     return _.escape(str);
   }
-
-  function getArrowDir(placement){
-    if(placement === 'top'){ return 'down'; }
-    if(placement === 'bottom'){ return 'up'; }
-    if(placement === 'left'){ return 'right'; }
-    if(placement === 'right'){ return 'left'; }
-  }
 ;
-__p += '\n<div style="width: 280px; padding: 15px;" class="hopscotch-bubble-container">\n  <span class="hopscotch-bubble-number">' +
+__p += '\n<span class="hopscotch-bubble-number">' +
 ((__t = ( i18n.stepNum )) == null ? '' : __t) +
-'</span>\n  <div class="hopscotch-bubble-content">\n    <h3 class="hopscotch-title">' +
+'</span>\n<div class="hopscotch-bubble-content">\n  <h3 class="hopscotch-title">' +
 ((__t = ( optEscape(step.title, tour.safe) )) == null ? '' : __t) +
-'</h3>\n    <div class="hopscotch-content">' +
+'</h3>\n  <div class="hopscotch-content">' +
 ((__t = ( optEscape(step.content, tour.safe) )) == null ? '' : __t) +
-'</div>\n  </div>\n  <div class="hopscotch-actions">\n    ';
+'</div>\n</div>\n<div class="hopscotch-actions">\n  ';
  if(buttons.showPrev){ ;
-__p += '<button class="hopscotch-nav-button prev" id="hopscotch-prev">' +
+__p += '<button class="hopscotch-nav-button prev hopscotch-prev">' +
 ((__t = ( i18n.prevBtn )) == null ? '' : __t) +
 '</button>';
  } ;
-__p += '\n    ';
+__p += '\n  ';
  if(buttons.showCTA){ ;
-__p += '<button class="hopscotch-nav-button next" id="hopscotch-cta">' +
+__p += '<button class="hopscotch-nav-button next hopscotch-cta">' +
 ((__t = ( buttons.ctaLabel )) == null ? '' : __t) +
 '</button>';
  } ;
-__p += '\n    ';
+__p += '\n  ';
  if(buttons.showNext){ ;
-__p += '<button class="hopscotch-nav-button next" id="hopscotch-next">' +
+__p += '<button class="hopscotch-nav-button next hopscotch-next">' +
 ((__t = ( i18n.nextBtn )) == null ? '' : __t) +
 '</button>';
  } ;
-__p += '\n  </div>\n  ';
- if(buttons.showCloseButton){ ;
+__p += '\n</div>\n';
+ if(buttons.showClose){ ;
 __p += '<a title="' +
 ((__t = ( i18n.closeTooltip )) == null ? '' : __t) +
-'" href="#" class="hopscotch-bubble-close" id="hopscotch-close">' +
+'" href="#" class="hopscotch-bubble-close hopscotch-close">' +
 ((__t = ( i18n.closeTooltip )) == null ? '' : __t) +
 '</a>';
  } ;
-__p += '\n</div>\n<div style="left: 138px;" class="hopscotch-bubble-arrow-container ' +
-((__t = ( getArrowDir(step.placement) )) == null ? '' : __t) +
-'">\n  <div class="hopscotch-bubble-arrow-border"></div>\n  <div class="hopscotch-bubble-arrow"></div>\n</div>';
+
+
+}
+return __p
+};
+
+this["hopscotch"]["templates"]["bubble_default_shell"] = function(obj) {
+obj || (obj = {});
+var __t, __p = '', __e = _.escape;
+with (obj) {
+__p += '<div class="hopscotch-bubble-container hopscotch-container"></div>\n<div class="hopscotch-bubble-arrow-container hopscotch-arrow">\n  <div class="hopscotch-bubble-arrow-border"></div>\n  <div class="hopscotch-bubble-arrow"></div>\n</div>';
 
 }
 return __p
