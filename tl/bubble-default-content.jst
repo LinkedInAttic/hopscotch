@@ -6,10 +6,10 @@
     return _.escape(str);
   }
 %>
-<span class="hopscotch-bubble-number"><%= i18n.stepNum %></span>
+<% if(tour.isTour){ %><span class="hopscotch-bubble-number"><%= i18n.stepNum %></span><% } %>
 <div class="hopscotch-bubble-content">
-  <h3 class="hopscotch-title"><%= optEscape(step.title, tour.safe) %></h3>
-  <div class="hopscotch-content"><%= optEscape(step.content, tour.safe) %></div>
+  <% if(step.title !== ''){ %><h3 class="hopscotch-title"><%= optEscape(step.title, tour.safe) %></h3><% } %>
+  <% if(step.content  !== ''){ %><div class="hopscotch-content"><%= optEscape(step.content, tour.safe) %></div><% } %>
 </div>
 <div class="hopscotch-actions">
   <% if(buttons.showPrev){ %><button class="hopscotch-nav-button prev hopscotch-prev"><%= i18n.prevBtn %></button><% } %>

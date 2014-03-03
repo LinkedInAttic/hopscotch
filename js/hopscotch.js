@@ -755,44 +755,44 @@
     /**
      * @private
      */
-    initCloseButton: function() {
-      var closeBtnEl = document.createElement('a');
+    // initCloseButton: function() {
+    //   var closeBtnEl = document.createElement('a');
 
-      closeBtnEl.className = 'hopscotch-bubble-close';
-      closeBtnEl.href = '#';
-      closeBtnEl.title = utils.getI18NString('closeTooltip');
-      closeBtnEl.innerHTML = utils.getI18NString('closeTooltip');
+    //   closeBtnEl.className = 'hopscotch-bubble-close';
+    //   closeBtnEl.href = '#';
+    //   closeBtnEl.title = utils.getI18NString('closeTooltip');
+    //   closeBtnEl.innerHTML = utils.getI18NString('closeTooltip');
 
-      if (this.opt.isTourBubble) {
-        utils.addEvtListener(closeBtnEl, 'click', function(evt) {
-          var currStepNum   = winHopscotch.getCurrStepNum(),
-              currTour      = winHopscotch.getCurrTour(),
-              doEndCallback = (currStepNum === currTour.steps.length-1);
+    //   if (this.opt.isTourBubble) {
+    //     utils.addEvtListener(closeBtnEl, 'click', function(evt) {
+    //       var currStepNum   = winHopscotch.getCurrStepNum(),
+    //           currTour      = winHopscotch.getCurrTour(),
+    //           doEndCallback = (currStepNum === currTour.steps.length-1);
 
-          utils.invokeEventCallbacks('close');
+    //       utils.invokeEventCallbacks('close');
 
-          winHopscotch.endTour(true, doEndCallback);
+    //       winHopscotch.endTour(true, doEndCallback);
 
-          if (evt.preventDefault) {
-            evt.preventDefault();
-          }
-          else if (event) {
-            event.returnValue = false;
-          }
-        });
-      }
-      else {
-        utils.addEvtListener(closeBtnEl, 'click', this._getCloseFn());
-      }
+    //       if (evt.preventDefault) {
+    //         evt.preventDefault();
+    //       }
+    //       else if (event) {
+    //         event.returnValue = false;
+    //       }
+    //     });
+    //   }
+    //   else {
+    //     utils.addEvtListener(closeBtnEl, 'click', this._getCloseFn());
+    //   }
 
-      if (!utils.valOrDefault(this.opt.showCloseButton, true)) {
-        utils.addClass(closeBtnEl, 'hide');
-      }
+    //   if (!utils.valOrDefault(this.opt.showCloseButton, true)) {
+    //     utils.addClass(closeBtnEl, 'hide');
+    //   }
 
-      this.closeBtnEl = closeBtnEl;
-      this.containerEl.appendChild(closeBtnEl);
-      return this;
-    },
+    //   this.closeBtnEl = closeBtnEl;
+    //   this.containerEl.appendChild(closeBtnEl);
+    //   return this;
+    // },
 
     /**
      * Set up the CTA button, using the `showCTAButton`, `ctaLabel`, and
@@ -800,42 +800,42 @@
      *
      * @private
      */
-    _setupCTAButton: function(step) {
-      var callback,
-          self = this;
+    // _setupCTAButton: function(step) {
+    //   var callback,
+    //       self = this;
 
-      this._showButton(this.ctaBtnEl, !!step.showCTAButton);
-      if (step.showCTAButton && step.ctaLabel) {
-        this.ctaBtnEl.innerHTML = step.ctaLabel;
+    //   this._showButton(this.ctaBtnEl, !!step.showCTAButton);
+    //   if (step.showCTAButton && step.ctaLabel) {
+    //     this.ctaBtnEl.innerHTML = step.ctaLabel;
 
-        // Create callback to remove the callout. If a onCTA callback is
-        // provided, call it from within this one.
-        this._ctaFn = function() {
-          if (!self.opt.isTourBubble) {
-            // This is a callout. Close the callout when CTA is clicked.
-            winHopscotch.getCalloutManager().removeCallout(step.id);
-          }
-          // Call onCTA callback if one is provided
-          if (step.onCTA) {
-            utils.invokeCallback(step.onCTA);
-          }
-        };
+    //     // Create callback to remove the callout. If a onCTA callback is
+    //     // provided, call it from within this one.
+    //     this._ctaFn = function() {
+    //       if (!self.opt.isTourBubble) {
+    //         // This is a callout. Close the callout when CTA is clicked.
+    //         winHopscotch.getCalloutManager().removeCallout(step.id);
+    //       }
+    //       // Call onCTA callback if one is provided
+    //       if (step.onCTA) {
+    //         utils.invokeCallback(step.onCTA);
+    //       }
+    //     };
 
-        utils.addEvtListener(this.ctaBtnEl, 'click', this._ctaFn);
-      }
-    },
+    //     utils.addEvtListener(this.ctaBtnEl, 'click', this._ctaFn);
+    //   }
+    // },
 
     /**
      * Remove any previously attached CTA listener.
      *
      * @private
      */
-    _removeCTACallback: function() {
-      if (this.ctaBtnEl && this._ctaFn) {
-        utils.removeEvtListener(this.ctaBtnEl, 'click', this._ctaFn);
-        this._ctaFn = null;
-      }
-    },
+    // _removeCTACallback: function() {
+    //   if (this.ctaBtnEl && this._ctaFn) {
+    //     utils.removeEvtListener(this.ctaBtnEl, 'click', this._ctaFn);
+    //     this._ctaFn = null;
+    //   }
+    // },
 
     /**
      * Renders the bubble according to the step JSON.
@@ -889,7 +889,7 @@
         buttons:{
           showPrev: utils.valOrDefault(step.showPrevButton, this.opt.showPrevButton),
           showNext: utils.valOrDefault(step.showNextButton, this.opt.showNextButton),
-          showCTA: utils.valOrDefault((step.showCTAButton && step.ctaLabel), this.opt.showNextButton),
+          showCTA: utils.valOrDefault((step.showCTAButton && step.ctaLabel), false),
           ctaLabel: step.ctaLabel,
           showClose: true
         },
@@ -899,6 +899,8 @@
           title: (step.title || ''),
           content: (step.content || ''),
           placement: step.placement,
+          padding: utils.valOrDefault(step.padding, this.opt.bubblePadding),
+          width: utils.getPixelValue(step.width) || this.opt.bubbleWidth,
           customData: {}
         },
         tour:{
@@ -915,7 +917,7 @@
       if(!hopscotch.templates){
         throw 'Bubble rendering failed - templates unavailable.';
       }
-      el.innerHTML = hopscotch.templates.bubble_default_content(opts);
+      this.contentEl.innerHTML = hopscotch.templates.bubble_default_content(opts);
 
       // this.showPrevButton(this.prevBtnEl && showPrev && idx > 0);
       // this.showNextButton(this.nextBtnEl && showNext && !isLast);
@@ -934,10 +936,10 @@
       this._setArrow(step.placement);
 
       // Set dimensions
-      // bubbleWidth   = utils.getPixelValue(step.width) || this.opt.bubbleWidth;
-      // bubblePadding = utils.valOrDefault(step.padding, this.opt.bubblePadding);
-      // this.containerEl.style.width = bubbleWidth + 'px';
-      // this.containerEl.style.padding = bubblePadding + 'px';
+      bubbleWidth   = utils.getPixelValue(step.width) || this.opt.bubbleWidth;
+      bubblePadding = utils.valOrDefault(step.padding, this.opt.bubblePadding);
+      this.contentEl.style.width = bubbleWidth + 'px';
+      this.contentEl.style.padding = bubblePadding + 'px';
 
       el.style.zIndex = step.zindex || '';
 
@@ -1398,7 +1400,7 @@
           showCloseButton: getOption('showCloseButton'),
           arrowWidth:      getOption('arrowWidth')
         });
-        bubble.updateButtons();
+        //bubble.updateButtons();
       }
       return bubble;
     },
