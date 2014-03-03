@@ -734,18 +734,29 @@
          * @private
          */
         this.closeFn = function(evt) {
-          if (self.opt.onClose) {
-            utils.invokeCallback(self.opt.onClose);
-          }
-          if (self.opt.id && !self.opt.isTourBubble) {
-            // Remove via the HopscotchCalloutManager.
-            // removeCallout() calls HopscotchBubble.destroy internally.
-            winHopscotch.getCalloutManager().removeCallout(self.opt.id);
-          }
-          else {
-            self.destroy();
-          }
+          if (self.opt.isTourBubble){
+            var currStepNum   = winHopscotch.getCurrStepNum(),
+                currTour      = winHopscotch.getCurrTour(),
+                doEndCallback = (currStepNum === currTour.steps.length-1);
 
+            utils.invokeEventCallbacks('close');
+
+            winHopscotch.endTour(true, doEndCallback);
+          }
+          else{
+            if (self.opt.onClose) {
+              utils.invokeCallback(self.opt.onClose);
+            }
+            if (self.opt.id && !self.opt.isTourBubble) {
+              // Remove via the HopscotchCalloutManager.
+              // removeCallout() calls HopscotchBubble.destroy internally.
+              winHopscotch.getCalloutManager().removeCallout(self.opt.id);
+            }
+            else {
+              self.destroy();
+            }
+          }
+          
           utils.evtPreventDefault(evt);
         };
       }
@@ -1132,10 +1143,10 @@
         el.parentNode.removeChild(el);
       }
       if (this.closeBtnEl) {
-        utils.removeEvtListener(this.closeBtnEl, 'click', this._getCloseFn());
+        //utils.removeEvtListener(this.closeBtnEl, 'click', this._getCloseFn());
       }
       if (this.ctaBtnEl && this.onCTA) {
-        this._removeCTACallback();
+        //this._removeCTACallback();
       }
     },
 
@@ -1157,6 +1168,46 @@
     //   this.nextBtnEl.innerHTML = utils.getI18NString('nextBtn');
     //   this.doneBtnEl.innerHTML = utils.getI18NString('doneBtn');
     // },
+
+    _handleBubbleClick: function(evt){
+      var action;
+      
+      //Recursively look up the parent tree until we find a match
+      //with one of the classes we're looking for, or the triggering element.
+      function findMatchRecur(el){
+        /* We're going to make the assumption that we're not binding
+         * multiple event classes to the same element.
+         * (next + previous = wait... err... what?)
+         *
+         * In the odd event we end up with an element with multiple
+         * possible matches, the following priority order is applied:
+         * hopscotch-cta, hopscotch-next, hopscotch-prev, hopscotch-close
+         */
+         if(el === evt.currentTarget){ return null; }
+         if(utils.hasClass(el, 'hopscotch-cta')){ return 'cta'; }
+         if(utils.hasClass(el, 'hopscotch-next')){ return 'next'; }
+         if(utils.hasClass(el, 'hopscotch-prev')){ return 'prev'; }
+         if(utils.hasClass(el, 'hopscotch-close')){ return 'close'; }
+         /*else*/ return findMatchRecur(el.parentElement);
+      }
+
+      action = findMatchRecur(evt.target);
+
+      //Now that we know what action we should take, let's take it.
+      if (action === 'cta'){
+
+      }
+      else if (action === 'next'){
+        winHopscotch.nextStep(true);
+      }
+      else if (action === 'prev'){
+        winHopscotch.prevStep(true);
+      }
+      else if (action === 'close'){
+        this._getCloseFn().call(this);
+      }
+      //Otherwise, do nothing. We didn't click on anything relevant.
+    },
 
     init: function(initOpt) {
       var el              = document.createElement('div'),
@@ -1236,6 +1287,10 @@
 
       //Add listener to reset bubble position on window resize
       utils.addEvtListener(window, 'resize', onWinResize);
+
+      utils.addEvtListener(el, 'click', function(evt){
+        self._handleBubbleClick(evt);
+      });
 
       //Hide the bubble by default
       this.hide();
@@ -1635,7 +1690,7 @@
           wasMultiPage,
           changeStepCb;
 
-      bubble.hide()._removeCTACallback();
+      bubble.hide();//._removeCTACallback();
 
       doCallbacks = utils.valOrDefault(doCallbacks, true);
       step = getCurrStep();
