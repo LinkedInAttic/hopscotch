@@ -658,70 +658,49 @@
       el.style.left = left + 'px';
     },
 
-    /*
-     * Define the close button callback here so that we have a handle on it
-     * for when we want to remove it (see HopscotchBubble.destroy).
-     *
-     * @private
-     */
-    _getCloseFn: function() {
-      var self = this;
-
-      if (!this.closeFn) {
-        /**
-         * @private
-         */
-        this.closeFn = function(evt) {
-          if (self.opt.isTourBubble){
-            var currStepNum   = winHopscotch.getCurrStepNum(),
-                currTour      = winHopscotch.getCurrTour(),
-                doEndCallback = (currStepNum === currTour.steps.length-1);
-
-            utils.invokeEventCallbacks('close');
-
-            winHopscotch.endTour(true, doEndCallback);
-          } else {
-            if (self.opt.onClose) {
-              utils.invokeCallback(self.opt.onClose);
-            }
-            if (self.opt.id && !self.opt.isTourBubble) {
-              // Remove via the HopscotchCalloutManager.
-              // removeCallout() calls HopscotchBubble.destroy internally.
-              winHopscotch.getCalloutManager().removeCallout(self.opt.id);
-            }
-            else {
-              self.destroy();
-            }
-          }
-          
-          utils.evtPreventDefault(evt);
-        };
-      }
-      return this.closeFn;
-    },
-
     /**
      * Renders the bubble according to the step JSON.
      *
      * @param {Object} step Information defining how the bubble should look.
      * @param {Number} idx The index of the step in the tour. Not used for callouts.
-     * @param {Boolean} isLast Flag indicating if the step is the last in the tour. Not used for callouts.
      * @param {Function} callback Function to be invoked after rendering is finished.
      */
-    render: function(step, idx, isLast, callback) {
+    render: function(step, idx, callback) {
       var el = this.element,
           showNext,
           showPrev,
           bubbleWidth,
           bubblePadding,
+          currTour,
+          totalSteps,
+          nextBtnText,
+          isLast,
           opts;
 
-      //Cache current step information. (But... why? Is currStep ever used?)
+      // Cache current step information. (But... why? Is currStep ever used?)
       if (step) {
         this.currStep = step;
       }
       else if (this.currStep) {
         step = this.currStep;
+      }
+
+      // Check current tour for total number of steps (if necessary)
+      if(this.opt.isTourBubble){
+        currTour = winHopscotch.getCurrTour();
+        if(currTour && Array.isArray(currTour.steps)){
+          totalSteps = currTour.steps.length;
+          isLast = (idx === totalSteps - 1);
+        }
+      }
+
+      // Determine label for next button
+      if(isLast){
+        nextBtnText = utils.getI18NString('doneBtn');
+      } else if(step.showSkip) {
+        nextBtnText = utils.getI18NString('skipBtn');
+      } else {
+        nextBtnText = utils.getI18NString('nextBtn');
       }
 
       // Originally called it orientation, but placement is more intuitive.
@@ -732,20 +711,20 @@
 
       this.placement = step.placement;
 
-      //Setup the configuration options we want to pass along to the template
+      // Setup the configuration options we want to pass along to the template
       opts = {
         i18n: {
           prevBtn: utils.getI18NString('prevBtn'),
-          nextBtn: (step.showSkip ? utils.getI18NString('skipBtn') : utils.getI18NString('nextBtn')),
+          nextBtn: nextBtnText,
           closeTooltip: utils.getI18NString('closeTooltip'),
           stepNum: this._getStepI18nNum(idx),
         },
         buttons:{
-          showPrev: utils.valOrDefault(step.showPrevButton, this.opt.showPrevButton),
+          showPrev: (utils.valOrDefault(step.showPrevButton, this.opt.showPrevButton) && (idx > 0)),
           showNext: utils.valOrDefault(step.showNextButton, this.opt.showNextButton),
           showCTA: utils.valOrDefault((step.showCTAButton && step.ctaLabel), false),
           ctaLabel: step.ctaLabel,
-          showClose: true
+          showClose: utils.valOrDefault(this.opt.showCloseButton, true)
         },
         step:{
           num: idx,
@@ -755,19 +734,19 @@
           placement: step.placement,
           padding: utils.valOrDefault(step.padding, this.opt.bubblePadding),
           width: utils.getPixelValue(step.width) || this.opt.bubbleWidth,
-          customData: {}
+          customData: (step.customData || {})
         },
         tour:{
           isTour: this.opt.isTourBubble,
-          numSteps: 5,
-          safe: utils.valOrDefault(false, false),
-          customData: {}
+          numSteps: totalSteps,
+          safe: utils.valOrDefault(this.opt.safe, false),
+          customData: (this.opt.customData || {})
         }
       };
 
-      //Render the bubble's content.
-      //Templates should be registered by now... if not, complain.
-      //TODO: We need an intermediary so renderer can be re-registered by API
+      // Render the bubble's content.
+      // Templates should be registered by now... if not, complain.
+      // TODO: We need an intermediary so renderer can be re-registered by API
       if(!hopscotch.templates){
         throw 'Bubble rendering failed - templates unavailable.';
       }
@@ -807,6 +786,11 @@
       return this;
     },
 
+    /**
+     * Get the I18N step number for the current step.
+     *
+     * @private
+     */
     _getStepI18nNum: function(idx) {
       var stepNumI18N = utils.getI18NString('stepNums');
       if (stepNumI18N && idx < stepNumI18N.length) {
@@ -906,7 +890,7 @@
       if (el) {
         el.parentNode.removeChild(el);
       }
-      //TODO: Remove _handleBubbleClick event listener?
+      utils.removeEvtListener(el, 'click', this.clickCb);
     },
 
     _handleBubbleClick: function(evt){
@@ -940,7 +924,7 @@
           winHopscotch.getCalloutManager().removeCallout(this.currStep.id);
         }
         // Call onCTA callback if one is provided
-        if (this.onCTA) {
+        if (this.currStep.onCTA) {
           utils.invokeCallback(this.currStep.onCTA);
         }
       }
@@ -951,7 +935,29 @@
         winHopscotch.prevStep(true);
       }
       else if (action === 'close'){
-        this._getCloseFn().call(this);
+        if (this.opt.isTourBubble){
+          var currStepNum   = winHopscotch.getCurrStepNum(),
+              currTour      = winHopscotch.getCurrTour(),
+              doEndCallback = (currStepNum === currTour.steps.length-1);
+
+          utils.invokeEventCallbacks('close');
+
+          winHopscotch.endTour(true, doEndCallback);
+        } else {
+          if (this.opt.onClose) {
+            utils.invokeCallback(this.opt.onClose);
+          }
+          if (this.opt.id && !this.opt.isTourBubble) {
+            // Remove via the HopscotchCalloutManager.
+            // removeCallout() calls HopscotchBubble.destroy internally.
+            winHopscotch.getCalloutManager().removeCallout(this.opt.id);
+          }
+          else {
+            this.destroy();
+          }
+        }
+        
+        utils.evtPreventDefault(evt);
       }
       //Otherwise, do nothing. We didn't click on anything relevant.
     },
@@ -1035,9 +1041,12 @@
       //Add listener to reset bubble position on window resize
       utils.addEvtListener(window, 'resize', onWinResize);
 
-      utils.addEvtListener(el, 'click', function(evt){
+      //Create our click callback handler and keep a
+      //reference to it for later.
+      this.clickCb = function(evt){
         self._handleBubbleClick(evt);
-      });
+      };
+      utils.addEvtListener(el, 'click', this.clickCb);
 
       //Hide the bubble by default
       this.hide();
@@ -1106,7 +1115,7 @@
         callout = new HopscotchBubble(opt);
         callouts[opt.id] = callout;
         if (opt.target) {
-          callout.render(opt, null, null, function() {
+          callout.render(opt, null, function() {
             callout.show();
           });
         }
@@ -1616,7 +1625,7 @@
       bubble.hide(false);
 
       isLast = (stepNum === numTourSteps - 1);
-      bubble.render(step, stepNum, isLast, function(adjustScroll) {
+      bubble.render(step, stepNum, function(adjustScroll) {
         // when done adjusting window scroll, call showBubble helper fn
         if (adjustScroll) {
           adjustWindowScroll(showBubble);

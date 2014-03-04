@@ -6,7 +6,7 @@ if(!window._){
   window._ = {};
   window._.escape = function(str){
     if(str == null) return '';
-    return ('' + str).replace(new RegExp('[&<>"\']'), function(match){
+    return ('' + str).replace(new RegExp('[&<>"\']', 'g'), function(match){
       if(match == '&'){ return '&amp;' }
       if(match == '<'){ return '&lt;' }
       if(match == '>'){ return '&gt;' }
