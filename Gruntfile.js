@@ -167,6 +167,16 @@ module.exports = function(grunt) {
           stdout: true
         }
       }
+    },
+    bump: {
+      options: {
+        files: ['package.json'],
+        updateConfigs: ['pkg'],
+        push: false,
+        commit: true,
+        commitFiles: ['-a'],
+        createTag: true
+      }
     }
   });
 

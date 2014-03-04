@@ -1,19 +1,19 @@
-/**
- *
- * Copyright 2013 LinkedIn Corp. All rights reserved.
-
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
-
- *     http://www.apache.org/licenses/LICENSE-2.0
-
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+/**! hopscotch - v0.1.2
+*
+* Copyright 2014 LinkedIn Corp. All rights reserved.
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*     http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*/
 /**
  * This fade animation is based on Dan Eden's animate.css (http://daneden.me/animate/), under the terms of the MIT license.
  *
@@ -233,25 +233,8 @@
   -o-animation-name: fadeInLeft;
   animation-name: fadeInLeft;
 }
-/**
- *
- * Copyright 2013 LinkedIn Corp. All rights reserved.
-
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
-
- *     http://www.apache.org/licenses/LICENSE-2.0
-
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
 div.hopscotch-bubble .hopscotch-nav-button {
   /* borrowed from katy styles */
-
   font-weight: bold;
   border-width: 1px;
   border-style: solid;
@@ -297,7 +280,6 @@ div.hopscotch-bubble .hopscotch-nav-button.next {
   color: #fff;
   margin: 0 0 0 10px;
   /* HS specific*/
-
   text-shadow: 0 1px 1px rgba(0, 0, 0, 0.35);
   background-color: #287bbc;
   filter: progid:DXImageTransform.Microsoft.gradient(gradientType=0, startColorstr='#287bbc', endColorstr='#23639a');
@@ -341,10 +323,8 @@ div.hopscotch-bubble {
   background-color: #ffffff;
   border: 5px solid #000000;
   /* default */
-
   border: 5px solid rgba(0, 0, 0, 0.5);
   /* transparent, if supported */
-
   color: #333;
   font-family: Helvetica, Arial;
   font-size: 13px;
@@ -352,13 +332,10 @@ div.hopscotch-bubble {
   z-index: 999999;
   -moz-background-clip: padding;
   /* for Mozilla browsers*/
-
   -webkit-background-clip: padding;
   /* Webkit */
-
   background-clip: padding-box;
   /*  browsers with full support */
-
 }
 div.hopscotch-bubble.animate {
   -moz-transition-property: top, left;
@@ -400,7 +377,6 @@ div.hopscotch-bubble .hopscotch-bubble-container {
   text-align: left;
   -webkit-font-smoothing: antialiased;
   /* to fix text flickering */
-
 }
 div.hopscotch-bubble .hopscotch-content {
   font-family: Helvetica, Arial;
@@ -417,7 +393,7 @@ div.hopscotch-bubble.no-number .hopscotch-bubble-content {
 }
 div.hopscotch-bubble .hopscotch-bubble-close {
   color: #000;
-  background: transparent url(../img/sprite-green-0.3.png) -192px -92px no-repeat;
+  background: transparent url(../img/sprite-green.png) -192px -92px no-repeat;
   display: block;
   padding: 8px;
   position: absolute;
@@ -433,7 +409,7 @@ div.hopscotch-bubble .hopscotch-bubble-close.hide-all {
   display: none;
 }
 div.hopscotch-bubble .hopscotch-bubble-number {
-  background: transparent url(../img/sprite-green-0.3.png) 0 0 no-repeat;
+  background: transparent url(../img/sprite-green.png) 0 0 no-repeat;
   color: #fff;
   display: block;
   float: left;
