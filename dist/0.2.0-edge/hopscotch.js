@@ -1685,6 +1685,7 @@
      */
     this.startTour = function(tour, stepNum) {
       var bubble,
+          currStepNum,
           self = this;
 
       // loadTour if we are calling startTour directly. (When we call startTour
