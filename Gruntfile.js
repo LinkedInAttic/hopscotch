@@ -193,14 +193,38 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-shell');
 
   //grunt task aliases
-  grunt.registerTask('build',        ['jshint:lib', 'clean:build', 'copy:build', 'uglify:build', 'less']);
-  grunt.registerTask('test',         ['build','mocha']);
+  grunt.registerTask(
+    'build',
+    'Build hopscotch for testing (jshint, minify js, process less to css)',
+    ['jshint:lib', 'clean:build', 'copy:build', 'uglify:build', 'less']
+  );
+  grunt.registerTask(
+    'test',
+    'Build hopscotch and run unit tests',
+    ['build','mocha']
+  );
 
   //release tasks
-  grunt.registerTask('buildRelease', ['test', 'clean:dist', 'copy:releaseWithBanner', 'copy:release', 'compress']);
-  grunt.registerTask('releasePatch', ['bump-only:patch', 'buildRelease', 'shell:gitAddArchive', 'bump-commit']);
-  grunt.registerTask('releaseMinor', ['bump-only:minor', 'buildRelease', 'shell:gitAddArchive', 'bump-commit']);
+  grunt.registerTask(
+    'buildRelease',
+    'Build hopscotch for release (update files in dist directory and create tar.gz and zip archives of the release)',
+    ['test', 'clean:dist', 'copy:releaseWithBanner', 'copy:release', 'compress']
+  );
+  grunt.registerTask(
+    'releasePatch',
+    'Release patch update to hopscotch (bump patch version, update dist and archives folders, tag release and commit)',
+    ['bump-only:patch', 'buildRelease', 'shell:gitAddArchive', 'bump-commit']
+  );
+  grunt.registerTask(
+    'releaseMinor',
+    'Release minor update to hopscotch (bump minor version, update dist and archives folders, tag release and commit)',
+    ['bump-only:minor', 'buildRelease', 'shell:gitAddArchive', 'bump-commit']
+  );
 
   // Default task.
-  grunt.registerTask('default',      ['test']);
+  grunt.registerTask(
+    'default',
+    'Build hopscotch and run unit tests',
+    ['test']
+  );
 };
