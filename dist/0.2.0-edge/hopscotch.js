@@ -677,7 +677,7 @@
           isLast,
           opts;
 
-      // Cache current step information. (But... why? Is currStep ever used?)
+      // Cache current step information.
       if (step) {
         this.currStep = step;
       }
@@ -750,15 +750,29 @@
       if(!hopscotch.templates){
         throw 'Bubble rendering failed - templates unavailable.';
       }
-      this.contentEl.innerHTML = hopscotch.templates.bubble_default_content(opts);
+      el.innerHTML = hopscotch.templates.bubble_default(opts);
+
+      //Find content container and arrow among new child elements.
+      children = el.children;
+      numChildren = children.length;
+      for (i = 0; i < numChildren; i++){
+        node = children[i];
+
+        if(utils.hasClass(node, 'hopscotch-container')){
+          this.contentEl = node;
+        }
+        if(utils.hasClass(node, 'hopscotch-arrow')){
+          this.arrowEl = node;
+        }
+      }
 
       this._setArrow(step.placement);
 
       // Set dimensions
-      bubbleWidth   = utils.getPixelValue(step.width) || this.opt.bubbleWidth;
-      bubblePadding = utils.valOrDefault(step.padding, this.opt.bubblePadding);
-      this.contentEl.style.width = bubbleWidth + 'px';
-      this.contentEl.style.padding = bubblePadding + 'px';
+      // bubbleWidth   = utils.getPixelValue(step.width) || this.opt.bubbleWidth;
+      // bubblePadding = utils.valOrDefault(step.padding, this.opt.bubblePadding);
+      // this.contentEl.style.width = bubbleWidth + 'px';
+      // this.contentEl.style.padding = bubblePadding + 'px';
 
       el.style.zIndex = step.zindex || '';
 
@@ -994,10 +1008,10 @@
       //Render the bubble's shell (content container and arrow).
       //Templates should be registered by now... if not, complain.
       //TODO: We need an intermediary so renderer can be re-registered by API
-      if(!hopscotch.templates){
-        throw 'Bubble instantiation failed - templates unavailable.';
-      }
-      el.innerHTML = hopscotch.templates.bubble_default_shell(opt);
+      // if(!hopscotch.templates){
+      //   throw 'Bubble instantiation failed - templates unavailable.';
+      // }
+      // el.innerHTML = hopscotch.templates.bubble_default_shell(opt);
 
       //Apply classes to bubble. Add "animated" for fade css animation
       el.className = 'hopscotch-bubble animated';
@@ -2186,7 +2200,7 @@ if(!window._){
 this["hopscotch"] = this["hopscotch"] || {};
 this["hopscotch"]["templates"] = this["hopscotch"]["templates"] || {};
 
-this["hopscotch"]["templates"]["bubble_default_content"] = function(obj) {
+this["hopscotch"]["templates"]["bubble_default"] = function(obj) {
 obj || (obj = {});
 var __t, __p = '', __e = _.escape, __j = Array.prototype.join;
 function print() { __p += __j.call(arguments, '') }
@@ -2200,43 +2214,47 @@ with (obj) {
     return _.escape(str);
   }
 ;
-__p += '\n';
+__p += '\n<div class="hopscotch-bubble-container hopscotch-container" style="width: ' +
+((__t = ( step.width )) == null ? '' : __t) +
+'px; padding: ' +
+((__t = ( step.padding )) == null ? '' : __t) +
+'px;">\n  ';
  if(tour.isTour){ ;
 __p += '<span class="hopscotch-bubble-number">' +
 ((__t = ( i18n.stepNum )) == null ? '' : __t) +
 '</span>';
  } ;
-__p += '\n<div class="hopscotch-bubble-content">\n  ';
+__p += '\n  <div class="hopscotch-bubble-content">\n    ';
  if(step.title !== ''){ ;
 __p += '<h3 class="hopscotch-title">' +
 ((__t = ( optEscape(step.title, tour.safe) )) == null ? '' : __t) +
 '</h3>';
  } ;
-__p += '\n  ';
+__p += '\n    ';
  if(step.content  !== ''){ ;
 __p += '<div class="hopscotch-content">' +
 ((__t = ( optEscape(step.content, tour.safe) )) == null ? '' : __t) +
 '</div>';
  } ;
-__p += '\n</div>\n<div class="hopscotch-actions">\n  ';
+__p += '\n  </div>\n  <div class="hopscotch-actions">\n    ';
  if(buttons.showPrev){ ;
 __p += '<button class="hopscotch-nav-button prev hopscotch-prev">' +
 ((__t = ( i18n.prevBtn )) == null ? '' : __t) +
 '</button>';
  } ;
-__p += '\n  ';
+__p += '\n    ';
  if(buttons.showCTA){ ;
 __p += '<button class="hopscotch-nav-button next hopscotch-cta">' +
 ((__t = ( buttons.ctaLabel )) == null ? '' : __t) +
 '</button>';
  } ;
-__p += '\n  ';
+__p += '\n    ';
  if(buttons.showNext){ ;
 __p += '<button class="hopscotch-nav-button next hopscotch-next">' +
 ((__t = ( i18n.nextBtn )) == null ? '' : __t) +
 '</button>';
  } ;
-__p += '\n</div>\n';
+__p += '\n  </div>\n  ';
  if(buttons.showClose){ ;
 __p += '<a title="' +
 ((__t = ( i18n.closeTooltip )) == null ? '' : __t) +
@@ -2244,17 +2262,7 @@ __p += '<a title="' +
 ((__t = ( i18n.closeTooltip )) == null ? '' : __t) +
 '</a>';
  } ;
-
-
-}
-return __p
-};
-
-this["hopscotch"]["templates"]["bubble_default_shell"] = function(obj) {
-obj || (obj = {});
-var __t, __p = '', __e = _.escape;
-with (obj) {
-__p += '<div class="hopscotch-bubble-container hopscotch-container"></div>\n<div class="hopscotch-bubble-arrow-container hopscotch-arrow">\n  <div class="hopscotch-bubble-arrow-border"></div>\n  <div class="hopscotch-bubble-arrow"></div>\n</div>';
+__p += '\n</div>\n<div class="hopscotch-bubble-arrow-container hopscotch-arrow">\n  <div class="hopscotch-bubble-arrow-border"></div>\n  <div class="hopscotch-bubble-arrow"></div>\n</div>';
 
 }
 return __p

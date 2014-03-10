@@ -677,7 +677,7 @@
           isLast,
           opts;
 
-      // Cache current step information. (But... why? Is currStep ever used?)
+      // Cache current step information.
       if (step) {
         this.currStep = step;
       }
@@ -750,18 +750,27 @@
       if(!hopscotch.templates){
         throw 'Bubble rendering failed - templates unavailable.';
       }
-      this.contentEl.innerHTML = hopscotch.templates.bubble_default_content(opts);
+      el.innerHTML = hopscotch.templates.bubble_default(opts);
 
+      // Find content container and arrow among new child elements.
+      children = el.children;
+      numChildren = children.length;
+      for (i = 0; i < numChildren; i++){
+        node = children[i];
+
+        if(utils.hasClass(node, 'hopscotch-container')){
+          this.contentEl = node;
+        }
+        if(utils.hasClass(node, 'hopscotch-arrow')){
+          this.arrowEl = node;
+        }
+      }
+
+      // Set z-index and arrow placement
+      el.style.zIndex = step.zindex || '';
       this._setArrow(step.placement);
 
-      // Set dimensions
-      bubbleWidth   = utils.getPixelValue(step.width) || this.opt.bubbleWidth;
-      bubblePadding = utils.valOrDefault(step.padding, this.opt.bubblePadding);
-      this.contentEl.style.width = bubbleWidth + 'px';
-      this.contentEl.style.padding = bubblePadding + 'px';
-
-      el.style.zIndex = step.zindex || '';
-
+      // Set bubble positioning
       if (step.placement === 'top') {
         // For bubbles placed on top of elements, we need to get the
         // bubble height to correctly calculate the bubble position.
@@ -991,32 +1000,10 @@
       utils.extend(opt, initOpt);
       this.opt = opt;
 
-      //Render the bubble's shell (content container and arrow).
-      //Templates should be registered by now... if not, complain.
-      //TODO: We need an intermediary so renderer can be re-registered by API
-      if(!hopscotch.templates){
-        throw 'Bubble instantiation failed - templates unavailable.';
-      }
-      el.innerHTML = hopscotch.templates.bubble_default_shell(opt);
-
       //Apply classes to bubble. Add "animated" for fade css animation
       el.className = 'hopscotch-bubble animated';
       if (!opt.isTourBubble) {
         utils.addClass(el, 'hopscotch-callout no-number');
-      }
-
-      //Find content container and arrow among new child elements.
-      children = el.children;
-      numChildren = children.length;
-      for (i = 0; i < numChildren; i++){
-        node = children[i];
-
-        if(!this.contentEl && utils.hasClass(node, 'hopscotch-container')){
-          this.contentEl = node;
-        }
-        if(!this.arrowEl && utils.hasClass(node, 'hopscotch-arrow')){
-          this.arrowEl = node;
-        }
       }
 
       /**
