@@ -34,7 +34,9 @@
               <li><a href="#callback-helpers">Callback Helpers</a></li>
             </ul>
           </li>
+          <li><a href="#i18n-example">Internationalization</a></li>
           <li><a href="#tour-example">Tour Example</a></li>
+          <li><a href="#multipage-tour-example">Multipage Tour Example</a></li>
           <li><a href="#hopscotch-callouts">Hopscotch Callouts</a></li>
         </ul>
       </div>
@@ -341,6 +343,28 @@
 
         <p>To remove a helper, simply call <code>hopscotch.unregisterHelper('myHelperId')</code>.</p>
 
+        <h1 id="i18n-example">Internationalization</h1>
+
+        <p>Hopscotch supports internationalization via <code>i18n</code> object in tour config. The default language is English. If you need a tour in a language other than English, pass in translated text in your tour config. Text used for previous, next, skip, done and close buttons, as well as, tour step numbers can be translated.</p>
+        <p>Here is an example of tour config in Russian:</p>
+
+        <pre><code>
+    {
+      id: "myTour",
+      i18n: {
+        nextBtn: "Далее",
+        prevBtn: "Назад",
+        doneBtn: "Готово",
+        skipBtn: "Пропустить",
+        closeTooltip: "Закрыть",
+        stepNums : ["1", "2", "3"]
+      },
+      steps: [
+        ...
+      ]
+    }
+        </code></pre>
+
         <h1 id="tour-example">Tour Example</h1>
 
         <pre><code>
@@ -409,7 +433,7 @@
     }
         </code></pre>
 
-        <h1>Multipage Tour Example</h1>
+        <h1 id="multipage-tour-example">Multipage Tour Example</h1>
 
         <p>To see a multipage tour example, see the <a href="multipage1.html">multipage tour demo</a>.</p>
 
