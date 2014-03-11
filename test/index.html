@@ -2,11 +2,30 @@
 <head>
   <meta charset="utf-8">
   <title>Mocha Tests</title>
-  <link rel="stylesheet" href="css/mocha.css" />
-  <link rel="stylesheet" href="../css/hopscotch-0.1.2.css" />
-  <link rel="stylesheet" href="css/testpage.css" />
+  <link rel="stylesheet" href="../node_modules/grunt-mocha/node_modules/mocha/mocha.css" />
+  <link rel="stylesheet" href="../tmp/css/hopscotch.min.css" />
+  <link rel="stylesheet" href="./css/testpage.css" />
 </head>
 <body>
+  <div id="mocha"></div>
+  <script src="../node_modules/grunt-mocha/node_modules/mocha/mocha.js"></script>
+  <script src="../node_modules/expect.js/expect.js"></script>
+
+  <script>
+    mocha.setup({
+      ui: 'bdd',
+      ignoreLeaks: true
+    });
+
+    onload = function () {
+      mocha.run();
+    };
+  </script>
+
+  <script src="../tmp/js/hopscotch.min.js"></script>
+  <script src="../node_modules/jquery/dist/jquery.min.js"></script>
+  <script src="./js/test.hopscotch.js"></script>
+
   <div id="shopping-list">
     <ul>
       <li>This is an example list for the sake of having some UI to point to.</li>
@@ -17,24 +36,6 @@
       <li id="yogurt">Yogurt</li>
     </ul>
   </div>
-  <div id="mocha"></div>
-  <script src="../js/hopscotch-0.1.2.js"></script>
-  <script src="js/jquery-1.7.2.js"></script>
-  <script src="js/expect.js"></script>
-  <script src="../node_modules/mocha-phantomjs/node_modules/mocha/mocha.js"></script>
-  <script>
-    mocha.setup('bdd')
-  </script>
-  <script src="js/test.hopscotch.js"></script>
-  <script>
-    if (window.mochaPhantomJS) {
-      window.mochaPhantomJS.run();
-    }
-    else {
-      mocha.checkLeaks();
-      mocha.globals(['jQuery']);
-      mocha.run();
-    }
-  </script>
+
 </body>
 </html>
