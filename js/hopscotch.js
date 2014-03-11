@@ -21,6 +21,7 @@
       HopscotchCalloutManager,
       HopscotchI18N,
       customI18N,
+      customRenderer,
       Sizzle = window.Sizzle || null,
       utils,
       callbacks,
@@ -554,20 +555,18 @@
      * the JSON.
      */
     setPosition: function(step) {
-      var bubbleWidth,
-          bubbleHeight,
-          bubblePadding,
+      var bubbleBoundingHeight,
+          bubbleBoundingWidth,
           boundingRect,
           top,
           left,
           arrowOffset,
-          bubbleBorder = 6,
           targetEl     = utils.getStepTarget(step),
           el           = this.element,
           arrowEl      = this.arrowEl;
 
-      bubbleWidth   = utils.getPixelValue(step.width) || this.opt.bubbleWidth;
-      bubblePadding = utils.valOrDefault(step.padding, this.opt.bubblePadding);
+      bubbleBoundingWidth = el.offsetWidth;
+      bubbleBoundingHeight = el.offsetHeight;
       utils.removeClass(el, 'fade-in-down fade-in-up fade-in-left fade-in-right');
 
       // Originally called it orientation, but placement is more intuitive.
@@ -579,8 +578,7 @@
       // SET POSITION
       boundingRect = targetEl.getBoundingClientRect();
       if (step.placement === 'top') {
-        bubbleHeight = el.offsetHeight;
-        top = (boundingRect.top - bubbleHeight) - this.opt.arrowWidth;
+        top = (boundingRect.top - bubbleBoundingHeight) - this.opt.arrowWidth;
         left = boundingRect.left;
       }
       else if (step.placement === 'bottom') {
@@ -589,7 +587,7 @@
       }
       else if (step.placement === 'left') {
         top = boundingRect.top;
-        left = boundingRect.left - bubbleWidth - 2*bubblePadding - 2*bubbleBorder - this.opt.arrowWidth;
+        left = boundingRect.left - bubbleBoundingWidth - this.opt.arrowWidth;
       }
       else if (step.placement === 'right') {
         top = boundingRect.top;
@@ -610,7 +608,7 @@
       else if (step.placement === 'top' || step.placement === 'bottom') {
         arrowEl.style.top = '';
         if (arrowOffset === 'center') {
-          arrowEl.style.left = bubbleWidth/2 + bubblePadding - arrowEl.offsetWidth/2 + 'px';
+          arrowEl.style.left = Math.floor((bubbleBoundingWidth / 2) - arrowEl.offsetWidth/2) + 'px';
         }
         else {
           // Numeric pixel value
@@ -620,8 +618,7 @@
       else if (step.placement === 'left' || step.placement === 'right') {
         arrowEl.style.left = '';
         if (arrowOffset === 'center') {
-          bubbleHeight = bubbleHeight || el.offsetHeight;
-          arrowEl.style.top = bubbleHeight/2 + bubblePadding - arrowEl.offsetHeight/2 + 'px';
+          arrowEl.style.top = Math.floor((bubbleBoundingHeight / 2) - arrowEl.offsetHeight/2) + 'px';
         }
         else {
           // Numeric pixel value
@@ -631,15 +628,14 @@
 
       // HORIZONTAL OFFSET
       if (step.xOffset === 'center') {
-        left = (boundingRect.left + targetEl.offsetWidth/2) - (bubbleWidth/2) - bubblePadding;
+        left = (boundingRect.left + targetEl.offsetWidth/2) - (bubbleBoundingWidth / 2);
       }
       else {
         left += utils.getPixelValue(step.xOffset);
       }
       // VERTICAL OFFSET
       if (step.yOffset === 'center') {
-        bubbleHeight = bubbleHeight || el.offsetHeight;
-        top = (boundingRect.top + targetEl.offsetHeight/2) - (bubbleHeight/2) - bubblePadding;
+        top = (boundingRect.top + targetEl.offsetHeight/2) - (bubbleBoundingHeight / 2);
       }
       else {
         top += utils.getPixelValue(step.yOffset);
@@ -708,7 +704,6 @@
       if (!step.placement && step.orientation) {
         step.placement = step.orientation;
       }
-
       this.placement = step.placement;
 
       // Setup the configuration options we want to pass along to the template
@@ -746,11 +741,15 @@
 
       // Render the bubble's content.
       // Templates should be registered by now... if not, complain.
-      // TODO: We need an intermediary so renderer can be re-registered by API
-      if(!hopscotch.templates){
-        throw 'Bubble rendering failed - templates unavailable.';
+      if(customRenderer){
+
       }
-      el.innerHTML = hopscotch.templates.bubble_default(opts);
+      else{
+        if(!hopscotch.templates){
+          throw 'Bubble rendering failed - templates unavailable.';
+        }
+        el.innerHTML = hopscotch.templates.bubble_default(opts);
+      }
 
       // Find content container and arrow among new child elements.
       children = el.children;
@@ -771,21 +770,9 @@
       this._setArrow(step.placement);
 
       // Set bubble positioning
-      if (step.placement === 'top') {
-        // For bubbles placed on top of elements, we need to get the
-        // bubble height to correctly calculate the bubble position.
-        // Show it briefly offscreen to calculate height, then hide
-        // it again.
-        el.style.top = '-9999px';
-        el.style.left = '-9999px';
-        utils.removeClass(el, 'hide');
-        this.setPosition(step);
-        utils.addClass(el, 'hide');
-      }
-      else {
-        // Don't care about height for the other orientations.
-        this.setPosition(step);
-      }
+      // Make sure we're using visibility:hidden instead of display:none for height/width calculations.
+      this.hide(false);
+      this.setPosition(step);
 
       // only want to adjust window scroll for non-fixed elements
       if (callback) {
@@ -1433,7 +1420,7 @@
           wasMultiPage,
           changeStepCb;
 
-      bubble.hide();//._removeCTACallback();
+      bubble.hide();
 
       doCallbacks = utils.valOrDefault(doCallbacks, true);
       step = getCurrStep();
@@ -2064,7 +2051,7 @@
      * VALID OPTIONS INCLUDE...
      *
      * - bubbleWidth:     Number   - Default bubble width. Defaults to 280.
-     * - bubblePadding:   Number   - Default bubble padding. Defaults to 15.
+     * - bubblePadding:   Number   - DEPRECATED. Default bubble padding. Defaults to 15.
      * - smoothScroll:    Boolean  - should the page scroll smoothly to the next
      *                               step? Defaults to TRUE.
      * - scrollDuration:  Number   - Duration of page scroll. Only relevant when
@@ -2144,6 +2131,11 @@
      */
     this.configure = function(options) {
       return _configure.call(this, options, false);
+    };
+
+    this.setRenderer = function(render, opts){
+      customRenderer = render;
+      this.configure(opts);
     };
 
     init.call(this, initOptions);
