@@ -19,7 +19,7 @@ CSS is compiled using [LESS](http://lesscss.org/).
 
 Compiling
 =========
-Hopscotch uses Grunt for build and testing. You need to have [`npm`](https://npmjs.org) and [grun cli](http://gruntjs.com/getting-started) installed.
+Hopscotch uses Grunt for build and testing. You need to have [`npm`](https://npmjs.org) and [Grunt CLI](http://gruntjs.com/getting-started) installed.
 * Run `npm install` from the hopscotch directory to load in the dev dependencies
 * Install Grunt CLI by running `npm install -g grunt-cli`
 * Then run `grunt` or `grunt test` to jshint and test code
