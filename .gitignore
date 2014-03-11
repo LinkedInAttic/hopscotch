@@ -1,3 +1,4 @@
 node_modules
-test/index_versioned.html
-__build
+tmp
+.idea
+*.iml

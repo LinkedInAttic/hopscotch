@@ -1,27 +1,25 @@
-/**
- *
- * Copyright 2013 LinkedIn Corp. All rights reserved.
-
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
-
- *     http://www.apache.org/licenses/LICENSE-2.0
-
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
+/**! hopscotch - v0.1.3
+*
+* Copyright 2014 LinkedIn Corp. All rights reserved.
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*     http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*/
 (function(context, namespace) {
   var Hopscotch,
       HopscotchBubble,
       HopscotchCalloutManager,
       HopscotchI18N,
       customI18N,
-      customRenderer,
       Sizzle = window.Sizzle || null,
       utils,
       callbacks,
@@ -137,19 +135,6 @@
         domClasses = domClasses.replace(' ' + classToRemoveArr[i] + ' ', ' ');
       }
       domEl.className = domClasses.replace(/^\s+|\s+$/g,'');
-    },
-
-    /**
-     * hasClass
-     * ========
-     * Determine if a given DOM element has a class.
-     */
-    hasClass: function(domEl, classToCheck){
-      var classes;
-
-      if(!domEl.className){ return false; }
-      classes = ' ' + domEl.className + ' ';
-      return (classes.indexOf(' ' + classToCheck + ' ') !== -1);
     },
 
     /**
@@ -351,32 +336,30 @@
      * @private
      */
     getStepTargetHelper: function(target){
-      var result;
-      // Check if it's querySelector-eligible. Only accepting IDs and classes,
-      // because that's the only thing that makes sense. Tag name and pseudo-class
-      // are just silly.
-      if (/^[#\.]/.test(target)) {
-        if (document.querySelector) {
-          return document.querySelector(target);
-        }
-        if (hasJquery) {
-          result = jQuery(target);
-          return result.length ? result[0] : null;
-        }
-        if (Sizzle) {
-          result = new Sizzle(target);
-          return result.length ? result[0] : null;
-        }
-        // Regex test for id. Following the HTML 4 spec for valid id formats.
-        // (http://www.w3.org/TR/html4/types.html#type-id)
-        if (/^#[a-zA-Z][\w-_:.]*$/.test(target)) {
-          return document.getElementById(target.substring(1));
-        }
-        // Can't extract element. Likely IE <=7 and no jQuery/Sizzle.
-        return null;
+      var result = document.getElementById(target);
+
+      //Backwards compatibility: assume the string is an id
+      if (result) {
+        return result;
       }
-      // Else assume it's a string id.
-      return document.getElementById(target);
+      if (document.querySelector) {
+        return document.querySelector(target);
+      }
+      if (hasJquery) {
+        result = jQuery(target);
+        return result.length ? result[0] : null;
+      }
+      if (Sizzle) {
+        result = new Sizzle(target);
+        return result.length ? result[0] : null;
+      }
+      // Regex test for id. Following the HTML 4 spec for valid id formats.
+      // (http://www.w3.org/TR/html4/types.html#type-id)
+      if (/^#[a-zA-Z][\w-_:.]*$/.test(target)) {
+        return document.getElementById(target.substring(1));
+      }
+
+      return null;
     },
 
     /**
@@ -548,6 +531,32 @@
     currStep: undefined,
 
     /**
+     * Helper function for creating buttons in the bubble.
+     *
+     * @private
+     */
+    _createButton: function(id, text) {
+      var btnEl = document.createElement('button'),
+          className = 'hopscotch-nav-button';
+
+      btnEl.id = id;
+      if (text) {
+        btnEl.innerHTML = text;
+      }
+
+      if (id.indexOf('prev') >= 0) {
+        className += ' prev';
+      }
+      else {
+        className += ' next';
+      }
+
+      utils.addClass(btnEl, className);
+
+      return btnEl;
+    },
+
+    /**
      * setPosition
      *
      * Sets the position of the bubble using the bounding rectangle of the
@@ -555,18 +564,20 @@
      * the JSON.
      */
     setPosition: function(step) {
-      var bubbleBoundingHeight,
-          bubbleBoundingWidth,
+      var bubbleWidth,
+          bubbleHeight,
+          bubblePadding,
           boundingRect,
           top,
           left,
           arrowOffset,
+          bubbleBorder = 6,
           targetEl     = utils.getStepTarget(step),
           el           = this.element,
           arrowEl      = this.arrowEl;
 
-      bubbleBoundingWidth = el.offsetWidth;
-      bubbleBoundingHeight = el.offsetHeight;
+      bubbleWidth   = utils.getPixelValue(step.width) || this.opt.bubbleWidth;
+      bubblePadding = utils.valOrDefault(step.padding, this.opt.bubblePadding);
       utils.removeClass(el, 'fade-in-down fade-in-up fade-in-left fade-in-right');
 
       // Originally called it orientation, but placement is more intuitive.
@@ -578,7 +589,8 @@
       // SET POSITION
       boundingRect = targetEl.getBoundingClientRect();
       if (step.placement === 'top') {
-        top = (boundingRect.top - bubbleBoundingHeight) - this.opt.arrowWidth;
+        bubbleHeight = el.offsetHeight;
+        top = (boundingRect.top - bubbleHeight) - this.opt.arrowWidth;
         left = boundingRect.left;
       }
       else if (step.placement === 'bottom') {
@@ -587,7 +599,7 @@
       }
       else if (step.placement === 'left') {
         top = boundingRect.top;
-        left = boundingRect.left - bubbleBoundingWidth - this.opt.arrowWidth;
+        left = boundingRect.left - bubbleWidth - 2*bubblePadding - 2*bubbleBorder - this.opt.arrowWidth;
       }
       else if (step.placement === 'right') {
         top = boundingRect.top;
@@ -608,7 +620,7 @@
       else if (step.placement === 'top' || step.placement === 'bottom') {
         arrowEl.style.top = '';
         if (arrowOffset === 'center') {
-          arrowEl.style.left = Math.floor((bubbleBoundingWidth / 2) - arrowEl.offsetWidth/2) + 'px';
+          arrowEl.style.left = bubbleWidth/2 + bubblePadding - arrowEl.offsetWidth/2 + 'px';
         }
         else {
           // Numeric pixel value
@@ -618,7 +630,8 @@
       else if (step.placement === 'left' || step.placement === 'right') {
         arrowEl.style.left = '';
         if (arrowOffset === 'center') {
-          arrowEl.style.top = Math.floor((bubbleBoundingHeight / 2) - arrowEl.offsetHeight/2) + 'px';
+          bubbleHeight = bubbleHeight || el.offsetHeight;
+          arrowEl.style.top = bubbleHeight/2 + bubblePadding - arrowEl.offsetHeight/2 + 'px';
         }
         else {
           // Numeric pixel value
@@ -628,14 +641,15 @@
 
       // HORIZONTAL OFFSET
       if (step.xOffset === 'center') {
-        left = (boundingRect.left + targetEl.offsetWidth/2) - (bubbleBoundingWidth / 2);
+        left = (boundingRect.left + targetEl.offsetWidth/2) - (bubbleWidth/2) - bubblePadding;
       }
       else {
         left += utils.getPixelValue(step.xOffset);
       }
       // VERTICAL OFFSET
       if (step.yOffset === 'center') {
-        top = (boundingRect.top + targetEl.offsetHeight/2) - (bubbleBoundingHeight / 2);
+        bubbleHeight = bubbleHeight || el.offsetHeight;
+        top = (boundingRect.top + targetEl.offsetHeight/2) - (bubbleHeight/2) - bubblePadding;
       }
       else {
         top += utils.getPixelValue(step.yOffset);
@@ -655,25 +669,196 @@
     },
 
     /**
+     * @private
+     */
+    _initNavButtons: function() {
+      var buttonsEl  = document.createElement('div');
+
+      this.prevBtnEl = this._createButton('hopscotch-prev', utils.getI18NString('prevBtn'));
+      this.nextBtnEl = this._createButton('hopscotch-next', utils.getI18NString('nextBtn'));
+      this.doneBtnEl = this._createButton('hopscotch-done', utils.getI18NString('doneBtn'));
+      this.ctaBtnEl  = this._createButton('hopscotch-cta');
+      utils.addClass(this.doneBtnEl, 'hide');
+
+      buttonsEl.appendChild(this.prevBtnEl);
+      buttonsEl.appendChild(this.ctaBtnEl);
+      buttonsEl.appendChild(this.nextBtnEl);
+      buttonsEl.appendChild(this.doneBtnEl);
+
+      // Attach click listeners
+      utils.addEvtListener(this.prevBtnEl, 'click', function(evt) {
+        winHopscotch.prevStep(true);
+      });
+
+      utils.addEvtListener(this.nextBtnEl, 'click', function(evt) {
+        winHopscotch.nextStep(true);
+      });
+      utils.addEvtListener(this.doneBtnEl, 'click', function(evt) {
+        winHopscotch.endTour();
+      });
+
+      buttonsEl.className = 'hopscotch-actions';
+      this.buttonsEl = buttonsEl;
+
+      this.containerEl.appendChild(buttonsEl);
+      return this;
+    },
+
+    /*
+     * Define the close button callback here so that we have a handle on it
+     * for when we want to remove it (see HopscotchBubble.destroy).
+     *
+     * @private
+     */
+    _getCloseFn: function() {
+      var self = this;
+
+      if (!this.closeFn) {
+        /**
+         * @private
+         */
+        this.closeFn = function(evt) {
+          if (self.opt.onClose) {
+            utils.invokeCallback(self.opt.onClose);
+          }
+          if (self.opt.id && !self.opt.isTourBubble) {
+            // Remove via the HopscotchCalloutManager.
+            // removeCallout() calls HopscotchBubble.destroy internally.
+            winHopscotch.getCalloutManager().removeCallout(self.opt.id);
+          }
+          else {
+            self.destroy();
+          }
+
+          utils.evtPreventDefault(evt);
+        };
+      }
+      return this.closeFn;
+    },
+
+    /**
+     * @private
+     */
+    initCloseButton: function() {
+      var closeBtnEl = document.createElement('a');
+
+      closeBtnEl.className = 'hopscotch-bubble-close';
+      closeBtnEl.href = '#';
+      closeBtnEl.title = utils.getI18NString('closeTooltip');
+      closeBtnEl.innerHTML = utils.getI18NString('closeTooltip');
+
+      if (this.opt.isTourBubble) {
+        utils.addEvtListener(closeBtnEl, 'click', function(evt) {
+          var currStepNum   = winHopscotch.getCurrStepNum(),
+              currTour      = winHopscotch.getCurrTour(),
+              doEndCallback = (currStepNum === currTour.steps.length-1);
+
+          utils.invokeEventCallbacks('close');
+
+          winHopscotch.endTour(true, doEndCallback);
+
+          if (evt.preventDefault) {
+            evt.preventDefault();
+          }
+          else if (event) {
+            event.returnValue = false;
+          }
+        });
+      }
+      else {
+        utils.addEvtListener(closeBtnEl, 'click', this._getCloseFn());
+      }
+
+      if (!utils.valOrDefault(this.opt.showCloseButton, true)) {
+        utils.addClass(closeBtnEl, 'hide');
+      }
+
+      this.closeBtnEl = closeBtnEl;
+      this.containerEl.appendChild(closeBtnEl);
+      return this;
+    },
+
+    /**
+     * @private
+     */
+    _initArrow: function() {
+      var arrowEl,
+          arrowBorderEl;
+
+      this.arrowEl = document.createElement('div');
+      this.arrowEl.className = 'hopscotch-bubble-arrow-container';
+
+      arrowBorderEl = document.createElement('div');
+      arrowBorderEl.className = 'hopscotch-bubble-arrow-border';
+
+      arrowEl = document.createElement('div');
+      arrowEl.className = 'hopscotch-bubble-arrow';
+
+      this.arrowEl.appendChild(arrowBorderEl);
+      this.arrowEl.appendChild(arrowEl);
+
+      this.element.appendChild(this.arrowEl);
+      return this;
+    },
+
+    /**
+     * Set up the CTA button, using the `showCTAButton`, `ctaLabel`, and
+     * `onCTA` properties.
+     *
+     * @private
+     */
+    _setupCTAButton: function(step) {
+      var callback,
+          self = this;
+
+      this._showButton(this.ctaBtnEl, !!step.showCTAButton);
+      if (step.showCTAButton && step.ctaLabel) {
+        this.ctaBtnEl.innerHTML = step.ctaLabel;
+
+        // Create callback to remove the callout. If a onCTA callback is
+        // provided, call it from within this one.
+        this._ctaFn = function() {
+          if (!self.opt.isTourBubble) {
+            // This is a callout. Close the callout when CTA is clicked.
+            winHopscotch.getCalloutManager().removeCallout(step.id);
+          }
+          // Call onCTA callback if one is provided
+          if (step.onCTA) {
+            utils.invokeCallback(step.onCTA);
+          }
+        };
+
+        utils.addEvtListener(this.ctaBtnEl, 'click', this._ctaFn);
+      }
+    },
+
+    /**
+     * Remove any previously attached CTA listener.
+     *
+     * @private
+     */
+    _removeCTACallback: function() {
+      if (this.ctaBtnEl && this._ctaFn) {
+        utils.removeEvtListener(this.ctaBtnEl, 'click', this._ctaFn);
+        this._ctaFn = null;
+      }
+    },
+
+    /**
      * Renders the bubble according to the step JSON.
      *
      * @param {Object} step Information defining how the bubble should look.
      * @param {Number} idx The index of the step in the tour. Not used for callouts.
+     * @param {Boolean} isLast Flag indicating if the step is the last in the tour. Not used for callouts.
      * @param {Function} callback Function to be invoked after rendering is finished.
      */
-    render: function(step, idx, callback) {
+    render: function(step, idx, isLast, callback) {
       var el = this.element,
           showNext,
           showPrev,
           bubbleWidth,
-          bubblePadding,
-          currTour,
-          totalSteps,
-          nextBtnText,
-          isLast,
-          opts;
+          bubblePadding;
 
-      // Cache current step information.
       if (step) {
         this.currStep = step;
       }
@@ -681,98 +866,62 @@
         step = this.currStep;
       }
 
-      // Check current tour for total number of steps (if necessary)
-      if(this.opt.isTourBubble){
-        currTour = winHopscotch.getCurrTour();
-        if(currTour && Array.isArray(currTour.steps)){
-          totalSteps = currTour.steps.length;
-          isLast = (idx === totalSteps - 1);
-        }
-      }
-
-      // Determine label for next button
-      if(isLast){
-        nextBtnText = utils.getI18NString('doneBtn');
-      } else if(step.showSkip) {
-        nextBtnText = utils.getI18NString('skipBtn');
-      } else {
-        nextBtnText = utils.getI18NString('nextBtn');
-      }
-
       // Originally called it orientation, but placement is more intuitive.
       // Allowing both for now for backwards compatibility.
       if (!step.placement && step.orientation) {
         step.placement = step.orientation;
       }
+
+      showNext = utils.valOrDefault(step.showNextButton, this.opt.showNextButton);
+      showPrev = utils.valOrDefault(step.showPrevButton, this.opt.showPrevButton);
+      this.setTitle(step.title || '');
+      this.setContent(step.content || '');
+
+      if (this.opt.isTourBubble) {
+        this.setNum(idx);
+      }
+
       this.placement = step.placement;
 
-      // Setup the configuration options we want to pass along to the template
-      opts = {
-        i18n: {
-          prevBtn: utils.getI18NString('prevBtn'),
-          nextBtn: nextBtnText,
-          closeTooltip: utils.getI18NString('closeTooltip'),
-          stepNum: this._getStepI18nNum(idx),
-        },
-        buttons:{
-          showPrev: (utils.valOrDefault(step.showPrevButton, this.opt.showPrevButton) && (idx > 0)),
-          showNext: utils.valOrDefault(step.showNextButton, this.opt.showNextButton),
-          showCTA: utils.valOrDefault((step.showCTAButton && step.ctaLabel), false),
-          ctaLabel: step.ctaLabel,
-          showClose: utils.valOrDefault(this.opt.showCloseButton, true)
-        },
-        step:{
-          num: idx,
-          isLast: utils.valOrDefault(isLast, false),
-          title: (step.title || ''),
-          content: (step.content || ''),
-          placement: step.placement,
-          padding: utils.valOrDefault(step.padding, this.opt.bubblePadding),
-          width: utils.getPixelValue(step.width) || this.opt.bubbleWidth,
-          customData: (step.customData || {})
-        },
-        tour:{
-          isTour: this.opt.isTourBubble,
-          numSteps: totalSteps,
-          safe: utils.valOrDefault(this.opt.safe, false),
-          customData: (this.opt.customData || {})
-        }
-      };
+      this.showPrevButton(this.prevBtnEl && showPrev && idx > 0);
+      this.showNextButton(this.nextBtnEl && showNext && !isLast);
+      this.nextBtnEl.innerHTML = step.showSkip ? utils.getI18NString('skipBtn') : utils.getI18NString('nextBtn');
 
-      // Render the bubble's content.
-      // Templates should be registered by now... if not, complain.
-      if(customRenderer){
-
+      if (isLast) {
+        utils.removeClass(this.doneBtnEl, 'hide');
       }
-      else{
-        if(!hopscotch.templates){
-          throw 'Bubble rendering failed - templates unavailable.';
-        }
-        el.innerHTML = hopscotch.templates.bubble_default(opts);
+      else {
+        utils.addClass(this.doneBtnEl, 'hide');
       }
 
-      // Find content container and arrow among new child elements.
-      children = el.children;
-      numChildren = children.length;
-      for (i = 0; i < numChildren; i++){
-        node = children[i];
+      // Show/hide CTA button
+      this._setupCTAButton(step);
 
-        if(utils.hasClass(node, 'hopscotch-container')){
-          this.contentEl = node;
-        }
-        if(utils.hasClass(node, 'hopscotch-arrow')){
-          this.arrowEl = node;
-        }
-      }
-
-      // Set z-index and arrow placement
-      el.style.zIndex = step.zindex || '';
       this._setArrow(step.placement);
 
-      // Set bubble positioning
-      // Make sure we're using visibility:hidden instead of display:none for height/width calculations.
-      this.hide(false);
-      this.setPosition(step);
+      // Set dimensions
+      bubbleWidth   = utils.getPixelValue(step.width) || this.opt.bubbleWidth;
+      bubblePadding = utils.valOrDefault(step.padding, this.opt.bubblePadding);
+      this.containerEl.style.width = bubbleWidth + 'px';
+      this.containerEl.style.padding = bubblePadding + 'px';
+
+      el.style.zIndex = step.zindex || '';
+
+      if (step.placement === 'top') {
+        // For bubbles placed on top of elements, we need to get the
+        // bubble height to correctly calculate the bubble position.
+        // Show it briefly offscreen to calculate height, then hide
+        // it again.
+        el.style.top = '-9999px';
+        el.style.left = '-9999px';
+        utils.removeClass(el, 'hide');
+        this.setPosition(step);
+        utils.addClass(el, 'hide');
+      }
+      else {
+        // Don't care about height for the other orientations.
+        this.setPosition(step);
+      }
 
       // only want to adjust window scroll for non-fixed elements
       if (callback) {
@@ -782,12 +931,31 @@
       return this;
     },
 
-    /**
-     * Get the I18N step number for the current step.
-     *
-     * @private
-     */
-    _getStepI18nNum: function(idx) {
+    setTitle: function(titleStr) {
+      if (titleStr) {
+        this.titleEl.innerHTML = titleStr;
+        utils.removeClass(this.titleEl, 'hide');
+      }
+      else {
+        utils.addClass(this.titleEl, 'hide');
+      }
+      return this;
+    },
+
+    setContent: function(contentStr) {
+      // CAREFUL!! Using innerHTML, so don't use any user-generated
+      // content here. (or if you must, escape it first)
+      if (contentStr) {
+        this.contentEl.innerHTML = contentStr;
+        utils.removeClass(this.contentEl, 'hide');
+      }
+      else {
+        utils.addClass(this.contentEl, 'hide');
+      }
+      return this;
+    },
+
+    setNum: function(idx) {
       var stepNumI18N = utils.getI18NString('stepNums');
       if (stepNumI18N && idx < stepNumI18N.length) {
         idx = stepNumI18N[idx];
@@ -795,7 +963,7 @@
       else {
         idx = idx + 1;
       }
-      return idx;
+      this.numberEl.innerHTML = idx;
     },
 
     /**
@@ -880,100 +1048,87 @@
       return this;
     },
 
+    /**
+     * @private
+     */
+    _showButton: function(btnEl, show, permanent) {
+      var classname = 'hide';
+
+      if (permanent) {
+        // permanent is a flag that indicates we should never show the button
+        classname = 'hide-all';
+      }
+      if (typeof show === undefinedStr) {
+        show = true;
+      }
+
+      if (show) { utils.removeClass(btnEl, classname); }
+      else { utils.addClass(btnEl, classname); }
+    },
+
+    showPrevButton: function(show) {
+      this._showButton(this.prevBtnEl, show);
+    },
+
+    showNextButton: function(show) {
+      this._showButton(this.nextBtnEl, show);
+    },
+
+    showCloseButton: function(show) {
+      this._showButton(this.closeBtnEl, show);
+    },
+
     destroy: function() {
       var el = this.element;
 
       if (el) {
         el.parentNode.removeChild(el);
       }
-      utils.removeEvtListener(el, 'click', this.clickCb);
+      if (this.closeBtnEl) {
+        utils.removeEvtListener(this.closeBtnEl, 'click', this._getCloseFn());
+      }
+      if (this.ctaBtnEl && this.onCTA) {
+        this._removeCTACallback();
+      }
     },
 
-    _handleBubbleClick: function(evt){
-      var action;
-      
-      //Recursively look up the parent tree until we find a match
-      //with one of the classes we're looking for, or the triggering element.
-      function findMatchRecur(el){
-        /* We're going to make the assumption that we're not binding
-         * multiple event classes to the same element.
-         * (next + previous = wait... err... what?)
-         *
-         * In the odd event we end up with an element with multiple
-         * possible matches, the following priority order is applied:
-         * hopscotch-cta, hopscotch-next, hopscotch-prev, hopscotch-close
-         */
-         if(el === evt.currentTarget){ return null; }
-         if(utils.hasClass(el, 'hopscotch-cta')){ return 'cta'; }
-         if(utils.hasClass(el, 'hopscotch-next')){ return 'next'; }
-         if(utils.hasClass(el, 'hopscotch-prev')){ return 'prev'; }
-         if(utils.hasClass(el, 'hopscotch-close')){ return 'close'; }
-         /*else*/ return findMatchRecur(el.parentElement);
-      }
-
-      action = findMatchRecur(evt.target);
-
-      //Now that we know what action we should take, let's take it.
-      if (action === 'cta'){
-        if (!this.opt.isTourBubble) {
-          // This is a callout. Close the callout when CTA is clicked.
-          winHopscotch.getCalloutManager().removeCallout(this.currStep.id);
-        }
-        // Call onCTA callback if one is provided
-        if (this.currStep.onCTA) {
-          utils.invokeCallback(this.currStep.onCTA);
-        }
-      }
-      else if (action === 'next'){
-        winHopscotch.nextStep(true);
-      }
-      else if (action === 'prev'){
-        winHopscotch.prevStep(true);
-      }
-      else if (action === 'close'){
-        if (this.opt.isTourBubble){
-          var currStepNum   = winHopscotch.getCurrStepNum(),
-              currTour      = winHopscotch.getCurrTour(),
-              doEndCallback = (currStepNum === currTour.steps.length-1);
-
-          utils.invokeEventCallbacks('close');
-
-          winHopscotch.endTour(true, doEndCallback);
-        } else {
-          if (this.opt.onClose) {
-            utils.invokeCallback(this.opt.onClose);
-          }
-          if (this.opt.id && !this.opt.isTourBubble) {
-            // Remove via the HopscotchCalloutManager.
-            // removeCallout() calls HopscotchBubble.destroy internally.
-            winHopscotch.getCalloutManager().removeCallout(this.opt.id);
-          }
-          else {
-            this.destroy();
-          }
-        }
-        
-        utils.evtPreventDefault(evt);
-      }
-      //Otherwise, do nothing. We didn't click on anything relevant.
+    /**
+     * updateButtons
+     *
+     * When the config options are changed, we should call this method to
+     * update the buttons.
+     *
+     * @param {Object} opt The options for the callout. For the most
+     * part, these are the same options as you would find in a tour
+     * step.
+     */
+    updateButtons: function() {
+      this.showPrevButton(this.opt.showPrevButton);
+      this.showNextButton(this.opt.showNextButton);
+      this.showCloseButton(this.opt.showCloseButton);
+      this.prevBtnEl.innerHTML = utils.getI18NString('prevBtn');
+      this.nextBtnEl.innerHTML = utils.getI18NString('nextBtn');
+      this.doneBtnEl.innerHTML = utils.getI18NString('doneBtn');
     },
 
     init: function(initOpt) {
       var el              = document.createElement('div'),
+          containerEl     = document.createElement('div'),
+          bubbleContentEl = document.createElement('div'),
           self            = this,
           resizeCooldown  = false, // for updating after window resize
           onWinResize,
           appendToBody,
-          children,
-          numChildren,
-          node,
-          i,
           opt;
 
-      //Register DOM element for this bubble.
-      this.element = el;
+      this.element        = el;
+      this.containerEl    = containerEl;
+      this.titleEl        = document.createElement('h3');
+      this.contentEl      = document.createElement('div');
 
-      //Merge bubble options with defaults.
+      utils.addClass(this.titleEl, 'hopscotch-title');
+      utils.addClass(this.contentEl, 'hopscotch-content');
+
       opt = {
         showPrevButton: defaultOpts.showPrevButton,
         showNextButton: defaultOpts.showNextButton,
@@ -983,15 +1138,38 @@
         showNumber:     true,
         isTourBubble:   true
       };
+
       initOpt = (typeof initOpt === undefinedStr ? {} : initOpt);
+
       utils.extend(opt, initOpt);
       this.opt = opt;
 
-      //Apply classes to bubble. Add "animated" for fade css animation
-      el.className = 'hopscotch-bubble animated';
+      el.className = 'hopscotch-bubble animated'; // "animated" for fade css animation
+      containerEl.className = 'hopscotch-bubble-container';
+
       if (!opt.isTourBubble) {
-        utils.addClass(el, 'hopscotch-callout no-number');
+        el.className += ' hopscotch-callout';
       }
+
+      if (opt.isTourBubble) {
+        this.numberEl           = document.createElement('span');
+        this.numberEl.className = 'hopscotch-bubble-number';
+        containerEl.appendChild(this.numberEl);
+      }
+      else {
+        utils.addClass(el, 'no-number');
+      }
+
+      bubbleContentEl.appendChild(this.titleEl);
+      bubbleContentEl.appendChild(this.contentEl);
+      bubbleContentEl.className = 'hopscotch-bubble-content';
+      containerEl.appendChild(bubbleContentEl);
+      el.appendChild(containerEl);
+
+      this._initNavButtons();
+      this.initCloseButton();
+
+      this._initArrow();
 
       /**
        * Not pretty, but IE8 doesn't support Function.bind(), so I'm
@@ -1012,20 +1190,13 @@
         }, 100);
       };
 
-      //Add listener to reset bubble position on window resize
       utils.addEvtListener(window, 'resize', onWinResize);
 
-      //Create our click callback handler and keep a
-      //reference to it for later.
-      this.clickCb = function(evt){
-        self._handleBubbleClick(evt);
-      };
-      utils.addEvtListener(el, 'click', this.clickCb);
-
-      //Hide the bubble by default
       this.hide();
 
-      //Finally, append our new bubble to body once the DOM is ready.
+      /**
+       * Append to body once the DOM is ready.
+       */
       if (utils.documentIsReady()) {
         document.body.appendChild(el);
       }
@@ -1089,7 +1260,7 @@
         callout = new HopscotchBubble(opt);
         callouts[opt.id] = callout;
         if (opt.target) {
-          callout.render(opt, null, function() {
+          callout.render(opt, null, null, function() {
             callout.show();
           });
         }
@@ -1185,7 +1356,7 @@
           showCloseButton: getOption('showCloseButton'),
           arrowWidth:      getOption('arrowWidth')
         });
-        //bubble.updateButtons();
+        bubble.updateButtons();
       }
       return bubble;
     },
@@ -1420,7 +1591,7 @@
           wasMultiPage,
           changeStepCb;
 
-      bubble.hide();
+      bubble.hide()._removeCTACallback();
 
       doCallbacks = utils.valOrDefault(doCallbacks, true);
       step = getCurrStep();
@@ -1599,7 +1770,7 @@
       bubble.hide(false);
 
       isLast = (stepNum === numTourSteps - 1);
-      bubble.render(step, stepNum, function(adjustScroll) {
+      bubble.render(step, stepNum, isLast, function(adjustScroll) {
         // when done adjusting window scroll, call showBubble helper fn
         if (adjustScroll) {
           adjustWindowScroll(showBubble);
@@ -1659,7 +1830,6 @@
      */
     this.startTour = function(tour, stepNum) {
       var bubble,
-          currStepNum,
           self = this;
 
       // loadTour if we are calling startTour directly. (When we call startTour
@@ -2051,7 +2221,7 @@
      * VALID OPTIONS INCLUDE...
      *
      * - bubbleWidth:     Number   - Default bubble width. Defaults to 280.
-     * - bubblePadding:   Number   - DEPRECATED. Default bubble padding. Defaults to 15.
+     * - bubblePadding:   Number   - Default bubble padding. Defaults to 15.
      * - smoothScroll:    Boolean  - should the page scroll smoothly to the next
      *                               step? Defaults to TRUE.
      * - scrollDuration:  Number   - Duration of page scroll. Only relevant when
@@ -2131,11 +2301,6 @@
      */
     this.configure = function(options) {
       return _configure.call(this, options, false);
-    };
-
-    this.setRenderer = function(render, opts){
-      customRenderer = render;
-      this.configure(opts);
     };
 
     init.call(this, initOptions);

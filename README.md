@@ -1,6 +1,6 @@
 ![Example Hopscotch tour](/demo/img/screenshot.png)
 
-Hopscotch
+Hopscotch [![Build Status](https://api.travis-ci.org/linkedin/hopscotch.png)](http://travis-ci.org/linkedin/hopscotch)
 =========
 Hopscotch is a framework to make it easy for developers to add product tours to their pages. Hopscotch accepts a tour JSON object as input and provides an API for the developer to control rendering the tour display and managing the tour progress. Seeing is believing, so why not check out a [demo](http://linkedin.github.io/hopscotch)!
 
@@ -74,7 +74,7 @@ The step options below are the most basic options.
   id: {STRING - id of the tour},
   steps: [
     {
-      target:         STRING/ELEMENT - id of the target DOM element or DOM element itself,
+      target:         STRING/ELEMENT - id of the target DOM element, DOM element itself, or query selector
       placement:      STRING         - ["top", "bottom", "right", "left"]
       title:          STRING         - step title,
       content:        STRING         - step content
@@ -122,7 +122,7 @@ The comprehensive list of step options are listed below:
 
 ### MANDATORY ###
 
-* `target` [STRING/ELEMENT/ARRAY] - id of the target DOM element or DOM element itself. It is also possible to define an array of several targets. If an array is provided, Hopscotch will use the first target that exists on the page and disregard the rest.
+* `target` [STRING/ELEMENT/ARRAY] - id of the target DOM element or DOM element itself. It is also possible to define an array of several targets. If an array is provided, Hopscotch will use the first target that exists on the page and disregard the rest.  If your browser supports querySelector, or you have jQuery or Sizzle, you may specify a selector as long as it begins with a hash (#) or period (.) such as ".my-element"
 
 * `placement` [STRING] - specifies where the bubble should appear in relation to the target. Valid values are "top", "bottom", "right", "left".
 
@@ -378,7 +378,7 @@ Here is an example of a Hopscotch tour.
       content: "Once you have Hopscotch on your page, you\'re ready to start making your tour! The biggest part of your tour definition will probably be the tour steps."
     },
     {
-      target: "start-tour",
+      target: ".start-tour .child-element",
       placement: "right",
       title: "Starting your tour",
       content: "After you\'ve created your tour, pass it in to the startTour() method to start it.",
