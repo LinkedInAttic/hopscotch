@@ -19,8 +19,13 @@ CSS is compiled using [LESS](http://lesscss.org/).
 
 Compiling
 =========
-Hopscotch uses Grunt for minification and hinting. Make sure you have [`npm`](https://npmjs.org) installed. Run `npm install` from the hopscotch directory to load in the dev dependencies, then run `grunt`.
+Hopscotch uses Grunt for build and testing. You need to have [`npm`](https://npmjs.org) and [Grunt CLI](http://gruntjs.com/getting-started) installed.
+* Run `npm install` from the hopscotch directory to load in the dev dependencies
+* Install Grunt CLI by running `npm install -g grunt-cli`
+* Then run `grunt` or `grunt test` to jshint and test code
 
 Testing
 =======
-Hopscotch tests are written using the [Mocha testing framework](http://visionmedia.github.io/mocha/). The tests can be run either in the browser or via the command line. To run the tests in the browser, simply open up test/index.html. To run the tests in the command line, you can run `grunt test`.
+Hopscotch tests are written using the [Mocha testing framework](http://visionmedia.github.io/mocha/).
+The tests can be run either in the browser or via the command line.
+To run the tests in the browser, simply open up test/index.html. To run the tests in the command line, you can run `grunt test`.
