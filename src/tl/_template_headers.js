@@ -1,3 +1,10 @@
+/*
+ * Following from here are the compiled default templates for Hopscotch.
+ * The source files for these templates are in the /src/tl folder.
+ * Content placed in the _template_headers.js file are added during build
+ * before the templates.
+ */
+
 /* 
  * JST assumes _.escape exists. So, if Underscore is not available,
  * we'll create that function for later use.

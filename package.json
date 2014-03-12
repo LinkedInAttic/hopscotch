@@ -32,6 +32,8 @@
     "expect.js": "~0.2.0",
     "jquery": "~2.1.0",
     "grunt-bump": "~0.0.13",
-    "grunt-shell": "~0.3.1"
+    "grunt-shell": "~0.3.1",
+    "grunt-contrib-jst": "~0.6.0",
+    "grunt-contrib-concat": "~0.3.0"
   }
 }

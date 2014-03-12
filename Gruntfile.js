@@ -45,7 +45,8 @@ module.exports = function(grunt) {
     },
     clean : {
       build: ['<%=paths.build%>'],
-      dist: ['<%=paths.dist%>']
+      dist: ['<%=paths.dist%>'],
+      tl: ['<%=paths.build%>/js/hopscotch_templates.js']
     },
     copy: {
       build: {
@@ -117,6 +118,27 @@ module.exports = function(grunt) {
         }
       }
     },
+    jst: {
+      compile: {
+        options: {
+          namespace: 'hopscotch.templates',
+          processName: function(filename){
+            var splitName = filename.split('/'),
+                sanitized = splitName[splitName.length - 1].replace('.jst', '').replace(new RegExp('-', 'g'), '_');
+            return sanitized;
+          }
+        },
+        files: {
+          '<%=paths.build%>/js/hopscotch_templates.js': ['<%=paths.source%>/tl/*.jst']
+        }
+      }
+    },
+    concat: {
+      addTemplates: {
+        src: ['<%=paths.build%>/js/hopscotch.js', '<%=paths.source%>/tl/_template_headers.js', '<%=paths.build%>/js/hopscotch_templates.js'],
+        dest: '<%=paths.build%>/js/hopscotch.js'
+      } 
+    },
     watch: {
       jsFiles: {
         files: ['<%=paths.source%>/**/*', '<%=paths.test%>/**/*'],
@@ -186,8 +208,10 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-contrib-copy');
   grunt.loadNpmTasks('grunt-contrib-uglify');
   grunt.loadNpmTasks('grunt-contrib-less');
+  grunt.loadNpmTasks('grunt-contrib-jst');
   grunt.loadNpmTasks('grunt-contrib-watch');
   grunt.loadNpmTasks('grunt-contrib-compress');
+  grunt.loadNpmTasks('grunt-contrib-concat');
   grunt.loadNpmTasks('grunt-mocha');
   grunt.loadNpmTasks('grunt-bump');
   grunt.loadNpmTasks('grunt-shell');
@@ -196,7 +220,7 @@ module.exports = function(grunt) {
   grunt.registerTask(
     'build',
     'Build hopscotch for testing (jshint, minify js, process less to css)',
-    ['jshint:lib', 'clean:build', 'copy:build', 'uglify:build', 'less']
+    ['jshint:lib', 'clean:build', 'copy:build', 'jst:compile', 'concat:addTemplates', 'uglify:build', 'less', 'clean:tl']
   );
   grunt.registerTask(
     'test',
