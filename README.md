@@ -178,7 +178,9 @@ Tour options can be specified either through the tour JSON object, or through a 
 
 * `bubbleWidth` [NUMBER] - Default bubble width. *Default*: 280.
 
-* `bubblePadding` [NUMBER] - Default bubble padding. *Default*: 15.
+* `bubblePadding` [NUMBER] - DEPRECATED. Default bubble padding. *Default*: 15.
+
+* `safe` [BOOLEAN] - Whether the title and content for each step in the tour should be assumed to be trusted content. If false, the content is run thru a basic HTML escaping method. Be aware that enabling this flag without escaping untrusted content may lead to XSS issues! *Default*: false
 
 * `smoothScroll` [BOOLEAN] - Should the page scroll smoothly to the next step? *Default*: true.
 

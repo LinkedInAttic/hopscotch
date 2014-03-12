@@ -5,6 +5,7 @@
       HopscotchI18N,
       customI18N,
       customRenderer,
+      templateToUse = 'bubble_default',
       Sizzle = window.Sizzle || null,
       utils,
       callbacks,
@@ -721,15 +722,14 @@
       };
 
       // Render the bubble's content.
-      // Templates should be registered by now... if not, complain.
       if(customRenderer){
-
+        el.innerHTML = customRenderer(opts);
       }
       else{
         if(!hopscotch.templates){
           throw 'Bubble rendering failed - templates unavailable.';
         }
-        el.innerHTML = hopscotch.templates.bubble_default(opts);
+        el.innerHTML = hopscotch.templates[templateToUse](opts);
       }
 
       // Find content container and arrow among new child elements.
@@ -1166,7 +1166,6 @@
           showCloseButton: getOption('showCloseButton'),
           arrowWidth:      getOption('arrowWidth')
         });
-        //bubble.updateButtons();
       }
       return bubble;
     },
@@ -2114,9 +2113,25 @@
       return _configure.call(this, options, false);
     };
 
+    /**
+     * Set the template that should be used for rendering Hopscotch bubbles.
+     * If a string, it's assumed your template is available in the
+     * hopscotch.templates namespace.
+     *
+     * @param {String|Function(obj)} The template to use for rendering.
+     * @param {Object} opts - Hopscotch options to set (see hopscotch.configure()).
+     * @returns {Object} The Hopscotch object (for chaining).
+     */
     this.setRenderer = function(render, opts){
-      customRenderer = render;
-      this.configure(opts);
+      var typeOfRender = typeof render;
+
+      if(typeOfRender === 'string'){
+        templateToUse = render;
+      }
+      else if(typeOfRender === 'function'){
+        customRenderer = render;
+      }
+      return this.configure(opts);
     };
 
     init.call(this, initOptions);
