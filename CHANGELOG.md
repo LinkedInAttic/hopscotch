@@ -10,6 +10,7 @@
  * [7791d6f](https://github.com/linkedin/hopscotch/commit/7791d6f346e1b2849894878aba48725199fb709a) Small doc update for query selectors. (@marc-hughes)
  * [0fbef13](https://github.com/linkedin/hopscotch/commit/0fbef13779df5dcf4586d3b36747f883a183326b) Support arbitrary selectors for targets (@joshjordan)
 
+
 ### v0.1.2 (2013/09/16)
  * [6e2ec18](https://github.com/linkedin/hopscotch/commit/6e2ec18a0c61cc4063a3af76c4c80982bf4d0dfe) add jshint to grunt (@gkoo)
  * [ee28d20](https://github.com/linkedin/hopscotch/commit/ee28d20fb4441862a0737bed884dda4431e3dc63) add CLI testing, add tests to grunt (@gkoo)
@@ -19,6 +20,7 @@
  * [70b2974](https://github.com/linkedin/hopscotch/commit/70b29741dd0e754e139150b04c12a31a6bafe804) halt tour when onNext/onPrev returns false (@gkoo)
  * [3fcdfdd](https://github.com/linkedin/hopscotch/commit/3fcdfdd9075cb4347444048d4b7b85c69f362f69) add getCurrTarget function that return current target object (@gnatok)
  * [a6265d2](https://github.com/linkedin/hopscotch/commit/a6265d2f0295635a35b240a081a9f12675057259) bump version num (@gkoo)
+
 
 ### v0.1.1 (2013/07/14)
  * [aa1d028](https://github.com/linkedin/hopscotch/commit/aa1d028e8fae337144e3f71cfc5b4f1dc42adc11) added some comments for _setupCTAButton() (@gkoo)
@@ -46,6 +48,7 @@
  * [e88ab97](https://github.com/linkedin/hopscotch/commit/e88ab97e3ebd3d0cb12a8d6ea8cabc81a0508a50) remove 0.1.min (@gkoo)
  * [c826961](https://github.com/linkedin/hopscotch/commit/c826961335a2426794267431d07c746f9ef8bf5d) fix bug with IE8 getBoundingClientRect.width and height (@gkoo)
  * [8f2b41c](https://github.com/linkedin/hopscotch/commit/8f2b41ca6bea37be76df03eab21a98c6f5455e33) bump version numbers (@gkoo)
+
 
 
 ### v0.1.0 (2013/05/15)
@@ -95,6 +98,7 @@
  * [cba5193](https://github.com/linkedin/hopscotch/commit/cba5193103dc1a8e915c1eb9ba14129be41ff8cd) update minified hopscotch (@gkoo)
  * [5d6384f](https://github.com/linkedin/hopscotch/commit/5d6384f83b0b4ae2c223ee453ac0e883b8f55dce) bump version to 0.1 (@gkoo)
 
+
 ### v0.0.5 (2013/03/08)
  * [eb26699](https://github.com/linkedin/hopscotch/commit/eb26699ff4d494fe22562d3589362b56e83a3d05) merge
  * [5765f75](https://github.com/linkedin/hopscotch/commit/5765f75b7fe0c397ea5bc498a0844620b1857520) fix a scoping bug (@gkoo)
@@ -113,6 +117,7 @@
  * [00abc0e](https://github.com/linkedin/hopscotch/commit/00abc0eb0c1e710bc1721a7a9c24726f7414a986) bump version and minify assets (@gkoo)
  * [68465ac](https://github.com/linkedin/hopscotch/commit/68465acf690f8f0a4c8442b7fcdbe25a6bf62ae2) very minor changes. add some padding to close button (@gkoo)
 
+
 ### v0.0.4 (2012/11/19)
  * [8d89672](https://github.com/linkedin/hopscotch/commit/8d89672aec14a829abb4061a14f18f432e4d5742) fix references to hopscotch (@gkoo)
  * [86d8290](https://github.com/linkedin/hopscotch/commit/86d8290f475a415296cf19796c785aa578c1fa41) update docs for goToStepTarget (@gkoo)
@@ -122,6 +127,7 @@
  * [9096eba](https://github.com/linkedin/hopscotch/commit/9096ebae9490833cc2fcb43082e5104874426791) fixed HopscotchBubble.destroy, updated docs (@gkoo)
  * [a2ba602](https://github.com/linkedin/hopscotch/commit/a2ba6020aff708e39101fdcd6d87fc41a503fd6c) bump version to 0.0.4 (@gkoo)
 
+
 ### v0.0.3 (2012/11/12)
  * [3edace8](https://github.com/linkedin/hopscotch/commit/3edace8257d8c7aeb30291199efb3404356c8f9b) fix bug with nextOnTargetClick (@gkoo)
  * [52d9433](https://github.com/linkedin/hopscotch/commit/52d94338a488f7d9470be1db50c06cdbd25487af) fix a bug related to addEventListener for FF <=3.6 (@gkoo)
@@ -130,6 +136,7 @@
  * [91cb5fd](https://github.com/linkedin/hopscotch/commit/91cb5fd92fb23e59633b4a82a2f2ce715a6249bc) Changed "addCallback" to "listen" and fixed getStepTarget (@gkoo)
  * [30efeb6](https://github.com/linkedin/hopscotch/commit/30efeb643a066793a770dedf48dd7a1a72ee4d1f) Fix showPrevButton bug, respect step delay for changeStep (@gkoo)
  * [7ba10d6](https://github.com/linkedin/hopscotch/commit/7ba10d66755ee842a49869203fffbf6113fcdb10) bump version to 0.0.3 (@gkoo)
+
 
 ### v0.0.2 (2012/10/22)
  * [d052302](https://github.com/linkedin/hopscotch/commit/d0523028a7597ac387235dce858da0e599e0d437) change 0.0.1 to 0.1 (@gkoo)
@@ -141,6 +148,7 @@
  * [bab2595](https://github.com/linkedin/hopscotch/commit/bab25952d3bd847d834ff72923d0077040e30836) change the hopscotch filename in index.html (@gkoo)
  * [82b1eaa](https://github.com/linkedin/hopscotch/commit/82b1eaa2a7ea9655e75bf984d5d16a1e2290ba67) remove a console.log statement. remove unnecessary minify scripts (@gkoo)
  * [88b2c73](https://github.com/linkedin/hopscotch/commit/88b2c738d52e45e0855a0b4ce2b5c1829d452c99) fixed some things related to skipIfNoElement and step delay (@gkoo)
+
 
 ### v0.0.1 (2012/09/11)
  * [c6f6b98](https://github.com/linkedin/hopscotch/commit/c6f6b984751304cb52735e3a99f822a62ce5dffa) initial commit (@gkoo)
