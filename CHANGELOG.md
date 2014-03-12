@@ -1,6 +1,7 @@
 ## Change Log
 
 ### v0.1.3 (2014/03/04)
+
  * [aaca52b](https://github.com/linkedin/hopscotch/commit/aaca52bc2fcb254f65a5b0e3173635de7c9bb8d6) Update README: add explanation for the getCurrTarget() (@gnatok)
  * [d5894b2](https://github.com/linkedin/hopscotch/commit/d5894b24150597d38b6225e0b6040887d531a66c) Move window.sessionStorage into try catch block. (@nanek)
  * [35a2b2d](https://github.com/linkedin/hopscotch/commit/35a2b2d4f334cbb191899b860d4be80d420d4dcc) detect when a onNext/onPrev callback updates tour state (@gkoo)
@@ -12,6 +13,7 @@
 
 
 ### v0.1.2 (2013/09/16)
+
  * [6e2ec18](https://github.com/linkedin/hopscotch/commit/6e2ec18a0c61cc4063a3af76c4c80982bf4d0dfe) add jshint to grunt (@gkoo)
  * [ee28d20](https://github.com/linkedin/hopscotch/commit/ee28d20fb4441862a0737bed884dda4431e3dc63) add CLI testing, add tests to grunt (@gkoo)
  * [1f8e065](https://github.com/linkedin/hopscotch/commit/1f8e065e856586eec1b2b240a4cdbb3fcba66189) Update CONTRIBUTING.md (@gkoo)
@@ -23,6 +25,7 @@
 
 
 ### v0.1.1 (2013/07/14)
+
  * [aa1d028](https://github.com/linkedin/hopscotch/commit/aa1d028e8fae337144e3f71cfc5b4f1dc42adc11) added some comments for _setupCTAButton() (@gkoo)
  * [d806e11](https://github.com/linkedin/hopscotch/commit/d806e11dc7bf6050cf9c791a73794a9150db58a9) added invokeHelper() function to use programmatically (@gkoo)
  * [e6639c7](https://github.com/linkedin/hopscotch/commit/e6639c7a79d8cff7168994419638dd316c525171) update version number in demo/index.html (@gkoo)
@@ -52,6 +55,7 @@
 
 
 ### v0.1.0 (2013/05/15)
+
  * [e7273e0](https://github.com/linkedin/hopscotch/commit/e7273e0f84056c86802f03ebc4323c5c8feb490e) fix onShow not executed when step.fixedElement (@gkoo)
  * [4ba10c1](https://github.com/linkedin/hopscotch/commit/4ba10c165d39f5e799486157f2769bd53d8f3917) make jshint happy. fix callouts not showing on creation. (@gkoo)
  * [3b85892](https://github.com/linkedin/hopscotch/commit/3b858928c5cb6ad56dd7912ac59b1adb85cfbf33) update minify script to point to the new less location (@gkoo)
@@ -100,6 +104,7 @@
 
 
 ### v0.0.5 (2013/03/08)
+
  * [eb26699](https://github.com/linkedin/hopscotch/commit/eb26699ff4d494fe22562d3589362b56e83a3d05) merge
  * [5765f75](https://github.com/linkedin/hopscotch/commit/5765f75b7fe0c397ea5bc498a0844620b1857520) fix a scoping bug (@gkoo)
  * [3955216](https://github.com/linkedin/hopscotch/commit/3955216fd900f8e0ccc0f0d35e626c7364e65851) add check for duplicate callout id (@gkoo)
@@ -119,6 +124,7 @@
 
 
 ### v0.0.4 (2012/11/19)
+
  * [8d89672](https://github.com/linkedin/hopscotch/commit/8d89672aec14a829abb4061a14f18f432e4d5742) fix references to hopscotch (@gkoo)
  * [86d8290](https://github.com/linkedin/hopscotch/commit/86d8290f475a415296cf19796c785aa578c1fa41) update docs for goToStepTarget (@gkoo)
  * [aa20fea](https://github.com/linkedin/hopscotch/commit/aa20fea84fa31133192b2fa263d9a1a5a78042db) remove references to substeps and saving state. creating separate branches for them (@gkoo)
@@ -129,6 +135,7 @@
 
 
 ### v0.0.3 (2012/11/12)
+
  * [3edace8](https://github.com/linkedin/hopscotch/commit/3edace8257d8c7aeb30291199efb3404356c8f9b) fix bug with nextOnTargetClick (@gkoo)
  * [52d9433](https://github.com/linkedin/hopscotch/commit/52d94338a488f7d9470be1db50c06cdbd25487af) fix a bug related to addEventListener for FF <=3.6 (@gkoo)
  * [671989f](https://github.com/linkedin/hopscotch/commit/671989f4d11e95dd7e7b059d102ceec1cfdbb7bc) add support for basic selectors in step target property (@gkoo)
@@ -139,6 +146,7 @@
 
 
 ### v0.0.2 (2012/10/22)
+
  * [d052302](https://github.com/linkedin/hopscotch/commit/d0523028a7597ac387235dce858da0e599e0d437) change 0.0.1 to 0.1 (@gkoo)
  * [39607c2](https://github.com/linkedin/hopscotch/commit/39607c264472c883433fccb20f45eb6c83c2b9ab) rename hopscotch-0.1.js ==> hopscotch-0.1.dev.js (@gkoo)
  * [98bb776](https://github.com/linkedin/hopscotch/commit/98bb7769a81d9b72da7b5c6d3f24168e24e55471) Adding functionality for sidewalk chalk bookmarklet. It's ugly as hell, but we'll clean it up :) (@theLisa)
@@ -151,6 +159,7 @@
 
 
 ### v0.0.1 (2012/09/11)
+
  * [c6f6b98](https://github.com/linkedin/hopscotch/commit/c6f6b984751304cb52735e3a99f822a62ce5dffa) initial commit (@gkoo)
  * [0e11aa8](https://github.com/linkedin/hopscotch/commit/0e11aa8f776b9e8b61887b0d029962fc17e9ffde) Get rid of Hopscotch Manager (@gkoo)
  * [40befd1](https://github.com/linkedin/hopscotch/commit/40befd1c3f03bab3b50e927faaeb143b3df10b16) scroll to bubble when it's out of viewport (@gkoo)
