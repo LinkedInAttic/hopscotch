@@ -9,9 +9,9 @@
  * JST assumes _.escape exists. So, if Underscore is not available,
  * we'll create that function for later use.
  */
-if(!window._){
-  window._ = {};
-  window._.escape = function(str){
+if(typeof _ === 'undefined'){
+  _ = {};
+  _.escape = function(str){
     if(str == null) return '';
     return ('' + str).replace(new RegExp('[&<>"\']', 'g'), function(match){
       if(match == '&'){ return '&amp;' }

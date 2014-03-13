@@ -133,11 +133,15 @@ module.exports = function(grunt) {
         }
       }
     },
-    concat: {
+    includereplace: {
       addTemplates: {
-        src: ['<%=paths.build%>/js/hopscotch.js', '<%=paths.source%>/tl/_template_headers.js', '<%=paths.build%>/js/hopscotch_templates.js'],
+        options: {
+          prefix: '// @@',
+          suffix: ' //'
+        },
+        src: '<%=paths.build%>/js/hopscotch.js',
         dest: '<%=paths.build%>/js/hopscotch.js'
-      } 
+      }
     },
     watch: {
       jsFiles: {
@@ -212,6 +216,7 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-contrib-watch');
   grunt.loadNpmTasks('grunt-contrib-compress');
   grunt.loadNpmTasks('grunt-contrib-concat');
+  grunt.loadNpmTasks('grunt-include-replace');
   grunt.loadNpmTasks('grunt-mocha');
   grunt.loadNpmTasks('grunt-bump');
   grunt.loadNpmTasks('grunt-shell');
@@ -220,7 +225,7 @@ module.exports = function(grunt) {
   grunt.registerTask(
     'build',
     'Build hopscotch for testing (jshint, minify js, process less to css)',
-    ['jshint:lib', 'clean:build', 'copy:build', 'jst:compile', 'concat:addTemplates', 'uglify:build', 'less', 'clean:tl']
+    ['jshint:lib', 'clean:build', 'copy:build', 'jst:compile', 'includereplace:addTemplates', 'uglify:build', 'less', 'clean:tl']
   );
   grunt.registerTask(
     'test',

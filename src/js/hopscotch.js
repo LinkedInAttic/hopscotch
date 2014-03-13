@@ -2135,4 +2135,9 @@
 
   winHopscotch = new Hopscotch();
   context[namespace] = winHopscotch;
+
+// @@include('../../src/tl/_template_headers.js') //
+
+// @@include('../../tmp/js/hopscotch_templates.js') //
+
 }(window, 'hopscotch'));
