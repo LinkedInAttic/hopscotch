@@ -750,7 +750,7 @@
         el.innerHTML = hopscotch.templates[templateToUse](opts);
       }
 
-      // Find content container and arrow among new child elements.
+      // Find arrow among new child elements.
       children = el.children;
       numChildren = children.length;
       for (i = 0; i < numChildren; i++){
