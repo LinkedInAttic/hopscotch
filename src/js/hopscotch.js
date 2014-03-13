@@ -646,6 +646,8 @@
     render: function(step, idx, callback) {
       var el = this.element,
           tourSpecificRenderer,
+          customTourData,
+          unsafe,
           showNext,
           showPrev,
           bubbleWidth,
@@ -664,13 +666,22 @@
         step = this.currStep;
       }
 
-      // Check current tour for total number of steps (if necessary)
+      // Check current tour for total number of steps and custom render data
       if(this.opt.isTourBubble){
         currTour = winHopscotch.getCurrTour();
-        if(currTour && Array.isArray(currTour.steps)){
-          totalSteps = currTour.steps.length;
-          isLast = (idx === totalSteps - 1);
+        if(currTour){
+          customTourData = currTour.customData;
+          tourSpecificRenderer = currTour.customRenderer;
+          unsafe = currTour.unsafe;
+          if(Array.isArray(currTour.steps)){
+            totalSteps = currTour.steps.length;
+            isLast = (idx === totalSteps - 1);
+          }
         }
+      }else{
+        customTourData = step.customData;
+        tourSpecificRenderer = step.customRenderer;
+        unsafe = step.unsafe;
       }
 
       // Determine label for next button
@@ -717,14 +728,13 @@
         tour:{
           isTour: this.opt.isTourBubble,
           numSteps: totalSteps,
-          unsafe: utils.valOrDefault(this.opt.unsafe, false),
-          customData: (this.opt.customData || {})
+          unsafe: utils.valOrDefault(unsafe, false),
+          customData: (customTourData || {})
         }
       };
 
       // Render the bubble's content.
       // Use tour renderer if available, then the global customRenderer if defined.
-      tourSpecificRenderer = this.opt.customRenderer;
       if(typeof tourSpecificRenderer === 'function'){
         el.innerHTML = tourSpecificRenderer(opts);
       }

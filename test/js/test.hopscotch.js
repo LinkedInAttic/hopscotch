@@ -619,6 +619,160 @@ describe('Hopscotch', function() {
       hopscotch.endTour();
     });
   });
+
+  describe('Custom render methods', function(){
+    var mockTour = {
+          id: 'hopscotch-test-tour',
+          steps: [
+            {
+              target: 'shopping-list',
+              orientation: 'left',
+              title: 'Shopping List',
+              content: 'It\'s a shopping list'
+            },
+            {
+              target: 'shopping-list',
+              orientation: 'left',
+              title: 'Shopping List',
+              content: 'It\'s a shopping list'
+            }
+          ],
+          skipIfNoElement: false
+        },
+        mockCallout = {
+          id: 'shopping-callout',
+          target: 'shopping-list',
+          orientation: 'left',
+          title: 'Shopping List Callout',
+          content: 'It\'s a shopping list'
+        },
+        renderMethod = sinon.stub().returns('<h1>Content!</h1><div class="hopscotch-arrow"></div>');
+
+    before(function(){
+      sinon.spy(hopscotch.templates, 'bubble_default');
+      hopscotch.templates.customTemplate = sinon.stub().returns('<h1>Content!</h1><div class="hopscotch-arrow"></div>');
+    });
+
+    afterEach(function(){
+      hopscotch.endTour();
+      hopscotch.getCalloutManager().removeAllCallouts();
+      hopscotch.templates.bubble_default.reset();
+      hopscotch.templates.customTemplate.reset();
+      renderMethod.reset();
+      hopscotch.setRenderer('bubble_default');
+    });
+
+    after(function(){
+      delete hopscotch.templates.customTemplate;
+      hopscotch.templates.bubble_default.restore();
+    });
+
+    it('setRenderer() should allow setting a global renderer within the hopscotch.templates namespace', function(){
+      hopscotch.setRenderer('customTemplate');
+      
+      hopscotch.startTour(mockTour);
+      expect(hopscotch.templates.customTemplate.calledOnce).to.be.ok();
+      expect(renderMethod.calledOnce).to.not.be.ok();
+      expect(hopscotch.templates.bubble_default.calledOnce).to.not.be.ok();
+
+      hopscotch.endTour();
+      hopscotch.templates.customTemplate.reset();
+
+      hopscotch.getCalloutManager().createCallout(mockCallout);
+      expect(hopscotch.templates.customTemplate.calledOnce).to.be.ok();
+      expect(renderMethod.calledOnce).to.not.be.ok();
+      expect(hopscotch.templates.bubble_default.calledOnce).to.not.be.ok();
+    });
+
+    it('setRenderer() should allow setting a global custom render method', function(){
+      hopscotch.setRenderer(renderMethod);
+      hopscotch.startTour(mockTour);
+
+      expect(renderMethod.calledOnce).to.be.ok();
+      expect(hopscotch.templates.customTemplate.calledOnce).to.not.be.ok();
+      expect(hopscotch.templates.bubble_default.calledOnce).to.not.be.ok();
+
+      hopscotch.endTour();
+      renderMethod.reset();
+
+      hopscotch.getCalloutManager().createCallout(mockCallout);
+      expect(renderMethod.calledOnce).to.be.ok();
+      expect(hopscotch.templates.customTemplate.calledOnce).to.not.be.ok();
+      expect(hopscotch.templates.bubble_default.calledOnce).to.not.be.ok();
+    });
+
+    it('Should accept a custom renderer in hopscotch.templates set via tour config', function(){
+      var augmentedData = $.extend({}, mockTour, {customRenderer: 'customTemplate'});
+      hopscotch.startTour(augmentedData);
+
+      expect(hopscotch.templates.customTemplate.calledOnce).to.be.ok();
+      expect(renderMethod.calledOnce).to.not.be.ok();
+      expect(hopscotch.templates.bubble_default.calledOnce).to.not.be.ok();
+    });
+
+    it('Should accept a custom renderer method set via tour config', function(){
+      var augmentedData = $.extend({}, mockTour, {customRenderer: renderMethod});
+      hopscotch.startTour(augmentedData);
+
+      expect(renderMethod.calledOnce).to.be.ok();
+      expect(hopscotch.templates.customTemplate.calledOnce).to.not.be.ok();
+      expect(hopscotch.templates.bubble_default.calledOnce).to.not.be.ok();
+    });
+
+    it('Should accept a custom renderer in hopscotch.templates set via new callout config', function(){
+      var augmentedData = $.extend({}, mockCallout, {customRenderer: 'customTemplate'});
+      hopscotch.getCalloutManager().createCallout(augmentedData);
+
+      expect(hopscotch.templates.customTemplate.calledOnce).to.be.ok();
+      expect(renderMethod.calledOnce).to.not.be.ok();
+      expect(hopscotch.templates.bubble_default.calledOnce).to.not.be.ok();
+    });
+
+    it('Should accept a custom renderer method set via new callout config', function(){
+      var augmentedData = $.extend({}, mockCallout, {customRenderer: renderMethod});
+      hopscotch.getCalloutManager().createCallout(augmentedData);
+
+      expect(renderMethod.calledOnce).to.be.ok();
+      expect(hopscotch.templates.customTemplate.calledOnce).to.not.be.ok();
+      expect(hopscotch.templates.bubble_default.calledOnce).to.not.be.ok();
+    });
+
+    it('Render methods should receive custom data from tours', function(){
+      var augmentedData = $.extend({}, mockTour, {customData: {foo: 'bar'}}),
+          callArgs;
+      $.extend(augmentedData.steps[0], {customData: {stepSpecific: 'data'}});
+
+      hopscotch.startTour(augmentedData);
+      expect(hopscotch.templates.bubble_default.calledOnce).to.be.ok();
+
+      callArgs = hopscotch.templates.bubble_default.args[0][0];
+      expect(callArgs.tour.customData.foo).to.be('bar');
+      expect(callArgs.step.customData.stepSpecific).to.be('data');
+    });
+
+    it('Render methods should receive custom data from callouts', function(){
+      var augmentedData = $.extend({}, mockCallout, {customData: {foo: 'bar'}}),
+          callArgs;
+
+      hopscotch.getCalloutManager().createCallout(augmentedData);
+      expect(hopscotch.templates.bubble_default.calledOnce).to.be.ok();
+
+      callArgs = hopscotch.templates.bubble_default.args[0][0];
+      expect(callArgs.tour.customData.foo).to.be('bar');
+      expect(callArgs.step.customData.foo).to.be('bar');
+    });
+
+    it('Render methods should receive the unsafe flag when set', function(){
+      var augmentedData = $.extend({}, mockTour, {unsafe: true}),
+          callArgs;
+
+      hopscotch.startTour(augmentedData);
+      expect(hopscotch.templates.bubble_default.calledOnce).to.be.ok();
+
+      callArgs = hopscotch.templates.bubble_default.args[0][0];
+      expect(callArgs.tour.unsafe).to.be(true);
+    });
+  });
 });
 
 /**
