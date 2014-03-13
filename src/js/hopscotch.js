@@ -716,7 +716,7 @@
         tour:{
           isTour: this.opt.isTourBubble,
           numSteps: totalSteps,
-          safe: utils.valOrDefault(this.opt.safe, false),
+          unsafe: utils.valOrDefault(this.opt.unsafe, false),
           customData: (this.opt.customData || {})
         }
       };
@@ -738,9 +738,6 @@
       for (i = 0; i < numChildren; i++){
         node = children[i];
 
-        if(utils.hasClass(node, 'hopscotch-container')){
-          this.contentEl = node;
-        }
         if(utils.hasClass(node, 'hopscotch-arrow')){
           this.arrowEl = node;
         }
@@ -2119,10 +2116,9 @@
      * hopscotch.templates namespace.
      *
      * @param {String|Function(obj)} The template to use for rendering.
-     * @param {Object} opts - Hopscotch options to set (see hopscotch.configure()).
      * @returns {Object} The Hopscotch object (for chaining).
      */
-    this.setRenderer = function(render, opts){
+    this.setRenderer = function(render){
       var typeOfRender = typeof render;
 
       if(typeOfRender === 'string'){
@@ -2131,7 +2127,7 @@
       else if(typeOfRender === 'function'){
         customRenderer = render;
       }
-      return this.configure(opts);
+      return this;
     };
 
     init.call(this, initOptions);

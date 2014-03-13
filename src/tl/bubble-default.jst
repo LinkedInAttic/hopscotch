@@ -1,16 +1,16 @@
 <%
-  function optEscape(str, safe){
-    if(safe){
-      return str;
+  function optEscape(str, unsafe){
+    if(unsafe){
+      return _.escape(str);
     }
-    return _.escape(str);
+    return str;
   }
 %>
-<div class="hopscotch-bubble-container hopscotch-container" style="width: <%= step.width %>px; padding: <%= step.padding %>px;">
+<div class="hopscotch-bubble-container" style="width: <%= step.width %>px; padding: <%= step.padding %>px;">
   <% if(tour.isTour){ %><span class="hopscotch-bubble-number"><%= i18n.stepNum %></span><% } %>
   <div class="hopscotch-bubble-content">
-    <% if(step.title !== ''){ %><h3 class="hopscotch-title"><%= optEscape(step.title, tour.safe) %></h3><% } %>
-    <% if(step.content  !== ''){ %><div class="hopscotch-content"><%= optEscape(step.content, tour.safe) %></div><% } %>
+    <% if(step.title !== ''){ %><h3 class="hopscotch-title"><%= optEscape(step.title, tour.unsafe) %></h3><% } %>
+    <% if(step.content  !== ''){ %><div class="hopscotch-content"><%= optEscape(step.content, tour.unsafe) %></div><% } %>
   </div>
   <div class="hopscotch-actions">
     <% if(buttons.showPrev){ %><button class="hopscotch-nav-button prev hopscotch-prev"><%= i18n.prevBtn %></button><% } %>

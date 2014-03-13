@@ -44,7 +44,7 @@ step - Information about the current step or callout.
 tour - Tour-level information about this bubble.
   .isTour - Whether this is a tour bubble or a callout bubble.
   .numSteps - The total number of steps in the tour.
-  .safe - Whether the title and content should be assumed to be trusted or already HTML-escaped.
+  .unsafe - Whether the title and content should be HTML-escaped by the template.
   .customData - Additional template-specific info to include (see below).
 `````
 
@@ -82,3 +82,15 @@ hopscotch.getCalloutManager().createCallout({
   }
 });
 `````
+
+Authoring Templates
+-------------------
+Note that much of the above information about how template data is handled is dependent on the template's implementation... after all, the title provided by your tour doesn't matter much if the template never reads it. To avoid surprises and potential upgrade issues in the future, consider following the JSON specs listed above when authoring your tours.
+
+Additionally, if you're authoring your own template, there are a few special class names you should be aware of. Hopscotch will handle listening for click events and arrow positioning for you - however, for Hopscotch to pick up the elements it should listen to, you'll want to use the following class names...
+
+- hopscotch-arrow: Apply this class to your bubble's arrow element. Top/left positioning calculations and display class names (up, down, left, right) will be assigned to this element.
+- hopscotch-prev: Apply this class to the previous step button.
+- hopscotch-next: Apply this class to the next step button.
+- hopscotch-cta: Apply this class to the call-to-action button.
+- hopscotch-close: Apply this class to the close/end tour button.
