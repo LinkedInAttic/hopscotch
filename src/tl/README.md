@@ -7,7 +7,7 @@ When it's time to render a Hopscotch bubble (either thru a tour or the Hopscotch
 
 Setting your own template
 -------------------------
-If preferred, you can set your own template to render Hopscotch bubbles. To do so, call `hopscotch.setRenderer()`. This method accepts one argument, which can be either...
+If preferred, you can set your own template to render Hopscotch bubbles globally. To do so, call `hopscotch.setRenderer()`. This method accepts one argument, which can be either...
 
 - A string, which is assumed to be the name of a method that exists within the hopscotch.templates namespace (templates compiled during the build process are added to this namespace).
 - A method, which Hopscotch will call directly.
@@ -15,6 +15,8 @@ If preferred, you can set your own template to render Hopscotch bubbles. To do s
 In either case, the method should accept a JSON object containing information about the bubble being rendered and return a string containing the bubble's HTML. Hopscotch is purposly agnostic to the means by which you generate HTML (this is why we're using Underscore JSTs for the default, since they compile down to basic JavaScript with minimal dependencies), so you can mix in your templating engine of choice if preferred.
 
 If preferred, you can edit bubble-default or include your own templates in this folder. Any files included here will be compiled and included during the build process. Template names match the file name, with dashes converted to underscores and extensions (.jst) removed.
+
+Custom renderers can also be set on a tour-by-tour basis (or for an individual callout) by setting the `customRenderer` option in your tour or callout object. As above, this option can be a string or method.
 
 Template Data and Adding Additional Details
 -------------------------------------------

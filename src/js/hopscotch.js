@@ -645,6 +645,7 @@
      */
     render: function(step, idx, callback) {
       var el = this.element,
+          tourSpecificRenderer,
           showNext,
           showPrev,
           bubbleWidth,
@@ -722,7 +723,18 @@
       };
 
       // Render the bubble's content.
-      if(customRenderer){
+      // Use tour renderer if available, then the global customRenderer if defined.
+      tourSpecificRenderer = this.opt.customRenderer;
+      if(typeof tourSpecificRenderer === 'function'){
+        el.innerHTML = tourSpecificRenderer(opts);
+      }
+      else if(typeof tourSpecificRenderer === 'string'){
+        if(!hopscotch.templates){
+          throw 'Bubble rendering failed - templates unavailable.';
+        }
+        el.innerHTML = hopscotch.templates[tourSpecificRenderer](opts);
+      }
+      else if(customRenderer){
         el.innerHTML = customRenderer(opts);
       }
       else{
@@ -2123,6 +2135,7 @@
 
       if(typeOfRender === 'string'){
         templateToUse = render;
+        customRenderer = undefined;
       }
       else if(typeOfRender === 'function'){
         customRenderer = render;
