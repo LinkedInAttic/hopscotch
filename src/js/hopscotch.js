@@ -2136,8 +2136,11 @@
   winHopscotch = new Hopscotch();
   context[namespace] = winHopscotch;
 
+// Template includes, placed inside a closure to ensure we don't
+// end up declaring our shim globally.
+(function(_){
 // @@include('../../src/tl/_template_headers.js') //
-
 // @@include('../../tmp/js/hopscotch_templates.js') //
+}(window._));
 
 }(window, 'hopscotch'));
