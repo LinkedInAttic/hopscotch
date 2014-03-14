@@ -5,6 +5,7 @@
       HopscotchI18N,
       customI18N,
       customRenderer,
+      customEscape,
       templateToUse = 'bubble_default',
       Sizzle = window.Sizzle || null,
       utils,
@@ -2149,6 +2150,18 @@
       return this;
     };
 
+    /**
+     * Sets the escaping method to be used by JST templates.
+     *
+     * @param {Function} - The escape method to use.
+     * @returns {Object} The Hopscotch object (for chaining).
+     */
+    this.setEscaper = function(esc){
+      if (typeof esc === 'function'){
+        customEscape = esc;
+      }
+    };
+
     init.call(this, initOptions);
   };
 
@@ -2157,9 +2170,9 @@
 
 // Template includes, placed inside a closure to ensure we don't
 // end up declaring our shim globally.
-(function(_){
+(function(){
 // @@include('../../src/tl/_template_headers.js') //
 // @@include('../../tmp/js/hopscotch_templates.js') //
-}(window._));
+}());
 
 }(window, 'hopscotch'));

@@ -772,6 +772,17 @@ describe('Hopscotch', function() {
       callArgs = hopscotch.templates.bubble_default.args[0][0];
       expect(callArgs.tour.unsafe).to.be(true);
     });
+
+    it('Should be able to override default escaping method using setEscaper()', function(){
+      var augmentedData = $.extend({}, mockTour, {unsafe: true}),
+          customEscaper = sinon.stub().returnsArg(0);
+
+      hopscotch.setEscaper(customEscaper);
+      hopscotch.startTour(augmentedData);
+      expect(hopscotch.templates.bubble_default.calledOnce).to.be.ok();
+
+      expect(customEscaper.calledTwice).to.be.ok();
+    });
   });
 });
 
