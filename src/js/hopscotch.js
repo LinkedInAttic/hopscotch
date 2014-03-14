@@ -2160,6 +2160,7 @@
       if (typeof esc === 'function'){
         customEscape = esc;
       }
+      return this;
     };
 
     init.call(this, initOptions);
