@@ -736,8 +736,8 @@
         el.innerHTML = tourSpecificRenderer(opts);
       }
       else if(typeof tourSpecificRenderer === 'string'){
-        if(!hopscotch.templates){
-          throw 'Bubble rendering failed - templates unavailable.';
+        if(!hopscotch.templates || (typeof hopscotch.templates[tourSpecificRenderer] !== 'function')){
+          throw 'Bubble rendering failed - template "' + tourSpecificRenderer + '" is not a function.';
         }
         el.innerHTML = hopscotch.templates[tourSpecificRenderer](opts);
       }
@@ -745,8 +745,8 @@
         el.innerHTML = customRenderer(opts);
       }
       else{
-        if(!hopscotch.templates){
-          throw 'Bubble rendering failed - templates unavailable.';
+        if(!hopscotch.templates || (typeof !hopscotch.templates[templateToUse] !== 'function')){
+          throw 'Bubble rendering failed - template "' + templateToUse + '" is not a function.';
         }
         el.innerHTML = hopscotch.templates[templateToUse](opts);
       }
