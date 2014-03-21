@@ -576,6 +576,9 @@
         top = boundingRect.top;
         left = boundingRect.right + this.opt.arrowWidth;
       }
+      else {
+        throw 'Bubble placement failed because step.placement is invalid or undefined!';
+      }
 
       // SET (OR RESET) ARROW OFFSETS
       if (step.arrowOffset !== 'center') {
