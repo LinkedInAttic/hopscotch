@@ -745,7 +745,7 @@
         el.innerHTML = customRenderer(opts);
       }
       else{
-        if(!hopscotch.templates || (typeof !hopscotch.templates[templateToUse] !== 'function')){
+        if(!hopscotch.templates || (typeof hopscotch.templates[templateToUse] !== 'function')){
           throw 'Bubble rendering failed - template "' + templateToUse + '" is not a function.';
         }
         el.innerHTML = hopscotch.templates[templateToUse](opts);
