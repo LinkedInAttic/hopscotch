@@ -20,7 +20,7 @@ module.exports = function(grunt) {
     ].join('\n'),
     distName:   '<%=pkg.name%>-<%=pkg.version%>',
     paths : {
-      archive : 'archives',
+      archive:  'archives',
       dist:     'dist',
       source:   'src',
       jsSource: '<%=paths.source%>/js/hopscotch.js',
@@ -45,16 +45,11 @@ module.exports = function(grunt) {
     },
     clean : {
       build: ['<%=paths.build%>'],
-      dist: ['<%=paths.dist%>'],
-      tl: ['<%=paths.build%>/js/hopscotch_templates.js']
+      dist: ['<%=paths.dist%>']
     },
     copy: {
       build: {
         files: [
-          {
-            src: '<%=paths.jsSource%>',
-            dest: '<%=paths.build%>/js/hopscotch.js'
-          },
           {
             expand: true,
             cwd: '<%=paths.source%>/',
@@ -68,7 +63,7 @@ module.exports = function(grunt) {
           {
             expand: true,
             cwd: '<%=paths.build%>/',
-            src: ['js/*', 'css/*'],
+            src: ['js/hopscotch.js', 'js/hopscotch.min.js', 'css/*'],
             dest: '<%=paths.dist%>/'
           }
         ],
@@ -134,12 +129,12 @@ module.exports = function(grunt) {
       }
     },
     includereplace: {
-      addTemplates: {
+      jsSource: {
         options: {
           prefix: '// @@',
           suffix: ' //'
         },
-        src: '<%=paths.build%>/js/hopscotch.js',
+        src: '<%=paths.jsSource%>',
         dest: '<%=paths.build%>/js/hopscotch.js'
       }
     },
@@ -224,7 +219,7 @@ module.exports = function(grunt) {
   grunt.registerTask(
     'build',
     'Build hopscotch for testing (jshint, minify js, process less to css)',
-    ['jshint:lib', 'clean:build', 'copy:build', 'jst:compile', 'includereplace:addTemplates', 'uglify:build', 'less', 'clean:tl']
+    ['jshint:lib', 'clean:build', 'copy:build', 'jst:compile', 'includereplace:jsSource', 'uglify:build', 'less']
   );
   grunt.registerTask(
     'test',
