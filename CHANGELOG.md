@@ -1,6 +1,6 @@
 ## Change Log
 
-### v0.1.4 (2014/03/24)
+### v0.2.0 (2014/03/24)
 
 * [#70](https://github.com/linkedin/hopscotch/pull/70) Rendering tour & callout bubbles using compiled templates (@zimmi88)
 * [#62](https://github.com/linkedin/hopscotch/pull/62) Add method to redraw the bubble at a new position (@cedrics)
