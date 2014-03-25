@@ -1,0 +1,25 @@
+<%
+  function optEscape(str, unsafe){
+    if(unsafe){
+      return _.escape(str);
+    }
+    return str;
+  }
+%>
+<div class="hopscotch-bubble-container" style="width: <%= step.width %>px; padding: <%= step.padding %>px;">
+  <% if(tour.isTour){ %><span class="hopscotch-bubble-number"><%= i18n.stepNum %></span><% } %>
+  <div class="hopscotch-bubble-content">
+    <% if(step.title !== ''){ %><h3 class="hopscotch-title"><%= optEscape(step.title, tour.unsafe) %></h3><% } %>
+    <% if(step.content  !== ''){ %><div class="hopscotch-content"><%= optEscape(step.content, tour.unsafe) %></div><% } %>
+  </div>
+  <div class="hopscotch-actions">
+    <% if(buttons.showPrev){ %><button class="hopscotch-nav-button prev hopscotch-prev"><%= i18n.prevBtn %></button><% } %>
+    <% if(buttons.showCTA){ %><button class="hopscotch-nav-button next hopscotch-cta"><%= buttons.ctaLabel %></button><% } %>
+    <% if(buttons.showNext){ %><button class="hopscotch-nav-button next hopscotch-next"><%= i18n.nextBtn %></button><% } %>
+  </div>
+  <% if(buttons.showClose){ %><a title="<%= i18n.closeTooltip %>" href="#" class="hopscotch-bubble-close hopscotch-close"><%= i18n.closeTooltip %></a><% } %>
+</div>
+<div class="hopscotch-bubble-arrow-container hopscotch-arrow">
+  <div class="hopscotch-bubble-arrow-border"></div>
+  <div class="hopscotch-bubble-arrow"></div>
+</div>

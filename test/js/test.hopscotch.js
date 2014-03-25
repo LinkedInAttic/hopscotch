@@ -182,7 +182,7 @@ describe('Hopscotch', function() {
       expect($el.length).to.be.ok();
       expect($el.hasClass('hide')).to.not.be.ok(); // should not be hidden
       hopscotch.endTour();
-      expect($el.hasClass('hide')).to.be.ok(); // should not be hidden
+      expect($el.hasClass('hide')).to.be.ok(); // should be hidden
     });
   });
 
@@ -270,7 +270,7 @@ describe('Hopscotch', function() {
         } ]
       });
       $el = $('.hopscotch-bubble-close');
-      expect($el.length).to.be.ok();
+      expect($el.length).to.be(1);
       expect($el.hasClass('hide-all')).to.not.be.ok();
       expect($el.hasClass('hide')).to.not.be.ok();
       hopscotch.endTour();
@@ -292,7 +292,7 @@ describe('Hopscotch', function() {
         } ]
       });
       $el = $('.hopscotch-bubble-close');
-      expect($el.hasClass('hide')).to.be.ok();
+      expect($el.length).to.be(0);
       hopscotch.endTour();
     });
 
@@ -316,8 +316,8 @@ describe('Hopscotch', function() {
           }
         ]
       }, 1);
-      $el = $('#hopscotch-prev');
-      expect($el.hasClass('hide')).to.be.ok();
+      $el = $('.hopscotch-prev');
+      expect($el.length).to.be(0);
       hopscotch.endTour();
     });
 
@@ -344,8 +344,8 @@ describe('Hopscotch', function() {
           }
         ]
       }, 1);
-      $el = $('#hopscotch-prev');
-      expect($el.hasClass('hide')).to.not.be.ok();
+      $el = $('.hopscotch-prev');
+      expect($el.length).to.be(1);
       hopscotch.endTour();
     });
 
@@ -372,8 +372,8 @@ describe('Hopscotch', function() {
           }
         ]
       });
-      $el = $('#hopscotch-prev');
-      expect($el.hasClass('hide')).to.be.ok();
+      $el = $('.hopscotch-prev');
+      expect($el.length).to.be(0);
       hopscotch.endTour();
     });
 
@@ -397,8 +397,8 @@ describe('Hopscotch', function() {
           }
         ]
       });
-      $el = $('#hopscotch-next');
-      expect($el.hasClass('hide')).to.not.be.ok();
+      $el = $('.hopscotch-next');
+      expect($el.length).to.be(1);
       hopscotch.endTour();
     });
 
@@ -425,12 +425,12 @@ describe('Hopscotch', function() {
           }
         ]
       });
-      $el = $('#hopscotch-next');
-      expect($el.hasClass('hide')).to.be.ok();
+      $el = $('.hopscotch-next');
+      expect($el.length).to.be(0);
       hopscotch.endTour();
     });
 
-    it('should hide the Next button on the last step', function() {
+    it('last step of tour should use Done label for next button', function() {
       var $el;
 
       hopscotch.startTour({
@@ -450,33 +450,8 @@ describe('Hopscotch', function() {
           }
         ]
       }, 1);
-      $el = $('#hopscotch-next');
-      expect($el.hasClass('hide')).to.be.ok();
-      hopscotch.endTour();
-    });
-
-    it('should show the Done button on the last step', function() {
-      var $el;
-
-      hopscotch.startTour({
-        id: 'hopscotch-test-tour',
-        steps: [
-          {
-            target: 'shopping-list',
-            orientation: 'left',
-            title: 'Shopping List',
-            content: 'It\'s a shopping list'
-          },
-          {
-            target: 'shopping-list',
-            orientation: 'left',
-            title: 'Shopping List',
-            content: 'It\'s a shopping list'
-          }
-        ]
-      }, 1);
-      $el = $('#hopscotch-done');
-      expect($el.hasClass('hide')).to.not.be.ok();
+      $el = $('.hopscotch-next');
+      expect($el.html()).to.be('Done');
       hopscotch.endTour();
     });
 
@@ -571,11 +546,11 @@ describe('Hopscotch', function() {
         showPrevButton: true
       });
 
-      expect($('#hopscotch-next').html()).to.be('n');
+      expect($('.hopscotch-next').html()).to.be('n');
       expect($('.hopscotch-bubble-number').html()).to.be('one');
       hopscotch.nextStep();
-      expect($('#hopscotch-prev').html()).to.be('p');
-      expect($('#hopscotch-done').html()).to.be('d');
+      expect($('.hopscotch-prev').html()).to.be('p');
+      expect($('.hopscotch-next').html()).to.be('d');
       expect($('.hopscotch-bubble-number').html()).to.be('two');
       hopscotch.endTour();
       hopscotch.resetDefaultI18N();
@@ -644,6 +619,7 @@ describe('Hopscotch', function() {
       hopscotch.endTour();
     });
   });
+
   describe('#refreshBubblePosition', function() {
     it('recalculates the position of the bubble afer moving the element', function() {
       hopscotch.startTour({
@@ -673,7 +649,172 @@ describe('Hopscotch', function() {
 
       document.getElementById('shopping-list').style.setProperty('margin-top', null);
       document.getElementById('shopping-list').style.setProperty('margin-left', null);
-    })
+    });
+  });
+
+  describe('Custom render methods', function(){
+    var mockTour = {
+          id: 'hopscotch-test-tour',
+          steps: [
+            {
+              target: 'shopping-list',
+              orientation: 'left',
+              title: 'Shopping List',
+              content: 'It\'s a shopping list'
+            },
+            {
+              target: 'shopping-list',
+              orientation: 'left',
+              title: 'Shopping List',
+              content: 'It\'s a shopping list'
+            }
+          ],
+          skipIfNoElement: false
+        },
+        mockCallout = {
+          id: 'shopping-callout',
+          target: 'shopping-list',
+          orientation: 'left',
+          title: 'Shopping List Callout',
+          content: 'It\'s a shopping list'
+        },
+        renderMethod = sinon.stub().returns('<h1>Content!</h1><div class="hopscotch-arrow"></div>');
+
+    before(function(){
+      sinon.spy(hopscotch.templates, 'bubble_default');
+      hopscotch.templates.customTemplate = sinon.stub().returns('<h1>Content!</h1><div class="hopscotch-arrow"></div>');
+    });
+
+    afterEach(function(){
+      hopscotch.endTour();
+      hopscotch.getCalloutManager().removeAllCallouts();
+      hopscotch.templates.bubble_default.reset();
+      hopscotch.templates.customTemplate.reset();
+      renderMethod.reset();
+      hopscotch.setRenderer('bubble_default');
+    });
+
+    after(function(){
+      delete hopscotch.templates.customTemplate;
+      hopscotch.templates.bubble_default.restore();
+    });
+
+    it('setRenderer() should allow setting a global renderer within the hopscotch.templates namespace', function(){
+      hopscotch.setRenderer('customTemplate');
+      
+      hopscotch.startTour(mockTour);
+      expect(hopscotch.templates.customTemplate.calledOnce).to.be.ok();
+      expect(renderMethod.calledOnce).to.not.be.ok();
+      expect(hopscotch.templates.bubble_default.calledOnce).to.not.be.ok();
+
+      hopscotch.endTour();
+      hopscotch.templates.customTemplate.reset();
+
+      hopscotch.getCalloutManager().createCallout(mockCallout);
+      expect(hopscotch.templates.customTemplate.calledOnce).to.be.ok();
+      expect(renderMethod.calledOnce).to.not.be.ok();
+      expect(hopscotch.templates.bubble_default.calledOnce).to.not.be.ok();
+    });
+
+    it('setRenderer() should allow setting a global custom render method', function(){
+      hopscotch.setRenderer(renderMethod);
+      hopscotch.startTour(mockTour);
+
+      expect(renderMethod.calledOnce).to.be.ok();
+      expect(hopscotch.templates.customTemplate.calledOnce).to.not.be.ok();
+      expect(hopscotch.templates.bubble_default.calledOnce).to.not.be.ok();
+
+      hopscotch.endTour();
+      renderMethod.reset();
+
+      hopscotch.getCalloutManager().createCallout(mockCallout);
+      expect(renderMethod.calledOnce).to.be.ok();
+      expect(hopscotch.templates.customTemplate.calledOnce).to.not.be.ok();
+      expect(hopscotch.templates.bubble_default.calledOnce).to.not.be.ok();
+    });
+
+    it('Should accept a custom renderer in hopscotch.templates set via tour config', function(){
+      var augmentedData = $.extend({}, mockTour, {customRenderer: 'customTemplate'});
+      hopscotch.startTour(augmentedData);
+
+      expect(hopscotch.templates.customTemplate.calledOnce).to.be.ok();
+      expect(renderMethod.calledOnce).to.not.be.ok();
+      expect(hopscotch.templates.bubble_default.calledOnce).to.not.be.ok();
+    });
+
+    it('Should accept a custom renderer method set via tour config', function(){
+      var augmentedData = $.extend({}, mockTour, {customRenderer: renderMethod});
+      hopscotch.startTour(augmentedData);
+
+      expect(renderMethod.calledOnce).to.be.ok();
+      expect(hopscotch.templates.customTemplate.calledOnce).to.not.be.ok();
+      expect(hopscotch.templates.bubble_default.calledOnce).to.not.be.ok();
+    });
+
+    it('Should accept a custom renderer in hopscotch.templates set via new callout config', function(){
+      var augmentedData = $.extend({}, mockCallout, {customRenderer: 'customTemplate'});
+      hopscotch.getCalloutManager().createCallout(augmentedData);
+
+      expect(hopscotch.templates.customTemplate.calledOnce).to.be.ok();
+      expect(renderMethod.calledOnce).to.not.be.ok();
+      expect(hopscotch.templates.bubble_default.calledOnce).to.not.be.ok();
+    });
+
+    it('Should accept a custom renderer method set via new callout config', function(){
+      var augmentedData = $.extend({}, mockCallout, {customRenderer: renderMethod});
+      hopscotch.getCalloutManager().createCallout(augmentedData);
+
+      expect(renderMethod.calledOnce).to.be.ok();
+      expect(hopscotch.templates.customTemplate.calledOnce).to.not.be.ok();
+      expect(hopscotch.templates.bubble_default.calledOnce).to.not.be.ok();
+    });
+
+    it('Render methods should receive custom data from tours', function(){
+      var augmentedData = $.extend({}, mockTour, {customData: {foo: 'bar'}}),
+          callArgs;
+      $.extend(augmentedData.steps[0], {customData: {stepSpecific: 'data'}});
+
+      hopscotch.startTour(augmentedData);
+      expect(hopscotch.templates.bubble_default.calledOnce).to.be.ok();
+
+      callArgs = hopscotch.templates.bubble_default.args[0][0];
+      expect(callArgs.tour.customData.foo).to.be('bar');
+      expect(callArgs.step.customData.stepSpecific).to.be('data');
+    });
+
+    it('Render methods should receive custom data from callouts', function(){
+      var augmentedData = $.extend({}, mockCallout, {customData: {foo: 'bar'}}),
+          callArgs;
+
+      hopscotch.getCalloutManager().createCallout(augmentedData);
+      expect(hopscotch.templates.bubble_default.calledOnce).to.be.ok();
+
+      callArgs = hopscotch.templates.bubble_default.args[0][0];
+      expect(callArgs.tour.customData.foo).to.be('bar');
+      expect(callArgs.step.customData.foo).to.be('bar');
+    });
+
+    it('Render methods should receive the unsafe flag when set', function(){
+      var augmentedData = $.extend({}, mockTour, {unsafe: true}),
+          callArgs;
+
+      hopscotch.startTour(augmentedData);
+      expect(hopscotch.templates.bubble_default.calledOnce).to.be.ok();
+
+      callArgs = hopscotch.templates.bubble_default.args[0][0];
+      expect(callArgs.tour.unsafe).to.be(true);
+    });
+
+    it('Should be able to override default escaping method using setEscaper()', function(){
+      var augmentedData = $.extend({}, mockTour, {unsafe: true}),
+          customEscaper = sinon.stub().returnsArg(0);
+
+      hopscotch.setEscaper(customEscaper);
+      hopscotch.startTour(augmentedData);
+      expect(hopscotch.templates.bubble_default.calledOnce).to.be.ok();
+
+      expect(customEscaper.calledTwice).to.be.ok();
+    });
   });
 });
 
@@ -737,36 +878,9 @@ describe('HopscotchBubble', function() {
           }
         ]
       });
-      $nextBtnEl = $('#hopscotch-next');
-      expect($nextBtnEl.length).to.be.ok();
+      $nextBtnEl = $('.hopscotch-next');
+      expect($nextBtnEl.length).to.be(1);
       expect($nextBtnEl.html()).to.be('Skip');
-      hopscotch.endTour();
-    });
-
-    it('should show Done button on the last step', function() {
-      var doneBtnEl;
-
-      hopscotch.startTour({
-        id: 'hopscotch-test-tour',
-        steps: [
-          {
-            target: 'shopping-list',
-            orientation: 'left',
-            title: 'Shopping List',
-            content: 'It\'s a shopping list'
-          },
-          {
-            target: 'mocha',
-            orientation: 'top',
-            title: 'Mocha',
-            content: 'It\'s Mocha'
-          }
-        ]
-      });
-      hopscotch.nextStep();
-      doneBtnEl = $('#hopscotch-done');
-      expect(doneBtnEl.length).to.be.ok();
-      expect(doneBtnEl.html()).to.be('Done');
       hopscotch.endTour();
     });
 
@@ -786,8 +900,8 @@ describe('HopscotchBubble', function() {
       };
 
       hopscotch.startTour(tour);
-      $el = $('#hopscotch-prev');
-      expect($el.hasClass('hide')).to.be.ok();
+      $el = $('.hopscotch-prev');
+      expect($el.length).to.be(0);
       hopscotch.endTour();
     });
 
@@ -801,14 +915,14 @@ describe('HopscotchBubble', function() {
             orientation: 'left',
             title: 'Shopping List',
             content: 'It\'s a shopping list',
-            showNextBtn: false
+            showNextButton: false
           }
         ]
       };
 
       hopscotch.startTour(tour);
-      $el = $('#hopscotch-next');
-      expect($el.hasClass('hide')).to.be.greaterThan(-1);
+      $el = $('.hopscotch-next');
+      expect($el.length).to.be(0);
       hopscotch.endTour();
     });
   });
@@ -984,7 +1098,7 @@ describe('HopscotchBubble', function() {
 
       expect($body.hasClass(testClassName)).to.not.be.ok();
       hopscotch.startTour(tour);
-      $('#hopscotch-cta').click();
+      $('.hopscotch-cta').click();
       expect($body.hasClass(testClassName)).to.be.ok();
       hopscotch.endTour(tour);
       $body.removeClass(testClassName);
@@ -1025,7 +1139,7 @@ describe('HopscotchBubble', function() {
       expect($body.hasClass(testClassName2)).to.not.be.ok();
       hopscotch.startTour(tour);
       hopscotch.nextStep();
-      $('#hopscotch-cta').click();
+      $('.hopscotch-cta').click();
       expect($body.hasClass(testClassName1)).to.not.be.ok();
       expect($body.hasClass(testClassName2)).to.be.ok();
       hopscotch.endTour(tour);

@@ -20,7 +20,7 @@ module.exports = function(grunt) {
     ].join('\n'),
     distName:   '<%=pkg.name%>-<%=pkg.version%>',
     paths : {
-      archive : 'archives',
+      archive:  'archives',
       dist:     'dist',
       source:   'src',
       jsSource: '<%=paths.source%>/js/hopscotch.js',
@@ -51,10 +51,6 @@ module.exports = function(grunt) {
       build: {
         files: [
           {
-            src: '<%=paths.jsSource%>',
-            dest: '<%=paths.build%>/js/hopscotch.js'
-          },
-          {
             expand: true,
             cwd: '<%=paths.source%>/',
             src: ['img/*'],
@@ -67,7 +63,7 @@ module.exports = function(grunt) {
           {
             expand: true,
             cwd: '<%=paths.build%>/',
-            src: ['js/*', 'css/*'],
+            src: ['js/hopscotch.js', 'js/hopscotch.min.js', 'css/*'],
             dest: '<%=paths.dist%>/'
           }
         ],
@@ -115,6 +111,31 @@ module.exports = function(grunt) {
         files: {
           '<%=paths.build%>/css/hopscotch.min.css': '<%=paths.source%>/less/hopscotch.less'
         }
+      }
+    },
+    jst: {
+      compile: {
+        options: {
+          namespace: 'hopscotch.templates',
+          processName: function(filename){
+            var splitName = filename.split('/'),
+                sanitized = splitName[splitName.length - 1].replace('.jst', '').replace(new RegExp('-', 'g'), '_');
+            return sanitized;
+          }
+        },
+        files: {
+          '<%=paths.build%>/js/hopscotch_templates.js': ['<%=paths.source%>/tl/*.jst']
+        }
+      }
+    },
+    includereplace: {
+      jsSource: {
+        options: {
+          prefix: '// @@',
+          suffix: ' //'
+        },
+        src: '<%=paths.jsSource%>',
+        dest: '<%=paths.build%>/js/hopscotch.js'
       }
     },
     watch: {
@@ -186,8 +207,10 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-contrib-copy');
   grunt.loadNpmTasks('grunt-contrib-uglify');
   grunt.loadNpmTasks('grunt-contrib-less');
+  grunt.loadNpmTasks('grunt-contrib-jst');
   grunt.loadNpmTasks('grunt-contrib-watch');
   grunt.loadNpmTasks('grunt-contrib-compress');
+  grunt.loadNpmTasks('grunt-include-replace');
   grunt.loadNpmTasks('grunt-mocha');
   grunt.loadNpmTasks('grunt-bump');
   grunt.loadNpmTasks('grunt-shell');
@@ -196,7 +219,7 @@ module.exports = function(grunt) {
   grunt.registerTask(
     'build',
     'Build hopscotch for testing (jshint, minify js, process less to css)',
-    ['jshint:lib', 'clean:build', 'copy:build', 'uglify:build', 'less']
+    ['jshint:lib', 'clean:build', 'copy:build', 'jst:compile', 'includereplace:jsSource', 'uglify:build', 'less']
   );
   grunt.registerTask(
     'test',
