@@ -1998,6 +1998,19 @@
     };
 
     /**
+     * refreshBubblePosition
+     *
+     * Tell hopscotch that the position of the current tour element changed
+     * and the bubble therefore needs to be redrawn
+     *
+     * @returns {Object} Hopscotch
+     */
+    this.refreshBubblePosition = function() {
+      bubble.setPosition(getCurrStep());
+      return this;
+    };
+
+    /**
      * listen
      *
      * Adds a callback for one of the event types. Valid event types are:
