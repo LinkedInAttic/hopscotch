@@ -1,5 +1,13 @@
 ## Change Log
 
+### v0.2.0 (2014/03/24)
+
+ * [#70](https://github.com/linkedin/hopscotch/pull/70) Rendering tour & callout bubbles using compiled templates (@zimmi88)
+ * [#62](https://github.com/linkedin/hopscotch/pull/62) Add method to redraw the bubble at a new position (@cedrics)
+ * [#64](https://github.com/linkedin/hopscotch/pull/64) Add changelog (@kate2753)
+ * [#61](https://github.com/linkedin/hopscotch/pull/61) Reorganize repo and automate release process, travis integration
+
+
 ### v0.1.3 (2014/03/04)
 
  * [aaca52b](https://github.com/linkedin/hopscotch/commit/aaca52bc2fcb254f65a5b0e3173635de7c9bb8d6) Update README: add explanation for the getCurrTarget() (@gnatok)

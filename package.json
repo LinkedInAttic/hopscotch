@@ -1,6 +1,6 @@
 {
   "name": "hopscotch",
-  "version": "0.1.3",
+  "version": "0.2.0",
   "description": "A framework to make it easy for developers to add product tours to their pages.",
   "main": "Gruntfile.js",
   "directories": {
