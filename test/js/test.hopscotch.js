@@ -620,6 +620,38 @@ describe('Hopscotch', function() {
     });
   });
 
+  describe('#refreshBubblePosition', function() {
+    it('recalculates the position of the bubble afer moving the element', function() {
+      hopscotch.startTour({
+        id: 'hopscotch-test-refresh-bubble-position',
+        steps: [
+          {
+            target: 'shopping-list',
+            orientation: 'left',
+            title: 'Shopping List',
+            content: 'It\'s a shopping list'
+          }
+        ]
+      });
+
+      var bubbleDomElement = document.querySelector('.hopscotch-bubble');
+      var bubbleTop = bubbleDomElement.style['top'];
+      var bubbleLeft = bubbleDomElement.style['left'];
+
+      document.getElementById('shopping-list').style.setProperty('margin-top', '100px');
+      document.getElementById('shopping-list').style.setProperty('margin-left', '100px');
+
+      hopscotch.refreshBubblePosition();
+
+      expect(bubbleDomElement.style['top']).to.not.eql(bubbleTop);
+      expect(bubbleDomElement.style['left']).to.not.eql(bubbleLeft);
+      hopscotch.endTour();
+
+      document.getElementById('shopping-list').style.setProperty('margin-top', null);
+      document.getElementById('shopping-list').style.setProperty('margin-left', null);
+    });
+  });
+
   describe('Custom render methods', function(){
     var mockTour = {
           id: 'hopscotch-test-tour',
