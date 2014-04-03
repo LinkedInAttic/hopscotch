@@ -37,7 +37,9 @@
     bubblePadding:   15,
     arrowWidth:      20,
     skipIfNoElement: true,
-    cookieName:      'hopscotch.tour.state'
+    cookieName:      'hopscotch.tour.state',
+    highlight:       false,
+    highlightMargin: 0
   };
 
   if (winHopscotch) {
@@ -544,6 +546,7 @@
           top,
           left,
           arrowOffset,
+          self         = this,
           targetEl     = utils.getStepTarget(step),
           el           = this.element,
           arrowEl      = this.arrowEl;
@@ -579,6 +582,10 @@
       else {
         throw 'Bubble placement failed because step.placement is invalid or undefined!';
       }
+
+      // UPDATE HIGHLIGHT
+      self.highlight.setPosition(step, boundingRect);
+
 
       // SET (OR RESET) ARROW OFFSETS
       if (step.arrowOffset !== 'center') {
@@ -665,6 +672,9 @@
       else if (this.currStep) {
         step = this.currStep;
       }
+
+      // update highlight with current step information
+      this.highlight.render(step);
 
       // Check current tour for total number of steps and custom render data
       if(this.opt.isTourBubble){
@@ -855,6 +865,8 @@
         utils.removeClass(self.element, fadeClass);
       }, fadeDur);
       this.isShowing = true;
+      this.highlight.show();
+
       return this;
     },
 
@@ -877,6 +889,8 @@
       }
       utils.removeClass(el, 'animate fade-in-up fade-in-down fade-in-right fade-in-left');
       this.isShowing = false;
+      this.highlight.hide();
+
       return this;
     },
 
@@ -891,7 +905,7 @@
 
     _handleBubbleClick: function(evt){
       var action;
-      
+
       //Recursively look up the parent tree until we find a match
       //with one of the classes we're looking for, or the triggering element.
       function findMatchRecur(el){
@@ -952,7 +966,7 @@
             this.destroy();
           }
         }
-        
+
         utils.evtPreventDefault(evt);
       }
       //Otherwise, do nothing. We didn't click on anything relevant.
@@ -993,6 +1007,8 @@
         utils.addClass(el, 'hopscotch-callout no-number');
       }
 
+      self.highlight = new HopscotchHighlight(initOpt);
+
       /**
        * Not pretty, but IE8 doesn't support Function.bind(), so I'm
        * relying on closures to keep a handle of "this".
@@ -1028,6 +1044,7 @@
       //Finally, append our new bubble to body once the DOM is ready.
       if (utils.documentIsReady()) {
         document.body.appendChild(el);
+        self.highlight.addToDom();
       }
       else {
         // Moz, webkit, Opera
@@ -1037,6 +1054,7 @@
             window.removeEventListener('load', appendToBody);
 
             document.body.appendChild(el);
+            self.highlight.addToDom();
           };
 
           document.addEventListener('DOMContentLoaded', appendToBody, false);
@@ -1048,6 +1066,7 @@
               document.detachEvent('onreadystatechange', appendToBody);
               window.detachEvent('onload', appendToBody);
               document.body.appendChild(el);
+              self.highlight.addToDom();
             }
           };
 
@@ -2096,6 +2115,11 @@
      *                               '&#x4e8c;', '&#x4e09;']) If there are more steps
      *                               than provided numbers, Arabic numerals
      *                               ('4', '5', '6', etc.) will be used as default.
+     * - highlight:       Boolean  - Shows an overlay that highlights the selected element
+     *                               Defaults to FALSE.
+     * - highlightMargin: Number   - Amount of margin around the selected element to show
+     *                               Defaults to 0
+     *
      * // =========
      * // CALLBACKS
      * // =========
@@ -2181,6 +2205,111 @@
 
     init.call(this, initOptions);
   };
+
+
+
+  HopscotchHighlight = function(opt) {
+    this.init(opt);
+  };
+
+  HopscotchHighlight.prototype = {
+    init: function(initOpt) {
+      var opt;
+      var el = {
+        top:    document.createElement('div'),
+        left:   document.createElement('div'),
+        right:  document.createElement('div'),
+        bottom: document.createElement('div')
+      };
+
+      this.element = el;
+
+
+      //Merge highlight options with defaults.
+      opt = {
+        highlight:       defaultOpts.highlight,
+        highlightMargin: defaultOpts.highlightMargin
+      };
+
+      initOpt = (typeof initOpt === undefinedStr ? {} : initOpt);
+      utils.extend(opt, initOpt);
+      this.opt = opt;
+
+      for (var e in this.element){
+        utils.addClass(this.element[e], 'hopscotch-overlay');
+      }
+    },
+    addToDom: function(){
+      for (var e in this.element){
+        document.body.appendChild(this.element[e]);
+      }
+    },
+    show: function(){
+      // check if step has disabled the highlight:
+      if (!this.stepOpts.highlight){
+        return;
+      }
+
+      for (var e in this.element){
+        utils.removeClass(this.element[e], 'hide');
+      }
+    },
+    hide: function(){
+      for (var e in this.element){
+        utils.addClass(this.element[e], 'hide');
+      }
+    },
+    setPosition: function(step, targetBounds){
+      // check if step has disabled the highlight:
+      if (!this.stepOpts.highlight){
+        return;
+      }
+
+      var margin = this.stepOpts.highlightMargin;
+
+      var body = document.body,
+          html = document.documentElement;
+
+      var documentHeight = Math.max( body.scrollHeight, body.offsetHeight, html.clientHeight, html.scrollHeight, html.offsetHeight );
+
+      // top div:
+      el = this.element.top;
+      el.style.top = '0px';
+      el.style.left = '0px';
+      el.style.width = utils.getWindowWidth() + 'px';
+      el.style.height = targetBounds.top + utils.getScrollTop() - margin + 'px';
+
+      // right div:
+      el = this.element.right;
+      el.style.top = targetBounds.top + utils.getScrollTop() - margin + 'px';
+      el.style.left = targetBounds.left + targetBounds.width + utils.getScrollLeft() + margin + 'px';
+      el.style.width = utils.getWindowWidth()  - (targetBounds.left + targetBounds.width + utils.getScrollLeft() + margin) +  'px';
+      el.style.height = targetBounds.height + margin * 2 + 'px';
+
+      // bottom div:
+      el = this.element.bottom;
+      el.style.top = targetBounds.top + utils.getScrollTop() + targetBounds.height + margin + 'px';
+      el.style.left = '0px';
+      el.style.width = utils.getWindowWidth() + 'px';
+      el.style.height = documentHeight - (targetBounds.top + utils.getScrollTop() + targetBounds.height + margin) + 'px';
+
+      // left div:
+      el = this.element.left;
+      el.style.top = targetBounds.top + utils.getScrollTop() + - margin + 'px';
+      el.style.left = '0px';
+      el.style.width = targetBounds.left + utils.getScrollLeft() - margin + 'px';
+      el.style.height = targetBounds.height + margin * 2 + 'px';
+    },
+    render: function(step){
+      // set options for current step:
+      this.stepOpts = {};
+
+      utils.extend(this.stepOpts, this.opt);
+      utils.extend(this.stepOpts, step);
+    }
+  };
+
+
 
   winHopscotch = new Hopscotch();
   context[namespace] = winHopscotch;

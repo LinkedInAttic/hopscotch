@@ -24,14 +24,16 @@ var tour = {
       target: 'my-first-tour-file',
       placement: 'top',
       title: 'Define and start your tour',
-      content: 'Once you have Hopscotch on your page, you\'re ready to start making your tour! The biggest part of your tour definition will probably be the tour steps.'
+      content: 'Once you have Hopscotch on your page, you\'re ready to start making your tour! The biggest part of your tour definition will probably be the tour steps.',
+      highlight: true
     },
     {
       target: 'start-tour',
       placement: 'right',
       title: 'Starting your tour',
       content: 'After you\'ve created your tour, pass it in to the startTour() method to start it.',
-      yOffset: -25
+      yOffset: -25,
+      highlight: true
     },
     {
       target: 'basic-options',
@@ -39,7 +41,8 @@ var tour = {
       title: 'Basic step options',
       content: 'These are the most basic step options: <b>target</b>, <b>title</b>, <b>content</b>, and <b>placement</b>. For some steps, they may be all you need.',
       arrowOffset: 100,
-      yOffset: -80
+      yOffset: -80,
+      highlight: true
     },
     {
       target: 'api-methods',
