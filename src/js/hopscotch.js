@@ -892,6 +892,12 @@
     _handleBubbleClick: function(evt){
       var action;
       
+      // Override evt for IE8 as IE8 doesn't pass event but binds it to window
+      evt = evt || window.event; // get window.event if argument is falsy (in IE)
+
+      // get srcElement if target is falsy (IE)
+      var targetElement = evt.target || evt.srcElement;
+      
       //Recursively look up the parent tree until we find a match
       //with one of the classes we're looking for, or the triggering element.
       function findMatchRecur(el){
@@ -911,7 +917,7 @@
          /*else*/ return findMatchRecur(el.parentElement);
       }
 
-      action = findMatchRecur(evt.target);
+      action = findMatchRecur(targetElement);
 
       //Now that we know what action we should take, let's take it.
       if (action === 'cta'){
