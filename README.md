@@ -255,7 +255,7 @@ The Hopscotch framework comes with a simple set of API calls with which you can 
 
 * `hopscotch.unlisten(eventName, callback)` - Removes a callback for one of the event types.
 
-* `hopscotch.refreshBubblePosition()` - Redraws the bubble at new position of the element. Useful if the element's position changed or if you want to keep bubble in relative position when scrolling is used. 
+* `hopscotch.refreshBubblePosition()` - Redraws the bubble at a new position. Useful if element's position changes or if you need to keep bubble relative to the element when scrolling. 
 
 * `hopscotch.removeCallbacks(eventName[, tourOnly])` - Remove callbacks for hopscotch events. If tourOnly is set to true, only removes callbacks specified by a tour (callbacks set by hopscotch.configure or hopscotch.listen will remain). If eventName is null or undefined, callbacks for all events will be removed.
 
