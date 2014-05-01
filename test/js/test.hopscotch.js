@@ -856,6 +856,47 @@ describe('HopscotchBubble', function() {
     });
   });
 
+  describe('z-index', function(){
+    var bubble;
+    it('should set z-index if provided', function(){
+      hopscotch.startTour({
+        id: 'hopscotch-test-tour',
+        steps: [ {
+          target: 'shopping-list',
+          orientation: 'left',
+          title: 'Shopping List',
+          content: 'It\'s a shopping list',
+          zindex: 100
+        },
+        {
+          target: 'shopping-list',
+          orientation: 'left',
+          title: 'Shopping List',
+          content: 'It\'s a shopping list',
+          zindex: 0
+        },
+        {
+          target: 'shopping-list',
+          orientation: 'left',
+          title: 'Shopping List',
+          content: 'It\'s a shopping list'
+        }]
+      });
+      bubble = document.querySelector('.hopscotch-bubble');
+      expect(bubble.style.zIndex).to.be('100');
+
+      hopscotch.nextStep();
+      bubble = document.querySelector('.hopscotch-bubble');
+      expect(bubble.style.zIndex).to.be('0');
+
+      hopscotch.nextStep();
+      bubble = document.querySelector('.hopscotch-bubble');
+      expect(bubble.style.zIndex).to.be('auto');
+
+      hopscotch.endTour();
+    });
+  });
+
   describe('Buttons', function() {
     it('should show Skip button when specified', function() {
       var $nextBtnEl;
