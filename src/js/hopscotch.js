@@ -22,8 +22,14 @@
       document          = window.document;
 
   // If cookies are disabled, accessing sessionStorage can throw an error.
+  // sessionStorage could also throw an error in Safari on write (even though it exists).
+  // So, we'll try writing to sessionStorage to verify it's available.
   try {
-    hasSessionStorage = (typeof window.sessionStorage !== undefinedStr);
+    if(typeof window.sessionStorage !== undefinedStr){
+      sessionStorage.setItem('hopscotch.test.storage', 'ok');
+      sessionStorage.removeItem('hopscotch.test.storage');
+      hasSessionStorage = true;
+    }
   } catch (err) {}
 
   defaultOpts       = {
