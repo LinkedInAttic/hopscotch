@@ -380,9 +380,8 @@
       }
 
       if (typeof step.target === 'string') {
-        //Just one target to test. Check, cache, and return its results.
-        step.target = utils.getStepTargetHelper(step.target);
-        return step.target;
+        //Just one target to test. Check and return its results.
+        return utils.getStepTargetHelper(step.target);
       }
       else if (Array.isArray(step.target)) {
         // Multiple items to check. Check each and return the first success.
@@ -395,8 +394,6 @@
             queriedTarget = utils.getStepTargetHelper(step.target[i]);
 
             if (queriedTarget) {
-              // Replace step.target with result so we don't have to look it up again.
-              step.target = queriedTarget;
               return queriedTarget;
             }
           }
