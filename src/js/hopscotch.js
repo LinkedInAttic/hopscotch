@@ -445,7 +445,7 @@
         }
         catch(err){
           isStorageWritable = false;
-          setState(name, value, days);
+          this.setState(name, value, days);
         }
       }
       else {
