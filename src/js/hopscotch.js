@@ -450,6 +450,8 @@
       }
       else {
         if(hasSessionStorage){
+          //Clear out existing sessionStorage key so the new value we set to cookie gets read.
+          //(If we're here, we've run into an error while trying to write to sessionStorage).
           sessionStorage.removeItem(name);
         }
         if (days) {
