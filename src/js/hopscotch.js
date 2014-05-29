@@ -19,6 +19,7 @@
                                  // loading so that it can start?
       hasJquery         = (typeof window.jQuery !== undefinedStr),
       hasSessionStorage = false,
+      isStorageWritable = false,
       document          = window.document;
 
   // If cookies are disabled, accessing sessionStorage can throw an error.
@@ -26,9 +27,10 @@
   // So, we'll try writing to sessionStorage to verify it's available.
   try {
     if(typeof window.sessionStorage !== undefinedStr){
+      hasSessionStorage = true;
       sessionStorage.setItem('hopscotch.test.storage', 'ok');
       sessionStorage.removeItem('hopscotch.test.storage');
-      hasSessionStorage = true;
+      isStorageWritable = true;
     }
   } catch (err) {}
 
@@ -437,10 +439,19 @@
       var expires = '',
           date;
 
-      if (hasSessionStorage) {
-        sessionStorage.setItem(name, value);
+      if (hasSessionStorage && isStorageWritable) {
+        try{
+          sessionStorage.setItem(name, value);
+        }
+        catch(err){
+          isStorageWritable = false;
+          setState(name, value, days);
+        }
       }
       else {
+        if(hasSessionStorage){
+          sessionStorage.removeItem(name);
+        }
         if (days) {
           date = new Date();
           date.setTime(date.getTime()+(days*24*60*60*1000));
@@ -460,17 +471,21 @@
           c,
           state;
 
+      //return value from session storage if we have it
       if (hasSessionStorage) {
         state = sessionStorage.getItem(name);
+        if(state){
+          return state;
+        }
       }
-      else {
-        for(i=0;i < ca.length;i++) {
-          c = ca[i];
-          while (c.charAt(0)===' ') {c = c.substring(1,c.length);}
-          if (c.indexOf(nameEQ) === 0) {
-            state = c.substring(nameEQ.length,c.length);
-            break;
-          }
+
+      //else, try cookies
+      for(i=0;i < ca.length;i++) {
+        c = ca[i];
+        while (c.charAt(0)===' ') {c = c.substring(1,c.length);}
+        if (c.indexOf(nameEQ) === 0) {
+          state = c.substring(nameEQ.length,c.length);
+          break;
         }
       }
 
