@@ -359,7 +359,9 @@
         return result.length ? result[0] : null;
       }
       if (document.querySelector) {
-        return document.querySelector(target);
+        try {
+          return document.querySelector(target);
+        } catch (err) {}
       }
       // Regex test for id. Following the HTML 4 spec for valid id formats.
       // (http://www.w3.org/TR/html4/types.html#type-id)
