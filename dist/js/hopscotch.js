@@ -1,4 +1,4 @@
-/**! hopscotch - v0.2.0
+/**! hopscotch - v0.2.1
 *
 * Copyright 2014 LinkedIn Corp. All rights reserved.
 *
@@ -35,11 +35,19 @@
                                  // loading so that it can start?
       hasJquery         = (typeof window.jQuery !== undefinedStr),
       hasSessionStorage = false,
+      isStorageWritable = false,
       document          = window.document;
 
   // If cookies are disabled, accessing sessionStorage can throw an error.
+  // sessionStorage could also throw an error in Safari on write (even though it exists).
+  // So, we'll try writing to sessionStorage to verify it's available.
   try {
-    hasSessionStorage = (typeof window.sessionStorage !== undefinedStr);
+    if(typeof window.sessionStorage !== undefinedStr){
+      hasSessionStorage = true;
+      sessionStorage.setItem('hopscotch.test.storage', 'ok');
+      sessionStorage.removeItem('hopscotch.test.storage');
+      isStorageWritable = true;
+    }
   } catch (err) {}
 
   defaultOpts       = {
@@ -447,10 +455,21 @@
       var expires = '',
           date;
 
-      if (hasSessionStorage) {
-        sessionStorage.setItem(name, value);
+      if (hasSessionStorage && isStorageWritable) {
+        try{
+          sessionStorage.setItem(name, value);
+        }
+        catch(err){
+          isStorageWritable = false;
+          this.setState(name, value, days);
+        }
       }
       else {
+        if(hasSessionStorage){
+          //Clear out existing sessionStorage key so the new value we set to cookie gets read.
+          //(If we're here, we've run into an error while trying to write to sessionStorage).
+          sessionStorage.removeItem(name);
+        }
         if (days) {
           date = new Date();
           date.setTime(date.getTime()+(days*24*60*60*1000));
@@ -470,17 +489,21 @@
           c,
           state;
 
+      //return value from session storage if we have it
       if (hasSessionStorage) {
         state = sessionStorage.getItem(name);
+        if(state){
+          return state;
+        }
       }
-      else {
-        for(i=0;i < ca.length;i++) {
-          c = ca[i];
-          while (c.charAt(0)===' ') {c = c.substring(1,c.length);}
-          if (c.indexOf(nameEQ) === 0) {
-            state = c.substring(nameEQ.length,c.length);
-            break;
-          }
+
+      //else, try cookies
+      for(i=0;i < ca.length;i++) {
+        c = ca[i];
+        while (c.charAt(0)===' ') {c = c.substring(1,c.length);}
+        if (c.indexOf(nameEQ) === 0) {
+          state = c.substring(nameEQ.length,c.length);
+          break;
         }
       }
 
@@ -782,7 +805,7 @@
       }
 
       // Set z-index and arrow placement
-      el.style.zIndex = step.zindex || '';
+      el.style.zIndex = (typeof step.zindex === 'number') ? step.zindex : 'auto';
       this._setArrow(step.placement);
 
       // Set bubble positioning
@@ -908,6 +931,12 @@
     _handleBubbleClick: function(evt){
       var action;
       
+      // Override evt for IE8 as IE8 doesn't pass event but binds it to window
+      evt = evt || window.event; // get window.event if argument is falsy (in IE)
+
+      // get srcElement if target is falsy (IE)
+      var targetElement = evt.target || evt.srcElement;
+      
       //Recursively look up the parent tree until we find a match
       //with one of the classes we're looking for, or the triggering element.
       function findMatchRecur(el){
@@ -927,7 +956,7 @@
          /*else*/ return findMatchRecur(el.parentElement);
       }
 
-      action = findMatchRecur(evt.target);
+      action = findMatchRecur(targetElement);
 
       //Now that we know what action we should take, let's take it.
       if (action === 'cta'){
