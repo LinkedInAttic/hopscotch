@@ -19,11 +19,19 @@
                                  // loading so that it can start?
       hasJquery         = (typeof window.jQuery !== undefinedStr),
       hasSessionStorage = false,
+      isStorageWritable = false,
       document          = window.document;
 
   // If cookies are disabled, accessing sessionStorage can throw an error.
+  // sessionStorage could also throw an error in Safari on write (even though it exists).
+  // So, we'll try writing to sessionStorage to verify it's available.
   try {
-    hasSessionStorage = (typeof window.sessionStorage !== undefinedStr);
+    if(typeof window.sessionStorage !== undefinedStr){
+      hasSessionStorage = true;
+      sessionStorage.setItem('hopscotch.test.storage', 'ok');
+      sessionStorage.removeItem('hopscotch.test.storage');
+      isStorageWritable = true;
+    }
   } catch (err) {}
 
   defaultOpts       = {
@@ -431,10 +439,21 @@
       var expires = '',
           date;
 
-      if (hasSessionStorage) {
-        sessionStorage.setItem(name, value);
+      if (hasSessionStorage && isStorageWritable) {
+        try{
+          sessionStorage.setItem(name, value);
+        }
+        catch(err){
+          isStorageWritable = false;
+          this.setState(name, value, days);
+        }
       }
       else {
+        if(hasSessionStorage){
+          //Clear out existing sessionStorage key so the new value we set to cookie gets read.
+          //(If we're here, we've run into an error while trying to write to sessionStorage).
+          sessionStorage.removeItem(name);
+        }
         if (days) {
           date = new Date();
           date.setTime(date.getTime()+(days*24*60*60*1000));
@@ -454,17 +473,21 @@
           c,
           state;
 
+      //return value from session storage if we have it
       if (hasSessionStorage) {
         state = sessionStorage.getItem(name);
+        if(state){
+          return state;
+        }
       }
-      else {
-        for(i=0;i < ca.length;i++) {
-          c = ca[i];
-          while (c.charAt(0)===' ') {c = c.substring(1,c.length);}
-          if (c.indexOf(nameEQ) === 0) {
-            state = c.substring(nameEQ.length,c.length);
-            break;
-          }
+
+      //else, try cookies
+      for(i=0;i < ca.length;i++) {
+        c = ca[i];
+        while (c.charAt(0)===' ') {c = c.substring(1,c.length);}
+        if (c.indexOf(nameEQ) === 0) {
+          state = c.substring(nameEQ.length,c.length);
+          break;
         }
       }
 
