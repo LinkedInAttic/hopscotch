@@ -1,5 +1,11 @@
 ## Change Log
 
+### v0.2.1 (2014/06/05)
+
+ * [#82](https://github.com/linkedin/hopscotch/pull/82) IE8 Button Bindings Fix
+ * [#87](https://github.com/linkedin/hopscotch/pull/87) Fix blank z-index for value 0
+ * [#89](https://github.com/linkedin/hopscotch/pull/89) Fix sessionStorage exceeds quota error in Safari
+
 ### v0.2.0 (2014/03/24)
 
  * [#70](https://github.com/linkedin/hopscotch/pull/70) Rendering tour & callout bubbles using compiled templates (@zimmi88)
