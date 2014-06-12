@@ -12,6 +12,11 @@ div.hopscotch-bubble {
   font-size: 13px;
   position: absolute;
   z-index: @bubbleZindex;
+  .box-sizing(content-box);
+
+  * {
+    .box-sizing(content-box);
+  }
 
   .background-clip;
 
