@@ -149,6 +149,41 @@ describe('Hopscotch', function() {
       expect(false).to.be.ok();
       hopscotch.endTour();
     });
+
+    it('should be possible to destroy and recreate target elements and rerun a tour', function(){
+      var tour = {
+        id: 'hopscotch-test-tour',
+        steps: [
+          {
+            target: 'dynamic-target',
+            orientation: 'left',
+            title: 'Dynamic target',
+            content: 'It comes and goes, talking of Michelangelo'
+          },
+        ]
+      };
+
+      hopscotch.startTour(tour);
+      expect(hopscotch.isActive).to.not.be.ok();
+      hopscotch.endTour();
+
+      $("body").append("<div id='dynamic-target'></div>");
+      hopscotch.startTour(tour);
+      expect(hopscotch.isActive).to.be.ok();
+      hopscotch.endTour();
+
+      $("#dynamic-target").remove();
+      hopscotch.startTour(tour);
+      expect(hopscotch.isActive).to.not.be.ok();
+      hopscotch.endTour();
+
+      $("body").append("<div id='dynamic-target'></div>");
+      hopscotch.startTour(tour);
+      expect(hopscotch.isActive).to.be.ok();
+      hopscotch.endTour();
+
+      $("#dynamic-target").remove();
+    });
   });
 
   describe('#endTour', function() {
