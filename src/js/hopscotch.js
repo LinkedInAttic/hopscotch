@@ -968,9 +968,7 @@
 
           winHopscotch.endTour(true, doEndCallback);
         } else {
-          if (this.opt.onClose) {
-            utils.invokeCallback(this.opt.onClose);
-          }
+          utils.invokeEventCallbacks('close', this.opt.onClose);
           if (this.opt.id && !this.opt.isTourBubble) {
             // Remove via the HopscotchCalloutManager.
             // removeCallout() calls HopscotchBubble.destroy internally.
@@ -1119,6 +1117,7 @@
         if (opt.target) {
           callout.render(opt, null, function() {
             callout.show();
+            utils.invokeEventCallbacks('show', opt.onShow);
           });
         }
       }
