@@ -1,5 +1,12 @@
 ## Change Log
 
+### v0.2.2 (2014/06/26)
+
+ * [#91](https://github.com/linkedin/hopscotch/pull/91) Don't cache step targets - support for single page apps
+ * [#96](https://github.com/linkedin/hopscotch/pull/96) box-sizing: content-box - Issues with Bootstrap 3
+ * [#90](https://github.com/linkedin/hopscotch/pull/90) Prefer jQuery and Sizzle when searching for a target
+ * [#94](https://github.com/linkedin/hopscotch/pull/94) Catch exceptions caused by illegal targets in document.QuerySelector
+
 ### v0.2.1 (2014/06/05)
 
  * [#82](https://github.com/linkedin/hopscotch/pull/82) IE8 Button Bindings Fix
