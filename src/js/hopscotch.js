@@ -1119,6 +1119,9 @@
         if (opt.target) {
           callout.render(opt, null, function() {
             callout.show();
+            if (opt.onShow) {
+              utils.invokeCallback(opt.onShow);
+            }
           });
         }
       }
