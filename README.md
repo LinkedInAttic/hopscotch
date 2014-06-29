@@ -160,7 +160,15 @@ The comprehensive list of step options are listed below:
 
 * `fixedElement` [BOOLEAN] - set to true if the target element has fixed positioning. *Default*: false.
 
+* `nextOnTargetBlur` [BOOLEAN] - triggers nextStep() when the target loses the focus. *Default*: false.
+
+* `nextOnTargetChange` [BOOLEAN] - triggers nextStep() when the content or state of the target changes. *Default*: false.
+
 * `nextOnTargetClick` [BOOLEAN] - triggers nextStep() when the target is clicked. *Default*: false.
+
+* `nextOnTargetFocus` [BOOLEAN] - triggers nextStep() when the target gets the focus. *Default*: false.
+
+* `nextOnTargetSelect` [BOOLEAN] - triggers nextStep() when the user selects some text within the target. *Default*: false.
 
 * `onPrev` [FUNCTION] - callback for when 'Previous' button is clicked
 
@@ -198,7 +206,15 @@ Tour options can be specified either through the tour JSON object, or through a 
 
 * `skipIfNoElement` [BOOLEAN] - If a specified target element is not found, should we skip to the next step? *Default*: true.
 
+* `nextOnTargetBlur` [BOOLEAN] - Should we advance to the next step when the target loses focus? *Default*: false.
+
+* `nextOnTargetChange` [BOOLEAN] - Should we advance to the next step when the content or state of the target changes? *Default*: false.
+
 * `nextOnTargetClick` [BOOLEAN] - Should we advance to the next step when the user clicks on the target? *Default*: false.
+
+* `nextOnTargetFocus` [BOOLEAN] - Should we advance to the next step when the target gets the focus? *Default*: false.
+
+* `nextOnTargetSelect` [BOOLEAN] - Should we advance to the next step when the user selects some text within the target? *Default*: false.
 
 * `onNext` [FUNCTION] - Invoked after every click on a "Next" button.
 
