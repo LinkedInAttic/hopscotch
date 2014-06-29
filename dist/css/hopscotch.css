@@ -1,4 +1,4 @@
-/**! hopscotch - v0.2.1
+/**! hopscotch - v0.2.2
 *
 * Copyright 2014 LinkedIn Corp. All rights reserved.
 *
@@ -330,12 +330,20 @@ div.hopscotch-bubble {
   font-size: 13px;
   position: absolute;
   z-index: 999999;
+  -webkit-box-sizing: content-box;
+  -moz-box-sizing: content-box;
+  box-sizing: content-box;
   -moz-background-clip: padding;
   /* for Mozilla browsers*/
   -webkit-background-clip: padding;
   /* Webkit */
   background-clip: padding-box;
   /*  browsers with full support */
+}
+div.hopscotch-bubble * {
+  -webkit-box-sizing: content-box;
+  -moz-box-sizing: content-box;
+  box-sizing: content-box;
 }
 div.hopscotch-bubble.animate {
   -moz-transition-property: top, left;

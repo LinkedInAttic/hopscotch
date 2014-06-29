@@ -1,4 +1,4 @@
-/**! hopscotch - v0.2.1
+/**! hopscotch - v0.2.2
 *
 * Copyright 2014 LinkedIn Corp. All rights reserved.
 *
@@ -366,9 +366,6 @@
       if (result) {
         return result;
       }
-      if (document.querySelector) {
-        return document.querySelector(target);
-      }
       if (hasJquery) {
         result = jQuery(target);
         return result.length ? result[0] : null;
@@ -376,6 +373,11 @@
       if (Sizzle) {
         result = new Sizzle(target);
         return result.length ? result[0] : null;
+      }
+      if (document.querySelector) {
+        try {
+          return document.querySelector(target);
+        } catch (err) {}
       }
       // Regex test for id. Following the HTML 4 spec for valid id formats.
       // (http://www.w3.org/TR/html4/types.html#type-id)
@@ -404,9 +406,8 @@
       }
 
       if (typeof step.target === 'string') {
-        //Just one target to test. Check, cache, and return its results.
-        step.target = utils.getStepTargetHelper(step.target);
-        return step.target;
+        //Just one target to test. Check and return its results.
+        return utils.getStepTargetHelper(step.target);
       }
       else if (Array.isArray(step.target)) {
         // Multiple items to check. Check each and return the first success.
@@ -419,8 +420,6 @@
             queriedTarget = utils.getStepTargetHelper(step.target[i]);
 
             if (queriedTarget) {
-              // Replace step.target with result so we don't have to look it up again.
-              step.target = queriedTarget;
               return queriedTarget;
             }
           }
