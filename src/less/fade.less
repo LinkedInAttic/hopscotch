@@ -256,3 +256,59 @@
   animation-name: fadeInLeft;
 }
 
+
+@-webkit-keyframes fadeInNone {
+  0% {
+    opacity: 0;
+    -webkit-transform: translateX(0);
+  }
+
+  100% {
+    opacity: 1;
+    -webkit-transform: translateX(0);
+  }
+}
+
+@-moz-keyframes fadeInNone {
+  0% {
+    opacity: 0;
+    -moz-transform: translateX(@distance);
+  }
+
+  100% {
+    opacity: 1;
+    -moz-transform: translateX(0);
+  }
+}
+
+@-o-keyframes fadeInNone {
+  0% {
+    opacity: 0;
+    -o-transform: translateX(@distance);
+  }
+
+  100% {
+    opacity: 1;
+    -o-transform: translateX(0);
+  }
+}
+
+@keyframes fadeInNone {
+  0% {
+    opacity: 0;
+    transform: translateX(0);
+  }
+
+  100% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.fade-in-none {
+    -webkit-animation-name: fadeInNone;
+    -moz-animation-name: fadeInNone;
+    -o-animation-name: fadeInNone;
+    animation-name: fadeInNone;
+}
+

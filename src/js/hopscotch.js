@@ -721,6 +721,8 @@
         step.placement = step.orientation;
       }
       this.placement = step.placement;
+      //Hide arrow property on the step
+      this.hideArrow = step.hideArrow = utils.valOrDefault(step.hideArrow, false);
 
       // Setup the configuration options we want to pass along to the template
       opts = {
@@ -789,7 +791,7 @@
 
       // Set z-index and arrow placement
       el.style.zIndex = (typeof step.zindex === 'number') ? step.zindex : 'auto';
-      this._setArrow(step.placement);
+      this._setArrow(step.placement, step.hideArrow);
 
       // Set bubble positioning
       // Make sure we're using visibility:hidden instead of display:none for height/width calculations.
@@ -825,10 +827,16 @@
      *
      * @private
      */
-    _setArrow: function(orientation) {
-      utils.removeClass(this.arrowEl, 'down up right left');
+    _setArrow: function(orientation, hideArrow) {
+      utils.removeClass(this.arrowEl, 'hide down up right left');
 
-      // Whatever the orientation is, we want to arrow to appear
+      //if hideArrow is true then add the style to hide the arrow
+      if (hideArrow === true) {
+          utils.addClass(this.arrowEl, 'hide');
+          return;
+      }
+
+      // Whatever the orientation is, we want the arrow to appear
       // "opposite" of the orientation. E.g., a top orientation
       // requires a bottom arrow.
       if (orientation === 'top') {
@@ -849,6 +857,9 @@
      * @private
      */
     _getArrowDirection: function() {
+        if (this.hideArrow === true) {
+            return 'none';
+        }
       if (this.placement === 'top') {
         return 'down';
       }
@@ -2218,9 +2229,10 @@
 
 // Template includes, placed inside a closure to ensure we don't
 // end up declaring our shim globally.
-(function(){
-// @@include('../../src/tl/_template_headers.js') //
-// @@include('../../tmp/js/hopscotch_templates.js') //
+  (function(){
+  // @@include('../../src/tl/_template_headers.js') //
+  // @@include('../../tmp/js/hopscotch_templates.js') //
 }());
+
 
 }(window, 'hopscotch'));
