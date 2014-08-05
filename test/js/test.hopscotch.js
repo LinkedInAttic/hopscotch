@@ -858,492 +858,530 @@ describe('Hopscotch', function() {
  * These are specified in the tour definition.
  */
 describe('HopscotchBubble', function() {
-  describe('Title and Content', function() {
-    it('should show the Title of the step', function() {
-      var title;
-      hopscotch.startTour({
-        id: 'hopscotch-test-tour',
-        steps: [ {
-          target: 'shopping-list',
-          orientation: 'left',
-          title: 'Shopping List',
-          content: 'It\'s a shopping list'
-        } ]
-      });
-      title = document.querySelector('.hopscotch-bubble-content h3').innerHTML;
-      expect(title).to.be('Shopping List');
+    describe('Title and Content', function() {
+        it('should show the Title of the step', function() {
+            var title;
+            hopscotch.startTour({
+                id: 'hopscotch-test-tour',
+                steps: [ {
+                    target: 'shopping-list',
+                    orientation: 'left',
+                    title: 'Shopping List',
+                    content: 'It\'s a shopping list'
+                } ]
+            });
+            title = document.querySelector('.hopscotch-bubble-content h3').innerHTML;
+            expect(title).to.be('Shopping List');
+        });
+
+        it('should show the Content of the step', function() {
+            var content;
+            hopscotch.startTour({
+                id: 'hopscotch-test-tour',
+                steps: [ {
+                    target: 'shopping-list',
+                    orientation: 'left',
+                    title: 'Shopping List',
+                    content: 'It\'s a shopping list'
+                } ]
+            });
+            content = document.querySelector('.hopscotch-bubble-content .hopscotch-content').innerHTML;
+            expect(content).to.be('It\'s a shopping list');
+            hopscotch.endTour();
+        });
     });
 
-    it('should show the Content of the step', function() {
-      var content;
-      hopscotch.startTour({
-        id: 'hopscotch-test-tour',
-        steps: [ {
-          target: 'shopping-list',
-          orientation: 'left',
-          title: 'Shopping List',
-          content: 'It\'s a shopping list'
-        } ]
-      });
-      content = document.querySelector('.hopscotch-bubble-content .hopscotch-content').innerHTML;
-      expect(content).to.be('It\'s a shopping list');
-      hopscotch.endTour();
-    });
-  });
+    describe('z-index', function(){
+        var bubble;
+        it('should set z-index if provided', function(){
+            hopscotch.startTour({
+                id: 'hopscotch-test-tour',
+                steps: [ {
+                    target: 'shopping-list',
+                    orientation: 'left',
+                    title: 'Shopping List',
+                    content: 'It\'s a shopping list',
+                    zindex: 100
+                },
+                {
+                    target: 'shopping-list',
+                    orientation: 'left',
+                    title: 'Shopping List',
+                    content: 'It\'s a shopping list',
+                    zindex: 0
+                },
+                {
+                    target: 'shopping-list',
+                    orientation: 'left',
+                    title: 'Shopping List',
+                    content: 'It\'s a shopping list'
+                }]
+            });
+            bubble = document.querySelector('.hopscotch-bubble');
+            expect(bubble.style.zIndex).to.be('100');
 
-  describe('z-index', function(){
-    var bubble;
-    it('should set z-index if provided', function(){
-      hopscotch.startTour({
-        id: 'hopscotch-test-tour',
-        steps: [ {
-          target: 'shopping-list',
-          orientation: 'left',
-          title: 'Shopping List',
-          content: 'It\'s a shopping list',
-          zindex: 100
-        },
-        {
-          target: 'shopping-list',
-          orientation: 'left',
-          title: 'Shopping List',
-          content: 'It\'s a shopping list',
-          zindex: 0
-        },
-        {
-          target: 'shopping-list',
-          orientation: 'left',
-          title: 'Shopping List',
-          content: 'It\'s a shopping list'
-        }]
-      });
-      bubble = document.querySelector('.hopscotch-bubble');
-      expect(bubble.style.zIndex).to.be('100');
+            hopscotch.nextStep();
+            bubble = document.querySelector('.hopscotch-bubble');
+            expect(bubble.style.zIndex).to.be('0');
 
-      hopscotch.nextStep();
-      bubble = document.querySelector('.hopscotch-bubble');
-      expect(bubble.style.zIndex).to.be('0');
+            hopscotch.nextStep();
+            bubble = document.querySelector('.hopscotch-bubble');
+            expect(bubble.style.zIndex).to.be('auto');
 
-      hopscotch.nextStep();
-      bubble = document.querySelector('.hopscotch-bubble');
-      expect(bubble.style.zIndex).to.be('auto');
-
-      hopscotch.endTour();
-    });
-  });
-
-  describe('Buttons', function() {
-    it('should show Skip button when specified', function() {
-      var $nextBtnEl;
-
-      hopscotch.startTour({
-        id: 'hopscotch-test-tour',
-        steps: [
-          {
-            target: 'shopping-list',
-            orientation: 'left',
-            title: 'Shopping List',
-            content: 'It\'s a shopping list',
-            showSkip: true
-          },
-          {
-            target: 'mocha',
-            orientation: 'top',
-            title: 'Mocha',
-            content: 'It\'s Mocha'
-          }
-        ]
-      });
-      $nextBtnEl = $('.hopscotch-next');
-      expect($nextBtnEl.length).to.be(1);
-      expect($nextBtnEl.html()).to.be('Skip');
-      hopscotch.endTour();
+            hopscotch.endTour();
+        });
     });
 
-    it('should hide Previous button when specified', function() {
-      var $el,
-      tour = {
-        id: 'hopscotch-test-tour',
-        steps: [
-          {
-            target: 'shopping-list',
-            orientation: 'left',
-            title: 'Shopping List',
-            content: 'It\'s a shopping list',
-            showPrevBtn: false
-          }
-        ]
-      };
+    describe('Buttons', function() {
+        it('should show Skip button when specified', function() {
+            var $nextBtnEl;
 
-      hopscotch.startTour(tour);
-      $el = $('.hopscotch-prev');
-      expect($el.length).to.be(0);
-      hopscotch.endTour();
+            hopscotch.startTour({
+                id: 'hopscotch-test-tour',
+                steps: [
+                  {
+                      target: 'shopping-list',
+                      orientation: 'left',
+                      title: 'Shopping List',
+                      content: 'It\'s a shopping list',
+                      showSkip: true
+                  },
+                  {
+                      target: 'mocha',
+                      orientation: 'top',
+                      title: 'Mocha',
+                      content: 'It\'s Mocha'
+                  }
+                ]
+            });
+            $nextBtnEl = $('.hopscotch-next');
+            expect($nextBtnEl.length).to.be(1);
+            expect($nextBtnEl.html()).to.be('Skip');
+            hopscotch.endTour();
+        });
+
+        it('should hide Previous button when specified', function() {
+            var $el,
+            tour = {
+                id: 'hopscotch-test-tour',
+                steps: [
+                  {
+                      target: 'shopping-list',
+                      orientation: 'left',
+                      title: 'Shopping List',
+                      content: 'It\'s a shopping list',
+                      showPrevBtn: false
+                  }
+                ]
+            };
+
+            hopscotch.startTour(tour);
+            $el = $('.hopscotch-prev');
+            expect($el.length).to.be(0);
+            hopscotch.endTour();
+        });
+
+        it('should hide Next button when specified', function() {
+            var $el,
+            tour = {
+                id: 'hopscotch-test-tour',
+                steps: [
+                  {
+                      target: 'shopping-list',
+                      orientation: 'left',
+                      title: 'Shopping List',
+                      content: 'It\'s a shopping list',
+                      showNextButton: false
+                  }
+                ]
+            };
+
+            hopscotch.startTour(tour);
+            $el = $('.hopscotch-next');
+            expect($el.length).to.be(0);
+            hopscotch.endTour();
+        });
     });
 
-    it('should hide Next button when specified', function() {
-      var $el,
-      tour = {
-        id: 'hopscotch-test-tour',
-        steps: [
-          {
-            target: 'shopping-list',
-            orientation: 'left',
-            title: 'Shopping List',
-            content: 'It\'s a shopping list',
-            showNextButton: false
-          }
-        ]
-      };
+    describe('Callbacks', function() {
+        it('should invoke onStart callback when starting the tour', function() {
+            var testClassName = 'testingOnNext';
 
-      hopscotch.startTour(tour);
-      $el = $('.hopscotch-next');
-      expect($el.length).to.be(0);
-      hopscotch.endTour();
+            expect($body.hasClass(testClassName)).to.not.be.ok();
+            hopscotch.startTour({
+                id: 'hopscotch-test-tour',
+                steps: [
+                  {
+                      target: 'shopping-list',
+                      orientation: 'left',
+                      title: 'Shopping List',
+                      content: 'It\'s a shopping list'
+                  },
+                  {
+                      target: 'mocha',
+                      orientation: 'top',
+                      title: 'Mocha',
+                      content: 'It\'s Mocha'
+                  }
+                ],
+                onStart: function() {
+                    $body.addClass(testClassName);
+                }
+            });
+            expect($body.hasClass(testClassName)).to.be.ok();
+            hopscotch.endTour();
+            $body.removeClass(testClassName);
+        });
+
+        it('should invoke onNext callback of current step when going to the next step', function() {
+            var testClassName = 'testingOnNext',
+            tour = {
+                id: 'hopscotch-test-tour',
+                steps: [
+                  {
+                      target: 'shopping-list',
+                      orientation: 'left',
+                      title: 'Shopping List',
+                      content: 'It\'s a shopping list',
+                      onNext: function() {
+                          $body.addClass(testClassName);
+                      }
+                  },
+                  {
+                      target: 'mocha',
+                      orientation: 'top',
+                      title: 'Mocha',
+                      content: 'It\'s Mocha'
+                  }
+                ]
+            };
+
+            expect($body.hasClass(testClassName)).to.not.be.ok();
+            hopscotch.startTour(tour);
+            hopscotch.nextStep();
+            expect($body.hasClass(testClassName)).to.be.ok();
+            hopscotch.endTour();
+            $body.removeClass(testClassName);
+        });
+
+        it('should invoke onPrev callback of current step when going to the prev step', function() {
+            var testClassName = 'testingOnPrev',
+            tour = {
+                id: 'hopscotch-test-tour',
+                steps: [
+                  {
+                      target: 'shopping-list',
+                      orientation: 'left',
+                      title: 'Shopping List',
+                      content: 'It\'s a shopping list'
+                  },
+                  {
+                      target: 'mocha',
+                      orientation: 'top',
+                      title: 'Mocha',
+                      content: 'It\'s Mocha',
+                      onPrev: function() {
+                          $body.addClass(testClassName);
+                      }
+                  }
+                ]
+            };
+
+            expect($body.hasClass(testClassName)).to.not.be.ok();
+            hopscotch.startTour(tour, 1);
+            hopscotch.prevStep();
+            expect($('body').hasClass(testClassName)).to.be.greaterThan(-1);
+            hopscotch.endTour();
+            $body.removeClass(testClassName);
+        });
+
+        it('should invoke onEnd callback of current step when ending the tour', function() {
+            var testClassName = 'testingOnNext',
+            tour = {
+                id: 'hopscotch-test-tour',
+                steps: [
+                  {
+                      target: 'shopping-list',
+                      orientation: 'left',
+                      title: 'Shopping List',
+                      content: 'It\'s a shopping list'
+                  }
+                ],
+                onEnd: function() {
+                    $body.addClass(testClassName);
+                }
+            };
+
+            expect($body.hasClass(testClassName)).to.not.be.ok();
+            hopscotch.startTour(tour);
+            hopscotch.endTour();
+            expect($body.hasClass(testClassName)).to.be.ok();
+            $body.removeClass(testClassName);
+        });
+
+        it('should detect when a callback changes the state of a tour and not go to the next step when detected', function() {
+            var tour = {
+                id: 'hopscotch-test-tour',
+                steps: [
+                  {
+                      target: 'shopping-list',
+                      orientation: 'left',
+                      title: 'Shopping List',
+                      content: 'It\'s a shopping list',
+                      onNext: function() {
+                          hopscotch.showStep(2);
+                      }
+                  },
+                  {
+                      target: 'milk',
+                      orientation: 'left',
+                      title: 'Milk',
+                      content: 'It\'s milk'
+                  },
+                  {
+                      target: 'eggs',
+                      orientation: 'left',
+                      title: 'Eggs',
+                      content: 'It\'s eggs'
+                  }
+                ]
+            };
+
+            hopscotch.startTour(tour);
+            hopscotch.nextStep();
+            expect(hopscotch.getCurrStepNum()).to.be(2);
+            hopscotch.endTour();
+        });
+
+        it('should invoke the CTA callback when the CTA button is clicked', function() {
+            var testClassName = "testingCTAButton",
+            tour = {
+                id: 'hopscotch-test-tour',
+                steps: [
+                  {
+                      target: 'shopping-list',
+                      orientation: 'left',
+                      title: 'Shopping List',
+                      content: 'It\'s a shopping list',
+                      showCTAButton: true,
+                      ctaLabel: 'test',
+                      onCTA: function() {
+                          $body.addClass(testClassName);
+                      }
+                  }
+                ]
+            };
+
+            expect($body.hasClass(testClassName)).to.not.be.ok();
+            hopscotch.startTour(tour);
+            $('.hopscotch-cta').click();
+            expect($body.hasClass(testClassName)).to.be.ok();
+            hopscotch.endTour(tour);
+            $body.removeClass(testClassName);
+        });
+
+        it('should remove the CTA callback after advancing to the next step', function() {
+            var testClassName1 = "testingCTAButton1",
+            testClassName2 = "testingCTAButton2",
+            tour = {
+                id: 'hopscotch-test-tour',
+                steps: [
+                  {
+                      target: 'shopping-list',
+                      orientation: 'left',
+                      title: 'Shopping List',
+                      content: 'It\'s a shopping list',
+                      showCTAButton: true,
+                      ctaLabel: 'test',
+                      onCTA: function() {
+                          $body.addClass(testClassName1);
+                      }
+                  },
+                  {
+                      target: 'shopping-list',
+                      orientation: 'left',
+                      title: 'Shopping List',
+                      content: 'It\'s a shopping list',
+                      showCTAButton: true,
+                      ctaLabel: 'test',
+                      onCTA: function() {
+                          $body.addClass(testClassName2);
+                      }
+                  }
+                ]
+            };
+
+            expect($body.hasClass(testClassName1)).to.not.be.ok();
+            expect($body.hasClass(testClassName2)).to.not.be.ok();
+            hopscotch.startTour(tour);
+            hopscotch.nextStep();
+            $('.hopscotch-cta').click();
+            expect($body.hasClass(testClassName1)).to.not.be.ok();
+            expect($body.hasClass(testClassName2)).to.be.ok();
+            hopscotch.endTour(tour);
+            $body.removeClass(testClassName1).removeClass(testClassName2);
+        });
+
+        it('should be able to invoke a callback that was registered as a helper', function() {
+            var testClassName = 'testingOnNext',
+                helperName = 'addClassToBody';
+
+            hopscotch.registerHelper(helperName, function() {
+                $body.addClass(testClassName);
+            });
+            expect($body.hasClass(testClassName)).to.not.be.ok();
+
+            hopscotch.startTour({
+                id: 'hopscotch-test-tour',
+                steps: [
+                  {
+                      target: 'shopping-list',
+                      orientation: 'left',
+                      title: 'Shopping List',
+                      content: 'It\'s a shopping list'
+                  },
+                  {
+                      target: 'mocha',
+                      orientation: 'top',
+                      title: 'Mocha',
+                      content: 'It\'s Mocha'
+                  }
+                ],
+                onStart: helperName
+            });
+
+            expect($body.hasClass(testClassName)).to.be.ok();
+            hopscotch.endTour();
+            $body.removeClass(testClassName);
+            hopscotch.unregisterHelper(helperName);
+        });
+
+        it('should be able to invoke more than one helper callbacks', function() {
+            var testClassName1 = 'testingOnNext1',
+                testClassName2 = 'testingOnNext2',
+                testClassName3 = 'testingOnNext3',
+                helperName1    = 'addClassToBody1',
+                helperName2    = 'addClassToBody2',
+                helperName3    = 'addClassToBody3';
+
+            hopscotch.registerHelper(helperName1, function() {
+                $body.addClass(testClassName1);
+            });
+            hopscotch.registerHelper(helperName2, function() {
+                $body.addClass(testClassName2);
+            });
+            hopscotch.registerHelper(helperName3, function() {
+                $body.addClass(testClassName3);
+            });
+
+            expect($body.hasClass(testClassName1)).to.not.be.ok();
+            expect($body.hasClass(testClassName2)).to.not.be.ok();
+            expect($body.hasClass(testClassName3)).to.not.be.ok();
+
+            hopscotch.startTour({
+                id: 'hopscotch-test-tour',
+                steps: [
+                  {
+                      target: 'shopping-list',
+                      orientation: 'left',
+                      title: 'Shopping List',
+                      content: 'It\'s a shopping list'
+                  },
+                  {
+                      target: 'mocha',
+                      orientation: 'top',
+                      title: 'Mocha',
+                      content: 'It\'s Mocha'
+                  }
+                ],
+                onStart: [[helperName1], [helperName2], [helperName3]]
+            });
+
+            expect($body.hasClass(testClassName1)).to.be.ok();
+            expect($body.hasClass(testClassName2)).to.be.ok();
+            expect($body.hasClass(testClassName3)).to.be.ok();
+            hopscotch.endTour();
+            $body.removeClass(testClassName1)
+                 .removeClass(testClassName2)
+                 .removeClass(testClassName3);
+            hopscotch.unregisterHelper(helperName1);
+            hopscotch.unregisterHelper(helperName2);
+            hopscotch.unregisterHelper(helperName3);
+        });
+
+        it('should be able to invoke a helper with arguments', function() {
+            var testClassName = 'testingOnNext',
+                helperName = 'addClassToBody';
+
+            hopscotch.registerHelper(helperName, function(className) {
+                $body.addClass(className);
+            });
+
+            expect($body.hasClass(testClassName)).to.not.be.ok();
+
+            hopscotch.startTour({
+                id: 'hopscotch-test-tour',
+                steps: [
+                  {
+                      target: 'shopping-list',
+                      orientation: 'left',
+                      title: 'Shopping List',
+                      content: 'It\'s a shopping list'
+                  },
+                  {
+                      target: 'mocha',
+                      orientation: 'top',
+                      title: 'Mocha',
+                      content: 'It\'s Mocha'
+                  }
+                ],
+                onStart: [helperName, testClassName]
+            });
+
+            expect($body.hasClass(testClassName)).to.be.ok();
+            hopscotch.endTour();
+            $body.removeClass(testClassName);
+            hopscotch.unregisterHelper(helperName);
+        });
     });
-  });
 
-  describe('Callbacks', function() {
-    it('should invoke onStart callback when starting the tour', function() {
-      var testClassName = 'testingOnNext';
+    describe('Arrow Positioning', function () {        
+        it('should hide the arrow', function () {
+            var hideTestClassName = 'hide',//'hopscotch-bubble-arrow-container hopscotch-arrow',
+                hideTestFadeClassName = 'fade-in-none';//hopscotch-bubble animated
 
-      expect($body.hasClass(testClassName)).to.not.be.ok();
-      hopscotch.startTour({
-        id: 'hopscotch-test-tour',
-        steps: [
-          {
-            target: 'shopping-list',
-            orientation: 'left',
-            title: 'Shopping List',
-            content: 'It\'s a shopping list'
-          },
-          {
-            target: 'mocha',
-            orientation: 'top',
-            title: 'Mocha',
-            content: 'It\'s Mocha'
-          }
-        ],
-        onStart: function() {
-          $body.addClass(testClassName);
-        }
-      });
-      expect($body.hasClass(testClassName)).to.be.ok();
-      hopscotch.endTour();
-      $body.removeClass(testClassName);
+            expect($body.find('.hopscotch-bubble-arrow-container.hopscotch-arrow').hasClass(hideTestClassName)).to.not.be.ok();
+            expect($body.find('.hopscotch-bubble').hasClass(hideTestFadeClassName)).to.not.be.ok();
+
+            hopscotch.startTour({
+                id: 'hopscotch-test-tour',
+                steps: [
+                  {
+                      target: 'shopping-list',
+                      orientation: 'left',
+                      hideArrow: true,
+                      title: 'Shopping List',
+                      content: 'It\'s a shopping list'
+                  },
+                  {
+                      target: 'mocha',
+                      orientation: 'top',
+                      title: 'Mocha',
+                      content: 'It\'s Mocha'
+                  }
+                ]
+            });
+
+            expect($body.find('.hopscotch-bubble-arrow-container.hopscotch-arrow').hasClass(hideTestClassName)).to.be.ok();
+            expect($body.find('.hopscotch-bubble').hasClass(hideTestFadeClassName)).to.be.ok();
+
+            hopscotch.nextStep();
+
+            expect($body.find('.hopscotch-bubble-arrow-container.hopscotch-arrow').hasClass(hideTestClassName)).to.not.be.ok();
+
+            hopscotch.endTour();
+        });
     });
-
-    it('should invoke onNext callback of current step when going to the next step', function() {
-      var testClassName = 'testingOnNext',
-      tour = {
-        id: 'hopscotch-test-tour',
-        steps: [
-          {
-            target: 'shopping-list',
-            orientation: 'left',
-            title: 'Shopping List',
-            content: 'It\'s a shopping list',
-            onNext: function() {
-              $body.addClass(testClassName);
-            }
-          },
-          {
-            target: 'mocha',
-            orientation: 'top',
-            title: 'Mocha',
-            content: 'It\'s Mocha'
-          }
-        ]
-      };
-
-      expect($body.hasClass(testClassName)).to.not.be.ok();
-      hopscotch.startTour(tour);
-      hopscotch.nextStep();
-      expect($body.hasClass(testClassName)).to.be.ok();
-      hopscotch.endTour();
-      $body.removeClass(testClassName);
-    });
-
-    it('should invoke onPrev callback of current step when going to the prev step', function() {
-      var testClassName = 'testingOnPrev',
-      tour = {
-        id: 'hopscotch-test-tour',
-        steps: [
-          {
-            target: 'shopping-list',
-            orientation: 'left',
-            title: 'Shopping List',
-            content: 'It\'s a shopping list'
-          },
-          {
-            target: 'mocha',
-            orientation: 'top',
-            title: 'Mocha',
-            content: 'It\'s Mocha',
-            onPrev: function() {
-              $body.addClass(testClassName);
-            }
-          }
-        ]
-      };
-
-      expect($body.hasClass(testClassName)).to.not.be.ok();
-      hopscotch.startTour(tour, 1);
-      hopscotch.prevStep();
-      expect($('body').hasClass(testClassName)).to.be.greaterThan(-1);
-      hopscotch.endTour();
-      $body.removeClass(testClassName);
-    });
-
-    it('should invoke onEnd callback of current step when ending the tour', function() {
-      var testClassName = 'testingOnNext',
-      tour = {
-        id: 'hopscotch-test-tour',
-        steps: [
-          {
-            target: 'shopping-list',
-            orientation: 'left',
-            title: 'Shopping List',
-            content: 'It\'s a shopping list'
-          }
-        ],
-        onEnd: function() {
-          $body.addClass(testClassName);
-        }
-      };
-
-      expect($body.hasClass(testClassName)).to.not.be.ok();
-      hopscotch.startTour(tour);
-      hopscotch.endTour();
-      expect($body.hasClass(testClassName)).to.be.ok();
-      $body.removeClass(testClassName);
-    });
-
-    it('should detect when a callback changes the state of a tour and not go to the next step when detected', function() {
-      var tour = {
-        id: 'hopscotch-test-tour',
-        steps: [
-          {
-            target: 'shopping-list',
-            orientation: 'left',
-            title: 'Shopping List',
-            content: 'It\'s a shopping list',
-            onNext: function() {
-              hopscotch.showStep(2);
-            }
-          },
-          {
-            target: 'milk',
-            orientation: 'left',
-            title: 'Milk',
-            content: 'It\'s milk'
-          },
-          {
-            target: 'eggs',
-            orientation: 'left',
-            title: 'Eggs',
-            content: 'It\'s eggs'
-          }
-        ]
-      };
-
-      hopscotch.startTour(tour);
-      hopscotch.nextStep();
-      expect(hopscotch.getCurrStepNum()).to.be(2);
-      hopscotch.endTour();
-    });
-
-    it('should invoke the CTA callback when the CTA button is clicked', function() {
-      var testClassName = "testingCTAButton",
-      tour = {
-        id: 'hopscotch-test-tour',
-        steps: [
-          {
-            target: 'shopping-list',
-            orientation: 'left',
-            title: 'Shopping List',
-            content: 'It\'s a shopping list',
-            showCTAButton: true,
-            ctaLabel: 'test',
-            onCTA: function() {
-              $body.addClass(testClassName);
-            }
-          }
-        ]
-      };
-
-      expect($body.hasClass(testClassName)).to.not.be.ok();
-      hopscotch.startTour(tour);
-      $('.hopscotch-cta').click();
-      expect($body.hasClass(testClassName)).to.be.ok();
-      hopscotch.endTour(tour);
-      $body.removeClass(testClassName);
-    });
-
-    it('should remove the CTA callback after advancing to the next step', function() {
-      var testClassName1 = "testingCTAButton1",
-      testClassName2 = "testingCTAButton2",
-      tour = {
-        id: 'hopscotch-test-tour',
-        steps: [
-          {
-            target: 'shopping-list',
-            orientation: 'left',
-            title: 'Shopping List',
-            content: 'It\'s a shopping list',
-            showCTAButton: true,
-            ctaLabel: 'test',
-            onCTA: function() {
-              $body.addClass(testClassName1);
-            }
-          },
-          {
-            target: 'shopping-list',
-            orientation: 'left',
-            title: 'Shopping List',
-            content: 'It\'s a shopping list',
-            showCTAButton: true,
-            ctaLabel: 'test',
-            onCTA: function() {
-              $body.addClass(testClassName2);
-            }
-          }
-        ]
-      };
-
-      expect($body.hasClass(testClassName1)).to.not.be.ok();
-      expect($body.hasClass(testClassName2)).to.not.be.ok();
-      hopscotch.startTour(tour);
-      hopscotch.nextStep();
-      $('.hopscotch-cta').click();
-      expect($body.hasClass(testClassName1)).to.not.be.ok();
-      expect($body.hasClass(testClassName2)).to.be.ok();
-      hopscotch.endTour(tour);
-      $body.removeClass(testClassName1).removeClass(testClassName2);
-    });
-
-    it('should be able to invoke a callback that was registered as a helper', function() {
-      var testClassName = 'testingOnNext',
-          helperName = 'addClassToBody';
-
-      hopscotch.registerHelper(helperName, function() {
-        $body.addClass(testClassName);
-      });
-      expect($body.hasClass(testClassName)).to.not.be.ok();
-
-      hopscotch.startTour({
-        id: 'hopscotch-test-tour',
-        steps: [
-          {
-            target: 'shopping-list',
-            orientation: 'left',
-            title: 'Shopping List',
-            content: 'It\'s a shopping list'
-          },
-          {
-            target: 'mocha',
-            orientation: 'top',
-            title: 'Mocha',
-            content: 'It\'s Mocha'
-          }
-        ],
-        onStart: helperName
-      });
-
-      expect($body.hasClass(testClassName)).to.be.ok();
-      hopscotch.endTour();
-      $body.removeClass(testClassName);
-      hopscotch.unregisterHelper(helperName);
-    });
-
-    it('should be able to invoke more than one helper callbacks', function() {
-      var testClassName1 = 'testingOnNext1',
-          testClassName2 = 'testingOnNext2',
-          testClassName3 = 'testingOnNext3',
-          helperName1    = 'addClassToBody1',
-          helperName2    = 'addClassToBody2',
-          helperName3    = 'addClassToBody3';
-
-      hopscotch.registerHelper(helperName1, function() {
-        $body.addClass(testClassName1);
-      });
-      hopscotch.registerHelper(helperName2, function() {
-        $body.addClass(testClassName2);
-      });
-      hopscotch.registerHelper(helperName3, function() {
-        $body.addClass(testClassName3);
-      });
-
-      expect($body.hasClass(testClassName1)).to.not.be.ok();
-      expect($body.hasClass(testClassName2)).to.not.be.ok();
-      expect($body.hasClass(testClassName3)).to.not.be.ok();
-
-      hopscotch.startTour({
-        id: 'hopscotch-test-tour',
-        steps: [
-          {
-            target: 'shopping-list',
-            orientation: 'left',
-            title: 'Shopping List',
-            content: 'It\'s a shopping list'
-          },
-          {
-            target: 'mocha',
-            orientation: 'top',
-            title: 'Mocha',
-            content: 'It\'s Mocha'
-          }
-        ],
-        onStart: [[helperName1], [helperName2], [helperName3]]
-      });
-
-      expect($body.hasClass(testClassName1)).to.be.ok();
-      expect($body.hasClass(testClassName2)).to.be.ok();
-      expect($body.hasClass(testClassName3)).to.be.ok();
-      hopscotch.endTour();
-      $body.removeClass(testClassName1)
-           .removeClass(testClassName2)
-           .removeClass(testClassName3);
-      hopscotch.unregisterHelper(helperName1);
-      hopscotch.unregisterHelper(helperName2);
-      hopscotch.unregisterHelper(helperName3);
-    });
-
-    it('should be able to invoke a helper with arguments', function() {
-      var testClassName = 'testingOnNext',
-          helperName = 'addClassToBody';
-
-      hopscotch.registerHelper(helperName, function(className) {
-        $body.addClass(className);
-      });
-
-      expect($body.hasClass(testClassName)).to.not.be.ok();
-
-      hopscotch.startTour({
-        id: 'hopscotch-test-tour',
-        steps: [
-          {
-            target: 'shopping-list',
-            orientation: 'left',
-            title: 'Shopping List',
-            content: 'It\'s a shopping list'
-          },
-          {
-            target: 'mocha',
-            orientation: 'top',
-            title: 'Mocha',
-            content: 'It\'s Mocha'
-          }
-        ],
-        onStart: [helperName, testClassName]
-      });
-
-      expect($body.hasClass(testClassName)).to.be.ok();
-      hopscotch.endTour();
-      $body.removeClass(testClassName);
-      hopscotch.unregisterHelper(helperName);
-    });
-  });
 });
 
 describe('HopscotchCalloutManager', function() {
