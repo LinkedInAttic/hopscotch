@@ -1135,6 +1135,9 @@
         if (opt.target) {
           callout.render(opt, null, function() {
             callout.show();
+            if (opt.onShow) {
+              utils.invokeCallback(opt.onShow);
+            }
           });
         }
       }
@@ -1578,6 +1581,15 @@
         cookieTourStep      = tourPair[1];
 
         cookieTourStep    = parseInt(cookieTourStep, 10);
+      }
+
+      // add tour-<id> className
+      if (typeof tour.id !== undefinedStr) {
+        var bubble = getBubble();
+        if (bubble.element) {
+          bubble.element.className = bubble.element.className.replace(/tour-[^\s]+/g, '');
+          bubble.element.className += ' tour-'+tour.id;
+        }
       }
 
       return this;
