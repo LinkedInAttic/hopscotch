@@ -1567,6 +1567,15 @@
         cookieTourStep    = parseInt(cookieTourStep, 10);
       }
 
+      // add tour-<id> className
+      if (typeof tour.id !== undefinedStr) {
+        var bubble = getBubble();
+        if (bubble.element) {
+          bubble.element.className = bubble.element.className.replace(/tour-[^\s]+/g, '');
+          bubble.element.className += ' tour-'+tour.id;
+        }
+      }
+
       return this;
     },
 
