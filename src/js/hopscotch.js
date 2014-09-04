@@ -1567,6 +1567,14 @@
         cookieTourStep    = parseInt(cookieTourStep, 10);
       }
 
+      // set a tour-<id> className on bubble
+      var className = (typeof tour.id === undefinedStr ? false : 'tour-'+tour.id);
+      if (className) {
+        var bubble = getBubble();
+        bubble.element.className = bubble.element.className.replace(/tour-[^\s]+/g, '');
+        bubble.element.className += ' '+className;
+      }
+
       return this;
     },
 
