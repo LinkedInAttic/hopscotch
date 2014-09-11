@@ -788,7 +788,7 @@
       }
 
       // Set z-index and arrow placement
-      el.style.zIndex = (typeof step.zindex === 'number') ? step.zindex : 'auto';
+      el.style.zIndex = (typeof step.zindex === 'number') ? step.zindex : '';
       this._setArrow(step.placement);
 
       // Set bubble positioning
