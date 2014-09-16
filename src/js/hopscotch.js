@@ -728,7 +728,7 @@
           prevBtn: utils.getI18NString('prevBtn'),
           nextBtn: nextBtnText,
           closeTooltip: utils.getI18NString('closeTooltip'),
-          stepNum: this._getStepI18nNum(idx),
+          stepNum: this._getStepI18nNum(idx)
         },
         buttons:{
           showPrev: (utils.valOrDefault(step.showPrevButton, this.opt.showPrevButton) && (idx > 0)),
@@ -913,13 +913,13 @@
 
     _handleBubbleClick: function(evt){
       var action;
-      
+
       // Override evt for IE8 as IE8 doesn't pass event but binds it to window
       evt = evt || window.event; // get window.event if argument is falsy (in IE)
 
       // get srcElement if target is falsy (IE)
       var targetElement = evt.target || evt.srcElement;
-      
+
       //Recursively look up the parent tree until we find a match
       //with one of the classes we're looking for, or the triggering element.
       function findMatchRecur(el){
@@ -980,7 +980,7 @@
             this.destroy();
           }
         }
-        
+
         utils.evtPreventDefault(evt);
       }
       //Otherwise, do nothing. We didn't click on anything relevant.
