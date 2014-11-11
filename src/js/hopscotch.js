@@ -764,7 +764,7 @@
           prevBtn: utils.getI18NString('prevBtn'),
           nextBtn: nextBtnText,
           closeTooltip: utils.getI18NString('closeTooltip'),
-          stepNum: this._getStepI18nNum(idx),
+          stepNum: this._getStepI18nNum(idx)
         },
         buttons:{
           showPrev: (utils.valOrDefault(step.showPrevButton, this.opt.showPrevButton) && (idx > 0)),
@@ -1156,6 +1156,9 @@
         if (opt.target) {
           callout.render(opt, null, function() {
             callout.show();
+            if (opt.onShow) {
+              utils.invokeCallback(opt.onShow);
+            }
           });
         }
       }

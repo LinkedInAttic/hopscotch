@@ -630,6 +630,49 @@ describe('Hopscotch', function() {
       expect($('.hopscotch-bubble-arrow-container').hasClass(ltrPosition)).to.be(true);
       mgr.removeCallout('shopping-callout');
     });
+
+    it('should technically allow ltr and rtl within a tour', function(){
+      var ltrPosition = 'left',
+          flippedPosition = 'right';
+
+      hopscotch.configure({
+        i18n: {
+          nextBtn: 'n',
+          prevBtn: 'p',
+          skipBtn: 's',
+          doneBtn: 'd',
+          stepNums: [ 'one', 'two']
+        }
+      });
+      hopscotch.startTour({
+        id: 'hopscotch-test-tour',
+        steps: [
+          {
+            target: 'shopping-list',
+            orientation: ltrPosition,
+            title: 'Shopping List',
+            content: 'It\'s a shopping list',
+            isRtl: true
+          },
+          {
+            target: 'shopping-list',
+            orientation: ltrPosition,
+            title: 'Shopping List',
+            content: 'It\'s a shopping list',
+            isRtl: false
+          }
+        ],
+        showPrevButton: true
+      });
+
+      expect($('.hopscotch-bubble-arrow-container').hasClass(ltrPosition)).to.be(true);
+      hopscotch.nextStep();
+      expect($('.hopscotch-bubble-arrow-container').hasClass(flippedPosition)).to.be(true);
+      hopscotch.endTour();
+      hopscotch.resetDefaultI18N();
+
+    });
+
   });
 
   describe('Saving state', function() {
