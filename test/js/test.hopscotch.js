@@ -926,7 +926,8 @@ describe('HopscotchBubble', function() {
 
       hopscotch.nextStep();
       bubble = document.querySelector('.hopscotch-bubble');
-      expect(bubble.style.zIndex).to.be('auto');
+      expect(bubble.style.zIndex).to.be('');
+      expect($(bubble).css("z-index")).to.be('999999');
 
       hopscotch.endTour();
     });
