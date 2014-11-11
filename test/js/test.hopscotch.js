@@ -607,6 +607,8 @@ describe('Hopscotch', function() {
       });
 
       expect(callout.placement).to.be(flippedPosition);
+      //Callout arrow should be flipped to the opposite of the flipped position,
+      //which is equal to the original LTR position that is passed in
       expect($('.hopscotch-bubble-arrow-container').hasClass(ltrPosition)).to.be(true);
       mgr.removeCallout('shopping-callout');
     });
@@ -627,6 +629,8 @@ describe('Hopscotch', function() {
       });
 
       expect(callout.placement).to.be(flippedPosition);
+      //Callout arrow should be flipped to the opposite of the flipped position,
+      //which is equal to the original LTR position that is passed in
       expect($('.hopscotch-bubble-arrow-container').hasClass(ltrPosition)).to.be(true);
       mgr.removeCallout('shopping-callout');
     });

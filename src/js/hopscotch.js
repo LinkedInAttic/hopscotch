@@ -765,7 +765,7 @@
           prevBtn: utils.getI18NString('prevBtn'),
           nextBtn: nextBtnText,
           closeTooltip: utils.getI18NString('closeTooltip'),
-          stepNum: this._getStepI18nNum(idx),
+          stepNum: this._getStepI18nNum(idx)
         },
         buttons:{
           showPrev: (utils.valOrDefault(step.showPrevButton, this.opt.showPrevButton) && (idx > 0)),
@@ -1158,6 +1158,9 @@
         if (opt.target) {
           callout.render(opt, null, function() {
             callout.show();
+            if (opt.onShow) {
+              utils.invokeCallback(opt.onShow);
+            }
           });
         }
       }
@@ -2154,6 +2157,10 @@
      *                               TRUE.
      * - onNext:          Function - A callback to be invoked after every click on
      *                               a "Next" button.
+     * - isRtl:           Boolean  - Set to true when instantiating in a right-to-left
+     *                               language environment, or if mirrored positioning is
+     *                               needed.
+     *                               Defaults to FALSE.
      *
      * - i18n:            Object   - For i18n purposes. Allows you to change the
      *                               text of button labels and step numbers.
