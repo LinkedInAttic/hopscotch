@@ -22,9 +22,9 @@
       isStorageWritable = false,
       document          = window.document,
       rtlMatches        = {
-    left: 'right',
-    right: 'left'
-  };
+        left: 'right',
+        right: 'left'
+      };
 
   // If cookies are disabled, accessing sessionStorage can throw an error.
   // sessionStorage could also throw an error in Safari on write (even though it exists).
