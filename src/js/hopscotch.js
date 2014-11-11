@@ -20,7 +20,11 @@
       hasJquery         = (typeof window.jQuery !== undefinedStr),
       hasSessionStorage = false,
       isStorageWritable = false,
-      document          = window.document;
+      document          = window.document,
+      rtlMatches        = {
+    left: 'right',
+    right: 'left'
+  };
 
   // If cookies are disabled, accessing sessionStorage can throw an error.
   // sessionStorage could also throw an error in Safari on write (even though it exists).
@@ -45,6 +49,7 @@
     bubblePadding:   15,
     arrowWidth:      20,
     skipIfNoElement: true,
+    isRtl:           false,
     cookieName:      'hopscotch.tour.state'
   };
 
@@ -503,6 +508,37 @@
       else {
         this.setState(name,'',-1);
       }
+    },
+
+    /**
+     * Originally called it orientation, but placement is more intuitive.
+     * Allowing both for now for backwards compatibility.
+     * @private
+     */
+    normalizePlacement: function(step) {
+      if (!step.placement && step.orientation) {
+        step.placement = step.orientation;
+      }
+    },
+
+    /**
+     * If step is right-to-left enabled, flip the placement and xOffset, but only once.
+     * @private
+     */
+    flipPlacement: function(step){
+      if(step.isRtl && !step._isFlipped){
+        var props = ['orientation', 'placement'], prop, i;
+        if(step.xOffset){
+          step.xOffset = -1 * this.getPixelValue(step.xOffset);
+        }
+        for(i in props){
+          prop = props[i];
+          if(step.hasOwnProperty(prop) && rtlMatches.hasOwnProperty(step[prop])) {
+            step[prop] = rtlMatches[step[prop]];
+          }
+        }
+        step._isFlipped = true;
+      }
     }
   };
 
@@ -566,29 +602,31 @@
           top,
           left,
           arrowOffset,
+          verticalLeftPosition,
           targetEl     = utils.getStepTarget(step),
           el           = this.element,
-          arrowEl      = this.arrowEl;
+          arrowEl      = this.arrowEl,
+          arrowPos     = step.isRtl ? 'right' : 'left';
+
+      utils.flipPlacement(step);
+      utils.normalizePlacement(step);
 
       bubbleBoundingWidth = el.offsetWidth;
       bubbleBoundingHeight = el.offsetHeight;
       utils.removeClass(el, 'fade-in-down fade-in-up fade-in-left fade-in-right');
 
-      // Originally called it orientation, but placement is more intuitive.
-      // Allowing both for now for backwards compatibility.
-      if (!step.placement && step.orientation) {
-        step.placement = step.orientation;
-      }
-
       // SET POSITION
       boundingRect = targetEl.getBoundingClientRect();
+
+      verticalLeftPosition = step.isRtl ? boundingRect.left - bubbleBoundingWidth + this.opt.arrowWidth : boundingRect.left;
+
       if (step.placement === 'top') {
         top = (boundingRect.top - bubbleBoundingHeight) - this.opt.arrowWidth;
-        left = boundingRect.left;
+        left = verticalLeftPosition;
       }
       else if (step.placement === 'bottom') {
         top = boundingRect.bottom + this.opt.arrowWidth;
-        left = boundingRect.left;
+        left = verticalLeftPosition;
       }
       else if (step.placement === 'left') {
         top = boundingRect.top;
@@ -611,20 +649,20 @@
       }
       if (!arrowOffset) {
         arrowEl.style.top = '';
-        arrowEl.style.left = '';
+        arrowEl.style[arrowPos] = '';
       }
       else if (step.placement === 'top' || step.placement === 'bottom') {
         arrowEl.style.top = '';
         if (arrowOffset === 'center') {
-          arrowEl.style.left = Math.floor((bubbleBoundingWidth / 2) - arrowEl.offsetWidth/2) + 'px';
+          arrowEl.style[arrowPos] = Math.floor((bubbleBoundingWidth / 2) - arrowEl.offsetWidth/2) + 'px';
         }
         else {
           // Numeric pixel value
-          arrowEl.style.left = arrowOffset + 'px';
+          arrowEl.style[arrowPos] = arrowOffset + 'px';
         }
       }
       else if (step.placement === 'left' || step.placement === 'right') {
-        arrowEl.style.left = '';
+        arrowEl.style[arrowPos] = '';
         if (arrowOffset === 'center') {
           arrowEl.style.top = Math.floor((bubbleBoundingHeight / 2) - arrowEl.offsetHeight/2) + 'px';
         }
@@ -680,6 +718,9 @@
           isLast,
           opts;
 
+      utils.flipPlacement(step);
+      utils.normalizePlacement(step);
+
       // Cache current step information.
       if (step) {
         this.currStep = step;
@@ -715,11 +756,6 @@
         nextBtnText = utils.getI18NString('nextBtn');
       }
 
-      // Originally called it orientation, but placement is more intuitive.
-      // Allowing both for now for backwards compatibility.
-      if (!step.placement && step.orientation) {
-        step.placement = step.orientation;
-      }
       this.placement = step.placement;
 
       // Setup the configuration options we want to pass along to the template
@@ -728,7 +764,7 @@
           prevBtn: utils.getI18NString('prevBtn'),
           nextBtn: nextBtnText,
           closeTooltip: utils.getI18NString('closeTooltip'),
-          stepNum: this._getStepI18nNum(idx)
+          stepNum: this._getStepI18nNum(idx),
         },
         buttons:{
           showPrev: (utils.valOrDefault(step.showPrevButton, this.opt.showPrevButton) && (idx > 0)),
@@ -1008,6 +1044,7 @@
         bubbleWidth:    defaultOpts.bubbleWidth,
         bubblePadding:  defaultOpts.bubblePadding,
         arrowWidth:     defaultOpts.arrowWidth,
+        isRtl:          defaultOpts.isRtl,
         showNumber:     true,
         isTourBubble:   true
       };
@@ -1119,9 +1156,6 @@
         if (opt.target) {
           callout.render(opt, null, function() {
             callout.show();
-            if (opt.onShow) {
-              utils.invokeCallback(opt.onShow);
-            }
           });
         }
       }
@@ -1656,7 +1690,6 @@
      */
     init = function(initOptions) {
       if (initOptions) {
-        //initOptions.cookieName = initOptions.cookieName || 'hopscotch.tour.state';
         this.configure(initOptions);
       }
     };
@@ -2118,7 +2151,8 @@
      *                               TRUE.
      * - onNext:          Function - A callback to be invoked after every click on
      *                               a "Next" button.
-     *
+     * - isRtl:           Boolean  - Set to true to mirror-flip the callout in a right-
+     *                               to-left context. Defaults to false.
      * - i18n:            Object   - For i18n purposes. Allows you to change the
      *                               text of button labels and step numbers.
      * - i18n.stepNums:   Array\<String\> - Provide a list of strings to be shown as

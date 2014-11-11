@@ -590,6 +590,46 @@ describe('Hopscotch', function() {
       hopscotch.endTour();
       hopscotch.resetDefaultI18N();
     });
+
+    it('should flip right via the isRtl property', function(){
+      var mgr = hopscotch.getCalloutManager(),
+          callout,
+          ltrPosition = 'left',
+          flippedPosition = 'right';
+
+      callout = mgr.createCallout({
+        id: 'shopping-callout',
+        target: 'shopping-list',
+        orientation: ltrPosition,
+        title: 'Shopping List Callout',
+        content: 'It\'s a shopping list',
+        isRtl: true
+      });
+
+      expect(callout.placement).to.be(flippedPosition);
+      expect($('.hopscotch-bubble-arrow-container').hasClass(ltrPosition)).to.be(true);
+      mgr.removeCallout('shopping-callout');
+    });
+
+    it('should flip left via the isRtl property', function(){
+      var mgr = hopscotch.getCalloutManager(),
+          callout,
+          ltrPosition = 'right',
+          flippedPosition = 'left';
+
+      callout = mgr.createCallout({
+        id: 'shopping-callout',
+        target: 'shopping-list',
+        orientation: ltrPosition,
+        title: 'Shopping List Callout',
+        content: 'It\'s a shopping list',
+        isRtl: true
+      });
+
+      expect(callout.placement).to.be(flippedPosition);
+      expect($('.hopscotch-bubble-arrow-container').hasClass(ltrPosition)).to.be(true);
+      mgr.removeCallout('shopping-callout');
+    });
   });
 
   describe('Saving state', function() {
@@ -736,7 +776,7 @@ describe('Hopscotch', function() {
 
     it('setRenderer() should allow setting a global renderer within the hopscotch.templates namespace', function(){
       hopscotch.setRenderer('customTemplate');
-      
+
       hopscotch.startTour(mockTour);
       expect(hopscotch.templates.customTemplate.calledOnce).to.be.ok();
       expect(renderMethod.calledOnce).to.not.be.ok();
