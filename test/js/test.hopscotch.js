@@ -631,7 +631,36 @@ describe('Hopscotch', function() {
       mgr.removeCallout('shopping-callout');
     });
 
-    it('should technically allow ltr and rtl within a tour', function(){
+    it('should allow isRtl to be set on a tour config', function(){
+      hopscotch.startTour({
+        id: 'hopscotch-test-tour',
+        isRtl: true,
+        steps: [
+          {
+            target: 'shopping-list',
+            orientation: 'left',
+            title: 'Shopping List',
+            content: 'It\'s a shopping list'
+          },
+          {
+            target: 'shopping-list',
+            orientation: 'right',
+            title: 'Shopping List',
+            content: 'It\'s a shopping list'
+          }
+        ],
+        showPrevButton: true
+      });
+
+      expect($('.hopscotch-bubble-arrow-container').hasClass('left')).to.be(true);
+      hopscotch.nextStep();
+      expect($('.hopscotch-bubble-arrow-container').hasClass('right')).to.be(true);
+      hopscotch.endTour();
+      hopscotch.resetDefaultI18N();
+
+    });
+
+    it('should allow individual steps to override tour isRtl option', function(){
       var ltrPosition = 'left',
           flippedPosition = 'right';
 
@@ -646,6 +675,7 @@ describe('Hopscotch', function() {
       });
       hopscotch.startTour({
         id: 'hopscotch-test-tour',
+        isRtl: true,
         steps: [
           {
             target: 'shopping-list',

@@ -718,9 +718,6 @@
           isLast,
           opts;
 
-      utils.flipPlacement(step);
-      utils.normalizePlacement(step);
-
       // Cache current step information.
       if (step) {
         this.currStep = step;
@@ -735,6 +732,7 @@
         if(currTour){
           customTourData = currTour.customData;
           tourSpecificRenderer = currTour.customRenderer;
+          step.isRtl = step.hasOwnProperty('isRtl') ? step.isRtl : currTour.isRtl;
           unsafe = currTour.unsafe;
           if(Array.isArray(currTour.steps)){
             totalSteps = currTour.steps.length;
@@ -756,6 +754,9 @@
         nextBtnText = utils.getI18NString('nextBtn');
       }
 
+      utils.flipPlacement(step);
+      utils.normalizePlacement(step);
+
       this.placement = step.placement;
 
       // Setup the configuration options we want to pass along to the template
@@ -764,7 +765,7 @@
           prevBtn: utils.getI18NString('prevBtn'),
           nextBtn: nextBtnText,
           closeTooltip: utils.getI18NString('closeTooltip'),
-          stepNum: this._getStepI18nNum(idx)
+          stepNum: this._getStepI18nNum(idx),
         },
         buttons:{
           showPrev: (utils.valOrDefault(step.showPrevButton, this.opt.showPrevButton) && (idx > 0)),
@@ -778,6 +779,7 @@
           isLast: utils.valOrDefault(isLast, false),
           title: (step.title || ''),
           content: (step.content || ''),
+          isRtl: step.isRtl,
           placement: step.placement,
           padding: utils.valOrDefault(step.padding, this.opt.bubblePadding),
           width: utils.getPixelValue(step.width) || this.opt.bubbleWidth,
@@ -1156,9 +1158,6 @@
         if (opt.target) {
           callout.render(opt, null, function() {
             callout.show();
-            if (opt.onShow) {
-              utils.invokeCallback(opt.onShow);
-            }
           });
         }
       }
@@ -1693,6 +1692,7 @@
      */
     init = function(initOptions) {
       if (initOptions) {
+        //initOptions.cookieName = initOptions.cookieName || 'hopscotch.tour.state';
         this.configure(initOptions);
       }
     };
@@ -2154,8 +2154,7 @@
      *                               TRUE.
      * - onNext:          Function - A callback to be invoked after every click on
      *                               a "Next" button.
-     * - isRtl:           Boolean  - Set to true to mirror-flip the callout in a right-
-     *                               to-left context. Defaults to false.
+     *
      * - i18n:            Object   - For i18n purposes. Allows you to change the
      *                               text of button labels and step numbers.
      * - i18n.stepNums:   Array\<String\> - Provide a list of strings to be shown as
