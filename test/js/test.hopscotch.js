@@ -707,6 +707,35 @@ describe('Hopscotch', function() {
 
     });
 
+    it('should allow isRtl to be set on configure', function(){
+      hopscotch.configure({
+        isRtl: true
+      });
+      hopscotch.startTour({
+        id: 'hopscotch-test-tour',
+        steps: [
+          {
+            target: 'shopping-list',
+            orientation: 'left',
+            title: 'Shopping List',
+            content: 'It\'s a shopping list'
+          },
+          {
+            target: 'shopping-list',
+            orientation: 'right',
+            title: 'Shopping List',
+            content: 'It\'s a shopping list'
+          }
+        ],
+        showPrevButton: true
+      });
+
+      expect($('.hopscotch-bubble-arrow-container').hasClass('left')).to.be(true);
+      hopscotch.nextStep();
+      expect($('.hopscotch-bubble-arrow-container').hasClass('right')).to.be(true);
+      hopscotch.endTour();
+    });
+
   });
 
   describe('Saving state', function() {

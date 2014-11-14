@@ -618,7 +618,7 @@
       // SET POSITION
       boundingRect = targetEl.getBoundingClientRect();
 
-      verticalLeftPosition = step.isRtl ? boundingRect.left - bubbleBoundingWidth + this.opt.arrowWidth : boundingRect.left;
+      verticalLeftPosition = step.isRtl ? boundingRect.right - bubbleBoundingWidth : boundingRect.left;
 
       if (step.placement === 'top') {
         top = (boundingRect.top - bubbleBoundingHeight) - this.opt.arrowWidth;
@@ -732,7 +732,8 @@
         if(currTour){
           customTourData = currTour.customData;
           tourSpecificRenderer = currTour.customRenderer;
-          step.isRtl = step.hasOwnProperty('isRtl') ? step.isRtl : currTour.isRtl;
+          step.isRtl = step.hasOwnProperty('isRtl') ? step.isRtl :
+            (currTour.hasOwnProperty('isRtl') ? currTour.isRtl : this.opt.isRtl);
           unsafe = currTour.unsafe;
           if(Array.isArray(currTour.steps)){
             totalSteps = currTour.steps.length;
@@ -743,6 +744,7 @@
         customTourData = step.customData;
         tourSpecificRenderer = step.customRenderer;
         unsafe = step.unsafe;
+        step.isRtl = step.hasOwnProperty('isRtl') ? step.isRtl : this.opt.isRtl;
       }
 
       // Determine label for next button
@@ -1158,9 +1160,6 @@
         if (opt.target) {
           callout.render(opt, null, function() {
             callout.show();
-            if (opt.onShow) {
-              utils.invokeCallback(opt.onShow);
-            }
           });
         }
       }
@@ -1253,7 +1252,8 @@
           showNextButton:  getOption('showNextButton'),
           showPrevButton:  getOption('showPrevButton'),
           showCloseButton: getOption('showCloseButton'),
-          arrowWidth:      getOption('arrowWidth')
+          arrowWidth:      getOption('arrowWidth'),
+          isRtl:           getOption('isRtl')
         });
       }
       return bubble;
