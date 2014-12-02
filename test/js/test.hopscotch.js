@@ -590,6 +590,152 @@ describe('Hopscotch', function() {
       hopscotch.endTour();
       hopscotch.resetDefaultI18N();
     });
+
+    it('should flip right via the isRtl property', function(){
+      var mgr = hopscotch.getCalloutManager(),
+          callout,
+          ltrPosition = 'left',
+          flippedPosition = 'right';
+
+      callout = mgr.createCallout({
+        id: 'shopping-callout',
+        target: 'shopping-list',
+        orientation: ltrPosition,
+        title: 'Shopping List Callout',
+        content: 'It\'s a shopping list',
+        isRtl: true
+      });
+
+      expect(callout.placement).to.be(flippedPosition);
+      //Callout arrow should be flipped to the opposite of the flipped position,
+      //which is equal to the original LTR position that is passed in
+      expect($('.hopscotch-bubble-arrow-container').hasClass(ltrPosition)).to.be(true);
+      mgr.removeCallout('shopping-callout');
+    });
+
+    it('should flip left via the isRtl property', function(){
+      var mgr = hopscotch.getCalloutManager(),
+          callout,
+          ltrPosition = 'right',
+          flippedPosition = 'left';
+
+      callout = mgr.createCallout({
+        id: 'shopping-callout',
+        target: 'shopping-list',
+        orientation: ltrPosition,
+        title: 'Shopping List Callout',
+        content: 'It\'s a shopping list',
+        isRtl: true
+      });
+
+      expect(callout.placement).to.be(flippedPosition);
+      //Callout arrow should be flipped to the opposite of the flipped position,
+      //which is equal to the original LTR position that is passed in
+      expect($('.hopscotch-bubble-arrow-container').hasClass(ltrPosition)).to.be(true);
+      mgr.removeCallout('shopping-callout');
+    });
+
+    it('should allow isRtl to be set on a tour config', function(){
+      hopscotch.startTour({
+        id: 'hopscotch-test-tour',
+        isRtl: true,
+        steps: [
+          {
+            target: 'shopping-list',
+            orientation: 'left',
+            title: 'Shopping List',
+            content: 'It\'s a shopping list'
+          },
+          {
+            target: 'shopping-list',
+            orientation: 'right',
+            title: 'Shopping List',
+            content: 'It\'s a shopping list'
+          }
+        ],
+        showPrevButton: true
+      });
+
+      expect($('.hopscotch-bubble-arrow-container').hasClass('left')).to.be(true);
+      hopscotch.nextStep();
+      expect($('.hopscotch-bubble-arrow-container').hasClass('right')).to.be(true);
+      hopscotch.endTour();
+      hopscotch.resetDefaultI18N();
+
+    });
+
+    it('should allow individual steps to override tour isRtl option', function(){
+      var ltrPosition = 'left',
+          flippedPosition = 'right';
+
+      hopscotch.configure({
+        i18n: {
+          nextBtn: 'n',
+          prevBtn: 'p',
+          skipBtn: 's',
+          doneBtn: 'd',
+          stepNums: [ 'one', 'two']
+        }
+      });
+      hopscotch.startTour({
+        id: 'hopscotch-test-tour',
+        isRtl: true,
+        steps: [
+          {
+            target: 'shopping-list',
+            orientation: ltrPosition,
+            title: 'Shopping List',
+            content: 'It\'s a shopping list',
+            isRtl: true
+          },
+          {
+            target: 'shopping-list',
+            orientation: ltrPosition,
+            title: 'Shopping List',
+            content: 'It\'s a shopping list',
+            isRtl: false
+          }
+        ],
+        showPrevButton: true
+      });
+
+      expect($('.hopscotch-bubble-arrow-container').hasClass(ltrPosition)).to.be(true);
+      hopscotch.nextStep();
+      expect($('.hopscotch-bubble-arrow-container').hasClass(flippedPosition)).to.be(true);
+      hopscotch.endTour();
+      hopscotch.resetDefaultI18N();
+
+    });
+
+    it('should allow isRtl to be set on configure', function(){
+      hopscotch.configure({
+        isRtl: true
+      });
+      hopscotch.startTour({
+        id: 'hopscotch-test-tour',
+        steps: [
+          {
+            target: 'shopping-list',
+            orientation: 'left',
+            title: 'Shopping List',
+            content: 'It\'s a shopping list'
+          },
+          {
+            target: 'shopping-list',
+            orientation: 'right',
+            title: 'Shopping List',
+            content: 'It\'s a shopping list'
+          }
+        ],
+        showPrevButton: true
+      });
+
+      expect($('.hopscotch-bubble-arrow-container').hasClass('left')).to.be(true);
+      hopscotch.nextStep();
+      expect($('.hopscotch-bubble-arrow-container').hasClass('right')).to.be(true);
+      hopscotch.endTour();
+    });
+
   });
 
   describe('Saving state', function() {
@@ -736,7 +882,7 @@ describe('Hopscotch', function() {
 
     it('setRenderer() should allow setting a global renderer within the hopscotch.templates namespace', function(){
       hopscotch.setRenderer('customTemplate');
-      
+
       hopscotch.startTour(mockTour);
       expect(hopscotch.templates.customTemplate.calledOnce).to.be.ok();
       expect(renderMethod.calledOnce).to.not.be.ok();
