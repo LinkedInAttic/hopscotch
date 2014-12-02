@@ -1190,8 +1190,7 @@
      * Removes all existing callouts.
      */
     this.removeAllCallouts = function() {
-      var calloutId,
-          callout;
+      var calloutId;
 
       for (calloutId in callouts) {
         if (callouts.hasOwnProperty(calloutId)) {
@@ -1201,7 +1200,7 @@
     };
 
     /**
-     * removeAllCallout
+     * removeCallout
      *
      * Removes an existing callout by id.
      *
@@ -1495,7 +1494,14 @@
       bubble.hide();
 
       doCallbacks = utils.valOrDefault(doCallbacks, true);
+
       step = getCurrStep();
+
+      if (step.nextOnTargetClick) {
+        // Detach the listener when tour is moving to a different step
+        utils.removeEvtListener(utils.getStepTarget(step), 'click', targetClickNextFn);
+      }
+
       origStep = step;
       if (direction > 0) {
         wasMultiPage = origStep.multipage;
@@ -1652,25 +1658,25 @@
 
     showStepHelper = function(stepNum) {
       var step         = currTour.steps[stepNum],
-          tourSteps    = currTour.steps,
-          numTourSteps = tourSteps.length,
           cookieVal    = currTour.id + ':' + stepNum,
           bubble       = getBubble(),
-          targetEl     = utils.getStepTarget(step),
-          isLast,
-          showBubble;
+          targetEl     = utils.getStepTarget(step);
 
-      showBubble = function() {
+      function showBubble() {
         bubble.show();
         utils.invokeEventCallbacks('show', step.onShow);
-      };
+      }
+
+      if (currStepNum !== stepNum && getCurrStep().nextOnTargetClick) {
+        // Detach the listener when tour is moving to a different step
+        utils.removeEvtListener(utils.getStepTarget(getCurrStep()), 'click', targetClickNextFn);
+      }
 
       // Update bubble for current step
-      currStepNum    = stepNum;
+      currStepNum = stepNum;
 
       bubble.hide(false);
 
-      isLast = (stepNum === numTourSteps - 1);
       bubble.render(step, stepNum, function(adjustScroll) {
         // when done adjusting window scroll, call showBubble helper fn
         if (adjustScroll) {
@@ -1841,13 +1847,6 @@
      * @returns {Object} Hopscotch
      */
     this.nextStep = function(doCallbacks) {
-      var step = getCurrStep(),
-          targetEl = utils.getStepTarget(step);
-
-      if (step.nextOnTargetClick) {
-        // Detach the listener after we've clicked on the target OR the next button.
-        utils.removeEvtListener(targetEl, 'click', targetClickNextFn);
-      }
       changeStep.call(this, doCallbacks, 1);
       return this;
     };
@@ -1862,9 +1861,20 @@
      * @returns {Object} Hopscotch
      */
     this.endTour = function(clearState, doCallbacks) {
-      var bubble     = getBubble();
+      var bubble     = getBubble(),
+        currentStep;
+
       clearState     = utils.valOrDefault(clearState, true);
       doCallbacks    = utils.valOrDefault(doCallbacks, true);
+
+      //remove event listener if current step had it added
+      if(currTour) {
+        currentStep = getCurrStep();
+        if(currentStep && currentStep.nextOnTargetClick) {
+          utils.removeEvtListener(utils.getStepTarget(currentStep), 'click', targetClickNextFn);
+        }
+      }
+
       currStepNum    = 0;
       cookieTourStep = undefined;
 
