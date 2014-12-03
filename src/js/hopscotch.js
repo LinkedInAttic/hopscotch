@@ -1225,7 +1225,7 @@
    * @param {Object} initOptions Options to be passed to `configure()`.
    */
   Hopscotch = function(initOptions) {
-    var self       = this, // for targetClickNextFn
+    var self       = this, // for targetInteractNextFn
         bubble,
         calloutMgr,
         opt,
@@ -1297,11 +1297,11 @@
     },
 
     /**
-     * Used for nextOnTargetClick
+     * Used for nextOnTarget[Blur|Change|Click|Focus|Select]
      *
      * @private
      */
-    targetClickNextFn = function() {
+    targetInteractNextFn = function() {
       self.nextStep();
     },
 
@@ -1680,9 +1680,21 @@
           showBubble();
         }
 
-        // If we want to advance to next step when user clicks on target.
+        // If we want to advance to next step when user interacts with a target.
+        if (step.nextOnTargetBlur) {
+          utils.addEvtListener(targetEl, 'blur', targetInteractNextFn);
+        }
+        if (step.nextOnTargetChange) {
+          utils.addEvtListener(targetEl, 'change', targetInteractNextFn);
+        }
         if (step.nextOnTargetClick) {
-          utils.addEvtListener(targetEl, 'click', targetClickNextFn);
+          utils.addEvtListener(targetEl, 'click', targetInteractNextFn);
+        }
+        if (step.nextOnTargetFocus) {
+          utils.addEvtListener(targetEl, 'focus', targetInteractNextFn);
+        }
+        if (step.nextOnTargetSelect) {
+          utils.addEvtListener(targetEl, 'select', targetInteractNextFn);
         }
       });
 
@@ -1844,9 +1856,21 @@
       var step = getCurrStep(),
           targetEl = utils.getStepTarget(step);
 
+      // Detach the listener after we've interacted with the target OR clicked the next button.
+      if (step.nextOnTargetBlur) {
+        utils.removeEvtListener(targetEl, 'blur', targetInteractNextFn);
+      }
+      if (step.nextOnTargetChange) {
+        utils.removeEvtListener(targetEl, 'change', targetInteractNextFn);
+      }
       if (step.nextOnTargetClick) {
-        // Detach the listener after we've clicked on the target OR the next button.
-        utils.removeEvtListener(targetEl, 'click', targetClickNextFn);
+        utils.removeEvtListener(targetEl, 'click', targetInteractNextFn);
+      }
+      if (step.nextOnTargetFocus) {
+        utils.removeEvtListener(targetEl, 'focus', targetInteractNextFn);
+      }
+      if (step.nextOnTargetSelect) {
+        utils.removeEvtListener(targetEl, 'select', targetInteractNextFn);
       }
       changeStep.call(this, doCallbacks, 1);
       return this;
