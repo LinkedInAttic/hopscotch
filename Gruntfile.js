@@ -178,7 +178,11 @@ module.exports = function(grunt) {
     },
     mocha : {
       test : {
-        src:['<%=paths.test%>/index.html']
+        src:['<%=paths.test%>/index.html'],
+        options: {
+          log: true,
+          logErrors: true
+        }
       }
     },
     shell: {

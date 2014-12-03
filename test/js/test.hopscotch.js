@@ -66,6 +66,21 @@ setup = function() {
 
 setup();
 
+//similar to $('.el').click(), but actually works in phantomjs
+//http://stackoverflow.com/questions/23981467/phantomjs-click-not-working
+click = function(el){
+  var ev = document.createEvent("MouseEvent");
+  ev.initMouseEvent(
+    "click",
+    true /* bubble */, true /* cancelable */,
+    window, null,
+    0, 0, 0, 0, /* coordinates */
+    false, false, false, false, /* modifier keys */
+    0 /*left*/, null
+  );
+  el.dispatchEvent(ev);
+};
+
 // ==========================
 // BEGIN TESTS
 // ==========================
@@ -736,6 +751,81 @@ describe('Hopscotch', function() {
       hopscotch.endTour();
     });
 
+    it('should move to next step when nextOnTargetClick is true and user clicks on target element', function() {
+      var breadEl = $('#bread')[0],
+        milkEl = $('#milk')[0];
+
+      hopscotch.startTour({
+        id: 'hopscotch-test-tour-nextOnTargetClick',
+        steps: [
+          {
+            target: 'bread',
+            orientation: 'left',
+            title: 'Bread bread bread!',
+            content: 'Gotta get me some bread',
+            nextOnTargetClick: true
+          },
+          {
+            target: 'eggs',
+            orientation: 'left',
+            title: 'Eggs',
+            content: 'I need to buy some eggs'
+          },
+          {
+            target: 'milk',
+            orientation: 'left',
+            title: 'Milk',
+            content: 'I need to buy milk as well',
+            nextOnTargetClick: true
+          }
+        ]
+      }, 0);
+
+      expect(hopscotch.getCurrStepNum()).to.be(0);
+
+      //click the first step's target to move to next step
+      click(breadEl);
+      expect(hopscotch.getCurrStepNum()).to.be(1);
+
+      //the event handler for click event should have been removed in the previous step
+      //so tour should not continue to the next step when first step's target is clicked again
+      click(breadEl);
+      expect(hopscotch.getCurrStepNum()).to.be(1);
+
+      //move to the 3rd step and then back to 2nd
+      hopscotch.nextStep();
+      hopscotch.prevStep();
+
+      //on click event handler should have been removed from 3rd step's target when tour moved back
+      //to 2nd step, so clicking on 3rd step's target should not move the tour forward
+      click(milkEl);
+      expect(hopscotch.getCurrStepNum()).to.be(1);
+
+      //go to the 3rd step, then show 1st step
+      hopscotch.nextStep();
+      hopscotch.showStep(0);
+
+      //when tour jumps to a different step using showStepAPI
+      //onclick event handler should be removed from current step's target
+      //so clicking on milk element should not move to next step
+      click(milkEl);
+      expect(hopscotch.getCurrStepNum()).to.be(0);
+
+      //clicking first step's target element while we are on first step in a tour
+      //should move to the next step
+      click(breadEl);
+      expect(hopscotch.getCurrStepNum()).to.be(1);
+
+      //go to first step
+      hopscotch.prevStep();
+
+      //end the tour
+      hopscotch.endTour();
+
+      //on click event handler should be removed when tour is ended
+      //clicking on target el should not do anything
+      click(breadEl);
+    });
   });
 
   describe('Saving state', function() {
@@ -802,7 +892,7 @@ describe('Hopscotch', function() {
   });
 
   describe('#refreshBubblePosition', function() {
-    it('recalculates the position of the bubble afer moving the element', function() {
+    it('recalculates the position of the bubble after moving the element', function() {
       hopscotch.startTour({
         id: 'hopscotch-test-refresh-bubble-position',
         steps: [
