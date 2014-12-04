@@ -885,8 +885,7 @@ describe('Hopscotch', function() {
         ],
         skipIfNoElement: false
       });
-      //TODO:fix this unit test
-      //expect(hopscotch.getCurrStepNum()).to.be(1);
+      expect(hopscotch.getCurrStepNum()).to.be(1);
       hopscotch.endTour();
     });
   });
@@ -1123,6 +1122,193 @@ describe('HopscotchBubble', function() {
       });
       content = document.querySelector('.hopscotch-bubble-content .hopscotch-content').innerHTML;
       expect(content).to.be('It\'s a shopping list');
+      hopscotch.endTour();
+    });
+  });
+
+  describe('Step Number', function() {
+    var stepContent = {
+      shoppingList : 'It\'s a shopping list',
+      eggs: 'It\'s eggs',
+      milk: 'It\'s milk',
+      dynamicTarget : 'If my target exists, it\'s super awesome!'
+    };
+
+    function getStepNumber() {
+      return $(".hopscotch-bubble .hopscotch-bubble-number").text();
+    }
+
+    function getStepContent() {
+      return $(".hopscotch-bubble .hopscotch-content").text();
+    }
+
+    function startTourWithMissingStepTarget() {
+      hopscotch.startTour({
+        id: 'hopscotch-test-tour',
+        skipIfNoElement: true,
+        steps: [
+          {
+            target: 'shopping-list',
+            orientation: 'left',
+            title: 'Shopping List',
+            content: stepContent.shoppingList
+          },
+          {
+            target: 'id-of-dynamically-created-element',
+            orientation: 'left',
+            title: 'My target is dynamic, it might or might not exist!',
+            content: stepContent.dynamicTarget
+          },
+          {
+            target: 'eggs',
+            orientation: 'left',
+            title: 'Eggs',
+            content: stepContent.eggs
+          },
+          {
+            target: 'another-target-that-does-not-exist',
+            orientation: 'left',
+            title: 'My target does not exist',
+            content: 'My target isn\'t here'
+          },
+          {
+            target: 'and-another-target-that-does-not-exist',
+            orientation: 'left',
+            title: 'My target can\'t be found...',
+            content: 'Target, target, target!'
+          },
+          {
+            target: 'milk',
+            orientation: 'left',
+            title: 'Milk!',
+            content: stepContent.milk
+          }
+        ]
+      });
+    }
+
+    it('should account for skipped steps in bubble numbering', function() {
+
+      startTourWithMissingStepTarget();
+
+      expect(getStepNumber()).to.be("1");
+      expect(getStepContent()).to.be(stepContent.shoppingList);
+
+      hopscotch.nextStep();
+      expect(getStepNumber()).to.be("2");
+      expect(getStepContent()).to.be(stepContent.eggs);
+
+      hopscotch.nextStep();
+      expect(getStepNumber()).to.be("3");
+      expect(getStepContent()).to.be(stepContent.milk);
+
+      hopscotch.prevStep();
+      expect(getStepNumber()).to.be("2");
+      expect(getStepContent()).to.be(stepContent.eggs);
+
+      hopscotch.prevStep();
+      expect(getStepNumber()).to.be("1");
+      expect(getStepContent()).to.be(stepContent.shoppingList);
+
+      hopscotch.endTour();
+    });
+
+    it('should adjust step numbering when elements are dynamically created', function(){
+      startTourWithMissingStepTarget();
+      expect(getStepNumber()).to.be("1");
+      expect(getStepContent()).to.be(stepContent.shoppingList);
+
+      //will skip over 2nd tour step in config and move to 3rd step
+      //since 2nd step was skipped, the bubble number for the 3rd step should be "2"
+      hopscotch.nextStep();
+      expect(getStepNumber()).to.be("2");
+      expect(getStepContent()).to.be(stepContent.eggs);
+
+      //create a missing target element for the 2nd tour step
+      $('#shopping-list').append('<span id="id-of-dynamically-created-element">This is dynamically created element</span>')
+
+      //now that target element for 2nd tour step exists, the bubble number should be "2"
+      hopscotch.prevStep();
+      expect(getStepNumber()).to.be("2");
+      expect(getStepContent()).to.be(stepContent.dynamicTarget);
+
+      hopscotch.prevStep();
+      expect(getStepNumber()).to.be("1");
+      expect(getStepContent()).to.be(stepContent.shoppingList);
+
+      hopscotch.nextStep();
+      expect(getStepNumber()).to.be("2");
+      expect(getStepContent()).to.be(stepContent.dynamicTarget);
+
+      //now that target element for 2nd tour step exists, the bubble number should be "3"
+      hopscotch.nextStep();
+      expect(getStepNumber()).to.be("3");
+      expect(getStepContent()).to.be(stepContent.eggs);
+
+      hopscotch.endTour();
+      $('#id-of-dynamically-created-element').remove();
+    });
+
+    it('should not carry over skipped steps from one tour to another', function(){
+      startTourWithMissingStepTarget();
+      //skip 2nd, go to 3rd
+      hopscotch.nextStep();
+      //skip 4th and 5th, go to 6th
+      hopscotch.nextStep();
+      //end this tour
+      hopscotch.endTour();
+
+      //start 2nd tour to make sure that skipped steps from first tour
+      //do not affect step numbering in a new tour
+      hopscotch.startTour({
+        id: 'hopscotch-test-tour',
+        skipIfNoElement: true,
+        steps: [
+          {
+            target: 'shopping-list',
+            orientation: 'left',
+            title: 'Shopping List',
+            content: stepContent.shoppingList
+          },
+          {
+            target: 'eggs',
+            orientation: 'left',
+            title: 'Eggs',
+            content: stepContent.eggs
+          },
+          {
+            target: 'milk',
+            orientation: 'left',
+            title: 'Milk!',
+            content: stepContent.milk
+          }
+        ]
+      });
+
+      expect(getStepNumber()).to.be("1");
+      expect(getStepContent()).to.be(stepContent.shoppingList);
+
+      hopscotch.nextStep();
+      expect(getStepNumber()).to.be("2");
+      expect(getStepContent()).to.be(stepContent.eggs);
+
+      hopscotch.nextStep();
+      expect(getStepNumber()).to.be("3");
+      expect(getStepContent()).to.be(stepContent.milk);
+
+      hopscotch.endTour();
+    });
+
+    it('should detect state and begin the tour on the specified step accounting for skipped steps in step numbering', function() {
+
+      //set state - on step 5 of hopscotch-test-tour with steps 1,3 and 4 skipped
+      setState('hopscotch.tour.state', 'hopscotch-test-tour:5:1,3,4');
+
+      startTourWithMissingStepTarget();
+
+      expect(getStepNumber()).to.be("3");
+      expect(getStepContent()).to.be(stepContent.milk);
+
       hopscotch.endTour();
     });
   });

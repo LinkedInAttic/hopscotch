@@ -767,7 +767,7 @@
           prevBtn: utils.getI18NString('prevBtn'),
           nextBtn: nextBtnText,
           closeTooltip: utils.getI18NString('closeTooltip'),
-          stepNum: this._getStepI18nNum(idx)
+          stepNum: this._getStepI18nNum(this._getStepNum(idx))
         },
         buttons:{
           showPrev: (utils.valOrDefault(step.showPrevButton, this.opt.showPrevButton) && (idx > 0)),
@@ -843,7 +843,26 @@
 
       return this;
     },
-
+    /**
+     * Get step number considering steps that were skipped because their target wasn't found
+     *
+     * @private
+     */
+    _getStepNum: function(idx) {
+      var skippedStepsCount = 0,
+          stepIdx,
+          skippedSteps = winHopscotch.getSkippedStepsIndexes(),
+          i,
+          len = skippedSteps.length;
+      //count number of steps skipped before current step
+      for(i = 0; i < len; i++) {
+        stepIdx = skippedSteps[i];
+        if(stepIdx<idx) {
+          skippedStepsCount++;
+        }
+      }
+      return idx - skippedStepsCount;
+    },
     /**
      * Get the I18N step number for the current step.
      *
@@ -1230,8 +1249,10 @@
         opt,
         currTour,
         currStepNum,
+        skippedSteps = {},
         cookieTourId,
         cookieTourStep,
+        cookieSkippedSteps = [],
         _configure,
 
     /**
@@ -1450,10 +1471,17 @@
           target = utils.getStepTarget(step);
 
           if (target) {
+            //this step was previously skipped, but now its target exists,
+            //remove this step from skipped steps set
+            if(skippedSteps[currStepNum]) {
+              delete skippedSteps[currStepNum];
+            }
             // We're done! Return the step number via the callback.
             cb(currStepNum);
           }
           else {
+            //mark this step as skipped, since its target wasn't found
+            skippedSteps[currStepNum] = true;
             // Haven't found a valid target yet. Recursively call
             // goToStepWithTarget.
             utils.invokeEventCallbacks('error');
@@ -1540,7 +1568,7 @@
 
         if (wasMultiPage) {
           // Update state for the next page
-          utils.setState(getOption('cookieName'), currTour.id + ':' + currStepNum, 1);
+           setStateHelper();
 
           // Next step is on a different page, so no need to attempt to render it.
           return;
@@ -1590,7 +1618,7 @@
       var tmpOpt = {},
           prop,
           tourState,
-          tourPair;
+          tourStateValues;
 
       // Set tour-specific configurations
       for (prop in tour) {
@@ -1608,9 +1636,13 @@
       // Get existing tour state, if it exists.
       tourState = utils.getState(getOption('cookieName'));
       if (tourState) {
-        tourPair            = tourState.split(':');
-        cookieTourId        = tourPair[0]; // selecting tour is not supported by this framework.
-        cookieTourStep      = tourPair[1];
+        tourStateValues     = tourState.split(':');
+        cookieTourId        = tourStateValues[0]; // selecting tour is not supported by this framework.
+        cookieTourStep      = tourStateValues[1];
+
+        if(tourStateValues.length > 2) {
+          cookieSkippedSteps = tourStateValues[2].split(',');
+        }
 
         cookieTourStep    = parseInt(cookieTourStep, 10);
       }
@@ -1622,12 +1654,12 @@
      * Find the first step to show for a tour. (What is the first step with a
      * target on the page?)
      */
-    findStartingStep = function(startStepNum, cb) {
+    findStartingStep = function(startStepNum, savedSkippedSteps, cb) {
       var step,
-          target,
-          stepNum;
+          target;
 
       currStepNum = startStepNum || 0;
+      skippedSteps = savedSkippedSteps || {};
       step        = getCurrStep();
       target      = utils.getStepTarget(step);
 
@@ -1645,6 +1677,9 @@
         // that has a target on the page or end the tour if we can't find such a step.
         utils.invokeEventCallbacks('error');
 
+        //this step was skipped, since its target does not exist
+        skippedSteps[currStepNum] = true;
+
         if (getOption('skipIfNoElement')) {
           goToStepWithTarget(1, cb);
           return;
@@ -1658,7 +1693,6 @@
 
     showStepHelper = function(stepNum) {
       var step         = currTour.steps[stepNum],
-          cookieVal    = currTour.id + ':' + stepNum,
           bubble       = getBubble(),
           targetEl     = utils.getStepTarget(step);
 
@@ -1691,6 +1725,17 @@
           utils.addEvtListener(targetEl, 'click', targetClickNextFn);
         }
       });
+
+      setStateHelper();
+    },
+
+    setStateHelper = function() {
+      var cookieVal = currTour.id + ':' + currStepNum,
+        skipedStepIndexes = winHopscotch.getSkippedStepsIndexes();
+
+      if(skipedStepIndexes && skipedStepIndexes.length > 0) {
+        cookieVal += ':' + skipedStepIndexes.join(',');
+      }
 
       utils.setState(getOption('cookieName'), cookieVal, 1);
     },
@@ -1738,6 +1783,7 @@
     this.startTour = function(tour, stepNum) {
       var bubble,
           currStepNum,
+          skippedSteps = {},
           self = this;
 
       // loadTour if we are calling startTour directly. (When we call startTour
@@ -1763,13 +1809,18 @@
 
       if (typeof currStepNum === "undefined" && currTour.id === cookieTourId && typeof cookieTourStep !== undefinedStr) {
         currStepNum = cookieTourStep;
+        if(cookieSkippedSteps.length > 0){
+          for(var i = 0, len = cookieSkippedSteps.length; i < len; i++) {
+            skippedSteps[cookieSkippedSteps[i]] = true;
+          }
+        }
       }
       else if (!currStepNum) {
         currStepNum = 0;
       }
 
       // Find the current step we should begin the tour on, and then actually start the tour.
-      findStartingStep(currStepNum, function(stepNum) {
+      findStartingStep(currStepNum, skippedSteps, function(stepNum) {
         var target = (stepNum !== -1) && utils.getStepTarget(currTour.steps[stepNum]);
 
         if (!target) {
@@ -1923,6 +1974,22 @@
      */
     this.getCurrStepNum = function() {
       return currStepNum;
+    };
+
+    /**
+     * getSkippedStepsIndexes
+     *
+     * @return {Array} Array of skipped step indexes
+     */
+    this.getSkippedStepsIndexes = function() {
+      var skippedStepsIdxArray = [],
+         stepIds;
+
+      for(stepIds in skippedSteps){
+        skippedStepsIdxArray.push(stepIds);
+      }
+
+      return skippedStepsIdxArray;
     };
 
     /**
