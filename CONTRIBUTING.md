@@ -26,6 +26,6 @@ Hopscotch uses Grunt for build and testing. You need to have [`npm`](https://npm
 
 Testing
 =======
-Hopscotch tests are written using the [Mocha testing framework](http://visionmedia.github.io/mocha/).
+Hopscotch tests are written using the [Jasmine testing framework](http://jasmine.github.io/edge/introduction.html).
 The tests can be run either in the browser or via the command line.
 To run the tests in the browser, simply open up test/index.html. To run the tests in the command line, you can run `grunt test`.

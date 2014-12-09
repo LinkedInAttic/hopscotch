@@ -176,12 +176,66 @@ module.exports = function(grunt) {
         ]
       }
     },
-    mocha : {
-      test : {
-        src:['<%=paths.test%>/index.html'],
+    jasmine : {
+      testProd: {
+        src: '<%=paths.build%>/js/hopscotch.min.js',
         options: {
-          log: true,
-          logErrors: true
+          keepRunner: false,
+          specs: ['<%=paths.test%>/js/*.js'],
+          vendor: [
+            'node_modules/jquery/dist/jquery.min.js',
+            'node_modules/sinon/pkg/sinon-1.9.1.js'
+          ],
+          styles: [
+            '<%=paths.build%>/css/hopscotch.min.css'
+          ]
+        }
+      },
+      testDev: {
+        src: '<%=paths.build%>/js/hopscotch.js',
+        options: {
+          keepRunner: false,
+          specs: ['<%=paths.test%>/js/*.js'],
+          vendor: [
+            'node_modules/jquery/dist/jquery.min.js',
+            'node_modules/sinon/pkg/sinon-1.9.1.js'
+          ],
+          styles: [
+            '<%=paths.build%>/css/hopscotch.css'
+          ]
+        }
+      },
+      coverage: {
+        src: '<%=paths.build%>/js/hopscotch.js',
+        options: {
+          keepRunner: false,
+          specs: ['<%=paths.test%>/js/*.js'],
+          vendor: [
+            'node_modules/jquery/dist/jquery.min.js',
+            'node_modules/sinon/pkg/sinon-1.9.1.js'
+          ],
+          styles: [
+            '<%=paths.build%>/css/hopscotch.css'
+          ],
+          template: require('grunt-template-jasmine-istanbul'),
+          templateOptions: {
+            coverage: '<%=paths.build%>/coverage/coverage.json',
+            report: '<%=paths.build%>/coverage',
+            thresholds: {
+              lines: 75,
+              statements: 75,
+              branches: 60,
+              functions: 80
+            }
+          }
+        }
+      }
+    },
+    connect: {
+      testServer: {
+        options: {
+          port: 3000,
+          keepalive: true
         }
       }
     },
@@ -202,22 +256,39 @@ module.exports = function(grunt) {
         commitFiles: ['-a'],
         createTag: true
       }
+    },
+    log: {
+      dev: {
+        options: {
+          message: "Open http://localhost:<%= connect.testServer.options.port %>/_SpecRunner.html in a browser\nCtrl + C to stop the server."
+        }
+      },
+      coverage: {
+        options: {
+          message: 'Open <%=jasmine.coverage.options.templateOptions.report%>/index.html in a browser to view the coverage.'
+        }
+      }
     }
   });
 
   //external tasks
-  grunt.loadNpmTasks('grunt-contrib-jshint');
-  grunt.loadNpmTasks('grunt-contrib-clean');
-  grunt.loadNpmTasks('grunt-contrib-copy');
-  grunt.loadNpmTasks('grunt-contrib-uglify');
-  grunt.loadNpmTasks('grunt-contrib-less');
-  grunt.loadNpmTasks('grunt-contrib-jst');
-  grunt.loadNpmTasks('grunt-contrib-watch');
-  grunt.loadNpmTasks('grunt-contrib-compress');
-  grunt.loadNpmTasks('grunt-include-replace');
-  grunt.loadNpmTasks('grunt-mocha');
   grunt.loadNpmTasks('grunt-bump');
+  grunt.loadNpmTasks('grunt-contrib-clean');
+  grunt.loadNpmTasks('grunt-contrib-compress');
+  grunt.loadNpmTasks('grunt-contrib-connect');
+  grunt.loadNpmTasks('grunt-contrib-copy');
+  grunt.loadNpmTasks('grunt-contrib-jasmine');
+  grunt.loadNpmTasks('grunt-contrib-jshint');
+  grunt.loadNpmTasks('grunt-contrib-jst');
+  grunt.loadNpmTasks('grunt-contrib-less');
+  grunt.loadNpmTasks('grunt-contrib-uglify');
+  grunt.loadNpmTasks('grunt-contrib-watch');
+  grunt.loadNpmTasks('grunt-include-replace');
   grunt.loadNpmTasks('grunt-shell');
+
+  grunt.registerMultiTask('log', 'Print some messages', function() {
+    grunt.log.ok(this.data.options.message);
+  });
 
   //grunt task aliases
   grunt.registerTask(
@@ -225,11 +296,23 @@ module.exports = function(grunt) {
     'Build hopscotch for testing (jshint, minify js, process less to css)',
     ['jshint:lib', 'clean:build', 'copy:build', 'jst:compile', 'includereplace:jsSource', 'uglify:build', 'less']
   );
+
   grunt.registerTask(
     'test',
     'Build hopscotch and run unit tests',
-    ['build','mocha']
+    ['build','jasmine:testProd', 'jasmine:coverage']
   );
+
+  grunt.registerTask  (
+    'dev',
+    'Start test server to allow debugging unminified hopscotch code in a browser',
+    ['build', 'jasmine:testDev:build', 'log:dev', 'connect:testServer']
+  );
+
+  grunt.registerTask(
+    'coverage',
+    'log:coverage',
+    ['build', 'jasmine:coverage', 'log:coverage']);
 
   //release tasks
   grunt.registerTask(
