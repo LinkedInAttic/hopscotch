@@ -920,6 +920,32 @@ describe('Hopscotch', function() {
       document.getElementById('shopping-list').style.setProperty('margin-top', null);
       document.getElementById('shopping-list').style.setProperty('margin-left', null);
     });
+
+    it('also runs recalculations for individual callouts', function() {
+      hopscotch.getCalloutManager().createCallout({
+        id: 'test_callout',
+        orientation: 'left',
+        target: 'shopping-list',
+        title: 'Shopping List',
+        content: 'It\'s a shopping list'
+      });
+
+      var bubbleDomElement = document.querySelector('.hopscotch-callout');
+      var bubbleTop = bubbleDomElement.style['top'];
+      var bubbleLeft = bubbleDomElement.style['left'];
+
+      document.getElementById('shopping-list').style.setProperty('margin-top', '100px');
+      document.getElementById('shopping-list').style.setProperty('margin-left', '100px');
+
+      hopscotch.refreshBubblePosition();
+
+      expect(bubbleDomElement.style['top']).to.not.eql(bubbleTop);
+      expect(bubbleDomElement.style['left']).to.not.eql(bubbleLeft);
+      hopscotch.getCalloutManager().removeAllCallouts();
+
+      document.getElementById('shopping-list').style.setProperty('margin-top', null);
+      document.getElementById('shopping-list').style.setProperty('margin-left', null);
+    });
   });
 
   describe('Custom render methods', function(){
