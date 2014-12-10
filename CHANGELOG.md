@@ -1,5 +1,16 @@
 ## Change Log
 
+### v0.2.3 (2014/12/10)
+
+ * [#139](https://github.com/linkedin/hopscotch/pull/139) RefreshBubblePosition updates all known callouts
+ * [#136](https://github.com/linkedin/hopscotch/pull/136) Ignore skipped steps in numbering
+ * [#137](https://github.com/linkedin/hopscotch/pull/137) NextOnTarget Click event not always removed
+ * [#133](https://github.com/linkedin/hopscotch/pull/133) Add right-to-left support to hopscotch
+ * [#128](https://github.com/linkedin/hopscotch/pull/128) Trailing comma in opts.i18n object
+ * [#126](https://github.com/linkedin/hopscotch/pull/126) Revert defuault z-index to empty vs auto
+ * [#102](https://github.com/linkedin/hopscotch/pull/102) Callbacks on callouts do not work
+
+
 ### v0.2.2 (2014/06/26)
 
  * [#91](https://github.com/linkedin/hopscotch/pull/91) Don't cache step targets - support for single page apps
