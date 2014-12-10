@@ -1153,7 +1153,8 @@
    * @constructor
    */
   HopscotchCalloutManager = function() {
-    var callouts = {};
+    var callouts = {},
+        calloutOpts = {};
 
     /**
      * createCallout
@@ -1176,6 +1177,7 @@
         opt.isTourBubble = false;
         callout = new HopscotchBubble(opt);
         callouts[opt.id] = callout;
+        calloutOpts[opt.id] = opt;
         if (opt.target) {
           callout.render(opt, null, function() {
             callout.show();
@@ -1229,9 +1231,34 @@
       var callout = callouts[id];
 
       callouts[id] = null;
+      calloutOpts[id] = null;
       if (!callout) { return; }
 
       callout.destroy();
+    };
+
+    /**
+     * refreshCalloutPositions
+     *
+     * Refresh the positions for all callouts known by the
+     * callout manager. Typically you'll use
+     * hopscotch.refreshBubblePosition() to refresh ALL
+     * bubbles instead of calling this directly.
+     */
+    this.refreshCalloutPositions = function(){
+      var calloutId,
+          callout,
+          opts;
+
+      for (calloutId in callouts) {
+        if (callouts.hasOwnProperty(calloutId) && calloutOpts.hasOwnProperty(calloutId)) {
+          callout = callouts[calloutId];
+          opts = calloutOpts[calloutId];
+          if(callout && opts){
+            callout.setPosition(opts);
+          }
+        }
+      }
     };
   };
 
@@ -1306,7 +1333,7 @@
     getCurrStep = function() {
       var step;
 
-      if (currStepNum < 0 || currStepNum >= currTour.steps.length) {
+      if (!currTour || currStepNum < 0 || currStepNum >= currTour.steps.length) {
         step = null;
       }
       else {
@@ -1996,12 +2023,17 @@
      * refreshBubblePosition
      *
      * Tell hopscotch that the position of the current tour element changed
-     * and the bubble therefore needs to be redrawn
+     * and the bubble therefore needs to be redrawn. Also refreshes position
+     * of all Hopscotch Callouts on the page.
      *
      * @returns {Object} Hopscotch
      */
     this.refreshBubblePosition = function() {
-      bubble.setPosition(getCurrStep());
+      var currStep = getCurrStep();
+      if(currStep){
+        getBubble().setPosition(currStep);
+      }
+      this.getCalloutManager().refreshCalloutPositions();
       return this;
     };
 
