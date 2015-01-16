@@ -15,6 +15,7 @@
   "homepage": "https://github.com/linkedin/hopscotch",
   "ignore": [
     "**/.*",
+    "archives",
     "node_modules",
     "bower_components",
     "test",
