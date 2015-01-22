@@ -66,6 +66,21 @@ setup = function() {
 
 setup();
 
+//similar to $('.el').click(), but actually works in phantomjs
+//http://stackoverflow.com/questions/23981467/phantomjs-click-not-working
+click = function(el){
+  var ev = document.createEvent("MouseEvent");
+  ev.initMouseEvent(
+    "click",
+    true /* bubble */, true /* cancelable */,
+    window, null,
+    0, 0, 0, 0, /* coordinates */
+    false, false, false, false, /* modifier keys */
+    0 /*left*/, null
+  );
+  el.dispatchEvent(ev);
+};
+
 // ==========================
 // BEGIN TESTS
 // ==========================
@@ -590,6 +605,227 @@ describe('Hopscotch', function() {
       hopscotch.endTour();
       hopscotch.resetDefaultI18N();
     });
+
+    it('should flip right via the isRtl property', function(){
+      var mgr = hopscotch.getCalloutManager(),
+          callout,
+          ltrPosition = 'left',
+          flippedPosition = 'right';
+
+      callout = mgr.createCallout({
+        id: 'shopping-callout',
+        target: 'shopping-list',
+        orientation: ltrPosition,
+        title: 'Shopping List Callout',
+        content: 'It\'s a shopping list',
+        isRtl: true
+      });
+
+      expect(callout.placement).to.be(flippedPosition);
+      //Callout arrow should be flipped to the opposite of the flipped position,
+      //which is equal to the original LTR position that is passed in
+      expect($('.hopscotch-bubble-arrow-container').hasClass(ltrPosition)).to.be(true);
+      mgr.removeCallout('shopping-callout');
+    });
+
+    it('should flip left via the isRtl property', function(){
+      var mgr = hopscotch.getCalloutManager(),
+          callout,
+          ltrPosition = 'right',
+          flippedPosition = 'left';
+
+      callout = mgr.createCallout({
+        id: 'shopping-callout',
+        target: 'shopping-list',
+        orientation: ltrPosition,
+        title: 'Shopping List Callout',
+        content: 'It\'s a shopping list',
+        isRtl: true
+      });
+
+      expect(callout.placement).to.be(flippedPosition);
+      //Callout arrow should be flipped to the opposite of the flipped position,
+      //which is equal to the original LTR position that is passed in
+      expect($('.hopscotch-bubble-arrow-container').hasClass(ltrPosition)).to.be(true);
+      mgr.removeCallout('shopping-callout');
+    });
+
+    it('should allow isRtl to be set on a tour config', function(){
+      hopscotch.startTour({
+        id: 'hopscotch-test-tour',
+        isRtl: true,
+        steps: [
+          {
+            target: 'shopping-list',
+            orientation: 'left',
+            title: 'Shopping List',
+            content: 'It\'s a shopping list'
+          },
+          {
+            target: 'shopping-list',
+            orientation: 'right',
+            title: 'Shopping List',
+            content: 'It\'s a shopping list'
+          }
+        ],
+        showPrevButton: true
+      });
+
+      expect($('.hopscotch-bubble-arrow-container').hasClass('left')).to.be(true);
+      hopscotch.nextStep();
+      expect($('.hopscotch-bubble-arrow-container').hasClass('right')).to.be(true);
+      hopscotch.endTour();
+      hopscotch.resetDefaultI18N();
+
+    });
+
+    it('should allow individual steps to override tour isRtl option', function(){
+      var ltrPosition = 'left',
+          flippedPosition = 'right';
+
+      hopscotch.configure({
+        i18n: {
+          nextBtn: 'n',
+          prevBtn: 'p',
+          skipBtn: 's',
+          doneBtn: 'd',
+          stepNums: [ 'one', 'two']
+        }
+      });
+      hopscotch.startTour({
+        id: 'hopscotch-test-tour',
+        isRtl: true,
+        steps: [
+          {
+            target: 'shopping-list',
+            orientation: ltrPosition,
+            title: 'Shopping List',
+            content: 'It\'s a shopping list',
+            isRtl: true
+          },
+          {
+            target: 'shopping-list',
+            orientation: ltrPosition,
+            title: 'Shopping List',
+            content: 'It\'s a shopping list',
+            isRtl: false
+          }
+        ],
+        showPrevButton: true
+      });
+
+      expect($('.hopscotch-bubble-arrow-container').hasClass(ltrPosition)).to.be(true);
+      hopscotch.nextStep();
+      expect($('.hopscotch-bubble-arrow-container').hasClass(flippedPosition)).to.be(true);
+      hopscotch.endTour();
+      hopscotch.resetDefaultI18N();
+
+    });
+
+    it('should allow isRtl to be set on configure', function(){
+      hopscotch.configure({
+        isRtl: true
+      });
+      hopscotch.startTour({
+        id: 'hopscotch-test-tour',
+        steps: [
+          {
+            target: 'shopping-list',
+            orientation: 'left',
+            title: 'Shopping List',
+            content: 'It\'s a shopping list'
+          },
+          {
+            target: 'shopping-list',
+            orientation: 'right',
+            title: 'Shopping List',
+            content: 'It\'s a shopping list'
+          }
+        ],
+        showPrevButton: true
+      });
+
+      expect($('.hopscotch-bubble-arrow-container').hasClass('left')).to.be(true);
+      hopscotch.nextStep();
+      expect($('.hopscotch-bubble-arrow-container').hasClass('right')).to.be(true);
+      hopscotch.endTour();
+    });
+
+    it('should move to next step when nextOnTargetClick is true and user clicks on target element', function() {
+      var breadEl = $('#bread')[0],
+        milkEl = $('#milk')[0];
+
+      hopscotch.startTour({
+        id: 'hopscotch-test-tour-nextOnTargetClick',
+        steps: [
+          {
+            target: 'bread',
+            orientation: 'left',
+            title: 'Bread bread bread!',
+            content: 'Gotta get me some bread',
+            nextOnTargetClick: true
+          },
+          {
+            target: 'eggs',
+            orientation: 'left',
+            title: 'Eggs',
+            content: 'I need to buy some eggs'
+          },
+          {
+            target: 'milk',
+            orientation: 'left',
+            title: 'Milk',
+            content: 'I need to buy milk as well',
+            nextOnTargetClick: true
+          }
+        ]
+      }, 0);
+
+      expect(hopscotch.getCurrStepNum()).to.be(0);
+
+      //click the first step's target to move to next step
+      click(breadEl);
+      expect(hopscotch.getCurrStepNum()).to.be(1);
+
+      //the event handler for click event should have been removed in the previous step
+      //so tour should not continue to the next step when first step's target is clicked again
+      click(breadEl);
+      expect(hopscotch.getCurrStepNum()).to.be(1);
+
+      //move to the 3rd step and then back to 2nd
+      hopscotch.nextStep();
+      hopscotch.prevStep();
+
+      //on click event handler should have been removed from 3rd step's target when tour moved back
+      //to 2nd step, so clicking on 3rd step's target should not move the tour forward
+      click(milkEl);
+      expect(hopscotch.getCurrStepNum()).to.be(1);
+
+      //go to the 3rd step, then show 1st step
+      hopscotch.nextStep();
+      hopscotch.showStep(0);
+
+      //when tour jumps to a different step using showStepAPI
+      //onclick event handler should be removed from current step's target
+      //so clicking on milk element should not move to next step
+      click(milkEl);
+      expect(hopscotch.getCurrStepNum()).to.be(0);
+
+      //clicking first step's target element while we are on first step in a tour
+      //should move to the next step
+      click(breadEl);
+      expect(hopscotch.getCurrStepNum()).to.be(1);
+
+      //go to first step
+      hopscotch.prevStep();
+
+      //end the tour
+      hopscotch.endTour();
+
+      //on click event handler should be removed when tour is ended
+      //clicking on target el should not do anything
+      click(breadEl);
+    });
   });
 
   describe('Saving state', function() {
@@ -649,14 +885,13 @@ describe('Hopscotch', function() {
         ],
         skipIfNoElement: false
       });
-      //TODO:fix this unit test
-      //expect(hopscotch.getCurrStepNum()).to.be(1);
+      expect(hopscotch.getCurrStepNum()).to.be(1);
       hopscotch.endTour();
     });
   });
 
   describe('#refreshBubblePosition', function() {
-    it('recalculates the position of the bubble afer moving the element', function() {
+    it('recalculates the position of the bubble after moving the element', function() {
       hopscotch.startTour({
         id: 'hopscotch-test-refresh-bubble-position',
         steps: [
@@ -681,6 +916,32 @@ describe('Hopscotch', function() {
       expect(bubbleDomElement.style['top']).to.not.eql(bubbleTop);
       expect(bubbleDomElement.style['left']).to.not.eql(bubbleLeft);
       hopscotch.endTour();
+
+      document.getElementById('shopping-list').style.setProperty('margin-top', null);
+      document.getElementById('shopping-list').style.setProperty('margin-left', null);
+    });
+
+    it('also runs recalculations for individual callouts', function() {
+      hopscotch.getCalloutManager().createCallout({
+        id: 'test_callout',
+        orientation: 'left',
+        target: 'shopping-list',
+        title: 'Shopping List',
+        content: 'It\'s a shopping list'
+      });
+
+      var bubbleDomElement = document.querySelector('.hopscotch-callout');
+      var bubbleTop = bubbleDomElement.style['top'];
+      var bubbleLeft = bubbleDomElement.style['left'];
+
+      document.getElementById('shopping-list').style.setProperty('margin-top', '100px');
+      document.getElementById('shopping-list').style.setProperty('margin-left', '100px');
+
+      hopscotch.refreshBubblePosition();
+
+      expect(bubbleDomElement.style['top']).to.not.eql(bubbleTop);
+      expect(bubbleDomElement.style['left']).to.not.eql(bubbleLeft);
+      hopscotch.getCalloutManager().removeAllCallouts();
 
       document.getElementById('shopping-list').style.setProperty('margin-top', null);
       document.getElementById('shopping-list').style.setProperty('margin-left', null);
@@ -736,7 +997,7 @@ describe('Hopscotch', function() {
 
     it('setRenderer() should allow setting a global renderer within the hopscotch.templates namespace', function(){
       hopscotch.setRenderer('customTemplate');
-      
+
       hopscotch.startTour(mockTour);
       expect(hopscotch.templates.customTemplate.calledOnce).to.be.ok();
       expect(renderMethod.calledOnce).to.not.be.ok();
@@ -891,6 +1152,193 @@ describe('HopscotchBubble', function() {
     });
   });
 
+  describe('Step Number', function() {
+    var stepContent = {
+      shoppingList : 'It\'s a shopping list',
+      eggs: 'It\'s eggs',
+      milk: 'It\'s milk',
+      dynamicTarget : 'If my target exists, it\'s super awesome!'
+    };
+
+    function getStepNumber() {
+      return $(".hopscotch-bubble .hopscotch-bubble-number").text();
+    }
+
+    function getStepContent() {
+      return $(".hopscotch-bubble .hopscotch-content").text();
+    }
+
+    function startTourWithMissingStepTarget() {
+      hopscotch.startTour({
+        id: 'hopscotch-test-tour',
+        skipIfNoElement: true,
+        steps: [
+          {
+            target: 'shopping-list',
+            orientation: 'left',
+            title: 'Shopping List',
+            content: stepContent.shoppingList
+          },
+          {
+            target: 'id-of-dynamically-created-element',
+            orientation: 'left',
+            title: 'My target is dynamic, it might or might not exist!',
+            content: stepContent.dynamicTarget
+          },
+          {
+            target: 'eggs',
+            orientation: 'left',
+            title: 'Eggs',
+            content: stepContent.eggs
+          },
+          {
+            target: 'another-target-that-does-not-exist',
+            orientation: 'left',
+            title: 'My target does not exist',
+            content: 'My target isn\'t here'
+          },
+          {
+            target: 'and-another-target-that-does-not-exist',
+            orientation: 'left',
+            title: 'My target can\'t be found...',
+            content: 'Target, target, target!'
+          },
+          {
+            target: 'milk',
+            orientation: 'left',
+            title: 'Milk!',
+            content: stepContent.milk
+          }
+        ]
+      });
+    }
+
+    it('should account for skipped steps in bubble numbering', function() {
+
+      startTourWithMissingStepTarget();
+
+      expect(getStepNumber()).to.be("1");
+      expect(getStepContent()).to.be(stepContent.shoppingList);
+
+      hopscotch.nextStep();
+      expect(getStepNumber()).to.be("2");
+      expect(getStepContent()).to.be(stepContent.eggs);
+
+      hopscotch.nextStep();
+      expect(getStepNumber()).to.be("3");
+      expect(getStepContent()).to.be(stepContent.milk);
+
+      hopscotch.prevStep();
+      expect(getStepNumber()).to.be("2");
+      expect(getStepContent()).to.be(stepContent.eggs);
+
+      hopscotch.prevStep();
+      expect(getStepNumber()).to.be("1");
+      expect(getStepContent()).to.be(stepContent.shoppingList);
+
+      hopscotch.endTour();
+    });
+
+    it('should adjust step numbering when elements are dynamically created', function(){
+      startTourWithMissingStepTarget();
+      expect(getStepNumber()).to.be("1");
+      expect(getStepContent()).to.be(stepContent.shoppingList);
+
+      //will skip over 2nd tour step in config and move to 3rd step
+      //since 2nd step was skipped, the bubble number for the 3rd step should be "2"
+      hopscotch.nextStep();
+      expect(getStepNumber()).to.be("2");
+      expect(getStepContent()).to.be(stepContent.eggs);
+
+      //create a missing target element for the 2nd tour step
+      $('#shopping-list').append('<span id="id-of-dynamically-created-element">This is dynamically created element</span>')
+
+      //now that target element for 2nd tour step exists, the bubble number should be "2"
+      hopscotch.prevStep();
+      expect(getStepNumber()).to.be("2");
+      expect(getStepContent()).to.be(stepContent.dynamicTarget);
+
+      hopscotch.prevStep();
+      expect(getStepNumber()).to.be("1");
+      expect(getStepContent()).to.be(stepContent.shoppingList);
+
+      hopscotch.nextStep();
+      expect(getStepNumber()).to.be("2");
+      expect(getStepContent()).to.be(stepContent.dynamicTarget);
+
+      //now that target element for 2nd tour step exists, the bubble number should be "3"
+      hopscotch.nextStep();
+      expect(getStepNumber()).to.be("3");
+      expect(getStepContent()).to.be(stepContent.eggs);
+
+      hopscotch.endTour();
+      $('#id-of-dynamically-created-element').remove();
+    });
+
+    it('should not carry over skipped steps from one tour to another', function(){
+      startTourWithMissingStepTarget();
+      //skip 2nd, go to 3rd
+      hopscotch.nextStep();
+      //skip 4th and 5th, go to 6th
+      hopscotch.nextStep();
+      //end this tour
+      hopscotch.endTour();
+
+      //start 2nd tour to make sure that skipped steps from first tour
+      //do not affect step numbering in a new tour
+      hopscotch.startTour({
+        id: 'hopscotch-test-tour',
+        skipIfNoElement: true,
+        steps: [
+          {
+            target: 'shopping-list',
+            orientation: 'left',
+            title: 'Shopping List',
+            content: stepContent.shoppingList
+          },
+          {
+            target: 'eggs',
+            orientation: 'left',
+            title: 'Eggs',
+            content: stepContent.eggs
+          },
+          {
+            target: 'milk',
+            orientation: 'left',
+            title: 'Milk!',
+            content: stepContent.milk
+          }
+        ]
+      });
+
+      expect(getStepNumber()).to.be("1");
+      expect(getStepContent()).to.be(stepContent.shoppingList);
+
+      hopscotch.nextStep();
+      expect(getStepNumber()).to.be("2");
+      expect(getStepContent()).to.be(stepContent.eggs);
+
+      hopscotch.nextStep();
+      expect(getStepNumber()).to.be("3");
+      expect(getStepContent()).to.be(stepContent.milk);
+
+      hopscotch.endTour();
+    });
+
+    it('should detect state and begin the tour on the specified step accounting for skipped steps in step numbering', function() {
+
+      //set state - on step 5 of hopscotch-test-tour with steps 1,3 and 4 skipped
+      setState('hopscotch.tour.state', 'hopscotch-test-tour:5:1,3,4');
+
+      startTourWithMissingStepTarget();
+
+      expect(getStepNumber()).to.be("3");
+      expect(getStepContent()).to.be(stepContent.milk);
+
+      hopscotch.endTour();
+    });
+  });
+
   describe('z-index', function(){
     var bubble;
     it('should set z-index if provided', function(){
@@ -926,7 +1374,8 @@ describe('HopscotchBubble', function() {
 
       hopscotch.nextStep();
       bubble = document.querySelector('.hopscotch-bubble');
-      expect(bubble.style.zIndex).to.be('auto');
+      expect(bubble.style.zIndex).to.be('');
+      expect($(bubble).css("z-index")).to.be('999999');
 
       hopscotch.endTour();
     });

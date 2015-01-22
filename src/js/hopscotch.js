@@ -20,7 +20,11 @@
       hasJquery         = (typeof window.jQuery !== undefinedStr),
       hasSessionStorage = false,
       isStorageWritable = false,
-      document          = window.document;
+      document          = window.document,
+      rtlMatches        = {
+        left: 'right',
+        right: 'left'
+      };
 
   // If cookies are disabled, accessing sessionStorage can throw an error.
   // sessionStorage could also throw an error in Safari on write (even though it exists).
@@ -45,6 +49,7 @@
     bubblePadding:   15,
     arrowWidth:      20,
     skipIfNoElement: true,
+    isRtl:           false,
     cookieName:      'hopscotch.tour.state'
   };
 
@@ -503,6 +508,37 @@
       else {
         this.setState(name,'',-1);
       }
+    },
+
+    /**
+     * Originally called it orientation, but placement is more intuitive.
+     * Allowing both for now for backwards compatibility.
+     * @private
+     */
+    normalizePlacement: function(step) {
+      if (!step.placement && step.orientation) {
+        step.placement = step.orientation;
+      }
+    },
+
+    /**
+     * If step is right-to-left enabled, flip the placement and xOffset, but only once.
+     * @private
+     */
+    flipPlacement: function(step){
+      if(step.isRtl && !step._isFlipped){
+        var props = ['orientation', 'placement'], prop, i;
+        if(step.xOffset){
+          step.xOffset = -1 * this.getPixelValue(step.xOffset);
+        }
+        for(i in props){
+          prop = props[i];
+          if(step.hasOwnProperty(prop) && rtlMatches.hasOwnProperty(step[prop])) {
+            step[prop] = rtlMatches[step[prop]];
+          }
+        }
+        step._isFlipped = true;
+      }
     }
   };
 
@@ -566,29 +602,31 @@
           top,
           left,
           arrowOffset,
+          verticalLeftPosition,
           targetEl     = utils.getStepTarget(step),
           el           = this.element,
-          arrowEl      = this.arrowEl;
+          arrowEl      = this.arrowEl,
+          arrowPos     = step.isRtl ? 'right' : 'left';
+
+      utils.flipPlacement(step);
+      utils.normalizePlacement(step);
 
       bubbleBoundingWidth = el.offsetWidth;
       bubbleBoundingHeight = el.offsetHeight;
       utils.removeClass(el, 'fade-in-down fade-in-up fade-in-left fade-in-right');
 
-      // Originally called it orientation, but placement is more intuitive.
-      // Allowing both for now for backwards compatibility.
-      if (!step.placement && step.orientation) {
-        step.placement = step.orientation;
-      }
-
       // SET POSITION
       boundingRect = targetEl.getBoundingClientRect();
+
+      verticalLeftPosition = step.isRtl ? boundingRect.right - bubbleBoundingWidth : boundingRect.left;
+
       if (step.placement === 'top') {
         top = (boundingRect.top - bubbleBoundingHeight) - this.opt.arrowWidth;
-        left = boundingRect.left;
+        left = verticalLeftPosition;
       }
       else if (step.placement === 'bottom') {
         top = boundingRect.bottom + this.opt.arrowWidth;
-        left = boundingRect.left;
+        left = verticalLeftPosition;
       }
       else if (step.placement === 'left') {
         top = boundingRect.top;
@@ -611,20 +649,20 @@
       }
       if (!arrowOffset) {
         arrowEl.style.top = '';
-        arrowEl.style.left = '';
+        arrowEl.style[arrowPos] = '';
       }
       else if (step.placement === 'top' || step.placement === 'bottom') {
         arrowEl.style.top = '';
         if (arrowOffset === 'center') {
-          arrowEl.style.left = Math.floor((bubbleBoundingWidth / 2) - arrowEl.offsetWidth/2) + 'px';
+          arrowEl.style[arrowPos] = Math.floor((bubbleBoundingWidth / 2) - arrowEl.offsetWidth/2) + 'px';
         }
         else {
           // Numeric pixel value
-          arrowEl.style.left = arrowOffset + 'px';
+          arrowEl.style[arrowPos] = arrowOffset + 'px';
         }
       }
       else if (step.placement === 'left' || step.placement === 'right') {
-        arrowEl.style.left = '';
+        arrowEl.style[arrowPos] = '';
         if (arrowOffset === 'center') {
           arrowEl.style.top = Math.floor((bubbleBoundingHeight / 2) - arrowEl.offsetHeight/2) + 'px';
         }
@@ -694,6 +732,8 @@
         if(currTour){
           customTourData = currTour.customData;
           tourSpecificRenderer = currTour.customRenderer;
+          step.isRtl = step.hasOwnProperty('isRtl') ? step.isRtl :
+            (currTour.hasOwnProperty('isRtl') ? currTour.isRtl : this.opt.isRtl);
           unsafe = currTour.unsafe;
           if(Array.isArray(currTour.steps)){
             totalSteps = currTour.steps.length;
@@ -704,6 +744,7 @@
         customTourData = step.customData;
         tourSpecificRenderer = step.customRenderer;
         unsafe = step.unsafe;
+        step.isRtl = step.hasOwnProperty('isRtl') ? step.isRtl : this.opt.isRtl;
       }
 
       // Determine label for next button
@@ -715,11 +756,9 @@
         nextBtnText = utils.getI18NString('nextBtn');
       }
 
-      // Originally called it orientation, but placement is more intuitive.
-      // Allowing both for now for backwards compatibility.
-      if (!step.placement && step.orientation) {
-        step.placement = step.orientation;
-      }
+      utils.flipPlacement(step);
+      utils.normalizePlacement(step);
+
       this.placement = step.placement;
 
       // Setup the configuration options we want to pass along to the template
@@ -728,7 +767,7 @@
           prevBtn: utils.getI18NString('prevBtn'),
           nextBtn: nextBtnText,
           closeTooltip: utils.getI18NString('closeTooltip'),
-          stepNum: this._getStepI18nNum(idx),
+          stepNum: this._getStepI18nNum(this._getStepNum(idx))
         },
         buttons:{
           showPrev: (utils.valOrDefault(step.showPrevButton, this.opt.showPrevButton) && (idx > 0)),
@@ -742,6 +781,7 @@
           isLast: utils.valOrDefault(isLast, false),
           title: (step.title || ''),
           content: (step.content || ''),
+          isRtl: step.isRtl,
           placement: step.placement,
           padding: utils.valOrDefault(step.padding, this.opt.bubblePadding),
           width: utils.getPixelValue(step.width) || this.opt.bubbleWidth,
@@ -788,7 +828,7 @@
       }
 
       // Set z-index and arrow placement
-      el.style.zIndex = (typeof step.zindex === 'number') ? step.zindex : 'auto';
+      el.style.zIndex = (typeof step.zindex === 'number') ? step.zindex : '';
       this._setArrow(step.placement);
 
       // Set bubble positioning
@@ -803,7 +843,26 @@
 
       return this;
     },
-
+    /**
+     * Get step number considering steps that were skipped because their target wasn't found
+     *
+     * @private
+     */
+    _getStepNum: function(idx) {
+      var skippedStepsCount = 0,
+          stepIdx,
+          skippedSteps = winHopscotch.getSkippedStepsIndexes(),
+          i,
+          len = skippedSteps.length;
+      //count number of steps skipped before current step
+      for(i = 0; i < len; i++) {
+        stepIdx = skippedSteps[i];
+        if(stepIdx<idx) {
+          skippedStepsCount++;
+        }
+      }
+      return idx - skippedStepsCount;
+    },
     /**
      * Get the I18N step number for the current step.
      *
@@ -913,13 +972,13 @@
 
     _handleBubbleClick: function(evt){
       var action;
-      
+
       // Override evt for IE8 as IE8 doesn't pass event but binds it to window
       evt = evt || window.event; // get window.event if argument is falsy (in IE)
 
       // get srcElement if target is falsy (IE)
       var targetElement = evt.target || evt.srcElement;
-      
+
       //Recursively look up the parent tree until we find a match
       //with one of the classes we're looking for, or the triggering element.
       function findMatchRecur(el){
@@ -980,7 +1039,7 @@
             this.destroy();
           }
         }
-        
+
         utils.evtPreventDefault(evt);
       }
       //Otherwise, do nothing. We didn't click on anything relevant.
@@ -1008,6 +1067,7 @@
         bubbleWidth:    defaultOpts.bubbleWidth,
         bubblePadding:  defaultOpts.bubblePadding,
         arrowWidth:     defaultOpts.arrowWidth,
+        isRtl:          defaultOpts.isRtl,
         showNumber:     true,
         isTourBubble:   true
       };
@@ -1093,7 +1153,8 @@
    * @constructor
    */
   HopscotchCalloutManager = function() {
-    var callouts = {};
+    var callouts = {},
+        calloutOpts = {};
 
     /**
      * createCallout
@@ -1116,6 +1177,7 @@
         opt.isTourBubble = false;
         callout = new HopscotchBubble(opt);
         callouts[opt.id] = callout;
+        calloutOpts[opt.id] = opt;
         if (opt.target) {
           callout.render(opt, null, function() {
             callout.show();
@@ -1149,8 +1211,7 @@
      * Removes all existing callouts.
      */
     this.removeAllCallouts = function() {
-      var calloutId,
-          callout;
+      var calloutId;
 
       for (calloutId in callouts) {
         if (callouts.hasOwnProperty(calloutId)) {
@@ -1160,7 +1221,7 @@
     };
 
     /**
-     * removeAllCallout
+     * removeCallout
      *
      * Removes an existing callout by id.
      *
@@ -1170,9 +1231,34 @@
       var callout = callouts[id];
 
       callouts[id] = null;
+      calloutOpts[id] = null;
       if (!callout) { return; }
 
       callout.destroy();
+    };
+
+    /**
+     * refreshCalloutPositions
+     *
+     * Refresh the positions for all callouts known by the
+     * callout manager. Typically you'll use
+     * hopscotch.refreshBubblePosition() to refresh ALL
+     * bubbles instead of calling this directly.
+     */
+    this.refreshCalloutPositions = function(){
+      var calloutId,
+          callout,
+          opts;
+
+      for (calloutId in callouts) {
+        if (callouts.hasOwnProperty(calloutId) && calloutOpts.hasOwnProperty(calloutId)) {
+          callout = callouts[calloutId];
+          opts = calloutOpts[calloutId];
+          if(callout && opts){
+            callout.setPosition(opts);
+          }
+        }
+      }
     };
   };
 
@@ -1190,8 +1276,10 @@
         opt,
         currTour,
         currStepNum,
+        skippedSteps = {},
         cookieTourId,
         cookieTourStep,
+        cookieSkippedSteps = [],
         _configure,
 
     /**
@@ -1214,7 +1302,8 @@
           showNextButton:  getOption('showNextButton'),
           showPrevButton:  getOption('showPrevButton'),
           showCloseButton: getOption('showCloseButton'),
-          arrowWidth:      getOption('arrowWidth')
+          arrowWidth:      getOption('arrowWidth'),
+          isRtl:           getOption('isRtl')
         });
       }
       return bubble;
@@ -1244,7 +1333,7 @@
     getCurrStep = function() {
       var step;
 
-      if (currStepNum < 0 || currStepNum >= currTour.steps.length) {
+      if (!currTour || currStepNum < 0 || currStepNum >= currTour.steps.length) {
         step = null;
       }
       else {
@@ -1409,10 +1498,17 @@
           target = utils.getStepTarget(step);
 
           if (target) {
+            //this step was previously skipped, but now its target exists,
+            //remove this step from skipped steps set
+            if(skippedSteps[currStepNum]) {
+              delete skippedSteps[currStepNum];
+            }
             // We're done! Return the step number via the callback.
             cb(currStepNum);
           }
           else {
+            //mark this step as skipped, since its target wasn't found
+            skippedSteps[currStepNum] = true;
             // Haven't found a valid target yet. Recursively call
             // goToStepWithTarget.
             utils.invokeEventCallbacks('error');
@@ -1453,7 +1549,14 @@
       bubble.hide();
 
       doCallbacks = utils.valOrDefault(doCallbacks, true);
+
       step = getCurrStep();
+
+      if (step.nextOnTargetClick) {
+        // Detach the listener when tour is moving to a different step
+        utils.removeEvtListener(utils.getStepTarget(step), 'click', targetClickNextFn);
+      }
+
       origStep = step;
       if (direction > 0) {
         wasMultiPage = origStep.multipage;
@@ -1492,7 +1595,7 @@
 
         if (wasMultiPage) {
           // Update state for the next page
-          utils.setState(getOption('cookieName'), currTour.id + ':' + currStepNum, 1);
+           setStateHelper();
 
           // Next step is on a different page, so no need to attempt to render it.
           return;
@@ -1542,7 +1645,7 @@
       var tmpOpt = {},
           prop,
           tourState,
-          tourPair;
+          tourStateValues;
 
       // Set tour-specific configurations
       for (prop in tour) {
@@ -1560,9 +1663,13 @@
       // Get existing tour state, if it exists.
       tourState = utils.getState(getOption('cookieName'));
       if (tourState) {
-        tourPair            = tourState.split(':');
-        cookieTourId        = tourPair[0]; // selecting tour is not supported by this framework.
-        cookieTourStep      = tourPair[1];
+        tourStateValues     = tourState.split(':');
+        cookieTourId        = tourStateValues[0]; // selecting tour is not supported by this framework.
+        cookieTourStep      = tourStateValues[1];
+
+        if(tourStateValues.length > 2) {
+          cookieSkippedSteps = tourStateValues[2].split(',');
+        }
 
         cookieTourStep    = parseInt(cookieTourStep, 10);
       }
@@ -1574,12 +1681,12 @@
      * Find the first step to show for a tour. (What is the first step with a
      * target on the page?)
      */
-    findStartingStep = function(startStepNum, cb) {
+    findStartingStep = function(startStepNum, savedSkippedSteps, cb) {
       var step,
-          target,
-          stepNum;
+          target;
 
       currStepNum = startStepNum || 0;
+      skippedSteps = savedSkippedSteps || {};
       step        = getCurrStep();
       target      = utils.getStepTarget(step);
 
@@ -1597,6 +1704,9 @@
         // that has a target on the page or end the tour if we can't find such a step.
         utils.invokeEventCallbacks('error');
 
+        //this step was skipped, since its target does not exist
+        skippedSteps[currStepNum] = true;
+
         if (getOption('skipIfNoElement')) {
           goToStepWithTarget(1, cb);
           return;
@@ -1610,25 +1720,24 @@
 
     showStepHelper = function(stepNum) {
       var step         = currTour.steps[stepNum],
-          tourSteps    = currTour.steps,
-          numTourSteps = tourSteps.length,
-          cookieVal    = currTour.id + ':' + stepNum,
           bubble       = getBubble(),
-          targetEl     = utils.getStepTarget(step),
-          isLast,
-          showBubble;
+          targetEl     = utils.getStepTarget(step);
 
-      showBubble = function() {
+      function showBubble() {
         bubble.show();
         utils.invokeEventCallbacks('show', step.onShow);
-      };
+      }
+
+      if (currStepNum !== stepNum && getCurrStep().nextOnTargetClick) {
+        // Detach the listener when tour is moving to a different step
+        utils.removeEvtListener(utils.getStepTarget(getCurrStep()), 'click', targetClickNextFn);
+      }
 
       // Update bubble for current step
-      currStepNum    = stepNum;
+      currStepNum = stepNum;
 
       bubble.hide(false);
 
-      isLast = (stepNum === numTourSteps - 1);
       bubble.render(step, stepNum, function(adjustScroll) {
         // when done adjusting window scroll, call showBubble helper fn
         if (adjustScroll) {
@@ -1643,6 +1752,17 @@
           utils.addEvtListener(targetEl, 'click', targetClickNextFn);
         }
       });
+
+      setStateHelper();
+    },
+
+    setStateHelper = function() {
+      var cookieVal = currTour.id + ':' + currStepNum,
+        skipedStepIndexes = winHopscotch.getSkippedStepsIndexes();
+
+      if(skipedStepIndexes && skipedStepIndexes.length > 0) {
+        cookieVal += ':' + skipedStepIndexes.join(',');
+      }
 
       utils.setState(getOption('cookieName'), cookieVal, 1);
     },
@@ -1690,6 +1810,7 @@
     this.startTour = function(tour, stepNum) {
       var bubble,
           currStepNum,
+          skippedSteps = {},
           self = this;
 
       // loadTour if we are calling startTour directly. (When we call startTour
@@ -1715,13 +1836,18 @@
 
       if (typeof currStepNum === "undefined" && currTour.id === cookieTourId && typeof cookieTourStep !== undefinedStr) {
         currStepNum = cookieTourStep;
+        if(cookieSkippedSteps.length > 0){
+          for(var i = 0, len = cookieSkippedSteps.length; i < len; i++) {
+            skippedSteps[cookieSkippedSteps[i]] = true;
+          }
+        }
       }
       else if (!currStepNum) {
         currStepNum = 0;
       }
 
       // Find the current step we should begin the tour on, and then actually start the tour.
-      findStartingStep(currStepNum, function(stepNum) {
+      findStartingStep(currStepNum, skippedSteps, function(stepNum) {
         var target = (stepNum !== -1) && utils.getStepTarget(currTour.steps[stepNum]);
 
         if (!target) {
@@ -1799,13 +1925,6 @@
      * @returns {Object} Hopscotch
      */
     this.nextStep = function(doCallbacks) {
-      var step = getCurrStep(),
-          targetEl = utils.getStepTarget(step);
-
-      if (step.nextOnTargetClick) {
-        // Detach the listener after we've clicked on the target OR the next button.
-        utils.removeEvtListener(targetEl, 'click', targetClickNextFn);
-      }
       changeStep.call(this, doCallbacks, 1);
       return this;
     };
@@ -1820,9 +1939,20 @@
      * @returns {Object} Hopscotch
      */
     this.endTour = function(clearState, doCallbacks) {
-      var bubble     = getBubble();
+      var bubble     = getBubble(),
+        currentStep;
+
       clearState     = utils.valOrDefault(clearState, true);
       doCallbacks    = utils.valOrDefault(doCallbacks, true);
+
+      //remove event listener if current step had it added
+      if(currTour) {
+        currentStep = getCurrStep();
+        if(currentStep && currentStep.nextOnTargetClick) {
+          utils.removeEvtListener(utils.getStepTarget(currentStep), 'click', targetClickNextFn);
+        }
+      }
+
       currStepNum    = 0;
       cookieTourStep = undefined;
 
@@ -1874,15 +2004,36 @@
     };
 
     /**
+     * getSkippedStepsIndexes
+     *
+     * @return {Array} Array of skipped step indexes
+     */
+    this.getSkippedStepsIndexes = function() {
+      var skippedStepsIdxArray = [],
+         stepIds;
+
+      for(stepIds in skippedSteps){
+        skippedStepsIdxArray.push(stepIds);
+      }
+
+      return skippedStepsIdxArray;
+    };
+
+    /**
      * refreshBubblePosition
      *
      * Tell hopscotch that the position of the current tour element changed
-     * and the bubble therefore needs to be redrawn
+     * and the bubble therefore needs to be redrawn. Also refreshes position
+     * of all Hopscotch Callouts on the page.
      *
      * @returns {Object} Hopscotch
      */
     this.refreshBubblePosition = function() {
-      bubble.setPosition(getCurrStep());
+      var currStep = getCurrStep();
+      if(currStep){
+        getBubble().setPosition(currStep);
+      }
+      this.getCalloutManager().refreshCalloutPositions();
       return this;
     };
 
@@ -2118,6 +2269,10 @@
      *                               TRUE.
      * - onNext:          Function - A callback to be invoked after every click on
      *                               a "Next" button.
+     * - isRtl:           Boolean  - Set to true when instantiating in a right-to-left
+     *                               language environment, or if mirrored positioning is
+     *                               needed.
+     *                               Defaults to FALSE.
      *
      * - i18n:            Object   - For i18n purposes. Allows you to change the
      *                               text of button labels and step numbers.
