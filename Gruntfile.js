@@ -3,7 +3,7 @@ module.exports = function(grunt) {
     pkg: grunt.file.readJSON('package.json'),
     banner : ['/**! <%=pkg.name%> - v<%=pkg.version%>',
         '*',
-        '* Copyright 2014 LinkedIn Corp. All rights reserved.',
+        '* Copyright 2015 LinkedIn Corp. All rights reserved.',
         '*',
         '* Licensed under the Apache License, Version 2.0 (the "License");',
         '* you may not use this file except in compliance with the License.',
