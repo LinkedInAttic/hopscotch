@@ -21,6 +21,7 @@
       hasSessionStorage = false,
       isStorageWritable = false,
       document          = window.document,
+      validIdRegEx      = /^[a-zA-Z0-9_-]+$/,
       rtlMatches        = {
         left: 'right',
         right: 'left'
@@ -1170,6 +1171,9 @@
       var callout;
 
       if (opt.id) {
+        if(!validIdRegEx.test(opt.id)) {
+          throw 'Callout ID is using an invalid format. Use alphanumeric, underscores, and/or hyphens only.';
+        }
         if (callouts[opt.id]) {
           throw 'Callout by that id already exists. Please choose a unique id.';
         }
@@ -1812,6 +1816,11 @@
           currStepNum,
           skippedSteps = {},
           self = this;
+
+      // Check validity of tour ID. If invalid, throw an error.
+      if(!tour.id || !validIdRegEx.test(tour.id)) {
+        throw 'Tour ID is using an invalid format. Use alphanumeric, underscores, and/or hyphens only.';
+      }
 
       // loadTour if we are calling startTour directly. (When we call startTour
       // from window onLoad handler, we'll use currTour)

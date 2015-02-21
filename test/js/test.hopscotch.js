@@ -155,6 +155,29 @@ describe('Hopscotch', function() {
       expect(hopscotch.getCurrStepNum()).toBe(1);
     });
 
+    it('should reject tour IDs that include invalid characters', function(){
+      try {
+        hopscotch.startTour({
+          id: '(this is a bad tour id!)',
+          steps: [
+            {
+              target: 'shopping-list',
+              orientation: 'left',
+              title: 'Shopping List',
+              content: 'It\'s a shopping list'
+            }
+          ]
+        });
+      }
+      catch (e) {
+        expect(true).toBeTruthy();
+        hopscotch.endTour();
+        return;
+      }
+      expect(false).toBeTruthy();
+      hopscotch.endTour();
+    });
+
     it('should throw an exception when trying to start the tour at a non-existent step', function() {
       try {
         hopscotch.startTour({
@@ -1877,6 +1900,54 @@ describe('HopscotchCalloutManager', function() {
       expect(callout.destroy).toBeTruthy();
       expect(callout.setPosition).toBeTruthy();
       mgr.removeCallout('shopping-callout');
+    });
+    it('should reject callout IDs that contain invalid characters', function() {
+      var mgr = hopscotch.getCalloutManager();
+
+      try {
+        mgr.createCallout({
+          id: '(this is an invalid callout id!)',
+          target: 'shopping-list',
+          orientation: 'left',
+          title: 'Shopping List Callout',
+          content: 'It\'s a shopping list'
+        });
+      }
+      catch (e) {
+        expect(true).toBeTruthy();
+        hopscotch.endTour();
+        return;
+      }
+      expect(false).toBeTruthy();
+      hopscotch.endTour();
+    });
+    it('should reject callouts with the same ID as another', function() {
+      var mgr = hopscotch.getCalloutManager();
+
+      mgr.createCallout({
+        id: 'my-new-callout',
+        target: 'shopping-list',
+        orientation: 'left',
+        title: 'Shopping List Callout',
+        content: 'It\'s a shopping list'
+      });
+
+      try {
+        mgr.createCallout({
+          id: 'my-new-callout',
+          target: 'shopping-list',
+          orientation: 'left',
+          title: 'Shopping List Callout',
+          content: 'It\'s a shopping list'
+        });
+      }
+      catch (e) {
+        expect(true).toBeTruthy();
+        hopscotch.endTour();
+        return;
+      }
+      expect(false).toBeTruthy();
+      hopscotch.endTour();
     });
   });
 });
