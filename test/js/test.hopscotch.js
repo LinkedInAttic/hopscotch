@@ -155,8 +155,26 @@ describe('Hopscotch', function() {
       expect(hopscotch.getCurrStepNum()).toBe(1);
     });
 
+    it('should reject tour IDs that include invalid characters', function(){
+      expect(function(){
+        hopscotch.startTour({
+          id: '(this is a bad tour id!)',
+          steps: [
+            {
+              target: 'shopping-list',
+              orientation: 'left',
+              title: 'Shopping List',
+              content: 'It\'s a shopping list'
+            }
+          ]
+        });
+      }).toThrow(new Error('Tour ID is using an invalid format. Use alphanumeric, underscores, and/or hyphens only. First character must be a letter.'))
+
+      hopscotch.endTour();
+    });
+
     it('should throw an exception when trying to start the tour at a non-existent step', function() {
-      try {
+      expect(function(){
         hopscotch.startTour({
           id: 'hopscotch-test-tour',
           steps: [
@@ -168,13 +186,8 @@ describe('Hopscotch', function() {
             }
           ]
         }, 10);
-      }
-      catch (e) {
-        expect(true).toBeTruthy();
-        hopscotch.endTour();
-        return;
-      }
-      expect(false).toBeTruthy();
+      }).toThrow(new Error('Specified step number out of bounds.'));
+
       hopscotch.endTour();
     });
 
@@ -1877,6 +1890,44 @@ describe('HopscotchCalloutManager', function() {
       expect(callout.destroy).toBeTruthy();
       expect(callout.setPosition).toBeTruthy();
       mgr.removeCallout('shopping-callout');
+    });
+    it('should reject callout IDs that contain invalid characters', function() {
+      var mgr = hopscotch.getCalloutManager();
+
+      expect(function(){
+        mgr.createCallout({
+          id: '(this is an invalid callout id!)',
+          target: 'shopping-list',
+          orientation: 'left',
+          title: 'Shopping List Callout',
+          content: 'It\'s a shopping list'
+        });
+      }).toThrow(new Error('Callout ID is using an invalid format. Use alphanumeric, underscores, and/or hyphens only. First character must be a letter.'));
+
+      hopscotch.endTour();
+    });
+    it('should reject callouts with the same ID as another', function() {
+      var mgr = hopscotch.getCalloutManager();
+
+      mgr.createCallout({
+        id: 'my-new-callout',
+        target: 'shopping-list',
+        orientation: 'left',
+        title: 'Shopping List Callout',
+        content: 'It\'s a shopping list'
+      });
+
+      expect(function(){
+        mgr.createCallout({
+          id: 'my-new-callout',
+          target: 'shopping-list',
+          orientation: 'left',
+          title: 'Shopping List Callout',
+          content: 'It\'s a shopping list'
+        });
+      }).toThrow(new Error('Callout by that id already exists. Please choose a unique id.'));
+
+      hopscotch.endTour();
     });
   });
 });
