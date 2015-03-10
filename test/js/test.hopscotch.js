@@ -156,7 +156,7 @@ describe('Hopscotch', function() {
     });
 
     it('should reject tour IDs that include invalid characters', function(){
-      try {
+      expect(function(){
         hopscotch.startTour({
           id: '(this is a bad tour id!)',
           steps: [
@@ -168,18 +168,13 @@ describe('Hopscotch', function() {
             }
           ]
         });
-      }
-      catch (e) {
-        expect(true).toBeTruthy();
-        hopscotch.endTour();
-        return;
-      }
-      expect(false).toBeTruthy();
+      }).toThrow(new Error('Tour ID is using an invalid format. Use alphanumeric, underscores, and/or hyphens only. First character must be a letter.'))
+
       hopscotch.endTour();
     });
 
     it('should throw an exception when trying to start the tour at a non-existent step', function() {
-      try {
+      expect(function(){
         hopscotch.startTour({
           id: 'hopscotch-test-tour',
           steps: [
@@ -191,13 +186,8 @@ describe('Hopscotch', function() {
             }
           ]
         }, 10);
-      }
-      catch (e) {
-        expect(true).toBeTruthy();
-        hopscotch.endTour();
-        return;
-      }
-      expect(false).toBeTruthy();
+      }).toThrow(new Error('Specified step number out of bounds.'));
+
       hopscotch.endTour();
     });
 
@@ -1904,7 +1894,7 @@ describe('HopscotchCalloutManager', function() {
     it('should reject callout IDs that contain invalid characters', function() {
       var mgr = hopscotch.getCalloutManager();
 
-      try {
+      expect(function(){
         mgr.createCallout({
           id: '(this is an invalid callout id!)',
           target: 'shopping-list',
@@ -1912,13 +1902,8 @@ describe('HopscotchCalloutManager', function() {
           title: 'Shopping List Callout',
           content: 'It\'s a shopping list'
         });
-      }
-      catch (e) {
-        expect(true).toBeTruthy();
-        hopscotch.endTour();
-        return;
-      }
-      expect(false).toBeTruthy();
+      }).toThrow(new Error('Callout ID is using an invalid format. Use alphanumeric, underscores, and/or hyphens only. First character must be a letter.'));
+
       hopscotch.endTour();
     });
     it('should reject callouts with the same ID as another', function() {
@@ -1932,7 +1917,7 @@ describe('HopscotchCalloutManager', function() {
         content: 'It\'s a shopping list'
       });
 
-      try {
+      expect(function(){
         mgr.createCallout({
           id: 'my-new-callout',
           target: 'shopping-list',
@@ -1940,13 +1925,8 @@ describe('HopscotchCalloutManager', function() {
           title: 'Shopping List Callout',
           content: 'It\'s a shopping list'
         });
-      }
-      catch (e) {
-        expect(true).toBeTruthy();
-        hopscotch.endTour();
-        return;
-      }
-      expect(false).toBeTruthy();
+      }).toThrow(new Error('Callout by that id already exists. Please choose a unique id.'));
+
       hopscotch.endTour();
     });
   });

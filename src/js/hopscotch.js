@@ -21,7 +21,7 @@
       hasSessionStorage = false,
       isStorageWritable = false,
       document          = window.document,
-      validIdRegEx      = /^[a-zA-Z0-9_-]+$/,
+      validIdRegEx      = /^[a-zA-Z]+[a-zA-Z0-9_-]*$/,
       rtlMatches        = {
         left: 'right',
         right: 'left'
@@ -638,7 +638,7 @@
         left = boundingRect.right + this.opt.arrowWidth;
       }
       else {
-        throw 'Bubble placement failed because step.placement is invalid or undefined!';
+        throw new Error('Bubble placement failed because step.placement is invalid or undefined!');
       }
 
       // SET (OR RESET) ARROW OFFSETS
@@ -803,7 +803,7 @@
       }
       else if(typeof tourSpecificRenderer === 'string'){
         if(!hopscotch.templates || (typeof hopscotch.templates[tourSpecificRenderer] !== 'function')){
-          throw 'Bubble rendering failed - template "' + tourSpecificRenderer + '" is not a function.';
+          throw new Error('Bubble rendering failed - template "' + tourSpecificRenderer + '" is not a function.');
         }
         el.innerHTML = hopscotch.templates[tourSpecificRenderer](opts);
       }
@@ -812,7 +812,7 @@
       }
       else{
         if(!hopscotch.templates || (typeof hopscotch.templates[templateToUse] !== 'function')){
-          throw 'Bubble rendering failed - template "' + templateToUse + '" is not a function.';
+          throw new Error('Bubble rendering failed - template "' + templateToUse + '" is not a function.');
         }
         el.innerHTML = hopscotch.templates[templateToUse](opts);
       }
@@ -1172,10 +1172,10 @@
 
       if (opt.id) {
         if(!validIdRegEx.test(opt.id)) {
-          throw 'Callout ID is using an invalid format. Use alphanumeric, underscores, and/or hyphens only.';
+          throw new Error('Callout ID is using an invalid format. Use alphanumeric, underscores, and/or hyphens only. First character must be a letter.');
         }
         if (callouts[opt.id]) {
-          throw 'Callout by that id already exists. Please choose a unique id.';
+          throw new Error('Callout by that id already exists. Please choose a unique id.');
         }
         opt.showNextButton = opt.showPrevButton = false;
         opt.isTourBubble = false;
@@ -1192,7 +1192,7 @@
         }
       }
       else {
-        throw 'Must specify a callout id.';
+        throw new Error('Must specify a callout id.');
       }
       return callout;
     };
@@ -1819,7 +1819,7 @@
 
       // Check validity of tour ID. If invalid, throw an error.
       if(!tour.id || !validIdRegEx.test(tour.id)) {
-        throw 'Tour ID is using an invalid format. Use alphanumeric, underscores, and/or hyphens only.';
+        throw new Error('Tour ID is using an invalid format. Use alphanumeric, underscores, and/or hyphens only. First character must be a letter.');
       }
 
       // loadTour if we are calling startTour directly. (When we call startTour
@@ -1831,7 +1831,7 @@
 
       if (typeof stepNum !== undefinedStr) {
         if (stepNum >= currTour.steps.length) {
-          throw 'Specified step number out of bounds.';
+          throw new Error('Specified step number out of bounds.');
         }
         currStepNum = stepNum;
       }
