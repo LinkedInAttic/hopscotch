@@ -181,42 +181,27 @@ module.exports = function(grunt) {
         src: '<%=paths.build%>/js/hopscotch.min.js',
         options: {
           keepRunner: false,
-          specs: ['<%=paths.test%>/js/*.js'],
-          vendor: [
-            'node_modules/jquery/dist/jquery.min.js',
-            'node_modules/sinon/pkg/sinon-1.9.1.js'
-          ],
-          styles: [
-            '<%=paths.build%>/css/hopscotch.min.css'
-          ]
+          specs:  ['<%=paths.test%>/js/*.js'],
+          vendor: ['node_modules/jquery/dist/jquery.min.js'],
+          styles: ['<%=paths.build%>/css/hopscotch.min.css']
         }
       },
       testDev: {
         src: '<%=paths.build%>/js/hopscotch.js',
         options: {
           keepRunner: false,
-          specs: ['<%=paths.test%>/js/*.js'],
-          vendor: [
-            'node_modules/jquery/dist/jquery.min.js',
-            'node_modules/sinon/pkg/sinon-1.9.1.js'
-          ],
-          styles: [
-            '<%=paths.build%>/css/hopscotch.css'
-          ]
+          specs:  ['<%=paths.test%>/js/*.js'],
+          vendor: ['node_modules/jquery/dist/jquery.min.js'],
+          styles: ['<%=paths.build%>/css/hopscotch.css']
         }
       },
       coverage: {
         src: '<%=paths.build%>/js/hopscotch.js',
         options: {
           keepRunner: false,
-          specs: ['<%=paths.test%>/js/*.js'],
-          vendor: [
-            'node_modules/jquery/dist/jquery.min.js',
-            'node_modules/sinon/pkg/sinon-1.9.1.js'
-          ],
-          styles: [
-            '<%=paths.build%>/css/hopscotch.css'
-          ],
+          specs:  ['<%=paths.test%>/js/*.js'],
+          vendor: ['node_modules/jquery/dist/jquery.min.js'],
+          styles: ['<%=paths.build%>/css/hopscotch.css'],
           template: require('grunt-template-jasmine-istanbul'),
           templateOptions: {
             coverage: '<%=paths.build%>/coverage/coverage.json',
