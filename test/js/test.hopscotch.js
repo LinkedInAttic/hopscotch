@@ -109,7 +109,7 @@ describe('Hopscotch', function() {
         id: 'hopscotch-test-tour',
         steps: [ {
           target: 'shopping-list',
-          orientation: 'left',
+          placement: 'left',
           title: 'Shopping List',
           content: 'It\'s a shopping list'
         } ]
@@ -125,7 +125,7 @@ describe('Hopscotch', function() {
         id: 'hopscotch-test-tour',
         steps: [ {
           target: 'shopping-list',
-          orientation: 'left',
+          placement: 'left',
           title: 'Shopping List',
           content: 'It\'s a shopping list'
         } ]
@@ -140,13 +140,13 @@ describe('Hopscotch', function() {
         steps: [
           {
             target: 'shopping-list',
-            orientation: 'left',
+            placement: 'left',
             title: 'Shopping List',
             content: 'It\'s a shopping list'
           },
           {
             target: 'jasmine',
-            orientation: 'top',
+            placement: 'top',
             title: 'Jasmine',
             content: 'It\'s Jasmine'
           }
@@ -162,7 +162,7 @@ describe('Hopscotch', function() {
           steps: [
             {
               target: 'shopping-list',
-              orientation: 'left',
+              placement: 'left',
               title: 'Shopping List',
               content: 'It\'s a shopping list'
             }
@@ -197,7 +197,7 @@ describe('Hopscotch', function() {
         steps: [
           {
             target: 'dynamic-target',
-            orientation: 'left',
+            placement: 'left',
             title: 'Dynamic target',
             content: 'It comes and goes, talking of Michelangelo'
           },
@@ -233,7 +233,7 @@ describe('Hopscotch', function() {
         id: 'hopscotch-test-tour',
         steps: [ {
           target: 'shopping-list',
-          orientation: 'left',
+          placement: 'left',
           title: 'Shopping List',
           content: 'It\'s a shopping list'
         } ]
@@ -249,7 +249,7 @@ describe('Hopscotch', function() {
         id: 'hopscotch-test-tour',
         steps: [ {
           target: 'shopping-list',
-          orientation: 'left',
+          placement: 'left',
           title: 'Shopping List',
           content: 'It\'s a shopping list'
         } ]
@@ -262,6 +262,37 @@ describe('Hopscotch', function() {
     });
   });
 
+  describe('Can specify step target in multiple formats',function(){
+    it('should show the given step when showStep() is called', function() {
+      hopscotch.startTour({
+        id: 'hopscotch-test-tour',
+        steps: [{
+          target: ['shopping-list-other', 'shopping-list'], //finds the first existing target 'shopping-list'
+          placement: 'left',
+          title: 'Shopping List',
+          content: 'It\'s a shopping list'
+        },
+        {
+          target: ['chocolate', 'almond-milk'] //neither of the targets exist - skips this step
+        },
+        {
+          target: document.getElementById('lettuce'), //can pass in DOM element directly
+          placement: 'left',
+          title: 'Another Shopping List Item',
+          content: 'It\'s lettuce'
+        }]
+      });
+      expect(hopscotch.isActive).toBeTruthy();
+      //'shopping-list-other' does not exists, should find target 'shopping-list' instead
+      expect(hopscotch.getCurrTarget().id).toEqual('shopping-list');
+      //go to next step with existing step target, should skip step 2
+      hopscotch.nextStep();
+      expect(hopscotch.getCurrTarget().id).toEqual('lettuce');
+
+      hopscotch.endTour();
+    });
+  });
+
   describe('#showStep', function() {
     it('should show the given step when showStep() is called', function() {
       var content;
@@ -270,19 +301,19 @@ describe('Hopscotch', function() {
         steps: [
           {
             target: 'shopping-list',
-            orientation: 'left',
+            placement: 'left',
             title: 'Shopping List',
             content: 'It\'s a shopping list'
           },
           {
             target: 'shopping-list',
-            orientation: 'left',
+            placement: 'left',
             title: 'Shopping List',
             content: 'It\'s a shopping list'
           },
           {
             target: 'jasmine',
-            orientation: 'top',
+            placement: 'top',
             title: 'Jasmine',
             content: 'It\'s Jasmine'
           }
@@ -304,7 +335,7 @@ describe('Hopscotch', function() {
         id: 'hopscotch-test-tour',
         steps: [ {
           target: 'shopping-list',
-          orientation: 'left',
+          placement: 'left',
           title: 'Shopping List',
           content: 'It\'s a shopping list'
         } ],
@@ -322,7 +353,7 @@ describe('Hopscotch', function() {
         id: 'hopscotch-test-tour',
         steps: [ {
           target: 'shopping-list',
-          orientation: 'left',
+          placement: 'left',
           title: 'Shopping List',
           content: 'It\'s a shopping list'
         } ],
@@ -340,7 +371,7 @@ describe('Hopscotch', function() {
         id: 'hopscotch-test-tour',
         steps: [ {
           target: 'shopping-list',
-          orientation: 'left',
+          placement: 'left',
           title: 'Shopping List',
           content: 'It\'s a shopping list'
         } ]
@@ -362,7 +393,7 @@ describe('Hopscotch', function() {
         id: 'hopscotch-test-tour',
         steps: [ {
           target: 'shopping-list',
-          orientation: 'left',
+          placement: 'left',
           title: 'Shopping List',
           content: 'It\'s a shopping list'
         } ]
@@ -380,13 +411,13 @@ describe('Hopscotch', function() {
         steps: [
           {
             target: 'shopping-list',
-            orientation: 'left',
+            placement: 'left',
             title: 'Shopping List',
             content: 'It\'s a shopping list'
           },
           {
             target: 'shopping-list',
-            orientation: 'left',
+            placement: 'left',
             title: 'Shopping List',
             content: 'It\'s a shopping list'
           }
@@ -408,13 +439,13 @@ describe('Hopscotch', function() {
         steps: [
           {
             target: 'shopping-list',
-            orientation: 'left',
+            placement: 'left',
             title: 'Shopping List',
             content: 'It\'s a shopping list'
           },
           {
             target: 'shopping-list',
-            orientation: 'left',
+            placement: 'left',
             title: 'Shopping List',
             content: 'It\'s a shopping list'
           }
@@ -436,13 +467,13 @@ describe('Hopscotch', function() {
         steps: [
           {
             target: 'shopping-list',
-            orientation: 'left',
+            placement: 'left',
             title: 'Shopping List',
             content: 'It\'s a shopping list'
           },
           {
             target: 'shopping-list',
-            orientation: 'left',
+            placement: 'left',
             title: 'Shopping List',
             content: 'It\'s a shopping list'
           }
@@ -461,13 +492,13 @@ describe('Hopscotch', function() {
         steps: [
           {
             target: 'shopping-list',
-            orientation: 'left',
+            placement: 'left',
             title: 'Shopping List',
             content: 'It\'s a shopping list'
           },
           {
             target: 'shopping-list',
-            orientation: 'left',
+            placement: 'left',
             title: 'Shopping List',
             content: 'It\'s a shopping list'
           }
@@ -489,13 +520,13 @@ describe('Hopscotch', function() {
         steps: [
           {
             target: 'shopping-list',
-            orientation: 'left',
+            placement: 'left',
             title: 'Shopping List',
             content: 'It\'s a shopping list'
           },
           {
             target: 'shopping-list',
-            orientation: 'left',
+            placement: 'left',
             title: 'Shopping List',
             content: 'It\'s a shopping list'
           }
@@ -514,13 +545,13 @@ describe('Hopscotch', function() {
         steps: [
           {
             target: 'shopping-list',
-            orientation: 'left',
+            placement: 'left',
             title: 'Shopping List',
             content: 'It\'s a shopping list'
           },
           {
             target: 'shopping-list',
-            orientation: 'left',
+            placement: 'left',
             title: 'Shopping List',
             content: 'It\'s a shopping list'
           }
@@ -537,13 +568,13 @@ describe('Hopscotch', function() {
         steps: [
           {
             target: 'nonexistent',
-            orientation: 'left',
+            placement: 'left',
             title: 'This target shouldn\'t exist',
             content: 'If it does, then I\'ve made a huge mistake.'
           },
           {
             target: 'shopping-list',
-            orientation: 'left',
+            placement: 'left',
             title: 'Shopping List',
             content: 'It\'s a shopping list'
           }
@@ -555,25 +586,81 @@ describe('Hopscotch', function() {
     });
 
     it('should not skip to the next step if the target element if skipIfNoElement is set to false', function() {
-      hopscotch.startTour({
+      var tourConfig = {
         id: 'hopscotch-test-tour',
         steps: [
           {
             target: 'nonexistent',
-            orientation: 'left',
+            placement: 'left',
             title: 'This target shouldn\'t exist',
             content: 'If it does, then I\'ve made a huge mistake.'
           },
           {
             target: 'shopping-list',
-            orientation: 'left',
+            placement: 'left',
             title: 'Shopping List',
             content: 'It\'s a shopping list'
           }
         ],
-        skipIfNoElement: false
-      });
+        skipIfNoElement: false,
+        onError: function (){}
+      };
+
+      spyOn(tourConfig,'onError');
+
+      hopscotch.startTour(tourConfig);
+
       expect(hopscotch.isActive).toBeFalsy();
+      expect(tourConfig.onError).toHaveBeenCalled();
+
+      hopscotch.endTour();
+    });
+
+    it('should invoke error callback if the target element is missing and skipIfNoElement is set to false', function() {
+      var tourConfig = {
+        id: 'hopscotch-test-tour',
+        steps: [
+          {
+            target: 'shopping-list',
+            placement: 'left',
+            title: 'Shopping List',
+            content: 'It\'s a shopping list'
+          },
+          {
+            target: 'bread',
+            placement: 'right',
+            title: 'Item on a shopping list',
+            content: 'It\'s bread!'
+          },
+          {
+            target: 'nonexistent',
+            placement: 'left',
+            title: 'This target shouldn\'t exist',
+            content: 'If it does, then I\'ve made a huge mistake.'
+          },
+          {
+            target: 'lettuce',
+            placement: 'top',
+            title: 'Item on a shopping list',
+            content: 'It\'s lettuce!'
+          }
+        ],
+        skipIfNoElement: false,
+        onError: function (){}
+      };
+
+      spyOn(tourConfig,'onError');
+
+      //step 1 - shopping list
+      hopscotch.startTour(tourConfig);
+      //bread
+      hopscotch.nextStep();
+      //nonexistent step
+      hopscotch.nextStep();
+
+      expect(hopscotch.isActive).toBeFalsy();
+      expect(tourConfig.onError).toHaveBeenCalled();
+
       hopscotch.endTour();
     });
 
@@ -583,7 +670,7 @@ describe('Hopscotch', function() {
         steps: [
           {
             target: 'div#shopping-list li[id]',
-            orientation: 'left',
+            placement: 'left',
             title: 'Shopping List Item',
             content: 'It\'s a thing on my shopping list'
           }
@@ -608,13 +695,13 @@ describe('Hopscotch', function() {
         steps: [
           {
             target: 'shopping-list',
-            orientation: 'left',
+            placement: 'left',
             title: 'Shopping List',
             content: 'It\'s a shopping list'
           },
           {
             target: 'shopping-list',
-            orientation: 'left',
+            placement: 'left',
             title: 'Shopping List',
             content: 'It\'s a shopping list'
           }
@@ -641,7 +728,7 @@ describe('Hopscotch', function() {
       callout = mgr.createCallout({
         id: 'shopping-callout',
         target: 'shopping-list',
-        orientation: ltrPosition,
+        placement: ltrPosition,
         title: 'Shopping List Callout',
         content: 'It\'s a shopping list',
         isRtl: true
@@ -663,7 +750,7 @@ describe('Hopscotch', function() {
       callout = mgr.createCallout({
         id: 'shopping-callout',
         target: 'shopping-list',
-        orientation: ltrPosition,
+        placement: ltrPosition,
         title: 'Shopping List Callout',
         content: 'It\'s a shopping list',
         isRtl: true
@@ -683,13 +770,13 @@ describe('Hopscotch', function() {
         steps: [
           {
             target: 'shopping-list',
-            orientation: 'left',
+            placement: 'left',
             title: 'Shopping List',
             content: 'It\'s a shopping list'
           },
           {
             target: 'shopping-list',
-            orientation: 'right',
+            placement: 'right',
             title: 'Shopping List',
             content: 'It\'s a shopping list'
           }
@@ -724,14 +811,14 @@ describe('Hopscotch', function() {
         steps: [
           {
             target: 'shopping-list',
-            orientation: ltrPosition,
+            placement: ltrPosition,
             title: 'Shopping List',
             content: 'It\'s a shopping list',
             isRtl: true
           },
           {
             target: 'shopping-list',
-            orientation: ltrPosition,
+            placement: ltrPosition,
             title: 'Shopping List',
             content: 'It\'s a shopping list',
             isRtl: false
@@ -757,13 +844,13 @@ describe('Hopscotch', function() {
         steps: [
           {
             target: 'shopping-list',
-            orientation: 'left',
+            placement: 'left',
             title: 'Shopping List',
             content: 'It\'s a shopping list'
           },
           {
             target: 'shopping-list',
-            orientation: 'right',
+            placement: 'right',
             title: 'Shopping List',
             content: 'It\'s a shopping list'
           }
@@ -786,20 +873,20 @@ describe('Hopscotch', function() {
         steps: [
           {
             target: 'bread',
-            orientation: 'left',
+            placement: 'left',
             title: 'Bread bread bread!',
             content: 'Gotta get me some bread',
             nextOnTargetClick: true
           },
           {
             target: 'eggs',
-            orientation: 'left',
+            placement: 'left',
             title: 'Eggs',
             content: 'I need to buy some eggs'
           },
           {
             target: 'milk',
-            orientation: 'left',
+            placement: 'left',
             title: 'Milk',
             content: 'I need to buy milk as well',
             nextOnTargetClick: true
@@ -861,7 +948,7 @@ describe('Hopscotch', function() {
         id: 'hopscotch-test-tour',
         steps: [ {
           target: 'shopping-list',
-          orientation: 'left',
+          placement: 'left',
           title: 'Shopping List',
           content: 'It\'s a shopping list'
         } ]
@@ -879,7 +966,7 @@ describe('Hopscotch', function() {
         steps: [
           {
             target: 'shopping-list',
-            orientation: 'left',
+            placement: 'left',
             title: 'Shopping List',
             content: 'It\'s a shopping list'
           }
@@ -898,13 +985,13 @@ describe('Hopscotch', function() {
         steps: [
           {
             target: 'shopping-list',
-            orientation: 'left',
+            placement: 'left',
             title: 'Shopping List',
             content: 'It\'s a shopping list'
           },
           {
             target: 'shopping-list',
-            orientation: 'left',
+            placement: 'left',
             title: 'Shopping List',
             content: 'It\'s a shopping list'
           }
@@ -923,7 +1010,7 @@ describe('Hopscotch', function() {
         steps: [
           {
             target: 'shopping-list',
-            orientation: 'left',
+            placement: 'top',
             title: 'Shopping List',
             content: 'It\'s a shopping list'
           }
@@ -950,7 +1037,7 @@ describe('Hopscotch', function() {
     it('also runs recalculations for individual callouts', function() {
       hopscotch.getCalloutManager().createCallout({
         id: 'test_callout',
-        orientation: 'left',
+        placement: 'left',
         target: 'shopping-list',
         title: 'Shopping List',
         content: 'It\'s a shopping list'
@@ -980,13 +1067,13 @@ describe('Hopscotch', function() {
           steps: [
             {
               target: 'shopping-list',
-              orientation: 'left',
+              placement: 'left',
               title: 'Shopping List',
               content: 'It\'s a shopping list'
             },
             {
               target: 'shopping-list',
-              orientation: 'left',
+              placement: 'left',
               title: 'Shopping List',
               content: 'It\'s a shopping list'
             }
@@ -996,7 +1083,7 @@ describe('Hopscotch', function() {
         mockCallout = {
           id: 'shopping-callout',
           target: 'shopping-list',
-          orientation: 'left',
+          placement: 'left',
           title: 'Shopping List Callout',
           content: 'It\'s a shopping list'
         },
@@ -1054,6 +1141,22 @@ describe('Hopscotch', function() {
       expect(customRenderer.render.calls.count()).toEqual(1);
       expect(hopscotch.templates.customTemplate).not.toHaveBeenCalled();
       expect(hopscotch.templates.bubble_default).not.toHaveBeenCalled();
+    });
+
+    it('Should throw and exception when tour specific custom renderer does not exist', function(){
+      var augmentedData = $.extend({}, mockTour, {customRenderer: 'myCustomTemplateThatDoesNotExist'});
+
+      expect(function(){
+        hopscotch.startTour(augmentedData);
+      }).toThrow(new Error('Bubble rendering failed - template "myCustomTemplateThatDoesNotExist" is not a function.'));
+
+    });
+
+    it('Should throw and exception when custom renderer does not exist', function(){
+      expect(function(){
+        hopscotch.setRenderer('anotherTemplateThatDoesNotExist');
+        hopscotch.startTour(mockTour);
+      }).toThrow(new Error('Bubble rendering failed - template "anotherTemplateThatDoesNotExist" is not a function.'));
     });
 
     it('Should accept a custom renderer in hopscotch.templates set via tour config', function(){
@@ -1157,7 +1260,7 @@ describe('HopscotchBubble', function() {
         id: 'hopscotch-test-tour',
         steps: [ {
           target: 'shopping-list',
-          orientation: 'left',
+          placement: 'left',
           title: 'Shopping List',
           content: 'It\'s a shopping list'
         } ]
@@ -1172,7 +1275,7 @@ describe('HopscotchBubble', function() {
         id: 'hopscotch-test-tour',
         steps: [ {
           target: 'shopping-list',
-          orientation: 'left',
+          placement: 'left',
           title: 'Shopping List',
           content: 'It\'s a shopping list'
         } ]
@@ -1206,37 +1309,37 @@ describe('HopscotchBubble', function() {
         steps: [
           {
             target: 'shopping-list',
-            orientation: 'left',
+            placement: 'top',
             title: 'Shopping List',
             content: stepContent.shoppingList
           },
           {
             target: 'id-of-dynamically-created-element',
-            orientation: 'left',
+            placement: 'left',
             title: 'My target is dynamic, it might or might not exist!',
             content: stepContent.dynamicTarget
           },
           {
             target: 'eggs',
-            orientation: 'left',
+            placement: 'left',
             title: 'Eggs',
             content: stepContent.eggs
           },
           {
             target: 'another-target-that-does-not-exist',
-            orientation: 'left',
+            placement: 'left',
             title: 'My target does not exist',
             content: 'My target isn\'t here'
           },
           {
             target: 'and-another-target-that-does-not-exist',
-            orientation: 'left',
+            placement: 'left',
             title: 'My target can\'t be found...',
             content: 'Target, target, target!'
           },
           {
             target: 'milk',
-            orientation: 'left',
+            placement: 'bottom',
             title: 'Milk!',
             content: stepContent.milk
           }
@@ -1323,19 +1426,19 @@ describe('HopscotchBubble', function() {
         steps: [
           {
             target: 'shopping-list',
-            orientation: 'left',
+            placement: 'left',
             title: 'Shopping List',
             content: stepContent.shoppingList
           },
           {
             target: 'eggs',
-            orientation: 'left',
+            placement: 'left',
             title: 'Eggs',
             content: stepContent.eggs
           },
           {
             target: 'milk',
-            orientation: 'left',
+            placement: 'left',
             title: 'Milk!',
             content: stepContent.milk
           }
@@ -1377,21 +1480,21 @@ describe('HopscotchBubble', function() {
         id: 'hopscotch-test-tour',
         steps: [ {
           target: 'shopping-list',
-          orientation: 'left',
+          placement: 'left',
           title: 'Shopping List',
           content: 'It\'s a shopping list',
           zindex: 100
         },
         {
           target: 'shopping-list',
-          orientation: 'left',
+          placement: 'left',
           title: 'Shopping List',
           content: 'It\'s a shopping list',
           zindex: 0
         },
         {
           target: 'shopping-list',
-          orientation: 'left',
+          placement: 'left',
           title: 'Shopping List',
           content: 'It\'s a shopping list'
         }]
@@ -1421,14 +1524,14 @@ describe('HopscotchBubble', function() {
         steps: [
           {
             target: 'shopping-list',
-            orientation: 'left',
+            placement: 'left',
             title: 'Shopping List',
             content: 'It\'s a shopping list',
             showSkip: true
           },
           {
             target: 'jasmine',
-            orientation: 'top',
+            placement: 'top',
             title: 'Jasmine',
             content: 'It\'s Jasmine'
           }
@@ -1447,7 +1550,7 @@ describe('HopscotchBubble', function() {
         steps: [
           {
             target: 'shopping-list',
-            orientation: 'left',
+            placement: 'left',
             title: 'Shopping List',
             content: 'It\'s a shopping list',
             showPrevBtn: false
@@ -1468,7 +1571,7 @@ describe('HopscotchBubble', function() {
         steps: [
           {
             target: 'shopping-list',
-            orientation: 'left',
+            placement: 'left',
             title: 'Shopping List',
             content: 'It\'s a shopping list',
             showNextButton: false
@@ -1493,13 +1596,13 @@ describe('HopscotchBubble', function() {
         steps: [
           {
             target: 'shopping-list',
-            orientation: 'left',
+            placement: 'left',
             title: 'Shopping List',
             content: 'It\'s a shopping list'
           },
           {
             target: 'jasmine',
-            orientation: 'top',
+            placement: 'top',
             title: 'Jasmine',
             content: 'It\'s Jasmine'
           }
@@ -1520,7 +1623,7 @@ describe('HopscotchBubble', function() {
         steps: [
           {
             target: 'shopping-list',
-            orientation: 'left',
+            placement: 'left',
             title: 'Shopping List',
             content: 'It\'s a shopping list',
             onNext: function() {
@@ -1529,7 +1632,7 @@ describe('HopscotchBubble', function() {
           },
           {
             target: 'jasmine',
-            orientation: 'top',
+            placement: 'top',
             title: 'Jasmine',
             content: 'It\'s Jasmine'
           }
@@ -1551,13 +1654,13 @@ describe('HopscotchBubble', function() {
         steps: [
           {
             target: 'shopping-list',
-            orientation: 'left',
+            placement: 'left',
             title: 'Shopping List',
             content: 'It\'s a shopping list'
           },
           {
             target: 'jasmine',
-            orientation: 'top',
+            placement: 'top',
             title: 'Jasmine',
             content: 'It\'s Jasmine',
             onPrev: function() {
@@ -1582,7 +1685,7 @@ describe('HopscotchBubble', function() {
         steps: [
           {
             target: 'shopping-list',
-            orientation: 'left',
+            placement: 'left',
             title: 'Shopping List',
             content: 'It\'s a shopping list'
           }
@@ -1605,7 +1708,7 @@ describe('HopscotchBubble', function() {
         steps: [
           {
             target: 'shopping-list',
-            orientation: 'left',
+            placement: 'left',
             title: 'Shopping List',
             content: 'It\'s a shopping list',
             onNext: function() {
@@ -1614,13 +1717,13 @@ describe('HopscotchBubble', function() {
           },
           {
             target: 'milk',
-            orientation: 'left',
+            placement: 'left',
             title: 'Milk',
             content: 'It\'s milk'
           },
           {
             target: 'eggs',
-            orientation: 'left',
+            placement: 'left',
             title: 'Eggs',
             content: 'It\'s eggs'
           }
@@ -1640,7 +1743,7 @@ describe('HopscotchBubble', function() {
         steps: [
           {
             target: 'shopping-list',
-            orientation: 'left',
+            placement: 'left',
             title: 'Shopping List',
             content: 'It\'s a shopping list',
             showCTAButton: true,
@@ -1668,7 +1771,7 @@ describe('HopscotchBubble', function() {
         steps: [
           {
             target: 'shopping-list',
-            orientation: 'left',
+            placement: 'left',
             title: 'Shopping List',
             content: 'It\'s a shopping list',
             showCTAButton: true,
@@ -1679,7 +1782,7 @@ describe('HopscotchBubble', function() {
           },
           {
             target: 'shopping-list',
-            orientation: 'left',
+            placement: 'left',
             title: 'Shopping List',
             content: 'It\'s a shopping list',
             showCTAButton: true,
@@ -1716,13 +1819,13 @@ describe('HopscotchBubble', function() {
         steps: [
           {
             target: 'shopping-list',
-            orientation: 'left',
+            placement: 'left',
             title: 'Shopping List',
             content: 'It\'s a shopping list'
           },
           {
             target: 'jasmine',
-            orientation: 'top',
+            placement: 'top',
             title: 'Jasmine',
             content: 'It\'s Jasmine'
           }
@@ -1763,13 +1866,13 @@ describe('HopscotchBubble', function() {
         steps: [
           {
             target: 'shopping-list',
-            orientation: 'left',
+            placement: 'left',
             title: 'Shopping List',
             content: 'It\'s a shopping list'
           },
           {
             target: 'jasmine',
-            orientation: 'top',
+            placement: 'top',
             title: 'Jasmine',
             content: 'It\'s Jasmine'
           }
@@ -1804,13 +1907,13 @@ describe('HopscotchBubble', function() {
         steps: [
           {
             target: 'shopping-list',
-            orientation: 'left',
+            placement: 'left',
             title: 'Shopping List',
             content: 'It\'s a shopping list'
           },
           {
             target: 'jasmine',
-            orientation: 'top',
+            placement: 'top',
             title: 'Jasmine',
             content: 'It\'s Jasmine'
           }
@@ -1839,7 +1942,7 @@ describe('HopscotchCalloutManager', function() {
       mgr.createCallout({
         id: 'shopping-callout',
         target: 'shopping-list',
-        orientation: 'left',
+        placement: 'left',
         title: 'Shopping List Callout',
         content: 'It\'s a shopping list'
       });
@@ -1857,21 +1960,21 @@ describe('HopscotchCalloutManager', function() {
       mgr.createCallout({
         id: 'shopping-callout',
         target: 'shopping-list',
-        orientation: 'left',
+        placement: 'left',
         title: 'Shopping List Callout',
         content: 'It\'s a shopping list'
       });
       mgr.createCallout({
         id: 'shopping-callout2',
         target: 'shopping-list',
-        orientation: 'left',
+        placement: 'left',
         title: 'Shopping List Callout',
         content: 'It\'s a shopping list'
       });
       mgr.createCallout({
         id: 'shopping-callout3',
         target: 'shopping-list',
-        orientation: 'left',
+        placement: 'left',
         title: 'Shopping List Callout',
         content: 'It\'s a shopping list'
       });
@@ -1887,7 +1990,7 @@ describe('HopscotchCalloutManager', function() {
       callout = mgr.createCallout({
         id: 'shopping-callout',
         target: 'shopping-list',
-        orientation: 'left',
+        placement: 'left',
         title: 'Shopping List Callout',
         content: 'It\'s a shopping list'
       });
