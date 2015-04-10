@@ -35,7 +35,6 @@
     "grunt-include-replace": "~1.2.0",
     "grunt-shell": "~0.3.1",
     "grunt-template-jasmine-istanbul": "^0.3.0",
-    "jquery": "~2.1.0",
-    "sinon": "~1.9.0"
+    "jquery": "~2.1.0"
   }
 }

@@ -289,13 +289,6 @@
     /**
      * @private
      */
-    getWindowWidth: function() {
-      return window.innerWidth || document.documentElement.clientWidth;
-    },
-
-    /**
-     * @private
-     */
     addEvtListener: function(el, evtName, fn) {
       return el.addEventListener ? el.addEventListener(evtName, fn, false) : el.attachEvent('on' + evtName, fn);
     },
@@ -885,22 +878,22 @@
      *
      * @private
      */
-    _setArrow: function(orientation) {
+    _setArrow: function(placement) {
       utils.removeClass(this.arrowEl, 'down up right left');
 
       // Whatever the orientation is, we want to arrow to appear
       // "opposite" of the orientation. E.g., a top orientation
       // requires a bottom arrow.
-      if (orientation === 'top') {
+      if (placement === 'top') {
         utils.addClass(this.arrowEl, 'down');
       }
-      else if (orientation === 'bottom') {
+      else if (placement === 'bottom') {
         utils.addClass(this.arrowEl, 'up');
       }
-      else if (orientation === 'left') {
+      else if (placement === 'left') {
         utils.addClass(this.arrowEl, 'right');
       }
-      else if (orientation === 'right') {
+      else if (placement === 'right') {
         utils.addClass(this.arrowEl, 'left');
       }
     },
