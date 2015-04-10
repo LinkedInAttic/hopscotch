@@ -1062,6 +1062,7 @@
           numChildren,
           node,
           i,
+          currTour,
           opt;
 
       //Register DOM element for this bubble.
@@ -1086,6 +1087,9 @@
       el.className = 'hopscotch-bubble animated';
       if (!opt.isTourBubble) {
         utils.addClass(el, 'hopscotch-callout no-number');
+      } else {
+        currTour = winHopscotch.getCurrTour();
+        utils.addClass(el, 'tour-' + currTour.id);
       }
 
       /**
@@ -1823,16 +1827,18 @@
           skippedSteps = {},
           self = this;
 
-      // Check validity of tour ID. If invalid, throw an error.
-      if(!tour.id || !validIdRegEx.test(tour.id)) {
-        throw new Error('Tour ID is using an invalid format. Use alphanumeric, underscores, and/or hyphens only. First character must be a letter.');
-      }
-
       // loadTour if we are calling startTour directly. (When we call startTour
       // from window onLoad handler, we'll use currTour)
       if (!currTour) {
+        
+        // Check validity of tour ID. If invalid, throw an error.
+        if(!tour.id || !validIdRegEx.test(tour.id)) {
+          throw new Error('Tour ID is using an invalid format. Use alphanumeric, underscores, and/or hyphens only. First character must be a letter.');
+        }
+
         currTour = tour;
         loadTour.call(this, tour);
+
       }
 
       if (typeof stepNum !== undefinedStr) {

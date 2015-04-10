@@ -153,6 +153,7 @@ describe('Hopscotch', function() {
         ]
       }, 1);
       expect(hopscotch.getCurrStepNum()).toBe(1);
+      hopscotch.endTour();
     });
 
     it('should reject tour IDs that include invalid characters', function(){
