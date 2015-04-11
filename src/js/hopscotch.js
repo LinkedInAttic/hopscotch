@@ -2392,20 +2392,12 @@
 
   winHopscotch = new Hopscotch();
 
-  // Workaround to get templates working:
-  // temporarily assign hopscotch instance to window scope,
-  // and restore original state when templates are done.
-  var _originalHopscotch = window.hopscotch;
-  window.hopscotch = winHopscotch;
-
 // Template includes, placed inside a closure to ensure we don't
 // end up declaring our shim globally.
 (function(){
 // @@include('../../src/tl/_template_headers.js') //
 // @@include('../../tmp/js/hopscotch_templates.js') //
-}());
-
-  window.hopscotch = _originalHopscotch;
+}.call(winHopscotch));
 
   return winHopscotch;
 

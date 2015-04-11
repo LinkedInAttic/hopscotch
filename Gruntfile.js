@@ -116,7 +116,7 @@ module.exports = function(grunt) {
     jst: {
       compile: {
         options: {
-          namespace: 'hopscotch.templates',
+          namespace: 'templates',
           processName: function(filename){
             var splitName = filename.split('/'),
                 sanitized = splitName[splitName.length - 1].replace('.jst', '').replace(new RegExp('-', 'g'), '_');
