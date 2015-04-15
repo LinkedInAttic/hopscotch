@@ -14,9 +14,9 @@
       // Hopscotch already exists.
       return;
     }
-    context[namespace] = factory(context.jQuery, context.YAHOO);
+    context[namespace] = factory();
   }
-}(this, (function(jQuery, YAHOO) {
+}(this, (function() {
   var Hopscotch,
       HopscotchBubble,
       HopscotchCalloutManager,
