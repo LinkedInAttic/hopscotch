@@ -1,4 +1,22 @@
-(function(context, namespace) {
+(function(context, factory) {
+  'use strict';
+
+  if (typeof define === 'function' && define.amd) {
+    // AMD. Register as an anonymous module.
+    define([], factory);
+  } else if (typeof exports === 'object') {
+    // Node/CommonJS
+    module.exports = factory();
+  } else {
+    var namespace = 'hopscotch';
+    // Browser globals
+    if (context[namespace]) {
+      // Hopscotch already exists.
+      return;
+    }
+    context[namespace] = factory();
+  }
+}(this, (function() {
   var Hopscotch,
       HopscotchBubble,
       HopscotchCalloutManager,
@@ -13,11 +31,11 @@
       helpers,
       winLoadHandler,
       defaultOpts,
-      winHopscotch      = context[namespace],
+      winHopscotch,
       undefinedStr      = 'undefined',
       waitingToStart    = false, // is a tour waiting for the document to finish
                                  // loading so that it can start?
-      hasJquery         = (typeof window.jQuery !== undefinedStr),
+      hasJquery         = (typeof jQuery !== undefinedStr),
       hasSessionStorage = false,
       isStorageWritable = false,
       document          = window.document,
@@ -53,11 +71,6 @@
     isRtl:           false,
     cookieName:      'hopscotch.tour.state'
   };
-
-  if (winHopscotch) {
-    // Hopscotch already exists.
-    return;
-  }
 
   if (!Array.isArray) {
     Array.isArray = function(obj) {
@@ -795,19 +808,19 @@
         el.innerHTML = tourSpecificRenderer(opts);
       }
       else if(typeof tourSpecificRenderer === 'string'){
-        if(!hopscotch.templates || (typeof hopscotch.templates[tourSpecificRenderer] !== 'function')){
+        if(!winHopscotch.templates || (typeof winHopscotch.templates[tourSpecificRenderer] !== 'function')){
           throw new Error('Bubble rendering failed - template "' + tourSpecificRenderer + '" is not a function.');
         }
-        el.innerHTML = hopscotch.templates[tourSpecificRenderer](opts);
+        el.innerHTML = winHopscotch.templates[tourSpecificRenderer](opts);
       }
       else if(customRenderer){
         el.innerHTML = customRenderer(opts);
       }
       else{
-        if(!hopscotch.templates || (typeof hopscotch.templates[templateToUse] !== 'function')){
+        if(!winHopscotch.templates || (typeof winHopscotch.templates[templateToUse] !== 'function')){
           throw new Error('Bubble rendering failed - template "' + templateToUse + '" is not a function.');
         }
-        el.innerHTML = hopscotch.templates[templateToUse](opts);
+        el.innerHTML = winHopscotch.templates[templateToUse](opts);
       }
 
       // Find arrow among new child elements.
@@ -2371,13 +2384,14 @@
   };
 
   winHopscotch = new Hopscotch();
-  context[namespace] = winHopscotch;
 
 // Template includes, placed inside a closure to ensure we don't
 // end up declaring our shim globally.
 (function(){
 // @@include('../../src/tl/_template_headers.js') //
 // @@include('../../tmp/js/hopscotch_templates.js') //
-}());
+}.call(winHopscotch));
 
-}(window, 'hopscotch'));
+  return winHopscotch;
+
+})));
