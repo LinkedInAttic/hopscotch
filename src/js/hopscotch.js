@@ -1831,6 +1831,11 @@
       // from window onLoad handler, we'll use currTour)
       if (!currTour) {
         
+        // Sanity check! Is there a tour?
+        if(!tour){
+          throw new Error('Tour data is required for startTour.');
+        }
+
         // Check validity of tour ID. If invalid, throw an error.
         if(!tour.id || !validIdRegEx.test(tour.id)) {
           throw new Error('Tour ID is using an invalid format. Use alphanumeric, underscores, and/or hyphens only. First character must be a letter.');
