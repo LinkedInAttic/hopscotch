@@ -777,7 +777,7 @@
           stepNum: this._getStepI18nNum(this._getStepNum(idx))
         },
         buttons:{
-          showPrev: (utils.valOrDefault(step.showPrevButton, this.opt.showPrevButton) && (idx > 0)),
+          showPrev: (utils.valOrDefault(step.showPrevButton, this.opt.showPrevButton) && (this._getStepNum(idx) > 0)),
           showNext: utils.valOrDefault(step.showNextButton, this.opt.showNextButton),
           showCTA: utils.valOrDefault((step.showCTAButton && step.ctaLabel), false),
           ctaLabel: step.ctaLabel,

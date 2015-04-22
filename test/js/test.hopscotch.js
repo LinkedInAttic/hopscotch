@@ -1569,18 +1569,32 @@ describe('HopscotchBubble', function() {
       var $el,
       tour = {
         id: 'hopscotch-test-tour',
+        showPrevButton: true,
         steps: [
           {
             target: 'shopping-list',
             placement: 'left',
             title: 'Shopping List',
             content: 'It\'s a shopping list',
-            showPrevBtn: false
+          },
+          {
+            target: 'shopping-list',
+            placement: 'left',
+            title: 'Shopping List',
+            content: 'It\'s a shopping list',
+            showPrevButton: false
+          },
+          {
+            target: 'shopping-list',
+            placement: 'left',
+            title: 'Shopping List',
+            content: 'It\'s a shopping list',
           }
         ]
       };
 
       hopscotch.startTour(tour);
+      hopscotch.nextStep();
       $el = $('.hopscotch-prev');
       expect($el.length).toBe(0);
       hopscotch.endTour();
@@ -1603,6 +1617,131 @@ describe('HopscotchBubble', function() {
 
       hopscotch.startTour(tour);
       $el = $('.hopscotch-next');
+      expect($el.length).toBe(0);
+      hopscotch.endTour();
+    });
+
+    it('Should hide Previous button on first step', function(){
+      var $el;
+      hopscotch.startTour({
+        id: 'hopscotch-test-tour-prev-btn',
+        showPrevButton: true,
+        steps: [
+          {
+            target: 'shopping-list',
+            placement: 'left',
+            title: 'Shopping List',
+            content: 'It\'s a shopping list'
+          },
+          {
+            target: 'jasmine',
+            placement: 'top',
+            title: 'Jasmine',
+            content: 'It\'s Jasmine'
+          },
+          {
+            target: 'jasmine',
+            placement: 'top',
+            title: 'Jasmine',
+            content: 'It\'s Jasmine'
+          }
+        ]
+      });
+      $el = $('.hopscotch-prev');
+      expect($el.length).toBe(0);
+      hopscotch.endTour();
+    });
+
+    it('Should show Previous button on second step onward (if enabled)', function(){
+      var $el;
+      hopscotch.startTour({
+        id: 'hopscotch-test-tour-prev-btn',
+        showPrevButton: true,
+        steps: [
+          {
+            target: 'shopping-list',
+            placement: 'left',
+            title: 'Shopping List',
+            content: 'It\'s a shopping list'
+          },
+          {
+            target: 'jasmine',
+            placement: 'top',
+            title: 'Jasmine',
+            content: 'It\'s Jasmine'
+          },
+          {
+            target: 'jasmine',
+            placement: 'top',
+            title: 'Jasmine',
+            content: 'It\'s Jasmine'
+          }
+        ]
+      });
+      hopscotch.nextStep();
+      $el = $('.hopscotch-prev');
+      expect($el.length).toBe(1);
+      hopscotch.endTour();
+    });
+
+    it('Should show Previous button on second step onward (if enabled), even if starting in middle', function(){
+      var $el;
+      hopscotch.startTour({
+        id: 'hopscotch-test-tour-prev-btn',
+        showPrevButton: true,
+        steps: [
+          {
+            target: 'shopping-list',
+            placement: 'left',
+            title: 'Shopping List',
+            content: 'It\'s a shopping list'
+          },
+          {
+            target: 'jasmine',
+            placement: 'top',
+            title: 'Jasmine',
+            content: 'It\'s Jasmine'
+          },
+          {
+            target: 'jasmine',
+            placement: 'top',
+            title: 'Jasmine',
+            content: 'It\'s Jasmine'
+          }
+        ]
+      }, 1);
+      $el = $('.hopscotch-prev');
+      expect($el.length).toBe(1);
+      hopscotch.endTour();
+    });
+
+    it('Should hide Previous button on first shown step (if steps are skipped)', function(){
+      var $el;
+      hopscotch.startTour({
+        id: 'hopscotch-test-tour-prev-btn',
+        showPrevButton: true,
+        steps: [
+          {
+            target: 'this-totally-does-not-exist',
+            placement: 'left',
+            title: 'Shopping List',
+            content: 'It\'s a shopping list'
+          },
+          {
+            target: 'jasmine',
+            placement: 'top',
+            title: 'Jasmine',
+            content: 'It\'s Jasmine'
+          },
+          {
+            target: 'jasmine',
+            placement: 'top',
+            title: 'Jasmine',
+            content: 'It\'s Jasmine'
+          }
+        ]
+      });
+      $el = $('.hopscotch-prev');
       expect($el.length).toBe(0);
       hopscotch.endTour();
     });
