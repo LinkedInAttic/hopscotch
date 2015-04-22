@@ -484,6 +484,40 @@ describe('Hopscotch', function() {
       hopscotch.endTour();
     });
 
+    it('should hide the Previous button on the second step, even if showPrevButton is specified, if the first step element was not found', function() {
+      var $el;
+
+      hopscotch.configure({
+        showPrevButton: true
+      });
+      hopscotch.startTour({
+        id: 'hopscotch-test-tour',
+        steps: [
+          {
+            target: 'doesNotExist',
+            placement: 'left',
+            title: 'Shopping List',
+            content: 'It\'s a shopping list'
+          },
+          {
+            target: 'shopping-list',
+            placement: 'left',
+            title: 'Shopping List',
+            content: 'It\'s a shopping list'
+          },
+          {
+            target: 'shopping-list',
+            placement: 'left',
+            title: 'Shopping List',
+            content: 'It\'s a shopping list'
+          }
+        ]
+      }, 1);
+      $el = $('.hopscotch-prev');
+      expect($el.length).toBe(0);
+      hopscotch.endTour();
+    });
+
     it('should show the Next button by default', function() {
       var $el;
 
