@@ -768,6 +768,17 @@
 
       this.placement = step.placement;
 
+      // if every previous step was skipped, the current step is the first visible step
+      function isFirstVisibleStep() {
+        var skippedStepsIndexes = winHopscotch.getSkippedStepsIndexes();
+        for (var i = idx - 1; i > 0; i--) {
+          if (!skippedStepsIndexes[i]) {
+            return false;
+          }
+        }
+        return true;
+      }
+
       // Setup the configuration options we want to pass along to the template
       opts = {
         i18n: {
@@ -777,7 +788,7 @@
           stepNum: this._getStepI18nNum(this._getStepNum(idx))
         },
         buttons:{
-          showPrev: (utils.valOrDefault(step.showPrevButton, this.opt.showPrevButton) && (idx > 0)),
+          showPrev: (utils.valOrDefault(step.showPrevButton, this.opt.showPrevButton) && (idx > 0) && !isFirstVisibleStep()),
           showNext: utils.valOrDefault(step.showNextButton, this.opt.showNextButton),
           showCTA: utils.valOrDefault((step.showCTAButton && step.ctaLabel), false),
           ctaLabel: step.ctaLabel,
