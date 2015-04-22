@@ -1089,7 +1089,9 @@
         utils.addClass(el, 'hopscotch-callout no-number');
       } else {
         currTour = winHopscotch.getCurrTour();
-        utils.addClass(el, 'tour-' + currTour.id);
+        if(currTour){
+          utils.addClass(el, 'tour-' + currTour.id);
+        }
       }
 
       /**
@@ -1321,6 +1323,19 @@
         });
       }
       return bubble;
+    },
+
+    /**
+     * Destroy the bubble currently associated with Hopscotch.
+     * This is done when we end the current tour.
+     *
+     * @private
+     */
+    destroyBubble = function() {
+      if(bubble){
+        bubble.destroy();
+        bubble = null;
+      }
     },
 
     /**
@@ -1996,6 +2011,7 @@
 
       this.removeCallbacks(null, true);
       this.resetDefaultOptions();
+      destroyBubble();
 
       currTour = null;
 
