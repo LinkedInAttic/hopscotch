@@ -1303,7 +1303,6 @@ describe('HopscotchBubble', function() {
         } ]
       });
       bubble = document.querySelector('.hopscotch-bubble.tour-hs-test-tour-class');
-      console.log(document.querySelector('.hopscotch-bubble').classList);
       expect(bubble).not.toBe(null);
       hopscotch.endTour();
     });
