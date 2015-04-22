@@ -153,6 +153,13 @@ describe('Hopscotch', function() {
         ]
       }, 1);
       expect(hopscotch.getCurrStepNum()).toBe(1);
+      hopscotch.endTour();
+    });
+
+    it('should complain if no tour data is passed in', function(){
+      expect(function(){
+        hopscotch.startTour();
+      }).toThrow(new Error('Tour data is required for startTour.'));
     });
 
     it('should reject tour IDs that include invalid characters', function(){
@@ -1282,6 +1289,21 @@ describe('HopscotchBubble', function() {
       });
       content = document.querySelector('.hopscotch-bubble-content .hopscotch-content').innerHTML;
       expect(content).toBe('It\'s a shopping list');
+      hopscotch.endTour();
+    });
+
+    it('Should include tour ID as part of bubble classes', function(){
+      hopscotch.startTour({
+        id: 'hs-test-tour-class',
+        steps: [ {
+          target: 'shopping-list',
+          placement: 'left',
+          title: 'Shopping List',
+          content: 'It\'s a shopping list'
+        } ]
+      });
+      bubble = document.querySelector('.hopscotch-bubble.tour-hs-test-tour-class');
+      expect(bubble).not.toBe(null);
       hopscotch.endTour();
     });
   });
