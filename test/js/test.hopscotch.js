@@ -936,7 +936,7 @@ describe('Hopscotch', function() {
       click(breadEl);
       expect(hopscotch.getCurrStepNum()).toBe(1);
 
-      //go to first step
+      //go to the first step
       hopscotch.prevStep();
 
       //end the tour
@@ -945,6 +945,76 @@ describe('Hopscotch', function() {
       //on click event handler should be removed when tour is ended
       //clicking on target el should not do anything
       click(breadEl);
+    });
+
+    it('should gracefully handle starting tour with step without existing target and nextOnTargetClick option on', function(){
+      hopscotch.startTour({
+        id: 'hopscotch-test-tour-nextOnTargetClick',
+        steps: [
+          {
+            target: 'not_here_not_there_not_anywhere',
+            placement: 'left',
+            title: 'Nope',
+            content: 'ZzZzZ',
+            nextOnTargetClick: true
+          }
+        ]}
+      );
+
+      expect(hopscotch.isActive).toBeFalsy();
+      hopscotch.endTour();
+    });
+
+    it('should gracefully handle going directly to the step without existing target', function(){
+      var tourJson = {
+        id: 'hopscotch-test-tour-nextOnTargetClick',
+          steps: [
+        {
+          target: 'shopping-list',
+          placement: 'left',
+          title: 'Shopping List',
+          content: 'It\'s a shopping list'
+        },
+        {
+          target: 'not_here_not_there_not_anywhere',
+          placement: 'left',
+          title: 'Nope',
+          content: 'ZzZzZ'
+        },
+        {
+          target: 'milk',
+          placement: 'left',
+          title: 'Milk',
+          content: 'Got milk?'
+        }
+      ]};
+
+      hopscotch.startTour(tourJson);
+
+      //tour should be running and on the first step
+      expect(hopscotch.isActive).toBeTruthy();
+      expect(hopscotch.getCurrStepNum()).toEqual(0);
+
+      //try to jump directly to the step whose target does not exist
+      hopscotch.showStep(1);
+
+      //tour should be still active and on the same step
+      expect(hopscotch.isActive).toBeTruthy();
+      expect(hopscotch.getCurrStepNum()).toEqual(0);
+
+      //jump directly to step with existing target should work
+      hopscotch.showStep(2);
+      expect(hopscotch.isActive).toBeTruthy();
+      expect(hopscotch.getCurrStepNum()).toEqual(2);
+
+      hopscotch.endTour();
+
+      //Try starting tour directly on the step without existing target
+      hopscotch.startTour(tourJson, 1);
+      expect(hopscotch.isActive).toBeTruthy();
+      expect(hopscotch.getCurrStepNum()).toEqual(2);
+
+      hopscotch.endTour();
     });
   });
 
@@ -1493,6 +1563,7 @@ describe('HopscotchBubble', function() {
 
       hopscotch.endTour();
     });
+
   });
 
   describe('z-index', function(){
