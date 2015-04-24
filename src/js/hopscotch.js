@@ -756,11 +756,11 @@
 
       // Determine label for next button
       if(isLast){
-        nextBtnText = utils.getI18NString('doneBtn');
+        nextBtnText = (step.i18n && step.i18n["doneBtn"]) || utils.getI18NString('doneBtn');
       } else if(step.showSkip) {
-        nextBtnText = utils.getI18NString('skipBtn');
+        nextBtnText = (step.i18n && step.i18n["skipBtn"]) || utils.getI18NString('skipBtn');
       } else {
-        nextBtnText = utils.getI18NString('nextBtn');
+        nextBtnText = (step.i18n && step.i18n["nextBtn"]) || utils.getI18NString('nextBtn');
       }
 
       utils.flipPlacement(step);
@@ -1845,7 +1845,7 @@
       // loadTour if we are calling startTour directly. (When we call startTour
       // from window onLoad handler, we'll use currTour)
       if (!currTour) {
-        
+
         // Sanity check! Is there a tour?
         if(!tour){
           throw new Error('Tour data is required for startTour.');
