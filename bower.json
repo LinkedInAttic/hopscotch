@@ -12,7 +12,7 @@
     "linkedin"
   ],
   "license": "Apache License",
-  "homepage": "https://github.com/linkedin/hopscotch",
+  "homepage": "https://github.com/nezaidu/hopscotch",
   "ignore": [
     "**/.*",
     "archives",
