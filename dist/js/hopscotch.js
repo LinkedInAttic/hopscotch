@@ -765,11 +765,11 @@
 
       // Determine label for next button
       if(isLast){
-        nextBtnText = utils.getI18NString('doneBtn');
+        nextBtnText = (step.i18n && step.i18n["doneBtn"]) || utils.getI18NString('doneBtn');
       } else if(step.showSkip) {
-        nextBtnText = utils.getI18NString('skipBtn');
+        nextBtnText = (step.i18n && step.i18n["skipBtn"]) || utils.getI18NString('skipBtn');
       } else {
-        nextBtnText = utils.getI18NString('nextBtn');
+        nextBtnText = (step.i18n && step.i18n["nextBtn"]) || utils.getI18NString('nextBtn');
       }
 
       utils.flipPlacement(step);
@@ -2397,7 +2397,7 @@ var _ = {};
  */
 _.escape = function(str){
   if(customEscape){ return customEscape(str); }
-  
+
   if(str == null) return '';
   return ('' + str).replace(new RegExp('[&<>"\']', 'g'), function(match){
     if(match == '&'){ return '&amp;' }
