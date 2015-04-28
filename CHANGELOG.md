@@ -1,5 +1,13 @@
 ## Change Log
 
+### v0.2.4 (2015/04/28)
+ * [#168](https://github.com/linkedin/hopscotch/pull/168) Gracefully handle steps without valid target
+ * [#167](https://github.com/linkedin/hopscotch/pull/167) Hide previous button on first step, even if steps are skipped.
+ * [#153](https://github.com/linkedin/hopscotch/pull/153) Tour ID as part of classes
+ * [#151](https://github.com/linkedin/hopscotch/pull/151) Add support for AMD and CommonJS
+ * [#146](https://github.com/linkedin/hopscotch/pull/146) Check tour & callout IDs for invalid characters
+ * [#142](https://github.com/linkedin/hopscotch/pull/142) Simple bower config file added.
+
 ### v0.2.3 (2014/12/10)
 
  * [#139](https://github.com/linkedin/hopscotch/pull/139) RefreshBubblePosition updates all known callouts
