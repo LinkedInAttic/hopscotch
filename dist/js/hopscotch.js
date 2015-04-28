@@ -1,6 +1,6 @@
-/**! hopscotch - v0.2.3
+/**! hopscotch - v0.2.4
 *
-* Copyright 2014 LinkedIn Corp. All rights reserved.
+* Copyright 2015 LinkedIn Corp. All rights reserved.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -14,7 +14,25 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 */
-(function(context, namespace) {
+(function(context, factory) {
+  'use strict';
+
+  if (typeof define === 'function' && define.amd) {
+    // AMD. Register as an anonymous module.
+    define([], factory);
+  } else if (typeof exports === 'object') {
+    // Node/CommonJS
+    module.exports = factory();
+  } else {
+    var namespace = 'hopscotch';
+    // Browser globals
+    if (context[namespace]) {
+      // Hopscotch already exists.
+      return;
+    }
+    context[namespace] = factory();
+  }
+}(this, (function() {
   var Hopscotch,
       HopscotchBubble,
       HopscotchCalloutManager,
@@ -29,14 +47,15 @@
       helpers,
       winLoadHandler,
       defaultOpts,
-      winHopscotch      = context[namespace],
+      winHopscotch,
       undefinedStr      = 'undefined',
       waitingToStart    = false, // is a tour waiting for the document to finish
                                  // loading so that it can start?
-      hasJquery         = (typeof window.jQuery !== undefinedStr),
+      hasJquery         = (typeof jQuery !== undefinedStr),
       hasSessionStorage = false,
       isStorageWritable = false,
       document          = window.document,
+      validIdRegEx      = /^[a-zA-Z]+[a-zA-Z0-9_-]*$/,
       rtlMatches        = {
         left: 'right',
         right: 'left'
@@ -68,11 +87,6 @@
     isRtl:           false,
     cookieName:      'hopscotch.tour.state'
   };
-
-  if (winHopscotch) {
-    // Hopscotch already exists.
-    return;
-  }
 
   if (!Array.isArray) {
     Array.isArray = function(obj) {
@@ -304,22 +318,19 @@
     /**
      * @private
      */
-    getWindowWidth: function() {
-      return window.innerWidth || document.documentElement.clientWidth;
-    },
-
-    /**
-     * @private
-     */
     addEvtListener: function(el, evtName, fn) {
-      return el.addEventListener ? el.addEventListener(evtName, fn, false) : el.attachEvent('on' + evtName, fn);
+      if(el) {
+        return el.addEventListener ? el.addEventListener(evtName, fn, false) : el.attachEvent('on' + evtName, fn);
+      }
     },
 
     /**
      * @private
      */
     removeEvtListener: function(el, evtName, fn) {
-      return el.removeEventListener ? el.removeEventListener(evtName, fn, false) : el.detachEvent('on' + evtName, fn);
+      if(el) {
+        return el.removeEventListener ? el.removeEventListener(evtName, fn, false) : el.detachEvent('on' + evtName, fn);
+      }
     },
 
     documentIsReady: function() {
@@ -653,7 +664,7 @@
         left = boundingRect.right + this.opt.arrowWidth;
       }
       else {
-        throw 'Bubble placement failed because step.placement is invalid or undefined!';
+        throw new Error('Bubble placement failed because step.placement is invalid or undefined!');
       }
 
       // SET (OR RESET) ARROW OFFSETS
@@ -786,7 +797,7 @@
           stepNum: this._getStepI18nNum(this._getStepNum(idx))
         },
         buttons:{
-          showPrev: (utils.valOrDefault(step.showPrevButton, this.opt.showPrevButton) && (idx > 0)),
+          showPrev: (utils.valOrDefault(step.showPrevButton, this.opt.showPrevButton) && (this._getStepNum(idx) > 0)),
           showNext: utils.valOrDefault(step.showNextButton, this.opt.showNextButton),
           showCTA: utils.valOrDefault((step.showCTAButton && step.ctaLabel), false),
           ctaLabel: step.ctaLabel,
@@ -817,19 +828,19 @@
         el.innerHTML = tourSpecificRenderer(opts);
       }
       else if(typeof tourSpecificRenderer === 'string'){
-        if(!hopscotch.templates || (typeof hopscotch.templates[tourSpecificRenderer] !== 'function')){
-          throw 'Bubble rendering failed - template "' + tourSpecificRenderer + '" is not a function.';
+        if(!winHopscotch.templates || (typeof winHopscotch.templates[tourSpecificRenderer] !== 'function')){
+          throw new Error('Bubble rendering failed - template "' + tourSpecificRenderer + '" is not a function.');
         }
-        el.innerHTML = hopscotch.templates[tourSpecificRenderer](opts);
+        el.innerHTML = winHopscotch.templates[tourSpecificRenderer](opts);
       }
       else if(customRenderer){
         el.innerHTML = customRenderer(opts);
       }
       else{
-        if(!hopscotch.templates || (typeof hopscotch.templates[templateToUse] !== 'function')){
-          throw 'Bubble rendering failed - template "' + templateToUse + '" is not a function.';
+        if(!winHopscotch.templates || (typeof winHopscotch.templates[templateToUse] !== 'function')){
+          throw new Error('Bubble rendering failed - template "' + templateToUse + '" is not a function.');
         }
-        el.innerHTML = hopscotch.templates[templateToUse](opts);
+        el.innerHTML = winHopscotch.templates[templateToUse](opts);
       }
 
       // Find arrow among new child elements.
@@ -900,22 +911,22 @@
      *
      * @private
      */
-    _setArrow: function(orientation) {
+    _setArrow: function(placement) {
       utils.removeClass(this.arrowEl, 'down up right left');
 
       // Whatever the orientation is, we want to arrow to appear
       // "opposite" of the orientation. E.g., a top orientation
       // requires a bottom arrow.
-      if (orientation === 'top') {
+      if (placement === 'top') {
         utils.addClass(this.arrowEl, 'down');
       }
-      else if (orientation === 'bottom') {
+      else if (placement === 'bottom') {
         utils.addClass(this.arrowEl, 'up');
       }
-      else if (orientation === 'left') {
+      else if (placement === 'left') {
         utils.addClass(this.arrowEl, 'right');
       }
-      else if (orientation === 'right') {
+      else if (placement === 'right') {
         utils.addClass(this.arrowEl, 'left');
       }
     },
@@ -1071,6 +1082,7 @@
           numChildren,
           node,
           i,
+          currTour,
           opt;
 
       //Register DOM element for this bubble.
@@ -1095,6 +1107,11 @@
       el.className = 'hopscotch-bubble animated';
       if (!opt.isTourBubble) {
         utils.addClass(el, 'hopscotch-callout no-number');
+      } else {
+        currTour = winHopscotch.getCurrTour();
+        if(currTour){
+          utils.addClass(el, 'tour-' + currTour.id);
+        }
       }
 
       /**
@@ -1186,8 +1203,11 @@
       var callout;
 
       if (opt.id) {
+        if(!validIdRegEx.test(opt.id)) {
+          throw new Error('Callout ID is using an invalid format. Use alphanumeric, underscores, and/or hyphens only. First character must be a letter.');
+        }
         if (callouts[opt.id]) {
-          throw 'Callout by that id already exists. Please choose a unique id.';
+          throw new Error('Callout by that id already exists. Please choose a unique id.');
         }
         opt.showNextButton = opt.showPrevButton = false;
         opt.isTourBubble = false;
@@ -1204,7 +1224,7 @@
         }
       }
       else {
-        throw 'Must specify a callout id.';
+        throw new Error('Must specify a callout id.');
       }
       return callout;
     };
@@ -1323,6 +1343,19 @@
         });
       }
       return bubble;
+    },
+
+    /**
+     * Destroy the bubble currently associated with Hopscotch.
+     * This is done when we end the current tour.
+     *
+     * @private
+     */
+    destroyBubble = function() {
+      if(bubble){
+        bubble.destroy();
+        bubble = null;
+      }
     },
 
     /**
@@ -1832,13 +1865,25 @@
       // loadTour if we are calling startTour directly. (When we call startTour
       // from window onLoad handler, we'll use currTour)
       if (!currTour) {
+        
+        // Sanity check! Is there a tour?
+        if(!tour){
+          throw new Error('Tour data is required for startTour.');
+        }
+
+        // Check validity of tour ID. If invalid, throw an error.
+        if(!tour.id || !validIdRegEx.test(tour.id)) {
+          throw new Error('Tour ID is using an invalid format. Use alphanumeric, underscores, and/or hyphens only. First character must be a letter.');
+        }
+
         currTour = tour;
         loadTour.call(this, tour);
+
       }
 
       if (typeof stepNum !== undefinedStr) {
         if (stepNum >= currTour.steps.length) {
-          throw 'Specified step number out of bounds.';
+          throw new Error('Specified step number out of bounds.');
         }
         currStepNum = stepNum;
       }
@@ -1908,6 +1953,10 @@
      */
     this.showStep = function(stepNum) {
       var step = currTour.steps[stepNum];
+      if(!utils.getStepTarget(step)) {
+        return;
+      }
+
       if (step.delay) {
         setTimeout(function() {
           showStepHelper(stepNum);
@@ -1986,6 +2035,7 @@
 
       this.removeCallbacks(null, true);
       this.resetDefaultOptions();
+      destroyBubble();
 
       currTour = null;
 
@@ -2385,7 +2435,6 @@
   };
 
   winHopscotch = new Hopscotch();
-  context[namespace] = winHopscotch;
 
 // Template includes, placed inside a closure to ensure we don't
 // end up declaring our shim globally.
@@ -2407,10 +2456,9 @@ _.escape = function(str){
     if(match == "'"){ return '&#x27;' }
   });
 }
-this["hopscotch"] = this["hopscotch"] || {};
-this["hopscotch"]["templates"] = this["hopscotch"]["templates"] || {};
+this["templates"] = this["templates"] || {};
 
-this["hopscotch"]["templates"]["bubble_default"] = function(obj) {
+this["templates"]["bubble_default"] = function(obj) {
 obj || (obj = {});
 var __t, __p = '', __e = _.escape, __j = Array.prototype.join;
 function print() { __p += __j.call(arguments, '') }
@@ -2477,6 +2525,8 @@ __p += '\n</div>\n<div class="hopscotch-bubble-arrow-container hopscotch-arrow">
 }
 return __p
 };
-}());
+}.call(winHopscotch));
 
-}(window, 'hopscotch'));
+  return winHopscotch;
+
+})));
