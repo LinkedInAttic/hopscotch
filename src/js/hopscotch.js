@@ -303,14 +303,18 @@
      * @private
      */
     addEvtListener: function(el, evtName, fn) {
-      return el.addEventListener ? el.addEventListener(evtName, fn, false) : el.attachEvent('on' + evtName, fn);
+      if(el) {
+        return el.addEventListener ? el.addEventListener(evtName, fn, false) : el.attachEvent('on' + evtName, fn);
+      }
     },
 
     /**
      * @private
      */
     removeEvtListener: function(el, evtName, fn) {
-      return el.removeEventListener ? el.removeEventListener(evtName, fn, false) : el.detachEvent('on' + evtName, fn);
+      if(el) {
+        return el.removeEventListener ? el.removeEventListener(evtName, fn, false) : el.detachEvent('on' + evtName, fn);
+      }
     },
 
     documentIsReady: function() {
@@ -1933,6 +1937,10 @@
      */
     this.showStep = function(stepNum) {
       var step = currTour.steps[stepNum];
+      if(!utils.getStepTarget(step)) {
+        return;
+      }
+
       if (step.delay) {
         setTimeout(function() {
           showStepHelper(stepNum);
