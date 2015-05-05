@@ -318,7 +318,7 @@
     },
 
     documentIsReady: function() {
-      return document.readyState === 'complete' || document.readyState === 'interactive';
+      return document.readyState === 'complete';
     },
 
     /**
