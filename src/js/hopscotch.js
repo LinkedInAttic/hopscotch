@@ -1193,19 +1193,20 @@
         if (callouts[opt.id]) {
           throw new Error('Callout by that id already exists. Please choose a unique id.');
         }
+        if (!utils.getStepTarget(opt)) {
+          throw new Error('Must specify existing target element via \'target\' option.');
+        }
         opt.showNextButton = opt.showPrevButton = false;
         opt.isTourBubble = false;
         callout = new HopscotchBubble(opt);
         callouts[opt.id] = callout;
         calloutOpts[opt.id] = opt;
-        if (opt.target) {
-          callout.render(opt, null, function() {
-            callout.show();
-            if (opt.onShow) {
-              utils.invokeCallback(opt.onShow);
-            }
-          });
-        }
+        callout.render(opt, null, function() {
+          callout.show();
+          if (opt.onShow) {
+            utils.invokeCallback(opt.onShow);
+          }
+        });
       }
       else {
         throw new Error('Must specify a callout id.');
