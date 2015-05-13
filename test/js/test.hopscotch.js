@@ -1016,6 +1016,21 @@ describe('Hopscotch', function() {
 
       hopscotch.endTour();
     });
+
+    it('should throw an exception when stand-alone callout target does not exist', function(){
+      var calloutMgr = hopscotch.getCalloutManager();
+      expect(function(){
+        calloutMgr.createCallout({
+          id: 'hopscotch-callout-test-123',
+          target: 'totally-does-not-exist',
+          placement: 'bottom',
+          title: 'This test is fun!',
+          content: 'This is how we test this library!'
+        });
+      }).toThrow(new Error('Must specify existing target element via \'target\' option.'));
+
+    });
+
   });
 
   describe('Saving state', function() {
