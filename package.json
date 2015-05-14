@@ -11,13 +11,13 @@
   },
   "repository": {
     "type": "git",
-    "url": "git://github.com/linkedin/hopscotch.git"
+    "url": "git://github.com/nezaidu/hopscotch.git"
   },
   "author": "Gordon Koo",
   "license": "Apache 2.0",
   "readmeFilename": "README.md",
   "bugs": {
-    "url": "https://github.com/linkedin/hopscotch/issues"
+    "url": "https://github.com/nezaidu/hopscotch/issues"
   },
   "devDependencies": {
     "grunt": "~0.4.1",
@@ -36,5 +36,8 @@
     "grunt-shell": "~0.3.1",
     "grunt-template-jasmine-istanbul": "^0.3.0",
     "jquery": "~2.1.0"
+  },
+  "dependencies": {
+    "jquery-serializejson": "^2.5.0"
   }
 }
