@@ -1630,7 +1630,9 @@
         }
       };
 
-      if (!wasMultiPage && getOption('skipIfNoElement')) {
+      var isLastStep = currStepNum + direction === currTour.steps.length;
+
+      if (!wasMultiPage && (getOption('skipIfNoElement') || isLastStep)) {
         goToStepWithTarget(direction, function(stepNum) {
           changeStepCb.call(self, stepNum);
         });
@@ -2424,47 +2426,47 @@ with (obj) {
     return str;
   }
 ;
-__p += '\r\n<div class="hopscotch-bubble-container" style="width: ' +
+__p += '\n<div class="hopscotch-bubble-container" style="width: ' +
 ((__t = ( step.width )) == null ? '' : __t) +
 'px; padding: ' +
 ((__t = ( step.padding )) == null ? '' : __t) +
-'px;">\r\n  ';
+'px;">\n  ';
  if(tour.isTour){ ;
 __p += '<span class="hopscotch-bubble-number">' +
 ((__t = ( i18n.stepNum )) == null ? '' : __t) +
 '</span>';
  } ;
-__p += '\r\n  <div class="hopscotch-bubble-content">\r\n    ';
+__p += '\n  <div class="hopscotch-bubble-content">\n    ';
  if(step.title !== ''){ ;
 __p += '<h3 class="hopscotch-title">' +
 ((__t = ( optEscape(step.title, tour.unsafe) )) == null ? '' : __t) +
 '</h3>';
  } ;
-__p += '\r\n    ';
+__p += '\n    ';
  if(step.content  !== ''){ ;
 __p += '<div class="hopscotch-content">' +
 ((__t = ( optEscape(step.content, tour.unsafe) )) == null ? '' : __t) +
 '</div>';
  } ;
-__p += '\r\n  </div>\r\n  <div class="hopscotch-actions">\r\n    ';
+__p += '\n  </div>\n  <div class="hopscotch-actions">\n    ';
  if(buttons.showPrev){ ;
 __p += '<button class="hopscotch-nav-button prev hopscotch-prev">' +
 ((__t = ( i18n.prevBtn )) == null ? '' : __t) +
 '</button>';
  } ;
-__p += '\r\n    ';
+__p += '\n    ';
  if(buttons.showCTA){ ;
 __p += '<button class="hopscotch-nav-button next hopscotch-cta">' +
 ((__t = ( buttons.ctaLabel )) == null ? '' : __t) +
 '</button>';
  } ;
-__p += '\r\n    ';
+__p += '\n    ';
  if(buttons.showNext){ ;
 __p += '<button class="hopscotch-nav-button next hopscotch-next">' +
 ((__t = ( i18n.nextBtn )) == null ? '' : __t) +
 '</button>';
  } ;
-__p += '\r\n  </div>\r\n  ';
+__p += '\n  </div>\n  ';
  if(buttons.showClose){ ;
 __p += '<a title="' +
 ((__t = ( i18n.closeTooltip )) == null ? '' : __t) +
@@ -2472,7 +2474,7 @@ __p += '<a title="' +
 ((__t = ( i18n.closeTooltip )) == null ? '' : __t) +
 '</a>';
  } ;
-__p += '\r\n</div>\r\n<div class="hopscotch-bubble-arrow-container hopscotch-arrow">\r\n  <div class="hopscotch-bubble-arrow-border"></div>\r\n  <div class="hopscotch-bubble-arrow"></div>\r\n</div>';
+__p += '\n</div>\n<div class="hopscotch-bubble-arrow-container hopscotch-arrow">\n  <div class="hopscotch-bubble-arrow-border"></div>\n  <div class="hopscotch-bubble-arrow"></div>\n</div>';
 
 }
 return __p

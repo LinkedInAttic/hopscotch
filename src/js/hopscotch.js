@@ -1614,7 +1614,9 @@
         }
       };
 
-      if (!wasMultiPage && getOption('skipIfNoElement')) {
+      var isLastStep = currStepNum + direction === currTour.steps.length;
+
+      if (!wasMultiPage && (getOption('skipIfNoElement') || isLastStep)) {
         goToStepWithTarget(direction, function(stepNum) {
           changeStepCb.call(self, stepNum);
         });
