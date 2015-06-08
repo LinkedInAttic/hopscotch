@@ -1,0 +1,211 @@
+div.hopscotch-bubble {
+  background-color: @bubbleColor;
+  border: @bubbleBorderWidth solid #000; /* default */
+  border: @bubbleBorderWidth solid @borderColor; /* transparent, if supported */
+  color: #333;
+  font-family: @bubbleFontFamily;
+  font-size: 13px;
+  position: absolute;
+  z-index: @bubbleZindex;
+  .box-sizing(content-box);
+
+  * {
+    .box-sizing(content-box);
+  }
+
+  .background-clip;
+
+  &.animate {
+    -moz-transition-property: top, left;
+    -moz-transition-duration: @anim-duration;
+    -moz-transition-timing-function: @anim-timing;
+
+    -ms-transition-property: top, left;
+    -ms-transition-duration: @anim-duration;
+    -ms-transition-timing-function: @anim-timing;
+
+    -o-transition-property: top, left;
+    -o-transition-duration: @anim-duration;
+    -o-transition-timing-function: @anim-timing;
+
+    -webkit-transition-property: top, left;
+    -webkit-transition-duration: @anim-duration;
+    -webkit-transition-timing-function: @anim-timing;
+
+    transition-property: top, left;
+    transition-duration: @anim-duration;
+    transition-timing-function: @anim-timing;
+  }
+
+  &.invisible {
+    opacity: 0;
+  }
+
+  &.hide,
+  .hide,
+  .hide-all {
+    display: none;
+  }
+
+  h3 {
+    color: #000;
+    font-family: @bubbleFontFamily;
+    font-size: 16px;
+    font-weight: bold;
+    line-height: 19px;
+    margin: -1px @bubblePadding 0 0;
+    padding: 0;
+  }
+
+  .hopscotch-bubble-container {
+    padding: @bubblePadding;
+    position: relative;
+    text-align: left;
+    -webkit-font-smoothing: antialiased; /* to fix text flickering */
+  }
+
+  .hopscotch-content {
+    font-family: @bubbleFontFamily;
+    font-weight: normal;
+    line-height: 17px;
+    margin: -5px 0 11px;
+    padding-top: 8px;
+  }
+
+  .hopscotch-bubble-content {
+    margin: 0 0 0 (@circleWidth + 10px);
+  }
+
+  &.no-number .hopscotch-bubble-content {
+    margin: 0;
+  }
+
+  .hopscotch-bubble-close {
+    color: #000;
+    background: transparent @spriteUrl -192px -92px no-repeat;
+    display: block;
+    padding: 8px;
+    position: absolute;
+    text-decoration: none;
+    text-indent: -9999px;
+
+    width: 8px;
+    height: 8px;
+
+    top: 0;
+    right: 0;
+
+    &.hide,
+    &.hide-all {
+      display: none;
+    }
+  }
+
+  .hopscotch-bubble-number {
+    background: transparent @spriteUrl 0 0 no-repeat;
+    color: #fff;
+    display: block;
+    float: left;
+    font-size: 17px;
+    font-weight: bold;
+    line-height: @circleWidth + 1px;
+    padding: 0 10px 0 0;
+    text-align: center;
+    width: @circleWidth;
+    height: @circleWidth;
+  }
+
+  .hopscotch-bubble-arrow-container {
+    @arrowWidth: 17px;
+    position: absolute;
+
+    width: @arrowWidth*2;
+    height: @arrowWidth*2;
+
+    .hopscotch-bubble-arrow,
+    .hopscotch-bubble-arrow-border {
+      width: 0;
+      height: 0;
+    }
+
+    &.up {
+      top: 0 - @arrowWidth - @bubbleBorderWidth;
+      left: @bubbleCornerRadius;
+
+      .hopscotch-bubble-arrow {
+        border-bottom: @arrowWidth solid @bubbleColor;
+        border-left: @arrowWidth solid transparent;
+        border-right: @arrowWidth solid transparent;
+        position: relative;
+        top: 0 - @arrowWidth + @bubbleBorderWidth + 2;
+      }
+      .hopscotch-bubble-arrow-border {
+        border-bottom: @arrowWidth solid #000;
+        border-bottom: @arrowWidth solid @borderColor;
+        border-left: @arrowWidth solid transparent;
+        border-right: @arrowWidth solid transparent;
+      }
+    }
+    &.down {
+      bottom: 0 - @arrowWidth*2 - @bubbleBorderWidth;
+      left: @bubbleCornerRadius;
+
+      .hopscotch-bubble-arrow {
+        border-top:   @arrowWidth solid @bubbleColor;
+        border-left:  @arrowWidth solid transparent;
+        border-right: @arrowWidth solid transparent;
+        position:     relative;
+        top:          0 - @arrowWidth - @bubbleBorderWidth - 2;
+      }
+      .hopscotch-bubble-arrow-border {
+        border-top:   @arrowWidth solid #000;
+        border-top:   @arrowWidth solid @borderColor;
+        border-left:  @arrowWidth solid transparent;
+        border-right: @arrowWidth solid transparent;
+      }
+    }
+    &.left {
+      top: @bubbleCornerRadius;
+      left: 0 - @arrowWidth - @bubbleBorderWidth;
+
+      .hopscotch-bubble-arrow {
+        border-bottom: @arrowWidth solid transparent;
+        border-right:  @arrowWidth solid @bubbleColor;
+        border-top:    @arrowWidth solid transparent;
+        position: relative;
+        left: @bubbleBorderWidth + 2;
+        top: 0 - (2*@arrowWidth);
+      }
+      .hopscotch-bubble-arrow-border {
+        border-right:  @arrowWidth solid #000;
+        border-right:  @arrowWidth solid @borderColor;
+        border-bottom: @arrowWidth solid transparent;
+        border-top:    @arrowWidth solid transparent;
+      }
+    }
+    &.right {
+      top: @bubbleCornerRadius;
+      right: 0 - @arrowWidth*2 - @bubbleBorderWidth;
+
+      .hopscotch-bubble-arrow {
+        border-bottom: @arrowWidth solid transparent;
+        border-left:   @arrowWidth solid @bubbleColor;
+        border-top:    @arrowWidth solid transparent;
+        position: relative;
+        left: 0 - @bubbleBorderWidth - 2;
+        top: 0 - (2*@arrowWidth);
+      }
+      .hopscotch-bubble-arrow-border {
+        border-left:   @arrowWidth solid #000;
+        border-left:   @arrowWidth solid @borderColor;
+        border-bottom: @arrowWidth solid transparent;
+        border-top:    @arrowWidth solid transparent;
+      }
+    }
+  }
+
+  .hopscotch-actions {
+    margin: 10px 0 0;
+    text-align: right;
+  }
+}
