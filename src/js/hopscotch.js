@@ -725,6 +725,7 @@
           unsafe,
           currTour,
           totalSteps,
+          totalStepsI18n,
           nextBtnText,
           isLast,
           opts;
@@ -748,7 +749,8 @@
           unsafe = currTour.unsafe;
           if(Array.isArray(currTour.steps)){
             totalSteps = currTour.steps.length;
-            isLast = (idx === totalSteps - 1);
+            totalStepsI18n = this._getStepI18nNum(this._getStepNum(totalSteps - 1));
+            isLast = (this._getStepNum(idx) === this._getStepNum(totalSteps - 1));
           }
         }
       }else{
@@ -778,7 +780,8 @@
           prevBtn: utils.getI18NString('prevBtn'),
           nextBtn: nextBtnText,
           closeTooltip: utils.getI18NString('closeTooltip'),
-          stepNum: this._getStepI18nNum(this._getStepNum(idx))
+          stepNum: this._getStepI18nNum(this._getStepNum(idx)),
+          numSteps: totalStepsI18n
         },
         buttons:{
           showPrev: (utils.valOrDefault(step.showPrevButton, this.opt.showPrevButton) && (this._getStepNum(idx) > 0)),

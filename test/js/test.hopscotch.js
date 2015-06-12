@@ -1155,35 +1155,44 @@ describe('Hopscotch', function() {
 
   describe('Custom render methods', function(){
     var mockTour = {
-          id: 'hopscotch-test-tour',
-          steps: [
-            {
-              target: 'shopping-list',
-              placement: 'left',
-              title: 'Shopping List',
-              content: 'It\'s a shopping list'
-            },
-            {
-              target: 'shopping-list',
-              placement: 'left',
-              title: 'Shopping List',
-              content: 'It\'s a shopping list'
-            }
-          ],
-          skipIfNoElement: false
-        },
-        mockCallout = {
-          id: 'shopping-callout',
-          target: 'shopping-list',
-          placement: 'left',
-          title: 'Shopping List Callout',
-          content: 'It\'s a shopping list'
-        },
-        customRenderer = {
-          render: function(){
-            return '<h1>Content!</h1><div class="hopscotch-arrow"></div>';
+        id: 'hopscotch-test-tour',
+        steps: [
+          {
+            target: 'shopping-list',
+            placement: 'left',
+            title: 'Shopping List',
+            content: 'It\'s a shopping list'
+          },
+          {
+            target: 'i-do-not-exist',
+            placement: 'left',
+            title: 'Not there',
+            content: 'Not there at all'
+          },
+          {
+            target: 'shopping-list',
+            placement: 'left',
+            title: 'Shopping List',
+            content: 'Back to the shopping list'
           }
-        };
+        ],
+        i18n : {
+          stepNums : ['one', 'two', 'three', 'four', 'five']
+        }
+      },
+      mockCallout = {
+        id: 'shopping-callout',
+        target: 'shopping-list',
+        placement: 'left',
+        title: 'Shopping List Callout',
+        content: 'It\'s a shopping list'
+      },
+      customRenderer = {
+        render: function(){
+          return '<h1>Content!</h1><div class="hopscotch-arrow"></div>';
+        }
+      },
+      args;
 
     beforeEach(function(){
       hopscotch.templates.customTemplate = function(){
@@ -1199,15 +1208,28 @@ describe('Hopscotch', function() {
       hopscotch.getCalloutManager().removeAllCallouts();
       hopscotch.setRenderer('bubble_default');
       delete hopscotch.templates.customTemplate;
+      hopscotch.resetDefaultI18N();
+
     });
 
     it('setRenderer() should allow setting a global renderer within the hopscotch.templates namespace', function(){
       hopscotch.setRenderer('customTemplate');
-
       hopscotch.startTour(mockTour);
       expect(hopscotch.templates.customTemplate.calls.count()).toEqual(1);
-      expect(customRenderer.render).not.toHaveBeenCalled();
-      expect(hopscotch.templates.bubble_default).not.toHaveBeenCalled();
+      args =  hopscotch.templates.customTemplate.calls.argsFor(0);
+      expect(args[0].i18n.numSteps).toEqual("three");
+      expect(args[0].step.isLast).toEqual(false);
+      expect(customRenderer.render.calls.count()).toEqual(0);
+      expect(hopscotch.templates.bubble_default.calls.count()).toEqual(0);
+
+      //go to step 3, since step 2 does not exist
+      hopscotch.nextStep();
+      expect(hopscotch.templates.customTemplate.calls.count()).toEqual(2);
+
+      args =  hopscotch.templates.customTemplate.calls.argsFor(1);
+      //we skipped one step, so num of steps should go down to two
+      expect(args[0].i18n.numSteps).toEqual("two");
+      expect(args[0].step.isLast).toEqual(true);
 
       hopscotch.endTour();
       hopscotch.templates.customTemplate.calls.reset();
