@@ -2196,6 +2196,76 @@ describe('HopscotchBubble', function() {
       hopscotch.unregisterHelper(helperName);
     });
   });
+
+  describe('Should recover if bubble DOM element is destroyed', function(){
+    var tourConfig = {
+      id: 'hopscotch-test-tour',
+      steps: [
+        {
+          target: 'shopping-list',
+          placement: 'left',
+          title: 'Shopping List',
+          content: 'It\'s a shopping list'
+        },
+        {
+          target: 'jasmine',
+          placement: 'top',
+          title: 'Jasmine',
+          content: 'It\'s Jasmine'
+        }
+    ]};
+
+    it('should re-create a tour bubble if it\'s dom element is destroyed', function(){
+      var $hBubble;
+
+      hopscotch.startTour(tourConfig);
+
+      //bubble should exist in page DOM
+      $hBubble = $('.hopscotch-bubble');
+      expect($hBubble.length).toEqual(1);
+
+      //destroy the bubble element
+      $hBubble.remove();
+
+      hopscotch.nextStep();
+      $hBubble = $('.hopscotch-bubble');
+      expect($hBubble.length).toEqual(1);
+
+      //destroy the bubble element
+      $hBubble.remove();
+
+      hopscotch.prevStep();
+      $hBubble = $('.hopscotch-bubble');
+      expect($hBubble.length).toEqual(1);
+
+      hopscotch.endTour();
+
+    });
+
+    it('Can stop and re-start tour event when bubbles dom element does not exist', function(){
+      var $hBubble;
+
+      hopscotch.startTour(tourConfig);
+
+      //bubble should exist in page DOM
+      $hBubble = $('.hopscotch-bubble');
+      expect($hBubble.length).toEqual(1);
+
+      //destroy the bubble element
+      $hBubble.remove();
+
+      hopscotch.endTour();
+
+      //restart the tour and make sure that
+      //bubble is created
+      hopscotch.startTour(tourConfig);
+      $hBubble = $('.hopscotch-bubble');
+      expect($hBubble.length).toEqual(1);
+
+      hopscotch.endTour();
+    });
+
+  });
 });
 
 describe('HopscotchCalloutManager', function() {

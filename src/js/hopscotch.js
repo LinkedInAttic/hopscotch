@@ -1316,7 +1316,7 @@
      * @returns {Object} HopscotchBubble
      */
     getBubble = function(setOptions) {
-      if (!bubble) {
+      if (!bubble || !bubble.element || !bubble.element.parentNode) {
         bubble = new HopscotchBubble(opt);
       }
       if (setOptions) {
