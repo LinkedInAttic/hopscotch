@@ -6,8 +6,6 @@
 
 var hasSessionStorage = typeof window.sessionStorage !== 'undefined',
 
-$body = $(document.body),
-
 setState = function(name,value,days) {
   var expires = '',
       date;
@@ -64,6 +62,7 @@ setup = function() {
   clearState('hopscotch-test-tour');
 
   $("body").append(
+    '<style>#shopping-list { margin: 0 auto; width: 200px;}</style>' +
     '<div id="jasmine"></div>' +
     '<div id="shopping-list">' +
     '  <ul>' +
@@ -99,6 +98,11 @@ click = function(el){
 // ==========================
 
 describe('Hopscotch', function() {
+  afterEach(function() {
+    hopscotch.endTour();
+    hopscotch.getCalloutManager().removeAllCallouts();
+  });
+
   describe('#isActive', function() {
     it('should default to not active', function() {
       expect(hopscotch.isActive).toBeFalsy();
@@ -610,10 +614,8 @@ describe('Hopscotch', function() {
           }
         ],
         skipIfNoElement: false,
-        onError: function (){}
+        onError: jasmine.createSpy('onErrorCallback')
       };
-
-      spyOn(tourConfig,'onError');
 
       hopscotch.startTour(tourConfig);
 
@@ -653,10 +655,8 @@ describe('Hopscotch', function() {
           }
         ],
         skipIfNoElement: false,
-        onError: function (){}
+        onError: jasmine.createSpy('onErrorCallback')
       };
-
-      spyOn(tourConfig,'onError');
 
       //step 1 - shopping list
       hopscotch.startTour(tourConfig);
@@ -1367,6 +1367,12 @@ describe('Hopscotch', function() {
  * These are specified in the tour definition.
  */
 describe('HopscotchBubble', function() {
+
+  afterEach(function() {
+    hopscotch.endTour();
+    hopscotch.getCalloutManager().removeAllCallouts();
+  });
+
   describe('Title and Content', function() {
     it('should show the Title of the step', function() {
       var title;
@@ -1857,10 +1863,7 @@ describe('HopscotchBubble', function() {
 
   describe('Callbacks', function() {
     it('should invoke onStart callback when starting the tour', function() {
-      var testClassName = 'testingOnNext';
-
-      expect($body.hasClass(testClassName)).toBeFalsy();
-      hopscotch.startTour({
+      var tour = {
         id: 'hopscotch-test-tour',
         steps: [
           {
@@ -1876,17 +1879,17 @@ describe('HopscotchBubble', function() {
             content: 'It\'s Jasmine'
           }
         ],
-        onStart: function() {
-          $body.addClass(testClassName);
-        }
-      });
-      expect($body.hasClass(testClassName)).toBeTruthy();
+        onStart: jasmine.createSpy('onStartCallback')
+      };
+
+      hopscotch.startTour(tour);
+      expect(tour.onStart).toHaveBeenCalled();
+
       hopscotch.endTour();
-      $body.removeClass(testClassName);
     });
 
     it('should invoke onNext callback of current step when going to the next step', function() {
-      var testClassName = 'testingOnNext',
+      var onNextCallback = jasmine.createSpy('onNextCallback'),
       tour = {
         id: 'hopscotch-test-tour',
         steps: [
@@ -1895,9 +1898,7 @@ describe('HopscotchBubble', function() {
             placement: 'left',
             title: 'Shopping List',
             content: 'It\'s a shopping list',
-            onNext: function() {
-              $body.addClass(testClassName);
-            }
+            onNext: onNextCallback
           },
           {
             target: 'jasmine',
@@ -1908,16 +1909,15 @@ describe('HopscotchBubble', function() {
         ]
       };
 
-      expect($body.hasClass(testClassName)).toBeFalsy();
       hopscotch.startTour(tour);
       hopscotch.nextStep();
-      expect($body.hasClass(testClassName)).toBeTruthy();
+      expect(onNextCallback).toHaveBeenCalled();
+
       hopscotch.endTour();
-      $body.removeClass(testClassName);
     });
 
     it('should invoke onPrev callback of current step when going to the prev step', function() {
-      var testClassName = 'testingOnPrev',
+      var onPrevCallback = jasmine.createSpy('onPrevCallback'),
       tour = {
         id: 'hopscotch-test-tour',
         steps: [
@@ -1932,24 +1932,20 @@ describe('HopscotchBubble', function() {
             placement: 'top',
             title: 'Jasmine',
             content: 'It\'s Jasmine',
-            onPrev: function() {
-              $body.addClass(testClassName);
-            }
+            onPrev: onPrevCallback
           }
         ]
       };
 
-      expect($body.hasClass(testClassName)).toBeFalsy();
       hopscotch.startTour(tour, 1);
       hopscotch.prevStep();
-      expect($('body').hasClass(testClassName)).toBeGreaterThan(-1);
+      expect(onPrevCallback).toHaveBeenCalled();
+
       hopscotch.endTour();
-      $body.removeClass(testClassName);
     });
 
     it('should invoke onEnd callback of current step when ending the tour', function() {
-      var testClassName = 'testingOnNext',
-      tour = {
+      var tour = {
         id: 'hopscotch-test-tour',
         steps: [
           {
@@ -1959,16 +1955,37 @@ describe('HopscotchBubble', function() {
             content: 'It\'s a shopping list'
           }
         ],
-        onEnd: function() {
-          $body.addClass(testClassName);
-        }
+        onEnd: jasmine.createSpy('onEndCallback')
       };
 
-      expect($body.hasClass(testClassName)).toBeFalsy();
       hopscotch.startTour(tour);
       hopscotch.endTour();
-      expect($body.hasClass(testClassName)).toBeTruthy();
-      $body.removeClass(testClassName);
+
+      expect(tour.onEnd).toHaveBeenCalled();
+    });
+
+    it('should invoke onEnd callback when tour is complete', function() {
+      var tour = {
+            id: 'hopscotch-test-tour',
+            steps: [
+              {
+                target: 'shopping-list',
+                placement: 'left',
+                title: 'Shopping List',
+                content: 'It\'s a shopping list'
+              }
+            ],
+            skipIfNoElement: false,
+            onEnd: jasmine.createSpy('onEndCallback')
+          };
+
+      hopscotch.startTour(tour);
+      expect(tour.onEnd).not.toHaveBeenCalled();
+
+      click($('.hopscotch-next')[0]);
+      expect(tour.onEnd).toHaveBeenCalled();
+
+      hopscotch.endTour();
     });
 
     it('should detect when a callback changes the state of a tour and not go to the next step when detected', function() {
@@ -2006,7 +2023,7 @@ describe('HopscotchBubble', function() {
     });
 
     it('should invoke the CTA callback when the CTA button is clicked', function() {
-      var testClassName = "testingCTAButton",
+      var onCTACallback = jasmine.createSpy('onCTACallback'),
       tour = {
         id: 'hopscotch-test-tour',
         steps: [
@@ -2017,71 +2034,61 @@ describe('HopscotchBubble', function() {
             content: 'It\'s a shopping list',
             showCTAButton: true,
             ctaLabel: 'test',
-            onCTA: function() {
-              $body.addClass(testClassName);
-            }
+            onCTA: onCTACallback
           }
         ]
       };
 
-      expect($body.hasClass(testClassName)).toBeFalsy();
       hopscotch.startTour(tour);
-      $('.hopscotch-cta').click();
-      expect($body.hasClass(testClassName)).toBeTruthy();
+      click($('.hopscotch-cta')[0]);
+      expect(onCTACallback).toHaveBeenCalled();
+
       hopscotch.endTour(tour);
-      $body.removeClass(testClassName);
+
     });
 
     it('should remove the CTA callback after advancing to the next step', function() {
-      var testClassName1 = "testingCTAButton1",
-      testClassName2 = "testingCTAButton2",
-      tour = {
-        id: 'hopscotch-test-tour',
-        steps: [
-          {
-            target: 'shopping-list',
-            placement: 'left',
-            title: 'Shopping List',
-            content: 'It\'s a shopping list',
-            showCTAButton: true,
-            ctaLabel: 'test',
-            onCTA: function() {
-              $body.addClass(testClassName1);
+      var onCTACallback1 = jasmine.createSpy('onCTACallback1'),
+        onCTACallback2 = jasmine.createSpy('onCTACallback2'),
+        tour = {
+          id: 'hopscotch-test-tour',
+          steps: [
+            {
+              target: 'shopping-list',
+              placement: 'left',
+              title: 'Shopping List',
+              content: 'It\'s a shopping list',
+              showCTAButton: true,
+              ctaLabel: 'test',
+              onCTA: onCTACallback1
+            },
+            {
+              target: 'shopping-list',
+              placement: 'left',
+              title: 'Shopping List',
+              content: 'It\'s a shopping list',
+              showCTAButton: true,
+              ctaLabel: 'test',
+              onCTA: onCTACallback2
             }
-          },
-          {
-            target: 'shopping-list',
-            placement: 'left',
-            title: 'Shopping List',
-            content: 'It\'s a shopping list',
-            showCTAButton: true,
-            ctaLabel: 'test',
-            onCTA: function() {
-              $body.addClass(testClassName2);
-            }
-          }
-        ]
-      };
+          ]
+        };
 
-      expect($body.hasClass(testClassName1)).toBeFalsy();
-      expect($body.hasClass(testClassName2)).toBeFalsy();
       hopscotch.startTour(tour);
       hopscotch.nextStep();
-      $('.hopscotch-cta').click();
-      expect($body.hasClass(testClassName1)).toBeFalsy();
-      expect($body.hasClass(testClassName2)).toBeTruthy();
+      click($('.hopscotch-cta')[0]);
+
+      expect(onCTACallback1).not.toHaveBeenCalled();
+      expect(onCTACallback2).toHaveBeenCalled();
+
       hopscotch.endTour(tour);
-      $body.removeClass(testClassName1).removeClass(testClassName2);
     });
 
     it('should be able to invoke a callback that was registered as a helper', function() {
-      var testClassName = 'testingOnNext',
-          helperName = 'addClassToBody';
+      var helperName = 'anAwesomeHelper',
+        hopscotchHelper = jasmine.createSpy('hopscotchHelper');
 
-      hopscotch.registerHelper(helperName, function() {
-        $body.addClass(testClassName);
-      });
-      expect($body.hasClass(testClassName)).toBeFalsy();
+      hopscotch.registerHelper(helperName, hopscotchHelper);
 
       hopscotch.startTour({
         id: 'hopscotch-test-tour',
@@ -2102,33 +2109,23 @@ describe('HopscotchBubble', function() {
         onStart: helperName
       });
 
-      expect($body.hasClass(testClassName)).toBeTruthy();
+      expect(hopscotchHelper).toHaveBeenCalled();
+
       hopscotch.endTour();
-      $body.removeClass(testClassName);
       hopscotch.unregisterHelper(helperName);
     });
 
     it('should be able to invoke more than one helper callbacks', function() {
-      var testClassName1 = 'testingOnNext1',
-          testClassName2 = 'testingOnNext2',
-          testClassName3 = 'testingOnNext3',
+      var helper1 = jasmine.createSpy('helper1'),
+          helper2 = jasmine.createSpy('helper2'),
+          helper3 = jasmine.createSpy('helper3'),
           helperName1    = 'addClassToBody1',
           helperName2    = 'addClassToBody2',
           helperName3    = 'addClassToBody3';
 
-      hopscotch.registerHelper(helperName1, function() {
-        $body.addClass(testClassName1);
-      });
-      hopscotch.registerHelper(helperName2, function() {
-        $body.addClass(testClassName2);
-      });
-      hopscotch.registerHelper(helperName3, function() {
-        $body.addClass(testClassName3);
-      });
-
-      expect($body.hasClass(testClassName1)).toBeFalsy();
-      expect($body.hasClass(testClassName2)).toBeFalsy();
-      expect($body.hasClass(testClassName3)).toBeFalsy();
+      hopscotch.registerHelper(helperName1, helper1);
+      hopscotch.registerHelper(helperName2, helper2);
+      hopscotch.registerHelper(helperName3, helper3);
 
       hopscotch.startTour({
         id: 'hopscotch-test-tour',
@@ -2149,27 +2146,22 @@ describe('HopscotchBubble', function() {
         onStart: [[helperName1], [helperName2], [helperName3]]
       });
 
-      expect($body.hasClass(testClassName1)).toBeTruthy();
-      expect($body.hasClass(testClassName2)).toBeTruthy();
-      expect($body.hasClass(testClassName3)).toBeTruthy();
+      expect(helper1).toHaveBeenCalled();
+      expect(helper2).toHaveBeenCalled();
+      expect(helper3).toHaveBeenCalled();
+
       hopscotch.endTour();
-      $body.removeClass(testClassName1)
-           .removeClass(testClassName2)
-           .removeClass(testClassName3);
       hopscotch.unregisterHelper(helperName1);
       hopscotch.unregisterHelper(helperName2);
       hopscotch.unregisterHelper(helperName3);
     });
 
     it('should be able to invoke a helper with arguments', function() {
-      var testClassName = 'testingOnNext',
-          helperName = 'addClassToBody';
+      var helper = jasmine.createSpy('helperSpy1'),
+          helperName = 'addClassToBody',
+          helperArg = 'thisIsHelperArg';
 
-      hopscotch.registerHelper(helperName, function(className) {
-        $body.addClass(className);
-      });
-
-      expect($body.hasClass(testClassName)).toBeFalsy();
+      hopscotch.registerHelper(helperName, helper);
 
       hopscotch.startTour({
         id: 'hopscotch-test-tour',
@@ -2187,18 +2179,24 @@ describe('HopscotchBubble', function() {
             content: 'It\'s Jasmine'
           }
         ],
-        onStart: [helperName, testClassName]
+        onStart: [helperName, helperArg]
       });
 
-      expect($body.hasClass(testClassName)).toBeTruthy();
+      expect(helper).toHaveBeenCalledWith(helperArg);
+
       hopscotch.endTour();
-      $body.removeClass(testClassName);
       hopscotch.unregisterHelper(helperName);
     });
   });
 });
 
 describe('HopscotchCalloutManager', function() {
+
+  afterEach(function() {
+    hopscotch.endTour();
+    hopscotch.getCalloutManager().removeAllCallouts();
+  });
+
   describe('CalloutManager', function() {
     it('should create no more than one instance of the callout manager', function() {
       var mgr = hopscotch.getCalloutManager();
