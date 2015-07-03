@@ -1138,7 +1138,7 @@
 
       // Check if appendTo option is on the page
       if (this.opt.appendTo){
-        appendTo = getStepTargetHelper(this.opt.appendTo);
+        appendTo = utils.getStepTargetHelper(this.opt.appendTo);
       }
 
       if (utils.documentIsReady()) {

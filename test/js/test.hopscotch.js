@@ -134,6 +134,41 @@ describe('Hopscotch', function() {
       hopscotch.endTour();
     });
 
+    it('should create a div for the HopscotchBubble and append to the specified element', function() {
+      var el = document.createElement('div');
+      el.id = 'append-test';
+      document.body.appendChild(el);
+      hopscotch.startTour({
+        id: 'hopscotch-test-tour',
+        steps: [ {
+          target: 'shopping-list',
+          placement: 'left',
+          title: 'Shopping List',
+          content: 'It\'s a shopping list'
+        } ],
+        appendTo: 'append-test'
+      });
+      expect(document.querySelector('.hopscotch-bubble').parentElement).toEqual(el);
+      hopscotch.endTour();
+    });
+
+    it('should create a div for the HopscotchBubble and append to body if appendTo element does not exist', function() {
+      var body = document.body;
+      body.id = 'body-id'
+      hopscotch.startTour({
+        id: 'hopscotch-test-tour',
+        steps: [ {
+          target: 'shopping-list',
+          placement: 'left',
+          title: 'Shopping List',
+          content: 'It\'s a shopping list'
+        } ],
+        appendTo: 'no-element'
+      });
+      expect(document.querySelector('.hopscotch-bubble').parentElement.id).toEqual(body.id);
+      hopscotch.endTour();
+    });
+
     it('should start the tour at the specified step when a step number is supplied as an argument', function() {
       hopscotch.startTour({
         id: 'hopscotch-test-tour',
