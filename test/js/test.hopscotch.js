@@ -138,6 +138,62 @@ describe('Hopscotch', function() {
       hopscotch.endTour();
     });
 
+    it('should create a div for the HopscotchBubble and append to the specified container element', function() {
+      var containerEl = document.createElement('div');
+      document.body.appendChild(containerEl);
+      hopscotch.startTour({
+        id: 'hopscotch-test-tour',
+        steps: [
+          {
+            target: 'shopping-list',
+            placement: 'left',
+            title: 'Shopping List',
+            content: 'It\'s a shopping list'
+          }
+        ],
+        container: containerEl
+      });
+      expect(document.querySelector('.hopscotch-bubble').parentElement).toEqual(containerEl);
+      hopscotch.endTour();
+    });
+
+    it('should create a div for the HopscotchBubble and append to the container element specified by ID', function() {
+      var containerEl = document.createElement('div');
+      containerEl.id = 'container-element';
+      document.body.appendChild(containerEl);
+      hopscotch.startTour({
+        id: 'hopscotch-test-tour',
+        steps: [
+          {
+            target: 'shopping-list',
+            placement: 'left',
+            title: 'Shopping List',
+            content: 'It\'s a shopping list'
+          }
+        ],
+        container: 'container-element'
+      });
+      expect(document.querySelector('.hopscotch-bubble').parentElement).toEqual(containerEl);
+      hopscotch.endTour();
+    });
+
+    it('should create a div for the HopscotchBubble and append to body, as the specified container element does not exist', function() {
+      hopscotch.startTour({
+        id: 'hopscotch-test-tour',
+        steps: [
+          {
+            target: 'shopping-list',
+            placement: 'left',
+            title: 'Shopping List',
+            content: 'It\'s a shopping list'
+          }
+        ],
+        container: 'no-element'
+      });
+      expect(document.querySelector('.hopscotch-bubble').parentElement).toEqual(document.body);
+      hopscotch.endTour();
+    });
+
     it('should start the tour at the specified step when a step number is supplied as an argument', function() {
       hopscotch.startTour({
         id: 'hopscotch-test-tour',
