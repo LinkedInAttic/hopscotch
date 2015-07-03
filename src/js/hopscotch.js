@@ -1064,6 +1064,7 @@
           self            = this,
           resizeCooldown  = false, // for updating after window resize
           onWinResize,
+          appendTo,
           appendToBody,
           children,
           numChildren,
@@ -1134,8 +1135,14 @@
       this.hide();
 
       //Finally, append our new bubble to body once the DOM is ready.
+
+      // Check if appendTo option is on the page
+      if (this.opt.appendTo){
+        appendTo = getStepTargetHelper(this.opt.appendTo);
+      }
+
       if (utils.documentIsReady()) {
-        document.body.appendChild(el);
+        appendTo ? appendTo.appendChild(el) : document.body.appendChild(el);
       }
       else {
         // Moz, webkit, Opera
@@ -1144,7 +1151,7 @@
             document.removeEventListener('DOMContentLoaded', appendToBody);
             window.removeEventListener('load', appendToBody);
 
-            document.body.appendChild(el);
+            appendTo ? appendTo.appendChild(el) : document.body.appendChild(el);
           };
 
           document.addEventListener('DOMContentLoaded', appendToBody, false);
@@ -1155,7 +1162,7 @@
             if (document.readyState === 'complete') {
               document.detachEvent('onreadystatechange', appendToBody);
               window.detachEvent('onload', appendToBody);
-              document.body.appendChild(el);
+              appendTo ? appendTo.appendChild(el) : document.body.appendChild(el);
             }
           };
 
