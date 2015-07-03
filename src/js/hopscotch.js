@@ -1142,7 +1142,11 @@
       }
 
       if (utils.documentIsReady()) {
-        appendTo ? appendTo.appendChild(el) : document.body.appendChild(el);
+        if (appendTo){
+          appendTo.appendChild(el);
+        } else {
+          document.body.appendChild(el);
+        }
       }
       else {
         // Moz, webkit, Opera
@@ -1151,7 +1155,11 @@
             document.removeEventListener('DOMContentLoaded', appendToBody);
             window.removeEventListener('load', appendToBody);
 
-            appendTo ? appendTo.appendChild(el) : document.body.appendChild(el);
+            if (appendTo){
+              appendTo.appendChild(el);
+            } else {
+              document.body.appendChild(el);
+            }
           };
 
           document.addEventListener('DOMContentLoaded', appendToBody, false);
@@ -1162,7 +1170,11 @@
             if (document.readyState === 'complete') {
               document.detachEvent('onreadystatechange', appendToBody);
               window.detachEvent('onload', appendToBody);
-              appendTo ? appendTo.appendChild(el) : document.body.appendChild(el);
+              if (appendTo){
+                appendTo.appendChild(el);
+              } else {
+                document.body.appendChild(el);
+              }
             }
           };
 
