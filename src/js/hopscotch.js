@@ -61,6 +61,7 @@
     smoothScroll:    true,
     scrollDuration:  1000,
     scrollTopMargin: 200,
+    fadeDuration:    1000,
     showCloseButton: true,
     showPrevButton:  false,
     showNextButton:  true,
@@ -936,10 +937,9 @@
       }
     },
 
-    show: function() {
+    show: function(fadeDuration) {
       var self      = this,
-          fadeClass = 'fade-in-' + this._getArrowDirection(),
-          fadeDur   = 1000;
+          fadeClass = 'fade-in-' + this._getArrowDirection();
 
       utils.removeClass(this.element, 'hide');
       utils.addClass(this.element, fadeClass);
@@ -948,7 +948,7 @@
       }, 50);
       setTimeout(function() {
         utils.removeClass(self.element, fadeClass);
-      }, fadeDur);
+      }, fadeDuration);
       this.isShowing = true;
       return this;
     },
@@ -1083,6 +1083,7 @@
         bubblePadding:  defaultOpts.bubblePadding,
         arrowWidth:     defaultOpts.arrowWidth,
         isRtl:          defaultOpts.isRtl,
+        fadeDuration:   defaultOpts.fadeDuration,
         showNumber:     true,
         isTourBubble:   true
       };
@@ -1205,7 +1206,7 @@
         callouts[opt.id] = callout;
         calloutOpts[opt.id] = opt;
         callout.render(opt, null, function() {
-          callout.show();
+          callout.show(opt.fadeDuration);
           if (opt.onShow) {
             utils.invokeCallback(opt.onShow);
           }
@@ -1761,7 +1762,7 @@
           targetEl     = utils.getStepTarget(step);
 
       function showBubble() {
-        bubble.show();
+        bubble.show(getOption('fadeDuration'));
         utils.invokeEventCallbacks('show', step.onShow);
       }
 
@@ -2308,6 +2309,8 @@
      * - scrollTopMargin: NUMBER   - When the page scrolls, how much space should there
      *                               be between the bubble/targetElement and the top
      *                               of the viewport? Defaults to 200.
+     * - fadeDuration:    Number   - Duration of fade effect between two steps.
+     *                               Defaults to 1000ms.
      * - showCloseButton: Boolean  - should the tour bubble show a close (X) button?
      *                               Defaults to TRUE.
      * - showPrevButton:  Boolean  - should the bubble have the Previous button?

@@ -22,7 +22,7 @@
  * THE SOFTWARE.
  */
 
-@anim-duration: 1s;
+@fade-duration: @anim-duration * 2;
 @distance: 20px;
 
 .animated {
@@ -31,11 +31,11 @@
   -ms-animation-fill-mode: both;
   -o-animation-fill-mode: both;
   animation-fill-mode: both;
-  -webkit-animation-duration: @anim-duration;
-  -moz-animation-duration: @anim-duration;
-  -ms-animation-duration: @anim-duration;
-  -o-animation-duration: @anim-duration;
-  animation-duration: @anim-duration;
+  -webkit-animation-duration: @fade-duration;
+  -moz-animation-duration: @fade-duration;
+  -ms-animation-duration: @fade-duration;
+  -o-animation-duration: @fade-duration;
+  animation-duration: @fade-duration;
 }
 
 @-webkit-keyframes fadeInUp {
