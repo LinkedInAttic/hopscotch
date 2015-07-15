@@ -43,11 +43,11 @@
   -ms-animation-fill-mode: both;
   -o-animation-fill-mode: both;
   animation-fill-mode: both;
-  -webkit-animation-duration: 0.5s;
-  -moz-animation-duration: 0.5s;
-  -ms-animation-duration: 0.5s;
-  -o-animation-duration: 0.5s;
-  animation-duration: 0.5s;
+  -webkit-animation-duration: 1s;
+  -moz-animation-duration: 1s;
+  -ms-animation-duration: 1s;
+  -o-animation-duration: 1s;
+  animation-duration: 1s;
 }
 @-webkit-keyframes fadeInUp {
   0% {
@@ -347,19 +347,19 @@ div.hopscotch-bubble * {
 }
 div.hopscotch-bubble.animate {
   -moz-transition-property: top, left;
-  -moz-transition-duration: 0.5s;
+  -moz-transition-duration: 1s;
   -moz-transition-timing-function: ease-in-out;
   -ms-transition-property: top, left;
-  -ms-transition-duration: 0.5s;
+  -ms-transition-duration: 1s;
   -ms-transition-timing-function: ease-in-out;
   -o-transition-property: top, left;
-  -o-transition-duration: 0.5s;
+  -o-transition-duration: 1s;
   -o-transition-timing-function: ease-in-out;
   -webkit-transition-property: top, left;
-  -webkit-transition-duration: 0.5s;
+  -webkit-transition-duration: 1s;
   -webkit-transition-timing-function: ease-in-out;
   transition-property: top, left;
-  transition-duration: 0.5s;
+  transition-duration: 1s;
   transition-timing-function: ease-in-out;
 }
 div.hopscotch-bubble.invisible {
@@ -400,10 +400,6 @@ div.hopscotch-bubble.no-number .hopscotch-bubble-content {
   margin: 0;
 }
 div.hopscotch-bubble .hopscotch-bubble-close {
-  -webkit-appearance: none;
-  -moz-appearance: none;
-  appearance: none;
-  border: 0;
   color: #000;
   background: transparent url(../img/sprite-green.png) -192px -92px no-repeat;
   display: block;

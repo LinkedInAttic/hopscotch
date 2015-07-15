@@ -939,7 +939,7 @@
     show: function() {
       var self      = this,
           fadeClass = 'fade-in-' + this._getArrowDirection(),
-          fadeDur   = 500;
+          fadeDur   = 1000;
 
       utils.removeClass(this.element, 'hide');
       utils.addClass(this.element, fadeClass);

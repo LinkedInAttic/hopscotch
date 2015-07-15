@@ -334,7 +334,7 @@
     },
 
     documentIsReady: function() {
-      return document.readyState === 'complete';
+      return document.readyState === 'complete' || document.readyState === 'interactive';
     },
 
     /**
@@ -741,7 +741,6 @@
           unsafe,
           currTour,
           totalSteps,
-          totalStepsI18n,
           nextBtnText,
           isLast,
           opts;
@@ -765,8 +764,7 @@
           unsafe = currTour.unsafe;
           if(Array.isArray(currTour.steps)){
             totalSteps = currTour.steps.length;
-            totalStepsI18n = this._getStepI18nNum(this._getStepNum(totalSteps - 1));
-            isLast = (this._getStepNum(idx) === this._getStepNum(totalSteps - 1));
+            isLast = (idx === totalSteps - 1);
           }
         }
       }else{
@@ -796,8 +794,7 @@
           prevBtn: utils.getI18NString('prevBtn'),
           nextBtn: nextBtnText,
           closeTooltip: utils.getI18NString('closeTooltip'),
-          stepNum: this._getStepI18nNum(this._getStepNum(idx)),
-          numSteps: totalStepsI18n
+          stepNum: this._getStepI18nNum(this._getStepNum(idx))
         },
         buttons:{
           showPrev: (utils.valOrDefault(step.showPrevButton, this.opt.showPrevButton) && (this._getStepNum(idx) > 0)),
@@ -955,7 +952,7 @@
     show: function() {
       var self      = this,
           fadeClass = 'fade-in-' + this._getArrowDirection(),
-          fadeDur   = 500;
+          fadeDur   = 1000;
 
       utils.removeClass(this.element, 'hide');
       utils.addClass(this.element, fadeClass);
@@ -1212,20 +1209,19 @@
         if (callouts[opt.id]) {
           throw new Error('Callout by that id already exists. Please choose a unique id.');
         }
-        if (!utils.getStepTarget(opt)) {
-          throw new Error('Must specify existing target element via \'target\' option.');
-        }
         opt.showNextButton = opt.showPrevButton = false;
         opt.isTourBubble = false;
         callout = new HopscotchBubble(opt);
         callouts[opt.id] = callout;
         calloutOpts[opt.id] = opt;
-        callout.render(opt, null, function() {
-          callout.show();
-          if (opt.onShow) {
-            utils.invokeCallback(opt.onShow);
-          }
-        });
+        if (opt.target) {
+          callout.render(opt, null, function() {
+            callout.show();
+            if (opt.onShow) {
+              utils.invokeCallback(opt.onShow);
+            }
+          });
+        }
       }
       else {
         throw new Error('Must specify a callout id.');
@@ -1332,7 +1328,7 @@
      * @returns {Object} HopscotchBubble
      */
     getBubble = function(setOptions) {
-      if (!bubble || !bubble.element || !bubble.element.parentNode) {
+      if (!bubble) {
         bubble = new HopscotchBubble(opt);
       }
       if (setOptions) {
@@ -2518,9 +2514,11 @@ __p += '<button class="hopscotch-nav-button next hopscotch-next">' +
  } ;
 __p += '\n  </div>\n  ';
  if(buttons.showClose){ ;
-__p += '<button class="hopscotch-bubble-close hopscotch-close">' +
+__p += '<a title="' +
 ((__t = ( i18n.closeTooltip )) == null ? '' : __t) +
-'</button>';
+'" href="#" class="hopscotch-bubble-close hopscotch-close">' +
+((__t = ( i18n.closeTooltip )) == null ? '' : __t) +
+'</a>';
  } ;
 __p += '\n</div>\n<div class="hopscotch-bubble-arrow-container hopscotch-arrow">\n  <div class="hopscotch-bubble-arrow-border"></div>\n  <div class="hopscotch-bubble-arrow"></div>\n</div>';
 
