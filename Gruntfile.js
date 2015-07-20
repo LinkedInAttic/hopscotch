@@ -181,7 +181,8 @@ module.exports = function(grunt) {
         src: '<%=paths.build%>/js/hopscotch.min.js',
         options: {
           keepRunner: false,
-          specs:  ['<%=paths.test%>/js/*.js'],
+          specs:  ['<%=paths.test%>/js/test.hopscotch.js', '<%=paths.test%>/js/*spec.js'],
+          helpers: ['<%=paths.test%>/js/test-helpers.js'],
           vendor: ['node_modules/jquery/dist/jquery.min.js'],
           styles: ['<%=paths.build%>/css/hopscotch.min.css']
         }
@@ -190,7 +191,8 @@ module.exports = function(grunt) {
         src: '<%=paths.build%>/js/hopscotch.js',
         options: {
           keepRunner: false,
-          specs:  ['<%=paths.test%>/js/*.js'],
+          specs:  ['<%=paths.test%>/js/test.hopscotch.js', '<%=paths.test%>/js/*spec.js'],
+          helpers: ['<%=paths.test%>/js/test-helpers.js'],
           vendor: ['node_modules/jquery/dist/jquery.min.js'],
           styles: ['<%=paths.build%>/css/hopscotch.css']
         }
@@ -199,7 +201,8 @@ module.exports = function(grunt) {
         src: '<%=paths.build%>/js/hopscotch.js',
         options: {
           keepRunner: false,
-          specs:  ['<%=paths.test%>/js/*.js'],
+          specs:  ['<%=paths.test%>/js/test.hopscotch.js', '<%=paths.test%>/js/*spec.js'],
+          helpers: ['<%=paths.test%>/js/test-helpers.js'],
           vendor: ['node_modules/jquery/dist/jquery.min.js'],
           styles: ['<%=paths.build%>/css/hopscotch.css'],
           template: require('grunt-template-jasmine-istanbul'),
