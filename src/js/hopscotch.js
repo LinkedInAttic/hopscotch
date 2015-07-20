@@ -1665,6 +1665,8 @@
           return this.endTour(true, false);
         }
         changeStepCb.call(this, currStepNum);
+      } else if (currStepNum + direction === currTour.steps.length) {
+        return this.endTour();
       }
 
       return this;
