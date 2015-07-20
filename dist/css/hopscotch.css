@@ -1,4 +1,4 @@
-/**! hopscotch - v0.2.4
+/**! hopscotch - v0.2.5
 *
 * Copyright 2015 LinkedIn Corp. All rights reserved.
 *
@@ -400,6 +400,10 @@ div.hopscotch-bubble.no-number .hopscotch-bubble-content {
   margin: 0;
 }
 div.hopscotch-bubble .hopscotch-bubble-close {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  border: 0;
   color: #000;
   background: transparent url(../img/sprite-green.png) -192px -92px no-repeat;
   display: block;
