@@ -213,7 +213,29 @@ module.exports = function(grunt) {
           message: 'Open <%=jasmine.coverage.options.templateOptions.report%>/index.html in a browser to view the coverage.'
         }
       }
-    }
+    },
+    babel: {
+      options: {
+        sourceMap: true
+      },
+      dist: {
+        files: [{
+          expand: true,
+          cwd: 'src/es',
+          src: ['*.es', '*/*.es'],
+          dest: '<%=paths.build%>/js'
+        }]
+      }
+    },
+    browserify: {
+      dist: {
+        files: {
+          '<%=paths.build%>/js/hopscotch.js': ['<%=paths.build%>/js/modules/*.es', '<%=paths.build%>/js/*.es'],
+        },
+        options: {
+        }
+      }
+    },
   });
 
   //external tasks
@@ -228,10 +250,25 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-contrib-uglify');
   grunt.loadNpmTasks('grunt-contrib-watch');
   grunt.loadNpmTasks('grunt-include-replace');
+  grunt.loadNpmTasks('grunt-babel');
+  grunt.loadNpmTasks('grunt-browserify');
 
   grunt.registerMultiTask('log', 'Print some messages', function() {
     grunt.log.ok(this.data.options.message);
   });
+  
+  //temporary tasks for ES6 rewrite with Babel and Browserify
+  grunt.registerTask(
+      'buildES',
+      'Build hopscotch for testing (jshint, minify js, process less to css)',
+      [ 'clean:build', 'babel:dist', 'browserify:dist', 'less']
+  );
+
+  grunt.registerTask  (
+      'devES',
+      'Start test server to allow debugging unminified hopscotch code in a browser',
+      ['buildES', 'jasmine:testDev:build', 'log:dev', 'connect:testServer']
+  );
 
   //grunt task aliases
   grunt.registerTask(
@@ -256,7 +293,7 @@ module.exports = function(grunt) {
     'coverage',
     'log:coverage',
     ['build', 'jasmine:coverage', 'log:coverage']);
-
+    
   //release tasks
   grunt.registerTask(
     'buildRelease',
