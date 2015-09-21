@@ -144,38 +144,6 @@ module.exports = function(grunt) {
         tasks: ['test']
       }
     },
-    compress: {
-      distTarBall: {
-        options: {
-          archive: '<%=paths.archive%>/<%=distName%>.tar.gz',
-          mode: 'tgz',
-          pretty: true
-        },
-        files: [
-          {
-            expand: true,
-            cwd: '<%=paths.dist%>',
-            src: ['**/*'],
-            dest: '<%=distName%>/'
-          }
-        ]
-      },
-      distZip: {
-        options: {
-          archive: '<%=paths.archive%>/<%=distName%>.zip',
-            mode: 'zip',
-            pretty: true
-        },
-        files: [
-          {
-            expand: true,
-            cwd: '<%=paths.dist%>',
-            src: ['**/*'],
-            dest: '<%=distName%>/'
-          }
-        ]
-      }
-    },
     jasmine : {
       testProd: {
         src: '<%=paths.build%>/js/hopscotch.min.js',
@@ -224,14 +192,6 @@ module.exports = function(grunt) {
         }
       }
     },
-    shell: {
-      gitAddArchive: {
-        command: 'git add <%= paths.archive %>',
-        options: {
-          stdout: true
-        }
-      }
-    },
     bump: {
       options: {
         files: ['package.json'],
@@ -259,7 +219,6 @@ module.exports = function(grunt) {
   //external tasks
   grunt.loadNpmTasks('grunt-bump');
   grunt.loadNpmTasks('grunt-contrib-clean');
-  grunt.loadNpmTasks('grunt-contrib-compress');
   grunt.loadNpmTasks('grunt-contrib-connect');
   grunt.loadNpmTasks('grunt-contrib-copy');
   grunt.loadNpmTasks('grunt-contrib-jasmine');
@@ -269,7 +228,6 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-contrib-uglify');
   grunt.loadNpmTasks('grunt-contrib-watch');
   grunt.loadNpmTasks('grunt-include-replace');
-  grunt.loadNpmTasks('grunt-shell');
 
   grunt.registerMultiTask('log', 'Print some messages', function() {
     grunt.log.ok(this.data.options.message);
@@ -303,17 +261,17 @@ module.exports = function(grunt) {
   grunt.registerTask(
     'buildRelease',
     'Build hopscotch for release (update files in dist directory and create tar.gz and zip archives of the release)',
-    ['test', 'clean:dist', 'copy:releaseWithBanner', 'copy:release', 'compress']
+    ['test', 'clean:dist', 'copy:releaseWithBanner', 'copy:release']
   );
   grunt.registerTask(
     'releasePatch',
-    'Release patch update to hopscotch (bump patch version, update dist and archives folders, tag release and commit)',
-    ['bump-only:patch', 'buildRelease', 'shell:gitAddArchive', 'bump-commit']
+    'Release patch update to hopscotch (bump patch version, update dist folder, tag release and commit)',
+    ['bump-only:patch', 'buildRelease', 'bump-commit']
   );
   grunt.registerTask(
     'releaseMinor',
-    'Release minor update to hopscotch (bump minor version, update dist and archives folders, tag release and commit)',
-    ['bump-only:minor', 'buildRelease', 'shell:gitAddArchive', 'bump-commit']
+    'Release minor update to hopscotch (bump minor version, update dist folder, tag release and commit)',
+    ['bump-only:minor', 'buildRelease', 'bump-commit']
   );
 
   // Default task.
