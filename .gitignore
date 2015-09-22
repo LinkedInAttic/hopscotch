@@ -4,3 +4,4 @@ tmp
 *.iml
 _SpecRunner.html
 .grunt
+.vscode
