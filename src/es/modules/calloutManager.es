@@ -1,6 +1,6 @@
 import Callout from './callout.es';
 
-export default class CalloutMamager {
+export default class CalloutManager {
   constructor () {
     //console.log('Creating a new instance of CalloutManager');
   }
