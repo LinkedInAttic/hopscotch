@@ -1,6 +1,6 @@
-import Tour from './modules/tour.es';
-import CalloutManager from './modules/calloutManager.es';
-import Options from './modules/options.es';
+import Tour from './modules/tour.js';
+import CalloutManager from './modules/calloutManager.js';
+import Options from './modules/options.js';
 
 (function (context, factory) {
   if (typeof define === 'function' && define.amd) {

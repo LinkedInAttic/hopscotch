@@ -233,7 +233,7 @@ module.exports = function(grunt) {
         files: [{
           expand: true,
           cwd: 'src/es',
-          src: ['*.es', '*/*.es'],
+          src: ['*.js', '*/*.js'],
           dest: '<%=paths.build%>/es'
         }]
       }
@@ -242,8 +242,8 @@ module.exports = function(grunt) {
       dist: {
         files: {
           '<%=paths.build%>/es/hopscotch.js': [
-                '<%=paths.build%>/es/modules/*.es',
-                '<%=paths.build%>/es/*.es'
+                '<%=paths.build%>/es/modules/*.js',
+                '<%=paths.build%>/es/*.js'
           ],
         },
         options: {

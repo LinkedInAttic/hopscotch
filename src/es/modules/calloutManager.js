@@ -1,4 +1,4 @@
-import * as Callouts from './callout.es';
+import * as Callouts from './callout.js';
 
 export default class CalloutManager {
   constructor () {

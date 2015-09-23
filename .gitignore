@@ -5,3 +5,4 @@ tmp
 _SpecRunner.html
 .grunt
 .vscode
+jsconfig.json
