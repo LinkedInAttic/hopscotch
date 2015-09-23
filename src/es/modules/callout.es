@@ -1,10 +1,15 @@
+import Options from './modules/options.es';
+
 //Abstract base class for callouts
 export class Callout {
-  constructor (options) {
-    this.calloutOptions = options;
+  constructor (config) {
+    this.config = = new Options(config);
+  }
+  render() {
+    let renderer = this.config.get('renderer');
   }
   show() {
-    console.log(this.calloutOptions);
+    console.log(this.options);
   }
   hide() {
 

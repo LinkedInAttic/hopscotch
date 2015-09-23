@@ -3,8 +3,6 @@ import CalloutManager from './modules/calloutManager.es';
 import Options from './modules/options.es';
 
 (function (context, factory) {
-  'use strict';
-
   if (typeof define === 'function' && define.amd) {
     // AMD. Register as an anonymous module.
     define([], factory);
@@ -24,13 +22,14 @@ import Options from './modules/options.es';
   }
 }(this, (function () {
   let defaultOpts = new Options({});
+  let globalOpts = new Options({}, defaultOpts);
   let currentTour;
   let calloutMan;
 
-  return {
-    startTour: function (tour, stepNum) {
+  let hs = {
+    startTour: function (config, stepNum) {
       if (!currentTour) {
-        currentTour = new Tour(tour);
+        currentTour = new Tour(config);
       } else {
         throw new Error('Tour ${currentTour.id}')
       }
@@ -55,5 +54,14 @@ import Options from './modules/options.es';
       }
       return calloutMan;
     }
-  }
+  };
+  
+  // Template includes, placed inside a closure to ensure we don't
+  // end up declaring our shim globally.
+  (function(){
+  // @@include('../../src/tl/_template_headers.js') //
+  // @@include('../../tmp/js/hopscotch_templates.js') //
+  }.call(hs));
+  
+  return hs;
 })));

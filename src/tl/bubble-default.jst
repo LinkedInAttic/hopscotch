@@ -6,18 +6,18 @@
     return str;
   }
 %>
-<div class="hopscotch-bubble-container" style="width: <%= step.width %>px; padding: <%= step.padding %>px;">
-  <% if(tour.isTour){ %><span class="hopscotch-bubble-number"><%= i18n.stepNum %></span><% } %>
+<div class="hopscotch-bubble-container" style="width: <%= data.step.width %>px; padding: <%= data.step.padding %>px;">
+  <% if(data.tour.isTour){ %><span class="hopscotch-bubble-number"><%= data.i18n.stepNum %></span><% } %>
   <div class="hopscotch-bubble-content">
-    <% if(step.title !== ''){ %><h3 class="hopscotch-title"><%= optEscape(step.title, tour.unsafe) %></h3><% } %>
-    <% if(step.content  !== ''){ %><div class="hopscotch-content"><%= optEscape(step.content, tour.unsafe) %></div><% } %>
+    <% if(data.step.title !== ''){ %><h3 class="hopscotch-title"><%= optEscape(data.step.title, data.tour.unsafe) %></h3><% } %>
+    <% if(data.step.content  !== ''){ %><div class="hopscotch-content"><%= optEscape(data.step.content, data.tour.unsafe) %></div><% } %>
   </div>
   <div class="hopscotch-actions">
-    <% if(buttons.showPrev){ %><button class="hopscotch-nav-button prev hopscotch-prev"><%= i18n.prevBtn %></button><% } %>
-    <% if(buttons.showCTA){ %><button class="hopscotch-nav-button next hopscotch-cta"><%= buttons.ctaLabel %></button><% } %>
-    <% if(buttons.showNext){ %><button class="hopscotch-nav-button next hopscotch-next"><%= i18n.nextBtn %></button><% } %>
+    <% if(data.buttons.showPrev){ %><button class="hopscotch-nav-button prev hopscotch-prev"><%= data.i18n.prevBtn %></button><% } %>
+    <% if(data.buttons.showCTA){ %><button class="hopscotch-nav-button next hopscotch-cta"><%= data.buttons.ctaLabel %></button><% } %>
+    <% if(data.buttons.showNext){ %><button class="hopscotch-nav-button next hopscotch-next"><%= data.i18n.nextBtn %></button><% } %>
   </div>
-  <% if(buttons.showClose){ %><button class="hopscotch-bubble-close hopscotch-close"><%= i18n.closeTooltip %></button><% } %>
+  <% if(data.buttons.showClose){ %><button class="hopscotch-bubble-close hopscotch-close"><%= data.i18n.closeTooltip %></button><% } %>
 </div>
 <div class="hopscotch-bubble-arrow-container hopscotch-arrow">
   <div class="hopscotch-bubble-arrow-border"></div>

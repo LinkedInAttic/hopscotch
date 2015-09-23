@@ -121,6 +121,9 @@ module.exports = function(grunt) {
             var splitName = filename.split('/'),
                 sanitized = splitName[splitName.length - 1].replace('.jst', '').replace(new RegExp('-', 'g'), '_');
             return sanitized;
+          },
+          templateSettings: {
+            variable: 'data'
           }
         },
         files: {
@@ -135,6 +138,14 @@ module.exports = function(grunt) {
           suffix: ' //'
         },
         src: '<%=paths.jsSource%>',
+        dest: '<%=paths.build%>/js/hopscotch.js'
+      },
+      esSource: {
+        options: {
+          prefix: '// @@',
+          suffix: ' //'
+        },
+        src: '<%=paths.build%>/es/hopscotch.js',
         dest: '<%=paths.build%>/js/hopscotch.js'
       }
     },
@@ -223,21 +234,24 @@ module.exports = function(grunt) {
           expand: true,
           cwd: 'src/es',
           src: ['*.es', '*/*.es'],
-          dest: '<%=paths.build%>/js'
+          dest: '<%=paths.build%>/es'
         }]
       }
     },
     browserify: {
       dist: {
         files: {
-          '<%=paths.build%>/js/hopscotch.js': ['<%=paths.build%>/js/modules/*.es', '<%=paths.build%>/js/*.es'],
+          '<%=paths.build%>/es/hopscotch.js': [
+                '<%=paths.build%>/es/modules/*.es',
+                '<%=paths.build%>/es/*.es'
+          ],
         },
         options: {
         }
       }
-    },
+    }
   });
-
+  
   //external tasks
   grunt.loadNpmTasks('grunt-bump');
   grunt.loadNpmTasks('grunt-contrib-clean');
@@ -261,7 +275,7 @@ module.exports = function(grunt) {
   grunt.registerTask(
       'buildES',
       'Build hopscotch for testing (jshint, minify js, process less to css)',
-      [ 'clean:build', 'babel:dist', 'browserify:dist', 'less']
+      [ 'clean:build', 'jst:compile', 'babel:dist', 'browserify:dist', 'includereplace:esSource', 'less']
   );
 
   grunt.registerTask  (
