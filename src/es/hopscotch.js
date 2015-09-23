@@ -1,6 +1,6 @@
 import Tour from './modules/tour.js';
 import CalloutManager from './modules/calloutManager.js';
-import Options from './modules/options.js';
+import Config from './modules/config.js';
 
 (function (context, factory) {
   if (typeof define === 'function' && define.amd) {
@@ -21,8 +21,8 @@ import Options from './modules/options.js';
     window[namespace] = factory();
   }
 }(this, (function () {
-  let defaultOpts = new Options({});
-  let globalOpts = new Options({}, defaultOpts);
+  let defaultConfig = new Config({});
+  let globalConfig = new Config({}, defaultConfig);
   let currentTour;
   let calloutMan;
 
