@@ -6,3 +6,4 @@ _SpecRunner.html
 .grunt
 .vscode
 jsconfig.json
+npm-debug.log

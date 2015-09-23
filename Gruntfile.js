@@ -232,7 +232,7 @@ module.exports = function(grunt) {
       dist: {
         files: [{
           expand: true,
-          cwd: 'src/es',
+          cwd: '<%=paths.source%>/es',
           src: ['*.js', '*/*.js'],
           dest: '<%=paths.build%>/es'
         }]
@@ -249,6 +249,12 @@ module.exports = function(grunt) {
         options: {
         }
       }
+    },
+    eslint: {
+      options: {
+        configFile: 'eslint.json'
+      },
+      target: ['<%=paths.source%>/es/**/*.js', '<%=paths.source%>/es/**/*.js']
     }
   });
   
@@ -266,6 +272,7 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-include-replace');
   grunt.loadNpmTasks('grunt-babel');
   grunt.loadNpmTasks('grunt-browserify');
+  grunt.loadNpmTasks('grunt-eslint');
 
   grunt.registerMultiTask('log', 'Print some messages', function() {
     grunt.log.ok(this.data.options.message);
@@ -275,7 +282,7 @@ module.exports = function(grunt) {
   grunt.registerTask(
       'buildES',
       'Build hopscotch for testing (jshint, minify js, process less to css)',
-      [ 'clean:build', 'jst:compile', 'babel:dist', 'browserify:dist', 'includereplace:esSource', 'less']
+      [ 'clean:build', 'eslint', 'jst:compile', 'babel:dist', 'browserify:dist', 'includereplace:esSource', 'less']
   );
 
   grunt.registerTask  (
