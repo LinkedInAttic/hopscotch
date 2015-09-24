@@ -1,6 +1,7 @@
 import Tour from './modules/tour.js';
-import CalloutManager from './modules/calloutManager.js';
 import Config from './modules/config.js';
+import CalloutManager from './managers/CalloutManager.js';
+import TemplateManager from './managers/TemplateManager.js';
 
 (function (context, factory) {
   if (typeof define === 'function' && define.amd) {
@@ -20,18 +21,39 @@ import Config from './modules/config.js';
     }
     window[namespace] = factory();
   }
-}(this, (function () {
-  let defaultConfig = new Config({});
+} (this, (function () {
+  let defaultConfig = new Config({
+    renderer: 'bubble_default',
+    smoothScroll: true,
+    scrollDuration: 1000,
+    scrollTopMargin: 200,
+    showCloseButton: true,
+    showPrevButton: false,
+    showNextButton: true,
+    width: 280,
+    padding: 15,
+    arrowWidth: 20,
+    skipIfNoElement: true,
+    isRtl: false,
+    cookieName: 'hopscotch.tour.state'
+  });
   let globalConfig = new Config({}, defaultConfig);
   let currentTour;
   let calloutMan;
+  
+  // Template includes, placed inside a closure to ensure we don't
+  // end up declaring our shim globally.
+  (function () {
+    // @@include('../../src/tl/_template_headers.js') //
+    // @@include('../../tmp/js/hopscotch_templates.js') //
+  }.call(TemplateManager));
 
-  let hs = {
-    startTour: function (config, stepNum) {
+  return {
+    startTour: function (configHash, stepNum) {
       if (!currentTour) {
-        currentTour = new Tour(config);
+        currentTour = new Tour(configHash, globalConfig);
       } else {
-        throw new Error('Tour ${currentTour.id}')
+        throw new Error('Tour \'' + currentTour.id + '\' is currently in progress');
       }
       currentTour.startTour(stepNum);
     },
@@ -50,18 +72,9 @@ import Config from './modules/config.js';
     },
     getCalloutManager: function () {
       if (!calloutMan) {
-        calloutMan =  new CalloutManager();
+        calloutMan = new CalloutManager(globalConfig);
       }
       return calloutMan;
     }
   };
-  
-  // Template includes, placed inside a closure to ensure we don't
-  // end up declaring our shim globally.
-  (function(){
-  // @@include('../../src/tl/_template_headers.js') //
-  // @@include('../../tmp/js/hopscotch_templates.js') //
-  }.call(hs));
-  
-  return hs;
 })));

@@ -1,6 +1,6 @@
 export default class Config {
-  constructor(configHash, parent) {
-    this.parent = parent;
+  constructor(configHash, parentConfig) {
+    this.parent = parentConfig;
     this.configHash = configHash;
   }
   get(name) {
@@ -8,7 +8,7 @@ export default class Config {
       return this.configHash[name];
     }
     if(this.parent) {
-      return this.parent.getOption(name);
+      return this.parent.get(name);
     }
   }
   set(name, value) {
