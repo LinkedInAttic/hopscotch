@@ -191,7 +191,7 @@ describe('Hopscotch', function() {
           steps: [
             {
               target: 'shopping-list',
-              orientation: 'left',
+              placement: 'left',
               title: 'Shopping List',
               content: 'It\'s a shopping list'
             }
@@ -2335,7 +2335,10 @@ describe('HopscotchCalloutManager', function() {
       // Test the existence of some known methods of HopscotchBubble
       expect(callout.render).toBeTruthy();
       expect(callout.destroy).toBeTruthy();
-      expect(callout.setPosition).toBeTruthy();
+      
+      //TODO: setPosition as public callout api should be deprecated
+      //expect(callout.setPosition).toBeTruthy();
+      
       mgr.removeCallout('shopping-callout');
     });
     it('should reject callout IDs that contain invalid characters', function() {
@@ -2345,7 +2348,7 @@ describe('HopscotchCalloutManager', function() {
         mgr.createCallout({
           id: '(this is an invalid callout id!)',
           target: 'shopping-list',
-          orientation: 'left',
+          placement: 'left',
           title: 'Shopping List Callout',
           content: 'It\'s a shopping list'
         });
@@ -2359,7 +2362,7 @@ describe('HopscotchCalloutManager', function() {
       mgr.createCallout({
         id: 'my-new-callout',
         target: 'shopping-list',
-        orientation: 'left',
+        placement: 'left',
         title: 'Shopping List Callout',
         content: 'It\'s a shopping list'
       });
@@ -2368,7 +2371,7 @@ describe('HopscotchCalloutManager', function() {
         mgr.createCallout({
           id: 'my-new-callout',
           target: 'shopping-list',
-          orientation: 'left',
+          placement: 'left',
           title: 'Shopping List Callout',
           content: 'It\'s a shopping list'
         });
