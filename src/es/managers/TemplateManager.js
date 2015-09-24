@@ -1,6 +1,6 @@
 let tlManager = {
 	templates: {}, //bubble_defauls will be registered here
-	render: function (renderer, data) {
+	render(renderer, data) {
 		let renderFunc;
 
 		if (typeof renderer === 'function') {

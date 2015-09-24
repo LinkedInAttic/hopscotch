@@ -49,7 +49,7 @@ import TemplateManager from './managers/TemplateManager.js';
   }.call(TemplateManager));
 
   return {
-    startTour: function (configHash, stepNum) {
+    startTour(configHash, stepNum) {
       if (!currentTour) {
         currentTour = new Tour(configHash, globalConfig);
       } else {
@@ -57,24 +57,26 @@ import TemplateManager from './managers/TemplateManager.js';
       }
       currentTour.startTour(stepNum);
     },
-    endTour: function () {
+    endTour() {
       currentTour = null;
     },
-    nextStep: function () {
+    nextStep() {
       if (currentTour) {
         currentTour.nextStep();
       }
     },
-    prevStep: function () {
+    prevStep() {
       if (currentTour) {
         currentTour.prevStep();
       }
     },
-    getCalloutManager: function () {
+    getCalloutManager() {
       if (!calloutMan) {
         calloutMan = new CalloutManager(globalConfig);
       }
       return calloutMan;
+    },
+    getState() {
     }
   };
 })));
