@@ -1,5 +1,7 @@
 import Config from './config.js';
 import TemplateManager from '../managers/TemplateManager.js';
+import CalloutPlacementManager from '../managers/CalloutPlacementManager.js';
+
 
 //Abstract base class for callouts
 export class Callout {
@@ -13,7 +15,7 @@ export class Callout {
       this.config.get('renderer'),
       this.getRenderData()
       );
-
+    CalloutPlacementManager.setCalloutPosition(this);
     document.body.appendChild(this.el);
   }
   show() {
@@ -24,9 +26,6 @@ export class Callout {
   }
   destroy() {
     this.el.parentNode.removeChild(this.el);
-  }
-  setPosition () {
-    
   }
   getRenderData() {
     return {
