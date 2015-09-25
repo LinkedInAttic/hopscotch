@@ -1,31 +1,31 @@
-module.exports = function(grunt) {
+module.exports = function (grunt) {
   grunt.initConfig({
     pkg: grunt.file.readJSON('package.json'),
-    banner : ['/**! <%=pkg.name%> - v<%=pkg.version%>',
-        '*',
-        '* Copyright 2015 LinkedIn Corp. All rights reserved.',
-        '*',
-        '* Licensed under the Apache License, Version 2.0 (the "License");',
-        '* you may not use this file except in compliance with the License.',
-        '* You may obtain a copy of the License at',
-        '*',
-        '*     http://www.apache.org/licenses/LICENSE-2.0',
-        '*',
-        '* Unless required by applicable law or agreed to in writing, software',
-        '* distributed under the License is distributed on an "AS IS" BASIS,',
-        '* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.',
-        '* See the License for the specific language governing permissions and',
-        '* limitations under the License.',
-        '*/\n'
+    banner: ['/**! <%=pkg.name%> - v<%=pkg.version%>',
+      '*',
+      '* Copyright 2015 LinkedIn Corp. All rights reserved.',
+      '*',
+      '* Licensed under the Apache License, Version 2.0 (the "License");',
+      '* you may not use this file except in compliance with the License.',
+      '* You may obtain a copy of the License at',
+      '*',
+      '*     http://www.apache.org/licenses/LICENSE-2.0',
+      '*',
+      '* Unless required by applicable law or agreed to in writing, software',
+      '* distributed under the License is distributed on an "AS IS" BASIS,',
+      '* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.',
+      '* See the License for the specific language governing permissions and',
+      '* limitations under the License.',
+      '*/\n'
     ].join('\n'),
-    distName:   '<%=pkg.name%>-<%=pkg.version%>',
-    paths : {
-      archive:  'archives',
-      dist:     'dist',
-      source:   'src',
+    distName: '<%=pkg.name%>-<%=pkg.version%>',
+    paths: {
+      archive: 'archives',
+      dist: 'dist',
+      source: 'src',
       jsSource: '<%=paths.source%>/js/hopscotch.js',
-      build:    'tmp',
-      test:     'test'
+      build: 'tmp',
+      test: 'test'
     },
     jshint: {
       lib: {
@@ -35,15 +35,15 @@ module.exports = function(grunt) {
         src: ['Gruntfile.js']
       },
       options: {
-        curly:    true,
-        eqeqeq:   true,
-        eqnull:   true,
-        browser:  true,
-        jquery:   true,
-        yui:      true
+        curly: true,
+        eqeqeq: true,
+        eqnull: true,
+        browser: true,
+        jquery: true,
+        yui: true
       }
     },
-    clean : {
+    clean: {
       build: ['<%=paths.build%>'],
       dist: ['<%=paths.dist%>']
     },
@@ -58,7 +58,7 @@ module.exports = function(grunt) {
           }
         ]
       },
-      releaseWithBanner : {
+      releaseWithBanner: {
         files: [
           {
             expand: true,
@@ -73,7 +73,7 @@ module.exports = function(grunt) {
           }
         }
       },
-      release : {
+      release: {
         files: [
           {
             src: 'LICENSE',
@@ -90,7 +90,7 @@ module.exports = function(grunt) {
     },
     uglify: {
       build: {
-        src:  '<%=paths.build%>/js/hopscotch.js',
+        src: '<%=paths.build%>/js/hopscotch.js',
         dest: '<%=paths.build%>/js/hopscotch.min.js'
       }
     },
@@ -117,9 +117,9 @@ module.exports = function(grunt) {
       compile: {
         options: {
           namespace: 'templates',
-          processName: function(filename){
+          processName: function (filename) {
             var splitName = filename.split('/'),
-                sanitized = splitName[splitName.length - 1].replace('.jst', '').replace(new RegExp('-', 'g'), '_');
+              sanitized = splitName[splitName.length - 1].replace('.jst', '').replace(new RegExp('-', 'g'), '_');
             return sanitized;
           },
           templateSettings: {
@@ -155,12 +155,12 @@ module.exports = function(grunt) {
         tasks: ['test']
       }
     },
-    jasmine : {
+    jasmine: {
       testProd: {
         src: '<%=paths.build%>/js/hopscotch.min.js',
         options: {
           keepRunner: false,
-          specs:  ['<%=paths.test%>/js/*.js'],
+          specs: ['<%=paths.test%>/js/*.js'],
           vendor: ['node_modules/jquery/dist/jquery.min.js'],
           styles: ['<%=paths.build%>/css/hopscotch.min.css']
         }
@@ -169,7 +169,7 @@ module.exports = function(grunt) {
         src: '<%=paths.build%>/js/hopscotch.js',
         options: {
           keepRunner: false,
-          specs:  ['<%=paths.test%>/js/*.js'],
+          specs: ['<%=paths.test%>/js/*.js'],
           vendor: ['node_modules/jquery/dist/jquery.min.js'],
           styles: ['<%=paths.build%>/css/hopscotch.css']
         }
@@ -178,7 +178,7 @@ module.exports = function(grunt) {
         src: '<%=paths.build%>/js/hopscotch.js',
         options: {
           keepRunner: false,
-          specs:  ['<%=paths.test%>/js/*.js'],
+          specs: ['<%=paths.test%>/js/*.js'],
           vendor: ['node_modules/jquery/dist/jquery.min.js'],
           styles: ['<%=paths.build%>/css/hopscotch.css'],
           template: require('grunt-template-jasmine-istanbul'),
@@ -242,8 +242,8 @@ module.exports = function(grunt) {
       dist: {
         files: {
           '<%=paths.build%>/es/hopscotch.js': [
-                '<%=paths.build%>/es/modules/*.js',
-                '<%=paths.build%>/es/*.js'
+            '<%=paths.build%>/es/modules/*.js',
+            '<%=paths.build%>/es/*.js'
           ],
         },
         options: {
@@ -274,41 +274,41 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-browserify');
   grunt.loadNpmTasks('grunt-eslint');
 
-  grunt.registerMultiTask('log', 'Print some messages', function() {
+  grunt.registerMultiTask('log', 'Print some messages', function () {
     grunt.log.ok(this.data.options.message);
   });
   
   //temporary tasks for ES6 rewrite with Babel and Browserify
   grunt.registerTask(
-      'buildES',
-      'Build hopscotch for testing (jshint, minify js, process less to css)',
-      [ 'clean:build', 'eslint', 'jst:compile', 'babel:dist', 'browserify:dist', 'includereplace:esSource', 'less']
-  );
+    'buildES',
+    'Build hopscotch for testing (jshint, minify js, process less to css)',
+    ['clean:build', 'eslint', 'jst:compile', 'babel:dist', 'browserify:dist', 'includereplace:esSource', 'less']
+    );
 
-  grunt.registerTask  (
-      'devES',
-      'Start test server to allow debugging unminified hopscotch code in a browser',
-      ['buildES', 'jasmine:testDev:build', 'log:dev', 'connect:testServer']
-  );
+  grunt.registerTask(
+    'devES',
+    'Start test server to allow debugging unminified hopscotch code in a browser',
+    ['buildES', 'jasmine:testDev:build', 'log:dev', 'connect:testServer']
+    );
 
   //grunt task aliases
   grunt.registerTask(
     'build',
     'Build hopscotch for testing (jshint, minify js, process less to css)',
     ['jshint:lib', 'clean:build', 'copy:build', 'jst:compile', 'includereplace:jsSource', 'uglify:build', 'less']
-  );
+    );
 
   grunt.registerTask(
     'test',
     'Build hopscotch and run unit tests',
-    ['build','jasmine:testProd', 'jasmine:coverage']
-  );
+    ['build', 'jasmine:testProd', 'jasmine:coverage']
+    );
 
-  grunt.registerTask  (
+  grunt.registerTask(
     'dev',
     'Start test server to allow debugging unminified hopscotch code in a browser',
     ['build', 'jasmine:testDev:build', 'log:dev', 'connect:testServer']
-  );
+    );
 
   grunt.registerTask(
     'coverage',
@@ -320,22 +320,22 @@ module.exports = function(grunt) {
     'buildRelease',
     'Build hopscotch for release (update files in dist directory and create tar.gz and zip archives of the release)',
     ['test', 'clean:dist', 'copy:releaseWithBanner', 'copy:release']
-  );
+    );
   grunt.registerTask(
     'releasePatch',
     'Release patch update to hopscotch (bump patch version, update dist folder, tag release and commit)',
     ['bump-only:patch', 'buildRelease', 'bump-commit']
-  );
+    );
   grunt.registerTask(
     'releaseMinor',
     'Release minor update to hopscotch (bump minor version, update dist folder, tag release and commit)',
     ['bump-only:minor', 'buildRelease', 'bump-commit']
-  );
+    );
 
   // Default task.
   grunt.registerTask(
     'default',
     'Build hopscotch and run unit tests',
     ['test']
-  );
+    );
 };
