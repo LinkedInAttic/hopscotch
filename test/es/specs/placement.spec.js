@@ -25,29 +25,62 @@ describe('Callout Placement', function () {
 
   let calloutManager = hopscotch.getCalloutManager();
   let targetEl = document.querySelector('#yogurt');
-  let placements = [
-    { placement: 'top', position: 'above' },
-    { placement: 'bottom', position: 'below' },
-    { placement: 'left', position: 'to the left of' },
-    { placement: 'right', position: 'to the right of' }
+  let placementTests = [
+    {
+      placement: 'top',
+      position: 'above the target',
+      rtlPlacement: 'top',
+      rtlPosition: 'above the target'
+    },
+    {
+      placement: 'bottom',
+      position: 'below the target',
+      rtlPlacement: 'bottom',
+      rtlPosition: 'below the target'
+    },
+    {
+      placement: 'left',
+      position: 'to the left of the target',
+      rtlPlacement: 'right',
+      rtlPosition: 'to the right of the target'
+    },
+    {
+      placement: 'right',
+      position: 'to the right of the target',
+      rtlPlacement: 'left',
+      rtlPosition: 'to the right of the target'
+    }
   ];
 
-  placements.forEach((pInfo) => {
+  placementTests.forEach((pInfo) => {
     describe(pInfo.placement, function () {
       afterEach(() => {
         calloutManager.removeAllCallouts();
       });
 
-      it('Callout should be shown ' + pInfo.position + ' the target', function () {
+      it('Callout should be shown ' + pInfo.position, function () {
         calloutManager.createCallout({
           id: 'callout-placement-' + pInfo.placement,
           target: targetEl,
           placement: pInfo.placement,
-          title: 'Callout position: ' + pInfo.placement,
-          content: 'This wonderful callout should apear ' + pInfo.position + ' the target'
+          title: 'Callout with placement \'' + pInfo.placement + '\'',
+          content: 'This wonderful callout should apear ' + pInfo.position
         });
 
         PlacementTestUtils.verifyCalloutPlacement(targetEl, pInfo.placement);
+      });
+
+      it('Callout should be shown ' + pInfo.rtlPosition + ' when isRtl flag is true', function () {
+        calloutManager.createCallout({
+          id: 'callout-placement-' + pInfo.placement,
+          target: targetEl,
+          placement: pInfo.placement,
+          title: 'Rtl callout with placement \'' + pInfo.placement + '\'',
+          content: 'This wonderful callout should apear ' + pInfo.rtlPosition,
+          isRtl: true
+        });
+
+        PlacementTestUtils.verifyCalloutPlacement(targetEl, pInfo.rtlPlacement);
       });
     });
   });

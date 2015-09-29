@@ -1,14 +1,14 @@
 import Config from './config.js';
 import TemplateManager from '../managers/TemplateManager.js';
 import CalloutPlacementManager from '../managers/CalloutPlacementManager.js';
-
+import * as Utils from './utils.js';
 
 //Abstract base class for callouts
 export class Callout {
   constructor(configHash, globalConfig) {
     this.config = new Config(configHash, globalConfig);
     this.el = document.createElement('div');
-    this.el.classList.add('hopscotch-bubble');
+    Utils.addClass(this.el, 'hopscotch-bubble');
   }
   render() {
     this.el.innerHTML = TemplateManager.render(
@@ -19,10 +19,10 @@ export class Callout {
     CalloutPlacementManager.setCalloutPosition(this);
   }
   show() {
-    this.el.classList.remove('hide');
+    Utils.removeClass(this.el, 'hide');
   }
   hide() {
-    this.el.classList.add('hide');
+    Utils.addClass(this.el, 'hide');
   }
   destroy() {
     this.el.parentNode.removeChild(this.el);
@@ -65,8 +65,7 @@ export class TourCallout extends Callout {
     super(configHash, globalConfig);
 
     this.tour = tour;
-
-    this.el.classList.add('tour-' + this.tour.id);
+    Utils.addClass(this.el, 'tour-' + this.tour.id);
   }
   getRenderData() {
     let opts = super.getRenderData();
@@ -93,10 +92,13 @@ export class TourCallout extends Callout {
 //Does not have step number or pev\next buttons
 export class StandaloneCallout extends Callout {
   constructor(configHash, globalConfig) {
+    if (!Utils.isIdValid(configHash.id)) {
+      throw new Error('Callout ID is using an invalid format. Use alphanumeric, underscores, and/or hyphens only. First character must be a letter.');
+    }
+
     super(configHash, globalConfig);
 
-    this.el.classList.add('hopscotch-callout');
-    this.el.classList.add('no-number');
+    Utils.addClass(this.el, 'hopscotch-callout no-number');
   }
   getRenderData() {
     return super.getRenderData();

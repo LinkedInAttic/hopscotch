@@ -87,7 +87,49 @@ export function getTargetEl(target) {
     }
     return null;
   }
-  
+
   // Assume that the target is a DOM element
   return target;
+}
+
+/**
+ * addClass
+ * ========
+ * Adds one or more classes to a DOM element.
+ *
+ * @private
+ */
+export function addClass(domEl, strClassNames) {
+  if (!domEl.className) {
+    domEl.className = strClassNames;
+  }
+  else {
+    let domClasses = ' ' + domEl.className + ' ';
+    let arrClassNames = strClassNames.split(/\s+/);
+
+      arrClassNames.forEach((className) => {
+        if (domClasses.indexOf(' ' + className + ' ') < 0) {
+          domClasses += className + ' ';
+        }
+      });
+    domEl.className = domClasses.replace(/^\s+|\s+$/g, '');
+  }
+}
+
+/**
+ * removeClass
+ * ===========
+ * Remove one or more classes from a DOM element.
+ *
+ * @private
+ */
+export function removeClass(domEl, strClassNamesToRemove) {
+  let domClasses = ' ' + domEl.className + ' ';
+  let arrClassesToRemove = strClassNamesToRemove.split(/\s+/);
+
+  arrClassesToRemove.forEach((className) => {
+    domClasses = domClasses.replace(' ' + className + ' ', ' ');
+  });
+
+  domEl.className = domClasses.replace(/^\s+|\s+$/g, '');
 }

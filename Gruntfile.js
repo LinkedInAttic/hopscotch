@@ -183,6 +183,20 @@ module.exports = function (grunt) {
           styles: ['<%=paths.build%>/css/hopscotch.css']
         }
       },
+      coverageES: {
+        src: '<%=paths.build%>/js/hopscotch.js',
+        options: {
+          outfile: '<%=paths.build%>/test/SpecRunner.html',
+          keepRunner: true,
+          specs: ['<%=paths.build%>/test/*.js'],
+          styles: ['<%=paths.build%>/css/hopscotch.css'],
+          template: require('grunt-template-jasmine-istanbul'),
+          templateOptions: {
+            coverage: '<%=paths.build%>/coverage/coverage.json',
+            report: '<%=paths.build%>/coverage'
+          }
+        }
+      },
       coverage: {
         src: '<%=paths.build%>/js/hopscotch.js',
         options: {
@@ -310,7 +324,7 @@ module.exports = function (grunt) {
   grunt.registerTask(
     'buildES',
     'Build hopscotch for testing (jshint, minify js, process less to css)',
-    ['clean:build', 'eslint', 'jst:compile', 'babel:dist', 'browserify:dist', 'includereplace:esSource', 'less']
+    ['clean:build', 'copy:build', 'eslint', 'jst:compile', 'babel:dist', 'browserify:dist', 'includereplace:esSource', 'less']
     );
     
   grunt.registerTask(

@@ -93,7 +93,7 @@ function adjustPlacementForRtl(callout, placementStrategy) {
   let isFlippedForRtl = callout.config.get('_isFlippedForRtl');
 
   if (isRtl && !isFlippedForRtl) {
-    let calloutXOffset = callout.config.set('xOffset');
+    let calloutXOffset = callout.config.get('xOffset');
     let rtlPlacement = placementStrategy.rtlPlacement;
 
     //flip xOffset
@@ -103,8 +103,10 @@ function adjustPlacementForRtl(callout, placementStrategy) {
     //flip placement for right and left placements only
     if (rtlPlacement) {
       callout.config.set('placement', rtlPlacement);
+      placementStrategy = placementStrategies[rtlPlacement];
     }
   }
+  return placementStrategy;
 }
 
 /**
@@ -119,13 +121,9 @@ function positionArrow(callout, placementStrategy) {
   }
 
   //Remove any stale position classes
-  arrowEl.classList.remove('down');
-  arrowEl.classList.remove('up');
-  arrowEl.classList.remove('right');
-  arrowEl.classList.remove('left');
-
+  Utils.removeClass(arrowEl, 'down up right left');
   //Have arrow point in the direction of the target
-  arrowEl.classList.add(placementStrategy.arrowPlacement);
+  Utils.addClass(arrowEl, placementStrategy.arrowPlacement);
 
   //Position arrow correctly relative to the callout
   let arrowOffset = callout.config.get('arrowOffset');
@@ -216,7 +214,7 @@ let CalloutPlacementManager = {
     }
     //if callout is RTL enabled we need to adjust
     //placement and xOffset values
-    adjustPlacementForRtl(callout, placementStrategy);
+    placementStrategy = adjustPlacementForRtl(callout, placementStrategy);
     //adjust position of the callout element
     //to be placed next to the target 
     positionCallout(callout, placementStrategy);
