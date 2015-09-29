@@ -20,6 +20,7 @@ module.exports = function (grunt) {
     ].join('\n'),
     distName: '<%=pkg.name%>-<%=pkg.version%>',
     paths: {
+      project: __dirname,
       archive: 'archives',
       dist: 'dist',
       source: 'src',
@@ -153,6 +154,13 @@ module.exports = function (grunt) {
       jsFiles: {
         files: ['<%=paths.source%>/**/*', '<%=paths.test%>/**/*'],
         tasks: ['test']
+      },
+      esCode: {
+        files: ['<%=paths.source%>/es/**/*.js', '<%=paths.test%>/es/**/*.js'],
+        tasks: ['buildES', 'buildESTest'],
+        options: {
+          livereload: true
+        }
       }
     },
     jasmine: {
@@ -221,8 +229,9 @@ module.exports = function (grunt) {
     connect: {
       testServer: {
         options: {
-          port: 3000,
-          keepalive: true
+          livereload: true,
+          base: '<%=paths.project%>/',
+          port: 3000
         }
       }
     },
@@ -265,7 +274,7 @@ module.exports = function (grunt) {
           dest: '<%=paths.build%>/es'
         }]
       },
-      test : {
+      test: {
         files: [{
           expand: true,
           cwd: '<%=paths.test%>/es',
@@ -326,17 +335,17 @@ module.exports = function (grunt) {
     'Build hopscotch for testing (jshint, minify js, process less to css)',
     ['clean:build', 'copy:build', 'eslint', 'jst:compile', 'babel:dist', 'browserify:dist', 'includereplace:esSource', 'less']
     );
-    
+
   grunt.registerTask(
     'buildESTest',
     'Build hopscotch for testing (jshint, minify js, process less to css)',
     ['babel:test', 'browserify:test', 'jasmine:testESDev:build']
-  );
+    );
 
   grunt.registerTask(
     'devES',
     'Start test server to allow debugging unminified hopscotch code in a browser',
-    ['buildES', 'buildESTest', 'log:devES' ,'connect:testServer']
+    ['buildES', 'buildESTest', 'connect:testServer', 'log:devES', 'watch:esCode']
     );
 
   //grunt task aliases
