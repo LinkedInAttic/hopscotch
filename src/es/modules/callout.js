@@ -15,8 +15,8 @@ export class Callout {
       this.config.get('renderer'),
       this.getRenderData()
       );
-    CalloutPlacementManager.setCalloutPosition(this);
     document.body.appendChild(this.el);
+    CalloutPlacementManager.setCalloutPosition(this);
   }
   show() {
     this.el.classList.remove('hide');

@@ -32,11 +32,11 @@ function getElement(element) {
   if (result) {
     return result;
   }
-  if (hasJquery) {
+  if (typeof jQuery !== 'undefined') {
     result = jQuery(element);
     return result.length ? result[0] : null;
   }
-  if (Sizzle) {
+  if (typeof Sizzle !== 'undefined') {
     result = new Sizzle(element);
     return result.length ? result[0] : null;
   }
