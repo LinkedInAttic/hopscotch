@@ -121,10 +121,8 @@ div.hopscotch-bubble {
 
   .hopscotch-bubble-arrow-container {
     @arrowWidth: 17px;
+    @arrowOffset: -1 * (@bubbleBorderWidth + @arrowWidth);
     position: absolute;
-
-    width: @arrowWidth*2;
-    height: @arrowWidth*2;
 
     .hopscotch-bubble-arrow,
     .hopscotch-bubble-arrow-border {
@@ -133,8 +131,10 @@ div.hopscotch-bubble {
     }
 
     &.up {
-      top: 0 - @arrowWidth - @bubbleBorderWidth;
+      top: @arrowOffset;
       left: @bubbleCornerRadius;
+      width: @arrowWidth * 2;
+      height: @arrowWidth;
 
       .hopscotch-bubble-arrow {
         border-bottom: @arrowWidth solid @bubbleColor;
@@ -151,8 +151,10 @@ div.hopscotch-bubble {
       }
     }
     &.down {
-      bottom: 0 - @arrowWidth*2 - @bubbleBorderWidth;
+      bottom: @arrowOffset;
       left: @bubbleCornerRadius;
+      width: @arrowWidth * 2;
+      height: @arrowWidth;
 
       .hopscotch-bubble-arrow {
         border-top:   @arrowWidth solid @bubbleColor;
@@ -170,7 +172,9 @@ div.hopscotch-bubble {
     }
     &.left {
       top: @bubbleCornerRadius;
-      left: 0 - @arrowWidth - @bubbleBorderWidth;
+      left: @arrowOffset;
+      width: @arrowWidth;
+      height: @arrowWidth * 2;
 
       .hopscotch-bubble-arrow {
         border-bottom: @arrowWidth solid transparent;
@@ -189,7 +193,9 @@ div.hopscotch-bubble {
     }
     &.right {
       top: @bubbleCornerRadius;
-      right: 0 - @arrowWidth*2 - @bubbleBorderWidth;
+      right: @arrowOffset;
+      width: @arrowWidth;
+      height: @arrowWidth * 2;
 
       .hopscotch-bubble-arrow {
         border-bottom: @arrowWidth solid transparent;
