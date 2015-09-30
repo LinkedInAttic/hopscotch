@@ -80,7 +80,6 @@ let placementStrategies = {
   }
 };
 
-
 /**
   * If step is right-to-left enabled, flip the placement and xOffset.
   * Will adjust placement only once and will set _isFlippedForRtl option to keep track of this
@@ -133,8 +132,9 @@ function positionArrow(callout, placementStrategy) {
 
 
 /**
- * 
- * 
+ * This function sets callout's top and left coordinates as well as it's position (fixed vs absolute)
+ * Top and left coordinates are calculated based on target element's position, page scroll as well
+ * as xOffset and yOffset configuration options 
  */
 function positionCallout(callout, placementStrategy) {
   let targetEl = Utils.getTargetEl(callout.config.get('target'));
@@ -142,7 +142,7 @@ function positionCallout(callout, placementStrategy) {
     return;
   }
 
-  let isFixedEl = callout.config.get('fixedElement');
+  let isTargetFixed = isFixedElement(targetEl);
   let targetElBox = targetEl.getBoundingClientRect();
   let calloutElBox = { width: callout.el.offsetWidth, height: callout.el.offsetHeight };
   let calloutPosition = placementStrategy.calculateCalloutPosition(
@@ -171,14 +171,16 @@ function positionCallout(callout, placementStrategy) {
   }
 
   // Adjust TOP for scroll position
-  if (!isFixedEl) {
+  if (!isTargetFixed) {
     let scrollPosition = getScrollPosition();
     calloutPosition.top += scrollPosition.top;
     calloutPosition.left += scrollPosition.left;
   }
 
   //Set the position
-  callout.el.style.position = isFixedEl ? 'fixed' : 'absolute';
+  //If target element is fixed, callout needs to be fixed as well
+  //Otherwise it should have absolute position
+  callout.el.style.position = isTargetFixed ? 'fixed' : 'absolute';
   callout.el.style.top = calloutPosition.top + 'px';
   callout.el.style.left = calloutPosition.left + 'px';
 }
@@ -187,20 +189,31 @@ function positionCallout(callout, placementStrategy) {
  * Returns top and left scroll positions
  * @private
  */
-export function getScrollPosition() {
-  let top;
-  let left;
+function getScrollPosition() {
+  let top = 0;
+  let left = 0;
 
   if (typeof window.pageYOffset !== 'undefined') {
     top = window.pageYOffset;
     left = window.pageXOffset;
   }
-  else {
-    // Most likely IE <=8, which doesn't support pageYOffset
-    top = document.documentElement.scrollTop;
-    left = document.documentElement.scrollLeft;
-  }
+
   return { top, left };
+}
+
+/**
+ * Looks up the DOM tree to see if any of the parent elements have fixed position
+ * @private
+ */
+function isFixedElement(el) {
+  if (!el.style) {
+    return false;
+  } else if (el.style.position === 'fixed') {
+    return true;
+  } else if (el.parentNode) {
+    return isFixedElement(el.parentNode);
+  }
+  return false;
 }
 /* END PRIVATE FUNCTIONS AND VARIABLES FOR THIS MODULE */
 /* PUBLIC INTERFACE AND EXPORT STATEMENT FOR THIS MODULE */
