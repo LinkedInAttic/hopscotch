@@ -137,7 +137,20 @@ function positionArrow(callout, placementStrategy) {
  * as xOffset and yOffset configuration options 
  */
 function positionCallout(callout, placementStrategy) {
-  let targetEl = Utils.getTargetEl(callout.config.get('target'));
+  //User can configure their own way of finding target element
+  //via hopscotch.configure. For example jQuery
+  // hopscotch.configure({
+  //  getTarget: function(target){
+  //    return jQUery(target);
+  //  }
+  // });
+  //If not specified getTarget defaults to Utils.getTargetEl
+  let getTarget = callout.config.get('getTarget');
+  if (typeof getTarget !== 'function') {
+    throw new Error('Can not find target element because \'getTarget\' is not a function');
+  }
+
+  let targetEl = getTarget(callout.config.get('target'));
   if (!targetEl) {
     return;
   }

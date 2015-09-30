@@ -2,6 +2,7 @@ import Tour from './modules/tour.js';
 import Config from './modules/config.js';
 import CalloutManager from './managers/CalloutManager.js';
 import TemplateManager from './managers/TemplateManager.js';
+import * as Utils from './modules/utils.js';
 
 (function (context, factory) {
   if (typeof define === 'function' && define.amd) {
@@ -35,7 +36,8 @@ import TemplateManager from './managers/TemplateManager.js';
     arrowWidth: 20,
     skipIfNoElement: true,
     isRtl: false,
-    cookieName: 'hopscotch.tour.state'
+    cookieName: 'hopscotch.tour.state',
+    getTarget: Utils.getTargetEl
   });
   let globalConfig = new Config({}, defaultConfig);
   let currentTour;
