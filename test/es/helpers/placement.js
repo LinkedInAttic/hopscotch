@@ -129,10 +129,38 @@ function verifyCalloutIsNotShown() {
   expect(hsArrow).not.toBeDefined();
 }
 
+/**
+ * Makes sure that page height is larger than viewport and scrolls to
+ * the bottom of the page
+ */
+function ensurePageScroll() {
+  let viewportHeight = document.documentElement.clientHeight;
+  let documentHeight = document.body.offsetHeight;
+
+  if (documentHeight <= viewportHeight) {
+    //try adding padding to the body element until we have scroll
+    document.body.style.paddingTop = (viewportHeight - documentHeight + 100) + 'px';
+  }
+  //scroll to the bottom of the page
+  window.scrollTo(0, document.body.scrollHeight);
+}
+
+/**
+ * Undo ensurePageScroll effects
+ * Resets top body padding and scrolls to the top of the page
+ * @private
+ */
+function resetPageScroll() {
+  document.body.style.padding = 0;
+  window.scrollTo(0, 0);
+}
+
 let PlacementTestUtils = {
   verifyCalloutPlacement,
   verifyCalloutIsShown,
-  verifyCalloutIsNotShown
+  verifyCalloutIsNotShown,
+  ensurePageScroll,
+  resetPageScroll
 };
 
 export default PlacementTestUtils;
