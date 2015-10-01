@@ -18,92 +18,71 @@ function getElementOffset(element) {
   };
 };
 
-function isPlacedOnTop(calloutPos, arrowPos, targetPos, distanceFromTarget) {
-  //placement: top
-  //callout should be above arrow
-  //arrow should be above target
+function isPlacedOnTop(calloutPos, arrowEl, targetPos) {
+  // placement: top
+  // callout should be above arrow
+  // arrow should be above target
   //         _______________
-  //        |   Callout      |
+  //        |   Callout     |
   //        |_______________|
   //              V
   //         _______________
   //        |   Target      |
   //        |_______________|
-  // arrowPos.top - base of the arrow
-  // arrowPos.bottom - tip of the arrow
-  return (calloutPos.bottom > arrowPos.top)
-    && (arrowPos.bottom > calloutPos.bottom)
-    && (Math.abs(arrowPos.bottom - targetPos.top) < distanceFromTarget);
+  return (calloutPos.bottom + arrowEl.offsetHeight) === targetPos.top;
 }
 
-function isPlacedOnBottom(calloutPos, arrowPos, targetPos, distanceFromTarget) {
-  //placement: bottom
-  //arrow should be below target
-  //callout should be above arrow
-  // arrowPos.bottom - base of the arrow
-  // arrowPos.top - tip of the arrow
+function isPlacedOnBottom(calloutPos, arrowEl, targetPos) {
+  // placement: bottom
+  // arrow should be below target
+  // callout should be above arrow
   //        ----------------
   //        |   Target     |
   //        ----------------
   //              ^
   //        ----------------
-  //        |   Callout     |
+  //        |   Callout    |
   //        ----------------
-  return (Math.abs(arrowPos.top - targetPos.bottom) < distanceFromTarget) &&
-    (arrowPos.top < calloutPos.top) &&
-    (calloutPos.top > targetPos.bottom);
+  return (calloutPos.top - arrowEl.offsetHeight) === targetPos.bottom;
 }
 
-function isPlacedOnLeft(calloutPos, arrowPos, targetPos, distanceFromTarget) {
+function isPlacedOnLeft(calloutPos, arrowEl, targetPos) {
   //placement: left
   //arrow should be to the left of the target
   //callout should be to the left of the arrow
-  // arrowPos.left - base of the arrow
-  // arrowPos.right - tip of the arrow
   //        ----------------   ----------------
-  //        |   Callout     |>  |   Target     |
+  //        |   Callout    |>  |   Target     |
   //        ----------------   ----------------
-  return (Math.abs(arrowPos.right - targetPos.left) < distanceFromTarget) &&
-    (arrowPos.left < calloutPos.right) &&
-    (calloutPos.right < targetPos.left);
+  return (calloutPos.right + arrowEl.offsetWidth) === targetPos.left;
 }
 
-function isPlacedOnRight(calloutPos, arrowPos, targetPos, distanceFromTarget) {
+function isPlacedOnRight(calloutPos, arrowEl, targetPos) {
   //placement: right
   //arrow should be to the right of the target
   //callout should be to the right of the arrow
-  // arrowPos.left - tip of the arrow
-  // arrowPos.right - base of the arrow
   //        ----------------   ----------------
-  //        |   Target     | < |   Callout     |
+  //        |   Target     | < |   Callout    |
   //        ----------------   ----------------
-  return (Math.abs(arrowPos.left - targetPos.right) < distanceFromTarget) &&
-    (arrowPos.left < calloutPos.right) &&
-    (calloutPos.left > targetPos.right);
+  return (calloutPos.left - arrowEl.offsetWidth) === targetPos.right;
 }
 
 function verifyCalloutPlacement(target, expectedPlacement) {
-  let hsCallout = document.querySelector('.hopscotch-bubble'),
-    hsArrow = document.querySelector('.hopscotch-arrow'),
-    calloutPos,
-    arrowPos,
-    targetPos,
-    distanceFromTarget = 10, //max 10 px from target
-    actualPlacement = 'unknown';
+  let callout = document.querySelector('.hopscotch-bubble');
+  let arrow = document.querySelector('.hopscotch-arrow');
+  let actualPlacement = 'unknown';
 
-  if (hsCallout && hsArrow) {
+  if (callout && arrow) {
 
-    calloutPos = getElementOffset(hsCallout);
-    arrowPos = getElementOffset(hsArrow);
-    targetPos = getElementOffset(target);
+    let calloutPos = getElementOffset(callout);
+    let targetPos = getElementOffset(target);
 
-    if (isPlacedOnTop(calloutPos, arrowPos, targetPos, distanceFromTarget)) {
+    if (isPlacedOnTop(calloutPos, arrow, targetPos)) {
       actualPlacement = 'top';
-    } else if (isPlacedOnBottom(calloutPos, arrowPos, targetPos, distanceFromTarget)) {
+    } else if (isPlacedOnBottom(calloutPos, arrow, targetPos)) {
       actualPlacement = 'bottom';
-    } else if (isPlacedOnLeft(calloutPos, arrowPos, targetPos, distanceFromTarget)) {
+    } else if (isPlacedOnLeft(calloutPos, arrow, targetPos)) {
       actualPlacement = 'left';
-    } else if (isPlacedOnRight(calloutPos, arrowPos, targetPos, distanceFromTarget)) {
+    } else if (isPlacedOnRight(calloutPos, arrow, targetPos)) {
       actualPlacement = 'right';
     }
 
@@ -137,7 +116,7 @@ function ensurePageScroll() {
   let viewportHeight = document.documentElement.clientHeight;
   let documentHeight = document.body.offsetHeight;
 
-  if (documentHeight <= viewportHeight) {
+  if ((documentHeight - viewportHeight) < 100) {
     //try adding padding to the body element until we have scroll
     document.body.style.paddingTop = (viewportHeight - documentHeight + 100) + 'px';
   }
@@ -155,12 +134,87 @@ function resetPageScroll() {
   window.scrollTo(0, 0);
 }
 
+/**
+ * Checks that callout is horizontally offset from target by an expected offset 
+ */
+function verifyXOffset(target, placement, expectedOffset) {
+  let callout = document.querySelector('.hopscotch-bubble');
+  let calloutArrow = document.querySelector('.hopscotch-arrow');
+  let calloutElBox = callout.getBoundingClientRect();
+  let targetElBox = target.getBoundingClientRect();
+  let isRtl = document.body.getAttribute('dir') === 'rtl';
+  let prop = isRtl ? 'right' : 'left';
+  let actualOffset;
+
+  //check that offsets are correct for a given placement
+  if (placement === 'top' || placement === 'bottom') {
+    //make sure callout is where it's supposed to be
+    verifyCalloutPlacement(target, placement);
+
+    if (expectedOffset === 'center') {
+      let calloutCenter = calloutElBox.left + (calloutElBox.width / 2);
+      let targetCenter = targetElBox.left + (targetElBox.width / 2);
+      actualOffset = (calloutCenter === targetCenter) ? 'center' : 'not centered';
+    } else {
+      //By default left side of the callout placed on top of the target element is
+      //aligned with the left side of the target element
+      //So when xOffset is applied, left side of the callout element is shifted to the
+      //right or the left of the target element's left side
+      actualOffset = calloutElBox[prop] - targetElBox[prop];
+    }
+  } else if (placement === 'left') {
+    if (isRtl) {
+      actualOffset = (calloutElBox.left - calloutArrow.offsetWidth) - targetElBox.right;
+    } else {
+      actualOffset = (calloutElBox.right + calloutArrow.offsetWidth) - targetElBox.left;
+    }
+  } else if (placement === 'right') {
+    if (isRtl) {
+      actualOffset = (calloutElBox.right + calloutArrow.offsetWidth) - targetElBox.left;
+    } else {
+      actualOffset = (calloutElBox.left - calloutArrow.offsetWidth) - targetElBox.right;
+    }
+  }
+
+  expect(actualOffset).toEqual(expectedOffset);
+}
+
+/**
+ * Checks that callout is vertically offset from target by an expected offset 
+ */
+function verifyYOffset(target, placement, expectedOffset) {
+  let callout = document.querySelector('.hopscotch-bubble');
+  let calloutArrow = document.querySelector('.hopscotch-arrow');
+  let calloutElBox = callout.getBoundingClientRect();
+  let targetElBox = target.getBoundingClientRect();
+  let actualOffset;
+
+  //check that offsets are correct for a given placement
+  if (placement === 'top') {
+    actualOffset = (calloutElBox.bottom + calloutArrow.offsetHeight) - targetElBox.top;
+  } else if (placement === 'bottom') {
+    actualOffset = (calloutElBox.top - calloutArrow.offsetHeight) - targetElBox.bottom;
+  } else if (placement === 'left' || placement === 'right') {
+    if (expectedOffset === 'center') {
+      let calloutCenter = Math.ceil(calloutElBox.top + (calloutElBox.height / 2));
+      let targetCenter = Math.ceil(targetElBox.top + (targetElBox.height / 2));
+      actualOffset = (calloutCenter === targetCenter) ? 'center' : 'not centered';
+    } else {
+      actualOffset = calloutElBox.top - targetElBox.top;
+    }
+  }
+
+  expect(actualOffset).toEqual(expectedOffset);
+}
+
 let PlacementTestUtils = {
   verifyCalloutPlacement,
   verifyCalloutIsShown,
   verifyCalloutIsNotShown,
   ensurePageScroll,
-  resetPageScroll
+  resetPageScroll,
+  verifyXOffset,
+  verifyYOffset
 };
 
 export default PlacementTestUtils;

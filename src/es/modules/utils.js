@@ -6,8 +6,13 @@ export function isIdValid(id) {
 
 export function getPixelValue(val) {
   let valType = typeof val;
-  if (valType === 'number') { return val; }
-  if (valType === 'string') { return parseInt(val, 10); }
+  if (valType === 'number') {
+    return val;
+  }
+  if (valType === 'string') {
+    let result = parseInt(val, 10); 
+    return isNaN(result) ? 0 : result;
+  }
   return 0;
 }
 

@@ -40,9 +40,9 @@ function setArrowPositionHorizontal(arrowEl, calloutEl, horizontalProp, arrowOff
 let placementStrategies = {
   'top': {
     arrowPlacement: 'down',
-    calculateCalloutPosition(targetElBox, calloutElBox, isRtl, arrowWidth) {
+    calculateCalloutPosition(targetElBox, calloutElBox, arrowElBox, isRtl) {
       let verticalLeftPosition = isRtl ? targetElBox.right - calloutElBox.width : targetElBox.left;
-      let top = (targetElBox.top - calloutElBox.height) - arrowWidth;
+      let top = (targetElBox.top - calloutElBox.height) - arrowElBox.height;
       let left = verticalLeftPosition;
       return { top, left };
     },
@@ -50,9 +50,9 @@ let placementStrategies = {
   },
   'bottom': {
     arrowPlacement: 'up',
-    calculateCalloutPosition(targetElBox, calloutElBox, isRtl, arrowWidth) {
+    calculateCalloutPosition(targetElBox, calloutElBox, arrowElBox, isRtl) {
       let verticalLeftPosition = isRtl ? targetElBox.right - calloutElBox.width : targetElBox.left;
-      let top = targetElBox.bottom + arrowWidth;
+      let top = targetElBox.bottom + arrowElBox.height;
       let left = verticalLeftPosition;
       return { top, left };
     },
@@ -61,9 +61,9 @@ let placementStrategies = {
   'left': {
     arrowPlacement: 'right',
     rtlPlacement: 'right',
-    calculateCalloutPosition(targetElBox, calloutElBox, isRtl, arrowWidth) {
+    calculateCalloutPosition(targetElBox, calloutElBox, arrowElBox, isRtl) {
       let top = targetElBox.top;
-      let left = targetElBox.left - calloutElBox.width - arrowWidth;
+      let left = targetElBox.left - calloutElBox.width - arrowElBox.width;
       return { top, left };
     },
     setArrowPosition: setArrowPositionHorizontal
@@ -71,9 +71,9 @@ let placementStrategies = {
   'right': {
     arrowPlacement: 'left',
     rtlPlacement: 'left',
-    calculateCalloutPosition(targetElBox, calloutElBox, isRtl, arrowWidth) {
+    calculateCalloutPosition(targetElBox, calloutElBox, arrowElBox, isRtl) {
       let top = targetElBox.top;
-      let left = targetElBox.right + arrowWidth;
+      let left = targetElBox.right + arrowElBox.width;
       return { top, left };
     },
     setArrowPosition: setArrowPositionHorizontal
@@ -157,19 +157,26 @@ function positionCallout(callout, placementStrategy) {
 
   let isTargetFixed = isFixedElement(targetEl);
   let targetElBox = targetEl.getBoundingClientRect();
-  let calloutElBox = { width: callout.el.offsetWidth, height: callout.el.offsetHeight };
+  let calloutElBox = callout.el.getBoundingClientRect();
+  let arrowEl = callout.el.querySelector('.hopscotch-arrow');
+  let arrowElBox = arrowEl.getBoundingClientRect();
   let calloutPosition = placementStrategy.calculateCalloutPosition(
     targetElBox,
     calloutElBox,
-    callout.config.get('isRtl'),
-    callout.config.get('arrowWidth')
+    arrowElBox,
+    callout.config.get('isRtl')
     );
   
   //Adjust position if xOffset and yOffset are specified
   //horizontal offset
+  let placement = callout.config.get('placement');
   let xOffset = callout.config.get('xOffset');
   if (xOffset === 'center') {
-    calloutPosition.left = (targetElBox.left + targetEl.offsetWidth / 2) - (calloutElBox.width / 2);
+    if (placement === 'left' || placement === 'right') {
+      throw new Error('Can not use xOffset \'center\' with placement \'left\' or \'right\'. Callout will overlay the target.');
+    } else {
+      calloutPosition.left = (targetElBox.left + targetEl.offsetWidth / 2) - (calloutElBox.width / 2);
+    }
   }
   else {
     calloutPosition.left += Utils.getPixelValue(xOffset);
@@ -177,7 +184,11 @@ function positionCallout(callout, placementStrategy) {
   //vertical offset
   let yOffset = callout.config.get('yOffset');
   if (yOffset === 'center') {
-    calloutPosition.top = (targetElBox.top + targetEl.offsetHeight / 2) - (calloutElBox.height / 2);
+    if (placement === 'top' || placement === 'bottom') {
+      throw new Error('Can not use yOffset \'center\' with placement \'top\' or \'bottom\'. Callout will overlay the target.');
+    } else {
+      calloutPosition.top = (targetElBox.top + targetEl.offsetHeight / 2) - (calloutElBox.height / 2);
+    }
   }
   else {
     calloutPosition.top += Utils.getPixelValue(yOffset);
@@ -238,15 +249,18 @@ let CalloutPlacementManager = {
     if (!placementStrategy) {
       throw new Error('Bubble placement failed because placement is invalid or undefined!');
     }
+
     //if callout is RTL enabled we need to adjust
     //placement and xOffset values
     placementStrategy = adjustPlacementForRtl(callout, placementStrategy);
-    //adjust position of the callout element
-    //to be placed next to the target 
-    positionCallout(callout, placementStrategy);
+
     //update callout's arrow to point
     //in the direction of the target element
     positionArrow(callout, placementStrategy);
+
+    //adjust position of the callout element
+    //to be placed next to the target 
+    positionCallout(callout, placementStrategy);
   }
 };
 export default CalloutPlacementManager;
