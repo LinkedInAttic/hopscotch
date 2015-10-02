@@ -17,8 +17,13 @@ export default class CalloutManager {
     }
     callout = new Callouts.StandaloneCallout(configHash, globalCfg);
     callouts[configHash.id] = callout;
-    callout.render();
-    callout.show();
+    try {
+      callout.render();
+      callout.show();
+    } catch (err) {
+      this.removeCallout(configHash.id);
+      throw err;
+    }
     return callout;
   }
   getCallout(calloutId) {

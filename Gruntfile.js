@@ -156,7 +156,7 @@ module.exports = function (grunt) {
         tasks: ['test']
       },
       esCode: {
-        files: ['<%=paths.source%>/es/**/*.js', '<%=paths.test%>/es/**/*.js'],
+        files: ['<%=paths.source%>/es/**/*.js', '<%=paths.test%>/es/**/*.js', '<%=paths.source%>/less/*.less'],
         tasks: ['buildES', 'buildESTest'],
         options: {
           livereload: true
@@ -187,7 +187,8 @@ module.exports = function (grunt) {
         options: {
           outfile: '<%=paths.build%>/test/SpecRunner.html',
           keepRunner: true,
-          specs: ['<%=paths.build%>/test/*.js'],
+          specs: ['<%=paths.build%>/test/*.spec.js'],
+          helpers: ['<%=paths.build%>/test/es/helpers/fixtureSetup.js'],
           styles: ['<%=paths.build%>/css/hopscotch.css']
         }
       },
@@ -196,7 +197,8 @@ module.exports = function (grunt) {
         options: {
           outfile: '<%=paths.build%>/test/SpecRunner.html',
           keepRunner: true,
-          specs: ['<%=paths.build%>/test/*.js'],
+          specs: ['<%=paths.build%>/test/*.spec.js'],
+          helpers: ['<%=paths.build%>/test/es/helpers/fixtureSetup.js'],
           styles: ['<%=paths.build%>/css/hopscotch.css'],
           template: require('grunt-template-jasmine-istanbul'),
           templateOptions: {
@@ -298,6 +300,9 @@ module.exports = function (grunt) {
             '<%=paths.build%>/test/es/specs/placement.spec.js',
             '<%=paths.build%>/test/es/helpers/placement.js'
           ],
+          '<%=paths.build%>/test/target.spec.js': [
+            '<%=paths.build%>/test/es/specs/target.spec.js'
+          ]
         }
       }
     },
