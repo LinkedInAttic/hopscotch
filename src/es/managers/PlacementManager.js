@@ -1,7 +1,7 @@
 import * as Utils from '../modules/utils.js';
 
 /*
-  CalloutPlacementManager handles evertyhing related to callout positioning,
+  PlacementManager handles evertyhing related to callout positioning,
   including arrow position, placement of the callout, respositioning of the callout
   for responsive designs, etc.
 */
@@ -242,7 +242,7 @@ function isFixedElement(el) {
 /* END PRIVATE FUNCTIONS AND VARIABLES FOR THIS MODULE */
 /* PUBLIC INTERFACE AND EXPORT STATEMENT FOR THIS MODULE */
 
-let CalloutPlacementManager = {
+let PlacementManager = {
   setCalloutPosition(callout) {
     //make sure that placement is set to a valid value
     let placementStrategy = placementStrategies[callout.config.get('placement')];
@@ -263,5 +263,5 @@ let CalloutPlacementManager = {
     positionCallout(callout, placementStrategy);
   }
 };
-export default CalloutPlacementManager;
+export default PlacementManager;
 /* END PUBLIC INTERFACE AND EXPORT STATEMENT FOR THIS MODULE */
