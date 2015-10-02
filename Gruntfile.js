@@ -339,13 +339,19 @@ module.exports = function (grunt) {
   grunt.registerTask(
     'buildESTest',
     'Build hopscotch for testing (jshint, minify js, process less to css)',
-    ['babel:test', 'browserify:test', 'jasmine:testESDev:build']
+    ['babel:test', 'browserify:test']
+    );
+
+  grunt.registerTask(
+    'testES',
+    'Run unit tests against refactored library code',
+    ['buildES', 'buildESTest', 'jasmine:testESDev']
     );
 
   grunt.registerTask(
     'devES',
     'Start test server to allow debugging unminified hopscotch code in a browser',
-    ['buildES', 'buildESTest', 'connect:testServer', 'log:devES', 'watch:esCode']
+    ['buildES', 'buildESTest', 'jasmine:testESDev:build', 'connect:testServer', 'log:devES', 'watch:esCode']
     );
 
   //grunt task aliases
@@ -358,7 +364,7 @@ module.exports = function (grunt) {
   grunt.registerTask(
     'test',
     'Build hopscotch and run unit tests',
-    ['build', 'jasmine:testProd', 'jasmine:coverage']
+    ['build', 'jasmine:testProd', 'jasmine:coverage', 'testES']
     );
 
   grunt.registerTask(
