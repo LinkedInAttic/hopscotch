@@ -1,6 +1,6 @@
 import Config from './config.js';
 import TemplateManager from '../managers/TemplateManager.js';
-import CalloutPlacementManager from '../managers/CalloutPlacementManager.js';
+import PlacementManager from '../managers/PlacementManager.js';
 import * as Utils from './utils.js';
 
 //Abstract base class for callouts
@@ -16,7 +16,7 @@ export class Callout {
       this.getRenderData()
       );
     document.body.appendChild(this.el);
-    CalloutPlacementManager.setCalloutPosition(this);
+    PlacementManager.setCalloutPosition(this);
   }
   show() {
     Utils.removeClass(this.el, 'hide');

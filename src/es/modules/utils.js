@@ -6,8 +6,13 @@ export function isIdValid(id) {
 
 export function getPixelValue(val) {
   let valType = typeof val;
-  if (valType === 'number') { return val; }
-  if (valType === 'string') { return parseInt(val, 10); }
+  if (valType === 'number') {
+    return val;
+  }
+  if (valType === 'string') {
+    let result = parseInt(val, 10); 
+    return isNaN(result) ? 0 : result;
+  }
   return 0;
 }
 
@@ -103,4 +108,15 @@ export function removeClass(domEl, strClassNamesToRemove) {
   });
 
   domEl.className = domClasses.replace(/^\s+|\s+$/g, '');
+}
+
+/**
+ * logError
+ * ===========
+ * Log error to the console
+ */
+export function logError(message) {
+  if(typeof console !== 'undefined' && typeof console.error !== 'undefined') {
+    console.error(message);
+  }
 }

@@ -33,6 +33,7 @@
     "grunt-contrib-less": "~0.9.0",
     "grunt-contrib-uglify": "~0.2.2",
     "grunt-contrib-watch": "^0.6.1",
+    "grunt-eslint": "^17.2.0",
     "grunt-include-replace": "~1.2.0",
     "grunt-template-jasmine-istanbul": "^0.3.0",
     "jquery": "~2.1.0"
