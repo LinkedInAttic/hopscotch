@@ -334,30 +334,30 @@ describe('Callout offsets', () => {
       PlacementTestUtils.verifyXOffset(targetEl, 'bottom', 'center');
     });
 
-    it('Callout with placement \'left\' and xOffset \'center\' should throw an exception', () => {
-      expect(() => {
-        calloutManager.createCallout({
-          id: 'xOffset-left',
-          target: targetEl,
-          placement: 'left',
-          title: 'Callout with xOffset',
-          content: 'Awesome callout!',
-          xOffset: 'center'
-        });
-      }).toThrow(new Error('Can not use xOffset \'center\' with placement \'left\' or \'right\'. Callout will overlay the target.'));
+    it('Callout with placement \'left\' and xOffset \'center\' should default to \'xOffset\' of 0px', () => {
+      calloutManager.createCallout({
+        id: 'xOffset-left',
+        target: targetEl,
+        placement: 'left',
+        title: 'Callout with xOffset',
+        content: 'Awesome callout!',
+        xOffset: 'center'
+      });
+      //Can not use xOffset 'center' with placement 'left' or 'right'. Callout will overlay the target.
+      PlacementTestUtils.verifyXOffset(targetEl, 'left', 0);
     });
 
-    it('Callout with placement \'right\' and xOffset \'center\' should throw an exception', () => {
-      expect(() => {
-        calloutManager.createCallout({
-          id: 'xOffset-right',
-          target: targetEl,
-          placement: 'right',
-          title: 'Callout with xOffset',
-          content: 'Awesome callout!',
-          xOffset: 'center'
-        });
-      }).toThrow(new Error('Can not use xOffset \'center\' with placement \'left\' or \'right\'. Callout will overlay the target.'));
+    it('Callout with placement \'right\' and xOffset \'center\' should default to \'xOffset\' of 0px', () => {
+      calloutManager.createCallout({
+        id: 'xOffset-right',
+        target: targetEl,
+        placement: 'right',
+        title: 'Callout with xOffset',
+        content: 'Awesome callout!',
+        xOffset: 'center'
+      });
+      //Can not use xOffset 'center' with placement 'left' or 'right'. Callout will overlay the target.
+      PlacementTestUtils.verifyXOffset(targetEl, 'right', 0);
     });
   });
 
@@ -410,30 +410,31 @@ describe('Callout offsets', () => {
       document.body.setAttribute('dir', 'ltr');
     });
 
-    it('Callout with placement \'top\' and yOffset \'center\' should throw an exception', () => {
-      expect(() => {
-        calloutManager.createCallout({
-          id: 'yOffset-top',
-          target: targetEl,
-          placement: 'top',
-          title: 'Callout with yOffset',
-          content: 'Awesome callout!',
-          yOffset: 'center'
-        });
-      }).toThrow(new Error('Can not use yOffset \'center\' with placement \'top\' or \'bottom\'. Callout will overlay the target.'));
+    it('Callout with placement \'top\' and yOffset \'center\' should default to \'yOffset\' of 0px', () => {
+      calloutManager.createCallout({
+        id: 'yOffset-top',
+        target: targetEl,
+        placement: 'top',
+        title: 'Callout with yOffset',
+        content: 'Awesome callout!',
+        yOffset: 'center'
+      });
+      //Can not use yOffset 'center' with placement 'top' or 'bottom'. Callout will overlay the target.
+      PlacementTestUtils.verifyYOffset(targetEl, 'top', 0);
     });
 
-    it('Callout with placement \'bottom\' and yOffset \'center\' should throw an exception', () => {
-      expect(() => {
-        calloutManager.createCallout({
-          id: 'yOffset-bottom',
-          target: targetEl,
-          placement: 'bottom',
-          title: 'Callout with yOffset',
-          content: 'Awesome callout!',
-          yOffset: 'center'
-        });
-      }).toThrow(new Error('Can not use yOffset \'center\' with placement \'top\' or \'bottom\'. Callout will overlay the target.'));
+    it('Callout with placement \'bottom\' and yOffset \'center\' should default to \'yOffset\' of 0px', () => {
+      calloutManager.createCallout({
+        id: 'yOffset-bottom',
+        target: targetEl,
+        placement: 'bottom',
+        title: 'Callout with yOffset',
+        content: 'Awesome callout!',
+        yOffset: 'center'
+      });
+
+      //Can not use yOffset 'center' with placement 'top' or 'bottom'. Callout will overlay the target.
+      PlacementTestUtils.verifyYOffset(targetEl, 'bottom', 0);
     });
 
     it('Vertical center of the callout with placement \'left\' should be aligned with vertical center of the target', () => {

@@ -109,3 +109,14 @@ export function removeClass(domEl, strClassNamesToRemove) {
 
   domEl.className = domClasses.replace(/^\s+|\s+$/g, '');
 }
+
+/**
+ * logError
+ * ===========
+ * Log error to the console
+ */
+export function logError(message) {
+  if(typeof console !== 'undefined' && typeof console.error !== 'undefined') {
+    console.error(message);
+  }
+}

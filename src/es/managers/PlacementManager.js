@@ -173,7 +173,7 @@ function positionCallout(callout, placementStrategy) {
   let xOffset = callout.config.get('xOffset');
   if (xOffset === 'center') {
     if (placement === 'left' || placement === 'right') {
-      throw new Error('Can not use xOffset \'center\' with placement \'left\' or \'right\'. Callout will overlay the target.');
+      Utils.logError('Can not use xOffset \'center\' with placement \'left\' or \'right\'. Callout will overlay the target.');
     } else {
       calloutPosition.left = (targetElBox.left + targetEl.offsetWidth / 2) - (calloutElBox.width / 2);
     }
@@ -185,7 +185,7 @@ function positionCallout(callout, placementStrategy) {
   let yOffset = callout.config.get('yOffset');
   if (yOffset === 'center') {
     if (placement === 'top' || placement === 'bottom') {
-      throw new Error('Can not use yOffset \'center\' with placement \'top\' or \'bottom\'. Callout will overlay the target.');
+      Utils.logError('Can not use yOffset \'center\' with placement \'top\' or \'bottom\'. Callout will overlay the target.');
     } else {
       calloutPosition.top = (targetElBox.top + targetEl.offsetHeight / 2) - (calloutElBox.height / 2);
     }
