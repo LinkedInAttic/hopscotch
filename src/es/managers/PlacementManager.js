@@ -152,7 +152,7 @@ function positionCallout(callout, placementStrategy) {
 
   let targetEl = getTarget(callout.config.get('target'));
   if (!targetEl) {
-    return;
+    throw new Error('Must specify an existing target element via \'target\' option.');
   }
 
   let isTargetFixed = isFixedElement(targetEl);
