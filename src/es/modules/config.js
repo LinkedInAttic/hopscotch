@@ -52,7 +52,7 @@ export default class Config {
    * finds an object that has this key or it reaches the root configuration.
    *
    * @param {String} name - The key to search for.
-   * @returns {Object} The first value found that matches the given key.
+   * @returns {*} The first value found that matches the given key.
    *                   If the value isn't found, this will return undefined.
    */
   get(name) {
@@ -70,7 +70,7 @@ export default class Config {
    * all matches as an array. Useful for retrieving callbacks.
    *
    * @param {String} name - The key to search for.
-   * @returns {Object[]} An array of values found that matches the given key, returned
+   * @returns {*[]} An array of values found that matches the given key, returned
    *                     in order from child to parent. If no match was found, this
    *                     will return an empty array.
    */
@@ -87,7 +87,7 @@ export default class Config {
    * Set a value on this configuration.
    *
    * @param {String} name - The key to register.
-   * @param {Object} value - The value to register. Can be of any type.
+   * @param {*} value - The value to register. Can be of any type.
    */
   set(name, value) {
     this._configHash[name] = value;

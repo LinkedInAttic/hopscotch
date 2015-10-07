@@ -1,9 +1,26 @@
 let validIdRegEx = /^[a-zA-Z]+[a-zA-Z0-9_-]*$/;
 
+/**
+ * Tests if a given callout ID is valid. Specifically, callout IDs
+ * require the first character to be a letter and all following
+ * characters to be alphanumeric, underscores, or dashes.
+ *
+ * @param {String} id - The ID to test.
+ * @returns {Boolean} True if defined and valid, false otherwise.
+ */
 export function isIdValid(id) {
   return id && validIdRegEx.test(id);
 }
 
+/**
+ * Get a numeric value from a number or string. Used for sanitizing
+ * provided pixel values that could be expressed as a number
+ * or as a string such as "10px".
+ *
+ * @param {Number|String} val - The value to parse.
+ * @returns {Number} The parsed numeric value. If a value can't be
+ *                   determined, this will return 0.
+ */
 export function getPixelValue(val) {
   let valType = typeof val;
   if (valType === 'number') {
@@ -40,6 +57,9 @@ function getElement(element) {
  *  1) String - a query selector string
  *  2) String [] - an array of query selector strings
  *  3) DOM Element - a target DOM element itself
+ *
+ * @param {String|String[]|Element} target - The element to target.
+ * @returns {?Element} The matched element, or null if not found.
  */
 export function getTargetEl(target) {
   if (!target) {
@@ -69,11 +89,10 @@ export function getTargetEl(target) {
 }
 
 /**
- * addClass
- * ========
  * Adds one or more classes to a DOM element.
  *
- * @private
+ * @param {Element} domEl        - The element to add the classes to.
+ * @param {String} strClassNames - A comma-separated list of classes to add.
  */
 export function addClass(domEl, strClassNames) {
   if (!domEl.className) {
@@ -93,11 +112,11 @@ export function addClass(domEl, strClassNames) {
 }
 
 /**
- * removeClass
- * ===========
  * Remove one or more classes from a DOM element.
  *
- * @private
+ * @param {Element} domEl                - The element to remove the classes from.
+ * @param {String} strClassNamesToRemove - A comma-separated list of classes
+ *                                         to remove.
  */
 export function removeClass(domEl, strClassNamesToRemove) {
   let domClasses = ' ' + domEl.className + ' ';
@@ -111,9 +130,9 @@ export function removeClass(domEl, strClassNamesToRemove) {
 }
 
 /**
- * logError
- * ===========
  * Log error to the console
+ *
+ * @param {String} message - The message to log.
  */
 export function logError(message) {
   if (typeof console !== 'undefined' && typeof console.error !== 'undefined') {
