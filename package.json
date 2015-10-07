@@ -36,6 +36,7 @@
     "grunt-eslint": "^17.2.0",
     "grunt-include-replace": "~1.2.0",
     "grunt-template-jasmine-istanbul": "^0.3.0",
-    "jquery": "~2.1.0"
+    "jquery": "~2.1.0",
+    "grunt-esdoc": "~0.0.2"
   }
 }
