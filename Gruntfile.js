@@ -187,7 +187,7 @@ module.exports = function (grunt) {
         options: {
           outfile: '<%=paths.build%>/test/SpecRunner.html',
           keepRunner: true,
-          specs: ['<%=paths.build%>/test/*.spec.js'],
+          specs: ['<%=paths.build%>/test/specs.js'],
           helpers: ['<%=paths.build%>/test/es/helpers/fixtureSetup.js'],
           styles: ['<%=paths.build%>/css/hopscotch.css']
         }
@@ -197,7 +197,7 @@ module.exports = function (grunt) {
         options: {
           outfile: '<%=paths.build%>/test/SpecRunner.html',
           keepRunner: true,
-          specs: ['<%=paths.build%>/test/*.spec.js'],
+          specs: ['<%=paths.build%>/test/specs.js'],
           helpers: ['<%=paths.build%>/test/es/helpers/fixtureSetup.js'],
           styles: ['<%=paths.build%>/css/hopscotch.css'],
           template: require('grunt-template-jasmine-istanbul'),
@@ -296,12 +296,11 @@ module.exports = function (grunt) {
       },
       test: {
         files: {
-          '<%=paths.build%>/test/placement.spec.js': [
+          '<%=paths.build%>/test/specs.js': [
+            '<%=paths.build%>/test/es/specs/arrowOffset.spec.js',
             '<%=paths.build%>/test/es/specs/placement.spec.js',
+            '<%=paths.build%>/test/es/specs/target.spec.js',
             '<%=paths.build%>/test/es/helpers/placement.js'
-          ],
-          '<%=paths.build%>/test/target.spec.js': [
-            '<%=paths.build%>/test/es/specs/target.spec.js'
           ]
         }
       }
