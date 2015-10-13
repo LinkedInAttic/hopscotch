@@ -1,6 +1,6 @@
 import PlacementTestUtils from '../helpers/placement.js';
 
-describe('Arrow offset', () => {
+describe('Config option "arrowOffset"', () => {
   let calloutManager = hopscotch.getCalloutManager();
   let specGroups = [{
     groupName: 'Placement "top"',
@@ -97,8 +97,18 @@ describe('Arrow offset', () => {
           isRtl: true
         },
         expectedOffset: 0
-      },
-
+      }, {
+        message: 'Callout with invalid arrowOffset should default to 0',
+        config: {
+          id: 'arrow-offset-callout',
+          target: '#yogurt',
+          placement: 'top',
+          title: 'Placement "top"',
+          content: 'Callout with invalid arrow offset',
+          arrowOffset: 'this is not valid'
+        },
+        expectedOffset: 0
+      }
     ]
   }, {
       groupName: 'Placement "bottom"',
@@ -195,6 +205,17 @@ describe('Arrow offset', () => {
             isRtl: true
           },
           expectedOffset: 0
+        }, {
+          message: 'Callout with invalid arrowOffset should default to 0',
+          config: {
+            id: 'arrow-offset-callout',
+            target: '#yogurt',
+            placement: 'bottom',
+            title: 'Placement "bottom"',
+            content: 'Callout with invalid arrow offset',
+            arrowOffset: [1, 2, 3, 4, 5]
+          },
+          expectedOffset: 0
         }]
     },
     {
@@ -242,6 +263,17 @@ describe('Arrow offset', () => {
             title: 'Placement "left"',
             content: 'Callout with arrow offset 0',
             arrowOffset: 0
+          },
+          expectedOffset: 0
+        }, {
+          message: 'Callout with invalid arrowOffset should default to 0',
+          config: {
+            id: 'arrow-offset-callout',
+            target: '#yogurt',
+            placement: 'left',
+            title: 'Placement "left"',
+            content: 'Callout with invalid arrow offset',
+            arrowOffset: { offsets: [10, 20, 50] }
           },
           expectedOffset: 0
         }
@@ -292,6 +324,17 @@ describe('Arrow offset', () => {
             title: 'Placement "right"',
             content: 'Callout with arrow offset 0',
             arrowOffset: 0
+          },
+          expectedOffset: 0
+        }, {
+          message: 'Callout with invalid arrowOffset should default to 0',
+          config: {
+            id: 'arrow-offset-callout',
+            target: '#yogurt',
+            placement: 'right',
+            title: 'Placement "right"',
+            content: 'Callout with invalid arrow offset',
+            arrowOffset: true
           },
           expectedOffset: 0
         }

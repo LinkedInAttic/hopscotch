@@ -156,7 +156,7 @@ module.exports = function (grunt) {
         tasks: ['test']
       },
       esCode: {
-        files: ['<%=paths.source%>/es/**/*.js', '<%=paths.test%>/es/**/*.js', '<%=paths.source%>/less/*.less'],
+        files: ['<%=paths.project%>/Gruntfile.js', '<%=paths.source%>/es/**/*.js', '<%=paths.test%>/es/**/*.js', '<%=paths.source%>/less/*.less'],
         tasks: ['buildES', 'buildESTest'],
         options: {
           livereload: true
@@ -300,6 +300,8 @@ module.exports = function (grunt) {
             '<%=paths.build%>/test/es/specs/arrowOffset.spec.js',
             '<%=paths.build%>/test/es/specs/placement.spec.js',
             '<%=paths.build%>/test/es/specs/target.spec.js',
+            '<%=paths.build%>/test/es/specs/xOffset.spec.js',
+            '<%=paths.build%>/test/es/specs/yOffset.spec.js',
             '<%=paths.build%>/test/es/helpers/placement.js'
           ]
         }

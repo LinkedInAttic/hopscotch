@@ -174,12 +174,11 @@ function verifyVerticalOffset(el1, el2, expectedOffset) {
 /**
  * Checks that callout is horizontally offset from target by an expected offset 
  */
-function verifyXOffset(target, placement, expectedOffset) {
+function verifyXOffset(target, placement, expectedOffset, isRtl) {
   let callout = document.querySelector(QUERY_SELECTOR_CALLOUT);
   let arrow = document.querySelector(QUERY_SELECTOR_ARROW);
   let calloutElBox = callout.getBoundingClientRect();
   let targetElBox = target.getBoundingClientRect();
-  let isRtl = document.body.getAttribute('dir') === 'rtl';
   let actualOffset;
 
   //check that offsets are correct for a given placement

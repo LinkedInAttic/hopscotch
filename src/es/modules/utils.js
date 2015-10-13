@@ -10,7 +10,7 @@ export function getPixelValue(val) {
     return val;
   }
   if (valType === 'string') {
-    let result = parseInt(val, 10); 
+    let result = parseInt(val, 10);
     return isNaN(result) ? 0 : result;
   }
   return 0;
@@ -116,7 +116,20 @@ export function removeClass(domEl, strClassNamesToRemove) {
  * Log error to the console
  */
 export function logError(message) {
-  if(typeof console !== 'undefined' && typeof console.error !== 'undefined') {
+  if (typeof console !== 'undefined' && typeof console.error !== 'undefined') {
     console.error(message);
   }
+}
+
+/**
+ * Shallow copy of obj2 into obj1
+ * @private
+ */
+export function extend(obj1, obj2) {
+  for (let prop in obj2) {
+    if (obj2.hasOwnProperty(prop)) {
+      obj1[prop] = obj2[prop];
+    }
+  }
+  return obj1;
 }
