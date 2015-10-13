@@ -4,7 +4,7 @@ export default class Config {
     this.configHash = configHash;
   }
   get(name) {
-    if(this.configHash && this.configHash[name]) {
+    if(this.configHash && typeof this.configHash[name] !== 'undefined') {
       return this.configHash[name];
     }
     if(this.parent) {

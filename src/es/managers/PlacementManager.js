@@ -9,30 +9,39 @@ import * as Utils from '../modules/utils.js';
 /* PRIVATE FUNCTIONS AND VARIABLES FOR THIS MODULE */
 
 function setArrowPositionVertical(arrowEl, calloutEl, horizontalProp, arrowOffset) {
-  arrowEl.style.top = '';
   if (arrowOffset == 'center') {
-    arrowEl.style[horizontalProp] = Math.floor((calloutEl.offsetWidth / 2) - arrowEl.offsetWidth / 2) + 'px';
+    //reset to baseline, so we can accurately calculate border width
+    arrowEl.style[horizontalProp] = '0px';
+
+    let calloutElBox = calloutEl.getBoundingClientRect();
+    let arrowElBox = arrowEl.getBoundingClientRect();
+    let calloutBorderWidth = Math.abs(arrowElBox[horizontalProp] - calloutElBox[horizontalProp]);
+    arrowEl.style[horizontalProp] = Math.floor((calloutEl.offsetWidth / 2) - (arrowEl.offsetWidth / 2) - calloutBorderWidth) + 'px';
   } else {
     arrowOffset = Utils.getPixelValue(arrowOffset);
-    if (arrowOffset) {
-      arrowEl.style[horizontalProp] = arrowOffset + 'px';
+    if (isNaN(arrowOffset)) {
+      arrowEl.style[horizontalProp] = '0px';
     } else {
-      arrowEl.style[horizontalProp] = '';
+      arrowEl.style[horizontalProp] = arrowOffset + 'px';
     }
   }
 }
 
 function setArrowPositionHorizontal(arrowEl, calloutEl, horizontalProp, arrowOffset) {
-  arrowEl.style[horizontalProp] = '';
-
   if (arrowOffset == 'center') {
-    arrowEl.style.top = Math.floor((calloutEl.offsetHeight / 2) - arrowEl.offsetHeight / 2) + 'px';
+    //reset to baseline, so we can accurately calculate border width
+    arrowEl.style.top = '0px';
+
+    let calloutElBox = calloutEl.getBoundingClientRect();
+    let arrowElBox = arrowEl.getBoundingClientRect();
+    let calloutBorderWidth = Math.abs(arrowElBox.top - calloutElBox.top);
+    arrowEl.style.top = Math.floor((calloutEl.offsetHeight / 2) - (arrowEl.offsetHeight / 2) - calloutBorderWidth) + 'px';
   } else {
     arrowOffset = Utils.getPixelValue(arrowOffset);
-    if (arrowOffset) {
-      arrowEl.style.top = arrowOffset + 'px';
+    if (isNaN(arrowOffset)) {
+      arrowEl.style[horizontalProp] = '0px';
     } else {
-      arrowEl.style[horizontalProp] = '';
+      arrowEl.style.top = arrowOffset + 'px';
     }
   }
 }
@@ -130,7 +139,6 @@ function positionArrow(callout, placementStrategy) {
   placementStrategy.setArrowPosition(arrowEl, callout.el, horizontalProp, arrowOffset);
 }
 
-
 /**
  * This function sets callout's top and left coordinates as well as it's position (fixed vs absolute)
  * Top and left coordinates are calculated based on target element's position, page scroll as well
@@ -175,7 +183,7 @@ function positionCallout(callout, placementStrategy) {
     if (placement === 'left' || placement === 'right') {
       Utils.logError('Can not use xOffset \'center\' with placement \'left\' or \'right\'. Callout will overlay the target.');
     } else {
-      calloutPosition.left = (targetElBox.left + targetEl.offsetWidth / 2) - (calloutElBox.width / 2);
+      calloutPosition.left = Math.floor(targetElBox.left + targetEl.offsetWidth / 2) - Math.floor(calloutElBox.width / 2);
     }
   }
   else {
@@ -187,7 +195,7 @@ function positionCallout(callout, placementStrategy) {
     if (placement === 'top' || placement === 'bottom') {
       Utils.logError('Can not use yOffset \'center\' with placement \'top\' or \'bottom\'. Callout will overlay the target.');
     } else {
-      calloutPosition.top = (targetElBox.top + targetEl.offsetHeight / 2) - (calloutElBox.height / 2);
+      calloutPosition.top = Math.floor(targetElBox.top + targetEl.offsetHeight / 2) - Math.floor(calloutElBox.height / 2);
     }
   }
   else {

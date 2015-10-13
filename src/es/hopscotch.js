@@ -33,7 +33,7 @@ import * as Utils from './modules/utils.js';
     showNextButton: true,
     width: 280,
     padding: 15,
-    arrowWidth: 20,
+    arrowOffset: 15,
     skipIfNoElement: true,
     isRtl: false,
     cookieName: 'hopscotch.tour.state',
