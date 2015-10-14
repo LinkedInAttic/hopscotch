@@ -1,11 +1,41 @@
 import * as Utils from '../modules/utils.js';
 
-/*
+/* PUBLIC INTERFACE AND EXPORT STATEMENT FOR THIS MODULE */
+
+/**
   PlacementManager handles evertyhing related to callout positioning,
   including arrow position, placement of the callout, respositioning of the callout
   for responsive designs, etc.
 */
+export default class PlacementManager {
+  /**
+   * Sets the callout's position on the page, using the configuration state
+   * of the callout provided.
+   *
+   * @param {Callout} callout - The callout to place.
+   */
+  static setCalloutPosition(callout) {
+    //make sure that placement is set to a valid value
+    let placementStrategy = placementStrategies[callout.config.get('placement')];
+    if (!placementStrategy) {
+      throw new Error('Bubble placement failed because placement is invalid or undefined!');
+    }
 
+    //if callout is RTL enabled we need to adjust
+    //placement and xOffset values
+    placementStrategy = adjustPlacementForRtl(callout, placementStrategy);
+
+    //update callout's arrow to point
+    //in the direction of the target element
+    positionArrow(callout, placementStrategy);
+
+    //adjust position of the callout element
+    //to be placed next to the target 
+    positionCallout(callout, placementStrategy);
+  }
+}
+
+/* END PUBLIC INTERFACE AND EXPORT STATEMENT FOR THIS MODULE */
 /* PRIVATE FUNCTIONS AND VARIABLES FOR THIS MODULE */
 
 function setArrowPositionVertical(arrowEl, calloutEl, horizontalProp, arrowOffset) {
@@ -239,28 +269,3 @@ function isFixedElement(el) {
   return false;
 }
 /* END PRIVATE FUNCTIONS AND VARIABLES FOR THIS MODULE */
-/* PUBLIC INTERFACE AND EXPORT STATEMENT FOR THIS MODULE */
-
-let PlacementManager = {
-  setCalloutPosition(callout) {
-    //make sure that placement is set to a valid value
-    let placementStrategy = placementStrategies[callout.config.get('placement')];
-    if (!placementStrategy) {
-      throw new Error('Bubble placement failed because placement is invalid or undefined!');
-    }
-
-    //if callout is RTL enabled we need to adjust
-    //placement and xOffset values
-    placementStrategy = adjustPlacementForRtl(callout, placementStrategy);
-
-    //update callout's arrow to point
-    //in the direction of the target element
-    positionArrow(callout, placementStrategy);
-
-    //adjust position of the callout element
-    //to be placed next to the target 
-    positionCallout(callout, placementStrategy);
-  }
-};
-export default PlacementManager;
-/* END PUBLIC INTERFACE AND EXPORT STATEMENT FOR THIS MODULE */
