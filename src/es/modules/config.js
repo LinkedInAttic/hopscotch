@@ -56,8 +56,8 @@ export default class Config {
    *                   If the value isn't found, this will return undefined.
    */
   get(name) {
-    if (this.configHash && typeof this.configHash[name] !== 'undefined') {
-      return this.configHash[name];
+    if(this._configHash && typeof this._configHash[name] !== 'undefined') {
+      return this._configHash[name];
     }
     if(this._parent) {
       return this._parent.get(name);
@@ -76,8 +76,8 @@ export default class Config {
    */
   getAll(name) {
     let thisVal = this._configHash[name],
-        parentVals = (this._parent) ? this._parent.getAll(parent) : [];
-    if (typeof thisVal !== 'undefined') {
+        parentVals = (this._parent) ? this._parent.getAll(name) : [];
+    if (typeof thisVal !== void 0) {
       parentVals.unshift(thisVal);
     }
     return parentVals;
