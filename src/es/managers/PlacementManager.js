@@ -46,7 +46,7 @@ function setArrowPositionVertical(arrowEl, calloutEl, horizontalProp, arrowOffse
     let calloutElBox = calloutEl.getBoundingClientRect();
     let arrowElBox = arrowEl.getBoundingClientRect();
     let calloutBorderWidth = Math.abs(arrowElBox[horizontalProp] - calloutElBox[horizontalProp]);
-    arrowEl.style[horizontalProp] = Math.floor((calloutEl.offsetWidth / 2) - (arrowEl.offsetWidth / 2) - calloutBorderWidth) + 'px';
+    arrowEl.style[horizontalProp] = Math.floor(calloutEl.offsetWidth / 2) - Math.floor(arrowEl.offsetWidth / 2) - calloutBorderWidth + 'px';
   } else {
     //getPixelValue will return 0 if value is not a number
     arrowEl.style[horizontalProp] = Utils.getPixelValue(arrowOffset) + 'px';
@@ -61,7 +61,7 @@ function setArrowPositionHorizontal(arrowEl, calloutEl, horizontalProp, arrowOff
     let calloutElBox = calloutEl.getBoundingClientRect();
     let arrowElBox = arrowEl.getBoundingClientRect();
     let calloutBorderWidth = Math.abs(arrowElBox.top - calloutElBox.top);
-    arrowEl.style.top = Math.floor((calloutEl.offsetHeight / 2) - (arrowEl.offsetHeight / 2) - calloutBorderWidth) + 'px';
+    arrowEl.style.top = Math.floor(calloutEl.offsetHeight / 2) - Math.floor(arrowEl.offsetHeight / 2) - calloutBorderWidth + 'px';
   } else {
     arrowEl.style.top = Utils.getPixelValue(arrowOffset) + 'px';
   }
@@ -180,8 +180,8 @@ function positionCallout(callout, placementStrategy) {
   }
 
   let targetEl = getTarget(callout.config.get('target'));
-  if (!targetEl) {
-    throw new Error('Must specify an existing target element via \'target\' option.');
+  if (!Utils.isDOMElement(targetEl)) {
+    throw new Error('Target element is not a DOM object. Please provide valid target DOM element or query selector via \'target\' option.');
   }
 
   let isTargetFixed = isFixedElement(targetEl);
@@ -204,7 +204,7 @@ function positionCallout(callout, placementStrategy) {
     if (placement === 'left' || placement === 'right') {
       Utils.logError('Can not use xOffset \'center\' with placement \'left\' or \'right\'. Callout will overlay the target.');
     } else {
-      calloutPosition.left = Math.floor(targetElBox.left + targetEl.offsetWidth / 2) - Math.floor(calloutElBox.width / 2);
+      calloutPosition.left = targetElBox.left + Math.floor(targetEl.offsetWidth / 2) - Math.floor(calloutElBox.width / 2);
     }
   }
   else {
@@ -216,7 +216,7 @@ function positionCallout(callout, placementStrategy) {
     if (placement === 'top' || placement === 'bottom') {
       Utils.logError('Can not use yOffset \'center\' with placement \'top\' or \'bottom\'. Callout will overlay the target.');
     } else {
-      calloutPosition.top = Math.floor(targetElBox.top + targetEl.offsetHeight / 2) - Math.floor(calloutElBox.height / 2);
+      calloutPosition.top = targetElBox.top + Math.floor(targetEl.offsetHeight / 2) - Math.floor(calloutElBox.height / 2);
     }
   }
   else {
@@ -259,7 +259,7 @@ function getScrollPosition() {
  * @private
  */
 function isFixedElement(el) {
-  if (!el.style) {
+  if (!el || !el.style) {
     return false;
   } else if (el.style.position === 'fixed') {
     return true;
