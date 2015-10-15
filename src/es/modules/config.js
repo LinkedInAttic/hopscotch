@@ -1,20 +1,19 @@
+import * as Utils from './utils.js';
+
 export default class Config {
   constructor(configHash, parentConfig) {
     this.parent = parentConfig;
-    this.configHash = configHash;
+    this.configHash = Utils.extend({}, configHash);
   }
   get(name) {
-    if(this.configHash && typeof this.configHash[name] !== 'undefined') {
+    if (this.configHash && typeof this.configHash[name] !== 'undefined') {
       return this.configHash[name];
     }
-    if(this.parent) {
+    if (this.parent) {
       return this.parent.get(name);
     }
   }
   set(name, value) {
-    if(!this.configHash) {
-      this.configHash = {};
-    }
     this.configHash[name] = value;
   }
 }

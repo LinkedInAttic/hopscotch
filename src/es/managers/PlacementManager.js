@@ -18,12 +18,8 @@ function setArrowPositionVertical(arrowEl, calloutEl, horizontalProp, arrowOffse
     let calloutBorderWidth = Math.abs(arrowElBox[horizontalProp] - calloutElBox[horizontalProp]);
     arrowEl.style[horizontalProp] = Math.floor((calloutEl.offsetWidth / 2) - (arrowEl.offsetWidth / 2) - calloutBorderWidth) + 'px';
   } else {
-    arrowOffset = Utils.getPixelValue(arrowOffset);
-    if (isNaN(arrowOffset)) {
-      arrowEl.style[horizontalProp] = '0px';
-    } else {
-      arrowEl.style[horizontalProp] = arrowOffset + 'px';
-    }
+    //getPixelValue will return 0 if value is not a number
+    arrowEl.style[horizontalProp] = Utils.getPixelValue(arrowOffset) + 'px';
   }
 }
 
@@ -37,12 +33,7 @@ function setArrowPositionHorizontal(arrowEl, calloutEl, horizontalProp, arrowOff
     let calloutBorderWidth = Math.abs(arrowElBox.top - calloutElBox.top);
     arrowEl.style.top = Math.floor((calloutEl.offsetHeight / 2) - (arrowEl.offsetHeight / 2) - calloutBorderWidth) + 'px';
   } else {
-    arrowOffset = Utils.getPixelValue(arrowOffset);
-    if (isNaN(arrowOffset)) {
-      arrowEl.style[horizontalProp] = '0px';
-    } else {
-      arrowEl.style.top = arrowOffset + 'px';
-    }
+    arrowEl.style.top = Utils.getPixelValue(arrowOffset) + 'px';
   }
 }
 
@@ -105,7 +96,7 @@ function adjustPlacementForRtl(callout, placementStrategy) {
     let rtlPlacement = placementStrategy.rtlPlacement;
 
     //flip xOffset
-    if (calloutXOffset) {
+    if (calloutXOffset && calloutXOffset !== 'center') {
       callout.config.set('xOffset', -1 * Utils.getPixelValue(calloutXOffset));
     }
     //flip placement for right and left placements only

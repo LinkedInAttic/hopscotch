@@ -79,6 +79,14 @@ import * as Utils from './modules/utils.js';
       return calloutMan;
     },
     getState() {
+    },
+    configure(configHash) {
+      if(!configHash) {
+        return;
+      }
+      for(let prop in configHash){
+        globalConfig.set(prop, configHash[prop]);
+      }
     }
   };
 })));
