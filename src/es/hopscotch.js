@@ -42,13 +42,19 @@ import * as Utils from './modules/utils.js';
   let globalConfig = new Config({}, defaultConfig);
   let currentTour;
   let calloutMan;
+  let tmplClosureOut = {};
   
   // Template includes, placed inside a closure to ensure we don't
   // end up declaring our shim globally.
   (function () {
     // @@include('../../src/tl/_template_headers.js') //
     // @@include('../../tmp/js/hopscotch_templates.js') //
-  }.call(TemplateManager));
+  }.call(tmplClosureOut));
+
+  // Hacky code to move templates from old namespace to TemplateManager.
+  for(let tl in tmplClosureOut.templates){
+    TemplateManager.registerTemplate(tl, tmplClosureOut.templates[tl]);
+  }
 
   return {
     startTour(configHash, stepNum) {

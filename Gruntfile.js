@@ -312,6 +312,14 @@ module.exports = function (grunt) {
         configFile: 'eslint.json'
       },
       target: ['<%=paths.source%>/es/**/*.js', '<%=paths.source%>/es/**/*.js']
+    },
+    esdoc: {
+      dev: {
+        options: {
+          "source": "<%=paths.source%>/es",
+          "destination": "<%=paths.build%>/esdoc"
+        }
+      }
     }
   });
   
@@ -330,6 +338,7 @@ module.exports = function (grunt) {
   grunt.loadNpmTasks('grunt-babel');
   grunt.loadNpmTasks('grunt-browserify');
   grunt.loadNpmTasks('grunt-eslint');
+  grunt.loadNpmTasks('grunt-esdoc');
 
   grunt.registerMultiTask('log', 'Print some messages', function () {
     grunt.log.ok(this.data.options.message);
