@@ -152,3 +152,22 @@ export function extend(obj1, obj2) {
   }
   return obj1;
 }
+
+/**
+ * Determines if el parameter of this function conforms for the DOM
+ * API required by hopscotch
+ */
+export function isDOMElement(el) {
+  if (!el || typeof el.getBoundingClientRect !== 'function') {
+    return false;
+  }
+  let elBox = el.getBoundingClientRect();
+
+  return typeof el.style === 'object' &&
+    typeof elBox.right === 'number' &&
+    typeof elBox.left === 'number' &&
+    typeof elBox.top === 'number' &&
+    typeof elBox.bottom === 'number' &&
+    typeof elBox.height === 'number' &&
+    typeof elBox.width === 'number';
+}

@@ -17,7 +17,7 @@ function isPlacedOnTop(calloutPos, arrowEl, targetPos) {
   //         _______________
   //        |   Target      |
   //        |_______________|
-  return (calloutPos.bottom + arrowEl.offsetHeight) === targetPos.top;
+  return Math.round(calloutPos.bottom + arrowEl.offsetHeight) === Math.round(targetPos.top);
 }
 
 function isPlacedOnBottom(calloutPos, arrowEl, targetPos) {
@@ -31,7 +31,7 @@ function isPlacedOnBottom(calloutPos, arrowEl, targetPos) {
   //        ----------------
   //        |   Callout    |
   //        ----------------
-  return (calloutPos.top - arrowEl.offsetHeight) === targetPos.bottom;
+  return Math.round(calloutPos.top - arrowEl.offsetHeight) === Math.round(targetPos.bottom);
 }
 
 function isPlacedOnLeft(calloutPos, arrowEl, targetPos) {
@@ -41,7 +41,7 @@ function isPlacedOnLeft(calloutPos, arrowEl, targetPos) {
   //        ----------------   ----------------
   //        |   Callout    |>  |   Target     |
   //        ----------------   ----------------
-  return (calloutPos.right + arrowEl.offsetWidth) === targetPos.left;
+  return Math.round(calloutPos.right + arrowEl.offsetWidth) === Math.round(targetPos.left);
 }
 
 function isPlacedOnRight(calloutPos, arrowEl, targetPos) {
@@ -51,7 +51,7 @@ function isPlacedOnRight(calloutPos, arrowEl, targetPos) {
   //        ----------------   ----------------
   //        |   Target     | < |   Callout    |
   //        ----------------   ----------------
-  return (calloutPos.left - arrowEl.offsetWidth) === targetPos.right;
+  return Math.round(calloutPos.left - arrowEl.offsetWidth) === Math.round(targetPos.right);
 }
 
 function verifyCalloutPlacement(target, expectedPlacement) {
@@ -155,9 +155,9 @@ function verifyHorizontalOffset(el1, el2, expectedOffset, isRTL) {
   let el1Box = el1.getBoundingClientRect();
   let el2Box = el2.getBoundingClientRect();
   if (isRTL) {
-    expect(el1Box.right - el2Box.right).toEqual(expectedOffset);
+    expect(Math.floor(el1Box.right - el2Box.right)).toEqual(expectedOffset);
   } else {
-    expect(el1Box.left - el2Box.left).toEqual(expectedOffset);
+    expect(Math.floor(el1Box.left - el2Box.left)).toEqual(expectedOffset);
   }
 }
 
@@ -168,7 +168,7 @@ function verifyHorizontalOffset(el1, el2, expectedOffset, isRTL) {
 function verifyVerticalOffset(el1, el2, expectedOffset) {
   let el1Box = el1.getBoundingClientRect();
   let el2Box = el2.getBoundingClientRect();
-  expect(el1Box.top - el2Box.top).toEqual(expectedOffset);
+  expect(Math.floor(el1Box.top - el2Box.top)).toEqual(expectedOffset);
 }
 
 /**
@@ -202,7 +202,7 @@ function verifyXOffset(target, placement, expectedOffset, isRtl) {
     }
   }
 
-  expect(actualOffset).toEqual(expectedOffset);
+  expect(Math.floor(actualOffset)).toEqual(expectedOffset);
 }
 
 /**
@@ -227,7 +227,7 @@ function verifyYOffset(target, placement, expectedOffset) {
       actualOffset = calloutElBox.top - targetElBox.top;
     }
   }
-  expect(actualOffset).toEqual(expectedOffset);
+  expect(Math.floor(actualOffset)).toEqual(expectedOffset);
 }
 
 /**
