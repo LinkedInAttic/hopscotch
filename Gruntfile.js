@@ -316,8 +316,8 @@ module.exports = function (grunt) {
     esdoc: {
       dev: {
         options: {
-          "source": "./src/es",
-          "destination": "./tmp/esdoc"
+          "source": "<%=paths.source%>/es",
+          "destination": "<%=paths.build%>/esdoc"
         }
       }
     }
