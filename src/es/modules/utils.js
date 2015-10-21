@@ -9,7 +9,7 @@ let validIdRegEx = /^[a-zA-Z]+[a-zA-Z0-9_-]*$/;
  * @returns {Boolean} True if defined and valid, false otherwise.
  */
 export function isIdValid(id) {
-  return id && validIdRegEx.test(id);
+  return typeof id === 'string' && validIdRegEx.test(id);
 }
 
 /**
@@ -132,8 +132,8 @@ export function addClass(domEl, strClassNames) {
  * Remove one or more classes from a DOM element.
  *
  * @param {Element} domEl                - The element to remove the classes from.
- * @param {String} strClassNamesToRemove - A comma-separated list of classes
- *                                         to remove.
+ * @param {String} strClassNamesToRemove - A list of classes to remove. Class names
+ *                                         should be separated by space.
  */
 export function removeClass(domEl, strClassNamesToRemove) {
   let domClasses = ' ' + domEl.className + ' ';

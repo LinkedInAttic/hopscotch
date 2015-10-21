@@ -339,12 +339,12 @@ module.exports = function (grunt) {
   grunt.registerMultiTask('log', 'Print some messages', function () {
     grunt.log.ok(this.data.options.message);
   });
-  
+
   //temporary tasks for ES6 rewrite with Babel and Browserify
   grunt.registerTask(
     'buildES',
     'Build hopscotch for testing (jshint, minify js, process less to css)',
-    ['clean:build', 'copy:build', 'eslint', 'jst:compile', 'babel', 'browserify', 'includereplace:esSource', 'less']
+    ['clean:build', 'copy:build', 'eslint', 'jst:compile', 'babel', 'browserify', 'includereplace:esSource', 'less', 'esdoc']
     );
 
   grunt.registerTask(

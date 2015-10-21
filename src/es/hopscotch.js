@@ -61,12 +61,21 @@ import * as Utils from './modules/utils.js';
       if (!currentTour) {
         currentTour = new Tour(configHash, globalConfig);
       } else {
-        throw new Error('Tour \'' + currentTour.id + '\' is currently in progress');
+        throw new Error('Can not start a tour. Tour \'' + currentTour.id + '\' is currently in progress');
       }
+      //subscribe to tour end event, so hopscotch can clear the
+      //currentTour reference once tour ends
+      currentTour.on('end', () => {
+        currentTour = null;
+      });
       currentTour.startTour(stepNum);
     },
     endTour() {
-      currentTour = null;
+      if (currentTour) {
+        //end tour; currentTour reference will be cleared
+        //as part of on end tour callback
+        currentTour.endTour();
+      }
     },
     nextStep() {
       if (currentTour) {
@@ -77,6 +86,27 @@ import * as Utils from './modules/utils.js';
       if (currentTour) {
         currentTour.prevStep();
       }
+    },
+    getCurrStepNum() {
+      if (currentTour) {
+        return currentTour.getCurrStepNum();
+      }
+      //there is no active tour. Return null
+      return null;
+    },
+    getCurrStepCallout() {
+      if (currentTour) {
+        return currentTour.getCurrStepCallout();
+      }
+      //there is no active tour. Return null
+      return null;
+    },
+    getCurrTour() {
+      if (currentTour) {
+        return currentTour.getOriginalConfig();
+      }
+      //there is no active tour. Return null
+      return null;
     },
     getCalloutManager() {
       if (!calloutMan) {
