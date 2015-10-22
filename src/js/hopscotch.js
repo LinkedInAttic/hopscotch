@@ -1985,6 +1985,27 @@
     };
 
     /**
+     * nextStep
+     *
+     * Jump to a specific step.
+     *
+     * @param {step} the step to go to.
+     * @param {Boolean} doCallbacks Flag for invoking onNext callback. Defaults to true.
+     * @returns {Object} Hopscotch
+     */
+    this.goToStep = function (step, doCallbacks) {
+        if(step != null){
+          var current = this.getCurrStepNum();
+          var stepDirection = current < step ? 1 : -1;
+          while (current != step) {
+              changeStep.call(this, doCallbacks, stepDirection);
+              current = this.getCurrStepNum();
+          }
+        }
+        return this;
+    }
+
+    /**
      * endTour
      *
      * Cancels out of an active tour.
