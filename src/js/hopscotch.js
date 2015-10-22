@@ -1997,13 +1997,13 @@
         if(step != null){
           var current = this.getCurrStepNum();
           var stepDirection = current < step ? 1 : -1;
-          while (current != step) {
+          while (current !== step) {
               changeStep.call(this, doCallbacks, stepDirection);
               current = this.getCurrStepNum();
           }
         }
         return this;
-    }
+    };
 
     /**
      * endTour
