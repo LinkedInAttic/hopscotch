@@ -297,12 +297,8 @@ module.exports = function (grunt) {
       test: {
         files: {
           '<%=paths.build%>/test/specs.js': [
-            '<%=paths.build%>/test/es/specs/arrowOffset.spec.js',
-            '<%=paths.build%>/test/es/specs/placement.spec.js',
-            '<%=paths.build%>/test/es/specs/target.spec.js',
-            '<%=paths.build%>/test/es/specs/xOffset.spec.js',
-            '<%=paths.build%>/test/es/specs/yOffset.spec.js',
-            '<%=paths.build%>/test/es/helpers/placement.js'
+            '<%=paths.build%>/test/es/helpers/placement.js',
+            '<%=paths.build%>/test/es/specs/*.spec.js'
           ]
         }
       }
