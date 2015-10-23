@@ -35,6 +35,23 @@ describe('Config option "placement"', () => {
             content: 'This wonderful callout should apear above the target element',
             isRtl: true
           }
+        },
+        {
+          message: 'Callout should be positioned correctly after being hidden and shown again',
+          config: {
+            id: 'callout-placement-top',
+            target: '#yogurt',
+            placement: 'top',
+            title: 'Callout with placement "top"',
+            content: 'This wonderful callout should apear above the target element'
+          },
+          after() {
+            let callout = calloutManager.getCallout('callout-placement-top');
+            callout.hide();
+            callout.render();
+            callout.show();
+            PlacementTestUtils.verifyCalloutPlacement(document.querySelector('#yogurt'), 'top');
+          }
         }
       ]
     }, {

@@ -47,8 +47,8 @@ function getElement(element) {
 }
 
 /**
- * Given a step, returns the target DOM element associated with it. It is
- * recommended to only assign one target per step. However, there are
+ * Given a value of "target" config option, returns the target DOM element.
+ * It is recommended to only assign one target per step. However, there are
  * some use cases which require multiple step targets to be supplied. In
  * this event, we will use the first target in the array that we can
  * locate on the page.
@@ -86,6 +86,23 @@ export function getTargetEl(target) {
 
   // Assume that the target is a DOM element
   return target;
+}
+
+/**
+ *  Determine whether given element is assigned the given class
+ *
+ * @param {Element} domEl        - The element that should to be check for class presence
+ * @param {String} className     - The class name to search for 
+ */
+export function hasClass(domEl, className) {
+  if (!domEl.className) {
+    return false;
+  }
+  else {
+    let domClasses = ' ' + domEl.className + ' ';
+    let arrClassNames = domClasses.split(/\s+/);
+    return arrClassNames.indexOf(className) >= 0;
+  }
 }
 
 /**
