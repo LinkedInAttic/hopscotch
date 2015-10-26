@@ -676,6 +676,7 @@ describe('Config option "xOffset"', () => {
       });
       afterEach(() => {
         document.body.setAttribute('dir', 'ltr');
+        hopscotch.resetDefaultOptions();
       });
       specGroup.specs.forEach((spec) => {
         it(spec.message, () => {

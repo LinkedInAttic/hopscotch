@@ -435,6 +435,11 @@ describe('Config option "yOffset"', () => {
 
   specGroups.forEach((specGroup) => {
     describe(specGroup.groupName, () => {
+      afterEach(() => {
+        //remove the callout
+        calloutManager.removeAllCallouts();
+        hopscotch.resetDefaultOptions();
+      });
       specGroup.specs.forEach((spec) => {
         it(spec.message, () => {
           if (typeof spec.before === 'function') {
@@ -444,8 +449,6 @@ describe('Config option "yOffset"', () => {
           calloutManager.createCallout(spec.config);
           //verify arrow placement
           PlacementTestUtils.verifyYOffset(document.querySelector(spec.config.target), spec.config.placement, spec.expectedOffset);
-          //remove the callout
-          calloutManager.removeAllCallouts();
         }); //end "it" for a spec
       }); //end specs loop
     }); //end "describe" for a spec group 

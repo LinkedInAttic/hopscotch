@@ -52,7 +52,7 @@ import * as Utils from './modules/utils.js';
   }.call(tmplClosureOut));
 
   // Hacky code to move templates from old namespace to TemplateManager.
-  for(let tl in tmplClosureOut.templates){
+  for (let tl in tmplClosureOut.templates) {
     TemplateManager.registerTemplate(tl, tmplClosureOut.templates[tl]);
   }
 
@@ -87,12 +87,15 @@ import * as Utils from './modules/utils.js';
     getState() {
     },
     configure(configHash) {
-      if(!configHash) {
+      if (!configHash) {
         return;
       }
-      for(let prop in configHash){
+      for (let prop in configHash) {
         globalConfig.set(prop, configHash[prop]);
       }
+    },
+    resetDefaultOptions() {
+      globalConfig = new Config({}, defaultConfig);
     }
   };
 })));
