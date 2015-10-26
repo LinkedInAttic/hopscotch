@@ -106,6 +106,32 @@ export class Callout {
       }
     };
   }
+  
+  /**
+   * Find the DOM element this callout points to
+   *
+   * @returns {Element} DOM element that is the target of this callout
+   */
+  getTargetElement() {
+    /* User can configure their own way of finding target element via hopscotch.configure. For example jQuery
+     * hopscotch.configure({
+     *  getTarget: function(target){
+     *    return jQUery(target);
+     *  }
+     * });
+     * If not specified getTarget defaults to Utils.getTargetEl
+    */
+    let getTarget = this.config.get('getTarget');
+    if (typeof getTarget !== 'function') {
+      throw new Error('Can not find target element because \'getTarget\' is not a function');
+    }
+
+    let targetEl = getTarget(this.config.get('target'));
+    if (!Utils.isDOMElement(targetEl)) {
+      throw new Error('Target element is not a DOM object. Please provide valid target DOM element or query selector via \'target\' option.');
+    }
+    return targetEl;
+  }
 }
 
 /**
