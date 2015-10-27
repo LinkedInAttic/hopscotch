@@ -167,6 +167,14 @@ function positionArrow(callout, placementStrategy) {
  */
 function positionCallout(callout, placementStrategy) {
   let targetEl = callout.getTargetElement();
+
+  //make sure that callout element is visible, so we can get arrow width and height
+  let isCalloutHidden = Utils.hasClass(callout.el, 'hide');
+  if (isCalloutHidden) {
+    callout.el.style.visibility = 'hidden';
+    Utils.removeClass(callout.el, 'hide');
+  }
+
   let isTargetFixed = isFixedElement(targetEl);
   let targetElBox = targetEl.getBoundingClientRect();
   let calloutElBox = callout.el.getBoundingClientRect();
@@ -219,6 +227,12 @@ function positionCallout(callout, placementStrategy) {
   callout.el.style.position = isTargetFixed ? 'fixed' : 'absolute';
   callout.el.style.top = calloutPosition.top + 'px';
   callout.el.style.left = calloutPosition.left + 'px';
+
+  //Restore original display of the callout element
+  if (isCalloutHidden) {
+    Utils.addClass(callout.el, 'hide');
+    callout.el.style.visibility = 'visible';
+  }
 }
 
 /**
