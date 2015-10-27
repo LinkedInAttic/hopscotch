@@ -31,8 +31,7 @@ export class Callout {
      * The DOM node for this callout that markup will be rendered into.
      * @type {Element}
      */
-    this.el = document.createElement('div');
-    Utils.addClass(this.el, 'hopscotch-bubble');
+    this.el = null;
   }
 
   /**
@@ -41,11 +40,16 @@ export class Callout {
    * the DOM. Call `show()` afterwards to actually display.
    */
   render() {
+    if (!this.el) {
+      this.el = document.createElement('div');
+      Utils.addClass(this.el, 'hopscotch-bubble');
+      document.body.appendChild(this.el);
+    }
+
     this.el.innerHTML = TemplateManager.render(
       this.config.get('renderer'),
       this.getRenderData()
       );
-    document.body.appendChild(this.el);
     PlacementManager.setCalloutPosition(this);
   }
 
@@ -53,6 +57,9 @@ export class Callout {
    * Show the callout on the page.
    */
   show() {
+    if (!this.el) {
+      return;
+    }
     Utils.removeClass(this.el, 'hide');
   }
 
@@ -60,6 +67,9 @@ export class Callout {
    * Hide the callout on the page.
    */
   hide() {
+    if (!this.el) {
+      return;
+    }
     Utils.addClass(this.el, 'hide');
   }
 
@@ -67,7 +77,9 @@ export class Callout {
    * Fully remove this callout from the DOM.
    */
   destroy() {
-    this.el.parentNode.removeChild(this.el);
+    if (this.el && this.el.parentNode) {
+      this.el.parentNode.removeChild(this.el);
+    }
   }
 
   /**
@@ -154,8 +166,6 @@ export class TourCallout extends Callout {
      * @type {Tour}
      */
     this.tour = tour;
-
-    Utils.addClass(this.el, 'tour-' + this.tour.id);
   }
   
   /**
@@ -185,6 +195,15 @@ export class TourCallout extends Callout {
     }
     return Object.assign(opts, tourOpts);
   }
+
+  /**
+   * Renders markup of the callout and inserts callout element into the DOM
+   * @override 
+   */
+  render() {
+    super.render();
+    Utils.addClass(this.el, 'tour-' + this._tour.id);
+  }
 }
 
 /**
@@ -199,14 +218,21 @@ export class StandaloneCallout extends Callout {
    * @param {Object} configHash   - Configuration properties for this specific
    *                                callout.
    * @param {Config} globalConfig - The parent configuration object.
-   */ 
+   */
   constructor(configHash, globalConfig) {
     if (!Utils.isIdValid(configHash.id)) {
       throw new Error('Callout ID is using an invalid format. Use alphanumeric, underscores, and/or hyphens only. First character must be a letter.');
     }
 
     super(configHash, globalConfig);
+  }
 
+  /**
+   * Renders markup of the callout and inserts callout element into the DOM
+   * @override 
+   */
+  render() {
+    super.render();
     Utils.addClass(this.el, 'hopscotch-callout no-number');
   }
 }
