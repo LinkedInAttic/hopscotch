@@ -46,7 +46,7 @@ function setArrowPositionVertical(arrowEl, calloutEl, horizontalProp, arrowOffse
     let calloutElBox = calloutEl.getBoundingClientRect();
     let arrowElBox = arrowEl.getBoundingClientRect();
     let calloutBorderWidth = Math.abs(arrowElBox[horizontalProp] - calloutElBox[horizontalProp]);
-    arrowEl.style[horizontalProp] = Math.floor(calloutEl.offsetWidth / 2) - Math.floor(arrowEl.offsetWidth / 2) - calloutBorderWidth + 'px';
+    arrowEl.style[horizontalProp] = Math.floor(calloutElBox.width / 2) - Math.floor(arrowElBox.width / 2) - calloutBorderWidth + 'px';
   } else {
     //getPixelValue will return 0 if value is not a number
     arrowEl.style[horizontalProp] = Utils.getPixelValue(arrowOffset) + 'px';
@@ -61,7 +61,7 @@ function setArrowPositionHorizontal(arrowEl, calloutEl, horizontalProp, arrowOff
     let calloutElBox = calloutEl.getBoundingClientRect();
     let arrowElBox = arrowEl.getBoundingClientRect();
     let calloutBorderWidth = Math.abs(arrowElBox.top - calloutElBox.top);
-    arrowEl.style.top = Math.floor(calloutEl.offsetHeight / 2) - Math.floor(arrowEl.offsetHeight / 2) - calloutBorderWidth + 'px';
+    arrowEl.style.top = Math.floor(calloutElBox.height / 2) - Math.floor(arrowElBox.height / 2) - calloutBorderWidth + 'px';
   } else {
     arrowEl.style.top = Utils.getPixelValue(arrowOffset) + 'px';
   }
@@ -195,7 +195,7 @@ function positionCallout(callout, placementStrategy) {
     if (placement === 'left' || placement === 'right') {
       Utils.logError('Can not use xOffset \'center\' with placement \'left\' or \'right\'. Callout will overlay the target.');
     } else {
-      calloutPosition.left = targetElBox.left + Math.floor(targetEl.offsetWidth / 2) - Math.floor(calloutElBox.width / 2);
+      calloutPosition.left = targetElBox.left + Math.floor(targetElBox.width / 2) - Math.floor(calloutElBox.width / 2);
     }
   }
   else {
@@ -207,7 +207,7 @@ function positionCallout(callout, placementStrategy) {
     if (placement === 'top' || placement === 'bottom') {
       Utils.logError('Can not use yOffset \'center\' with placement \'top\' or \'bottom\'. Callout will overlay the target.');
     } else {
-      calloutPosition.top = targetElBox.top + Math.floor(targetEl.offsetHeight / 2) - Math.floor(calloutElBox.height / 2);
+      calloutPosition.top = targetElBox.top + Math.floor(targetElBox.height / 2) - Math.floor(calloutElBox.height / 2);
     }
   }
   else {

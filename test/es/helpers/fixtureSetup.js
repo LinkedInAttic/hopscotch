@@ -1,12 +1,16 @@
 function setupFixture() {
   //create an element for shopping list
-  let shoppingListDiv = document.createElement('div'); 
+  let shoppingListDiv = document.createElement('div');
   //set up shopping list
   shoppingListDiv.id = 'shopping-list';
   shoppingListDiv.style.margin = '40px auto';
   shoppingListDiv.style.width = '400px';
   shoppingListDiv.innerHTML =
-  '<style> #shopping-list li { margin-top: 5px; padding: 5px 3px; border: 1px solid black; list-style: none;}</style>' +
+  '<style>' +
+  '  #shopping-list ul { padding: 0; }' +
+  '  #shopping-list li { margin-top: 5px; padding: 5px 3px; border: 1px solid black; list-style: none; }' +
+  '  li#yogurt { padding: 15px 160px; border: 5px solid black; margin-top: 25px; }' +
+  '</style>' +
   '<ul>' +
   '  <li>This is an example list for the sake of having some UI to point to.</li>' +
   '  <li id="milk">Milk</li>' +
