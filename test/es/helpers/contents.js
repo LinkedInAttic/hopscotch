@@ -10,8 +10,8 @@ function verifyStepNumber(callout, expectdValue) {
 
 function verifyButton(callout, selector, expectedIsPresent) {
   let buttonEl = callout.el.querySelector(selector);
-  let actualExists = !buttonEl ? ' to not exist' : ' to exists';
-  let expectedExists = !expectedIsPresent ? ' to not exist' : ' to exists';
+  let actualExists = !buttonEl ? ' to not exist' : ' to exist';
+  let expectedExists = !expectedIsPresent ? ' to not exist' : ' to exist';
   expect(selector + actualExists).toEqual(selector + expectedExists);
 }
 
@@ -23,10 +23,15 @@ function verifyPrevButton(callout, expectedIsPresent) {
   verifyButton(callout, '.hopscotch-nav-button.prev', expectedIsPresent);
 }
 
+function verifyCloseButton(callout, expectedIsPresent) {
+  verifyButton(callout, '.hopscotch-bubble-close', expectedIsPresent);
+}
+
 let ContentsTestUtils = {
   verifyStepNumber,
   verifyNextButton,
-  verifyPrevButton
+  verifyPrevButton,
+  verifyCloseButton
 };
 
 export default ContentsTestUtils;
