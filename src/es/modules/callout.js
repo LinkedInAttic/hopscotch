@@ -79,6 +79,7 @@ export class Callout {
   destroy() {
     if (this.el && this.el.parentNode) {
       this.el.parentNode.removeChild(this.el);
+      this.el = null;
     }
   }
 
@@ -118,7 +119,7 @@ export class Callout {
       }
     };
   }
-  
+
   /**
    * Find the DOM element this callout points to
    *
@@ -155,19 +156,20 @@ export class TourCallout extends Callout {
    *
    * @param {Object} configHash   - Configuration properties for this specific
    *                                callout's step.
-   * @param {Config} globalConfig - The parent configuration object.
    * @param {Tour} tour           - The tour this callout belongs to.
+   * @param {Number} stepNumber   - Index of the step within tour's steps
    */
-  constructor(configHash, globalConfig, tour) {
-    super(configHash, globalConfig);
+  constructor(configHash, tour, stepNumber) {
+    super(configHash, tour.config);
 
     /**
      * The tour this callout belongs to.
      * @type {Tour}
      */
-    this.tour = tour;
+    this._tour = tour;
+    this._stepNumber = stepNumber;
   }
-  
+
   /**
    * Fetch the data required to render this step's callout on the page.
    *
@@ -178,27 +180,44 @@ export class TourCallout extends Callout {
    */
   getRenderData() {
     let opts = super.getRenderData();
+    let tourStepsCount = this._tour.getStepsCount();
+    let isLastStep = this._stepNumber === (tourStepsCount - 1);
+    //get step number accounting for skipped steps
+    let adjustedStepNumber = this._tour.getStepNumber(this);
+
     let tourOpts = {
+      i18n: {
+        stepNum: adjustedStepNumber + 1,
+        nextBtn: isLastStep ? 'doneBtn' : 'nextBtn'
+      },
       buttons: {
-        showPrev: false,
-        showNext: false,
+        showPrev: this.config.get('showPrevButton') && adjustedStepNumber > 0,
+        showNext: this.config.get('showNextButton')
       },
       step: {
-        num: this.stepNumber,
-        isLast: this.isLast
+        num: this._stepNumber,
+        isLast: isLastStep
       },
       tour: {
         isTour: true,
-        numSteps: this.tour.steps.length,
-        customData: this.tour.config.get('customData')
+        numSteps: tourStepsCount,
+        customData: this._tour.config.get('customData')
+      }
+    };
+
+    for (let key in tourOpts) {
+      if (typeof opts[key] === 'undefined') {
+        opts[key] = tourOpts[key];
+      } else {
+        Utils.extend(opts[key], tourOpts[key]);
       }
     }
-    return Object.assign(opts, tourOpts);
+    return opts;
   }
 
   /**
    * Renders markup of the callout and inserts callout element into the DOM
-   * @override 
+   * @override
    */
   render() {
     super.render();

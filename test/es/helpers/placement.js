@@ -54,9 +54,9 @@ function isPlacedOnRight(calloutPos, arrowEl, targetPos) {
   return Math.round(calloutPos.left - arrowEl.offsetWidth) === Math.round(targetPos.right);
 }
 
-function verifyCalloutPlacement(target, expectedPlacement) {
-  let callout = document.querySelector(QUERY_SELECTOR_CALLOUT);
-  let arrow = document.querySelector(QUERY_SELECTOR_ARROW);
+function verifyCalloutPlacement(target, expectedPlacement, calloutEl) {
+  let callout = calloutEl || document.querySelector(QUERY_SELECTOR_CALLOUT);
+  let arrow = callout.querySelector(QUERY_SELECTOR_ARROW);
   let actualPlacement = 'unknown';
 
   if (callout && arrow) {
