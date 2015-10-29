@@ -316,6 +316,17 @@ module.exports = function (grunt) {
           "destination": "<%=paths.build%>/esdoc"
         }
       }
+    },
+    postcss: {
+      options: {
+        map: false,
+        processors: [
+          require('autoprefixer')({ browsers: 'last 2 versions, ie 9, ie 10, ie 11' }) // https://github.com/ai/browserslist
+        ]
+      },
+      dist: {
+        src: '<%=paths.build%>/css/*.css'
+      }
     }
   });
   
@@ -335,6 +346,7 @@ module.exports = function (grunt) {
   grunt.loadNpmTasks('grunt-browserify');
   grunt.loadNpmTasks('grunt-eslint');
   grunt.loadNpmTasks('grunt-esdoc');
+  grunt.loadNpmTasks('grunt-postcss');
 
   grunt.registerMultiTask('log', 'Print some messages', function () {
     grunt.log.ok(this.data.options.message);
@@ -344,7 +356,7 @@ module.exports = function (grunt) {
   grunt.registerTask(
     'buildES',
     'Build hopscotch for testing (jshint, minify js, process less to css)',
-    ['clean:build', 'copy:build', 'eslint', 'jst:compile', 'babel', 'browserify', 'includereplace:esSource', 'less', 'esdoc']
+    ['clean:build', 'copy:build', 'eslint', 'jst:compile', 'babel', 'browserify', 'includereplace:esSource', 'less', 'esdoc', 'postcss']
     );
 
   grunt.registerTask(
