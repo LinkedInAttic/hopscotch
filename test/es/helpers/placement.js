@@ -5,6 +5,12 @@ const PLACEMENT_LEFT = 'left';
 const PLACEMENT_RIGHT = 'right';
 const QUERY_SELECTOR_CALLOUT = '.hopscotch-bubble';
 const QUERY_SELECTOR_ARROW = '.hopscotch-bubble-arrow-container';
+const PLACEMENT_DEVIATION = 1;
+
+function hasExpectedPlacement(actual, expected) {
+  let diff = Math.abs(actual - expected);
+  return diff <= PLACEMENT_DEVIATION;
+}
 
 function isPlacedOnTop(calloutPos, arrowEl, targetPos) {
   // placement: top
@@ -17,7 +23,10 @@ function isPlacedOnTop(calloutPos, arrowEl, targetPos) {
   //         _______________
   //        |   Target      |
   //        |_______________|
-  return Math.round(calloutPos.bottom + arrowEl.offsetHeight) === Math.round(targetPos.top);
+  let actualPlacement = Math.floor(calloutPos.bottom + arrowEl.offsetHeight);
+  let expectedPlacement = Math.floor(targetPos.top);
+
+  return hasExpectedPlacement(actualPlacement, expectedPlacement);
 }
 
 function isPlacedOnBottom(calloutPos, arrowEl, targetPos) {
@@ -31,7 +40,10 @@ function isPlacedOnBottom(calloutPos, arrowEl, targetPos) {
   //        ----------------
   //        |   Callout    |
   //        ----------------
-  return Math.round(calloutPos.top - arrowEl.offsetHeight) === Math.round(targetPos.bottom);
+  let actualPlacement = Math.floor(calloutPos.top - arrowEl.offsetHeight);
+  let expectedPlacement = Math.round(targetPos.bottom);
+
+  return hasExpectedPlacement(actualPlacement, expectedPlacement);
 }
 
 function isPlacedOnLeft(calloutPos, arrowEl, targetPos) {
@@ -41,7 +53,10 @@ function isPlacedOnLeft(calloutPos, arrowEl, targetPos) {
   //        ----------------   ----------------
   //        |   Callout    |>  |   Target     |
   //        ----------------   ----------------
-  return Math.round(calloutPos.right + arrowEl.offsetWidth) === Math.round(targetPos.left);
+  let actualPlacement = Math.floor(calloutPos.right + arrowEl.offsetWidth);
+  let expectedPlacement = Math.floor(targetPos.left);
+
+  return hasExpectedPlacement(actualPlacement, expectedPlacement);
 }
 
 function isPlacedOnRight(calloutPos, arrowEl, targetPos) {
@@ -51,7 +66,10 @@ function isPlacedOnRight(calloutPos, arrowEl, targetPos) {
   //        ----------------   ----------------
   //        |   Target     | < |   Callout    |
   //        ----------------   ----------------
-  return Math.round(calloutPos.left - arrowEl.offsetWidth) === Math.round(targetPos.right);
+  let actualPlacement = Math.floor(calloutPos.left - arrowEl.offsetWidth);
+  let expectedPlacement = Math.floor(targetPos.right);
+
+  return hasExpectedPlacement(actualPlacement, expectedPlacement);
 }
 
 function verifyCalloutPlacement(target, expectedPlacement, calloutEl) {
@@ -78,22 +96,6 @@ function verifyCalloutPlacement(target, expectedPlacement, calloutEl) {
   } else {
     throw new Error('Callout element should exist in the DOM');
   }
-}
-
-function verifyCalloutIsShown() {
-  let hsCallout = document.querySelector(QUERY_SELECTOR_CALLOUT),
-    hsArrow = document.querySelector(QUERY_SELECTOR_ARROW);
-
-  expect(hsCallout).toBeDefined();
-  expect(hsArrow).toBeDefined();
-}
-
-function verifyCalloutIsNotShown() {
-  let hsCallout = document.querySelector(QUERY_SELECTOR_CALLOUT),
-    hsArrow = document.querySelector(QUERY_SELECTOR_ARROW);
-
-  expect(hsCallout).not.toBeDefined();
-  expect(hsArrow).not.toBeDefined();
 }
 
 /**
@@ -154,11 +156,14 @@ function verifyVerticalCentersAligned(el1, el2) {
 function verifyHorizontalOffset(el1, el2, expectedOffset, isRTL) {
   let el1Box = el1.getBoundingClientRect();
   let el2Box = el2.getBoundingClientRect();
+  let actualOffset;
   if (isRTL) {
-    expect(Math.floor(el1Box.right - el2Box.right)).toEqual(expectedOffset);
+    actualOffset = Math.floor(el1Box.right - el2Box.right);
   } else {
-    expect(Math.floor(el1Box.left - el2Box.left)).toEqual(expectedOffset);
+    actualOffset = Math.floor(el1Box.left - el2Box.left);
   }
+
+  expect(hasExpectedPlacement(actualOffset, expectedOffset)).toEqual(true);
 }
 
 /**
@@ -168,11 +173,13 @@ function verifyHorizontalOffset(el1, el2, expectedOffset, isRTL) {
 function verifyVerticalOffset(el1, el2, expectedOffset) {
   let el1Box = el1.getBoundingClientRect();
   let el2Box = el2.getBoundingClientRect();
-  expect(Math.floor(el1Box.top - el2Box.top)).toEqual(expectedOffset);
+  let actualOffset = Math.floor(el1Box.top - el2Box.top);
+
+  expect(hasExpectedPlacement(actualOffset, expectedOffset)).toEqual(true);
 }
 
 /**
- * Checks that callout is horizontally offset from target by an expected offset 
+ * Checks that callout is horizontally offset from target by an expected offset
  */
 function verifyXOffset(target, placement, expectedOffset, isRtl) {
   let callout = document.querySelector(QUERY_SELECTOR_CALLOUT);
@@ -202,11 +209,11 @@ function verifyXOffset(target, placement, expectedOffset, isRtl) {
     }
   }
 
-  expect(Math.floor(actualOffset)).toEqual(expectedOffset);
+  expect(hasExpectedPlacement(actualOffset, expectedOffset)).toEqual(true);
 }
 
 /**
- * Checks that callout is vertically offset from target by an expected offset 
+ * Checks that callout is vertically offset from target by an expected offset
  */
 function verifyYOffset(target, placement, expectedOffset) {
   let callout = document.querySelector(QUERY_SELECTOR_CALLOUT);
@@ -227,11 +234,12 @@ function verifyYOffset(target, placement, expectedOffset) {
       actualOffset = calloutElBox.top - targetElBox.top;
     }
   }
-  expect(Math.floor(actualOffset)).toEqual(expectedOffset);
+
+  expect(hasExpectedPlacement(actualOffset, expectedOffset)).toEqual(true);
 }
 
 /**
- * Checks that arrow has expected offset relative to the callout 
+ * Checks that arrow has expected offset relative to the callout
  */
 function verifyArrowOffset(placement, expectedOffset, isRTL) {
   let callout = document.querySelector(QUERY_SELECTOR_CALLOUT + ' .hopscotch-bubble-container');
@@ -254,8 +262,6 @@ function verifyArrowOffset(placement, expectedOffset, isRTL) {
 
 let PlacementTestUtils = {
   verifyCalloutPlacement,
-  verifyCalloutIsShown,
-  verifyCalloutIsNotShown,
   ensurePageScroll,
   resetPageScroll,
   verifyXOffset,
