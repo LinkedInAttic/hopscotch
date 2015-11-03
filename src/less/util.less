@@ -1,48 +1,5 @@
-.round-corners (@radius: 5px) {
-  -moz-border-radius: @radius;
-  -ms-border-radius: @radius;
-  -o-border-radius: @radius;
-  -webkit-border-radius: @radius;
-  border-radius: @radius;
-}
-.background-clip () {
-  -moz-background-clip: padding; /* for Mozilla browsers*/
-  -webkit-background-clip: padding;   /* Webkit */
-  background-clip: padding-box; /*  browsers with full support */
-}
-.box-sizing(@sizing:border-box) {
-  -webkit-box-sizing: @sizing;
-  -moz-box-sizing: @sizing;
-  box-sizing: @sizing;
-}
 .gradient(@color, @start, @stop) {
   background-color: @color;
   filter:progid:DXImageTransform.Microsoft.gradient(gradientType=0, startColorstr='@{start}', endColorstr='@{stop}');
-  background-image:-webkit-gradient(linear,
-                                    50% 0%,
-                                    50% 100%,
-                                    color-stop(0%, @start),
-                                    color-stop(100%, @stop));
-  background-image:-webkit-linear-gradient(top,
-                                           @start 0%,
-                                           @stop 100%);
-  background-image:-moz-linear-gradient(top,
-                                        @start 0%,
-                                        @stop 100%);
-  background-image:-o-linear-gradient(top,
-                                      @start 0%,
-                                      @stop 100%);
-  background-image:linear-gradient(top,
-                                   @start 0%,
-                                   @stop 100%);
-}
-.box-shadow(@x, @y, @blur, @color, @inset) when (@inset = true) {
-  -webkit-box-shadow: @x @y @blur @color inset;
-  -moz-box-shadow: @x @y @blur @color inset;
-  box-shadow: @x @y @blur @color inset; 
-}
-.box-shadow(@x, @y, @blur, @color, @inset) when (@inset = false) {
-  -webkit-box-shadow: @x @y @blur @color;
-  -moz-box-shadow: @x @y @blur @color;
-  box-shadow: @x @y @blur @color; 
+  background-image:linear-gradient(to bottom, @start 0%, @stop 100%);
 }
