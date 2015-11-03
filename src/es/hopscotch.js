@@ -125,7 +125,7 @@ import * as Utils from './modules/utils.js';
       }
     },
     resetDefaultOptions() {
-      globalConfig = new Config({}, defaultConfig);
+      globalConfig.reset();
     }
   };
 })));

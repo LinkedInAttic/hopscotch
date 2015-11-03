@@ -56,10 +56,10 @@ export default class Config {
    *                   If the value isn't found, this will return undefined.
    */
   get(name) {
-    if(this._configHash && typeof this._configHash[name] !== 'undefined') {
+    if (this._configHash && typeof this._configHash[name] !== 'undefined') {
       return this._configHash[name];
     }
-    if(this._parent) {
+    if (this._parent) {
       return this._parent.get(name);
     }
   }
@@ -76,7 +76,7 @@ export default class Config {
    */
   getAll(name) {
     let thisVal = this._configHash[name],
-        parentVals = (this._parent) ? this._parent.getAll(name) : [];
+      parentVals = (this._parent) ? this._parent.getAll(name) : [];
     if (typeof thisVal !== void 0) {
       parentVals.unshift(thisVal);
     }
@@ -91,5 +91,12 @@ export default class Config {
    */
   set(name, value) {
     this._configHash[name] = value;
+  }
+
+  /**
+   * Remove all settings
+   */
+  reset() {
+    this._configHash = {};
   }
 }
