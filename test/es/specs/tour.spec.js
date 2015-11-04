@@ -1,5 +1,6 @@
 import ContentsTestUtils from '../helpers/contents.js';
 import PlacementTestUtils from '../helpers/placement.js';
+import TourTestUtils from '../helpers/tour.js';
 
 describe('Tour', () => {
   const ERRORS = {
@@ -94,7 +95,7 @@ describe('Tour', () => {
             hopscotch.prevStep();
             expect(hopscotch.getCurrStepNum()).toBe(0);
             hopscotch.endTour();
-            expect(hopscotch.getCurrStepNum()).toBe(null);
+            TourTestUtils.verifyNoTourActive();
           }
         }, {
           message: 'Should end tour when navigating to prev step from the first step',
@@ -118,8 +119,7 @@ describe('Tour', () => {
           after() {
             expect(hopscotch.getCurrStepNum()).toBe(0);
             hopscotch.prevStep();
-            expect(hopscotch.getCurrStepNum()).toBe(null);
-            expect(hopscotch.getCurrTour()).toBe(null);
+            TourTestUtils.verifyNoTourActive();
           }
         }, {
           message: 'Should end tour when navigating to next step from the last step in a tour',
@@ -144,8 +144,7 @@ describe('Tour', () => {
             hopscotch.nextStep();
             expect(hopscotch.getCurrStepNum()).toBe(1);
             hopscotch.nextStep();
-            expect(hopscotch.getCurrStepNum()).toBe(null);
-            expect(hopscotch.getCurrTour()).toBe(null);
+            TourTestUtils.verifyNoTourActive();
           }
         }, {
           message: 'Should recover gracefully when callout DOM element is destroyed',
@@ -194,6 +193,35 @@ describe('Tour', () => {
             expect(hopscotch.getCurrStepNum()).toBe(1);
             PlacementTestUtils.verifyCalloutPlacement(yogurt, 'left', hopscotch.getCurrStepCallout().el);
           }
+        }, {
+          message: 'hopscotch.prev and hopscotch.next should not do anything when there is no active tour',
+          config: {
+            id: 'hello-hopscotch',
+            steps: [
+              {
+                title: 'Shopping list',
+                content: 'This is the shopping list',
+                target: '#shopping-list',
+                placement: 'bottom'
+              },
+              {
+                title: 'Item of a shopping list',
+                content: 'This is the last item in the shopping list',
+                target: '#yogurt',
+                placement: 'left'
+              }
+            ]
+          },
+          after() {
+            hopscotch.endTour();
+            TourTestUtils.verifyNoTourActive();
+
+            hopscotch.nextStep();
+            TourTestUtils.verifyNoTourActive();
+
+            hopscotch.prevStep();
+            TourTestUtils.verifyNoTourActive();
+          }
         }
       ]
     }, {
@@ -223,8 +251,7 @@ describe('Tour', () => {
             let currentTour = hopscotch.getCurrTour();
 
             hopscotch.endTour();
-            expect(hopscotch.getCurrStepNum()).toBe(null);
-            expect(hopscotch.getCurrTour()).toBe(null);
+            TourTestUtils.verifyNoTourActive();
 
             hopscotch.startTour(currentTour);
             expect(hopscotch.getCurrStepNum()).toBe(0);
@@ -272,8 +299,7 @@ describe('Tour', () => {
             expect(currentTour.id).toBe('hello-hopscotch');
 
             hopscotch.endTour();
-            expect(hopscotch.getCurrStepNum()).toBe(null);
-            expect(hopscotch.getCurrTour()).toBe(null);
+            TourTestUtils.verifyNoTourActive();
 
             hopscotch.startTour(anotherTour);
             currentTour = hopscotch.getCurrTour();
@@ -308,6 +334,189 @@ describe('Tour', () => {
                 steps: []
               });
             }).toThrow(new Error('Can not start a tour. Tour \'hello-hopscotch\' is currently in progress'));
+          }
+        }
+      ]
+    }, {
+      groupName: 'hopscotch.showStep',
+      specs: [
+        {
+          message: 'Should skip to a given step in the tour',
+          config: {
+            id: 'hello-hopscotch',
+            steps: [
+              {
+                title: 'Shopping list',
+                content: 'This is the shopping list',
+                target: '#shopping-list',
+                placement: 'bottom'
+              },
+              {
+                title: 'Item of a shopping list',
+                content: 'This is the last item in the shopping list',
+                target: '#yogurt',
+                placement: 'left'
+              },
+              {
+                title: 'Item of a shopping list',
+                content: 'This is another item in the shopping list',
+                target: '#milk',
+                placement: 'left'
+              }
+            ]
+          },
+          after() {
+            expect(hopscotch.getCurrStepNum()).toEqual(0);
+            hopscotch.showStep(2);
+            expect(hopscotch.getCurrStepNum()).toEqual(2);
+          }
+        }, {
+          message: 'Should go to the next step with target',
+          config: {
+            id: 'hello-hopscotch',
+            steps: [
+              {
+                title: 'Shopping list',
+                content: 'This is the shopping list',
+                target: '#shopping-list',
+                placement: 'bottom'
+              },
+              {
+                title: 'Item of a shopping list',
+                content: 'This is the last item in the shopping list',
+                target: '#yogurt',
+                placement: 'left'
+              },
+              {
+                title: 'Non-existent item',
+                content: 'This item does not exist',
+                target: '#not-here',
+                placement: 'left'
+              },
+              {
+                title: 'Item of a shopping list',
+                content: 'This is another item in the shopping list',
+                target: '#milk',
+                placement: 'left'
+              }
+            ]
+          },
+          after() {
+            expect(hopscotch.getCurrStepNum()).toEqual(0);
+            hopscotch.showStep(2);
+            //should skip over step without target and go to the next one
+            expect(hopscotch.getCurrStepNum()).toEqual(3);
+          }
+        }, {
+          message: 'Should end the tour if there is no step with target',
+          config: {
+            id: 'hello-hopscotch',
+            steps: [
+              {
+                title: 'Shopping list',
+                content: 'This is the shopping list',
+                target: '#shopping-list',
+                placement: 'bottom'
+              },
+              {
+                title: 'Item of a shopping list',
+                content: 'This is the last item in the shopping list',
+                target: '#yogurt',
+                placement: 'left'
+              },
+              {
+                title: 'Non-existent item',
+                content: 'This item does not exist',
+                target: '#not-here',
+                placement: 'left'
+              }
+            ]
+          },
+          after() {
+            expect(hopscotch.getCurrStepNum()).toEqual(0);
+            hopscotch.showStep(2);
+            //should skip over step without target and end the tour
+            //when it does not find another step without target
+            TourTestUtils.verifyNoTourActive();
+          }
+        }, {
+          message: 'Should end the tour if step number is out of bounds',
+          config: {
+            id: 'hello-hopscotch',
+            steps: [
+              {
+                title: 'Shopping list',
+                content: 'This is the shopping list',
+                target: '#shopping-list',
+                placement: 'bottom'
+              },
+              {
+                title: 'Item of a shopping list',
+                content: 'This is the last item in the shopping list',
+                target: '#yogurt',
+                placement: 'left'
+              }
+            ]
+          },
+          after() {
+            expect(hopscotch.getCurrStepNum()).toEqual(0);
+            hopscotch.showStep(2);
+            //step number is out of bounds - end the tour
+            TourTestUtils.verifyNoTourActive();
+          }
+        }, {
+          message: 'Should go to first step if step number is not provided',
+          config: {
+            id: 'hello-hopscotch',
+            steps: [
+              {
+                title: 'Shopping list',
+                content: 'This is the shopping list',
+                target: '#shopping-list',
+                placement: 'bottom'
+              },
+              {
+                title: 'Item of a shopping list',
+                content: 'This is the last item in the shopping list',
+                target: '#yogurt',
+                placement: 'left'
+              }
+            ]
+          },
+          after() {
+            expect(hopscotch.getCurrStepNum()).toEqual(0);
+            hopscotch.nextStep();
+            expect(hopscotch.getCurrStepNum()).toEqual(1);
+
+            //should go to the first step if step number is not provided
+            hopscotch.showStep();
+            expect(hopscotch.getCurrStepNum()).toEqual(0);
+          }
+        }, {
+          message: 'Should not do anything if there is no active tour',
+          config: {
+            id: 'hello-hopscotch',
+            steps: [
+              {
+                title: 'Shopping list',
+                content: 'This is the shopping list',
+                target: '#shopping-list',
+                placement: 'bottom'
+              },
+              {
+                title: 'Item of a shopping list',
+                content: 'This is the last item in the shopping list',
+                target: '#yogurt',
+                placement: 'left'
+              }
+            ]
+          },
+          after() {
+            hopscotch.endTour();
+            TourTestUtils.verifyNoTourActive();
+
+            hopscotch.showStep(1);
+            TourTestUtils.verifyNoTourActive();
           }
         }
       ]
