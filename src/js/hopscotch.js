@@ -1065,6 +1065,7 @@
           resizeCooldown  = false, // for updating after window resize
           onWinResize,
           appendToBody,
+          appendTo,
           children,
           numChildren,
           node,
@@ -1134,7 +1135,16 @@
       this.hide();
 
       //Finally, append our new bubble to body once the DOM is ready.
+      // Check if appendTo option is on the page
+      if (this.opt.appendTo){
+        appendTo = utils.getStepTargetHelper(this.opt.appendTo);
+      }
       if (utils.documentIsReady()) {
+        if (appendTo){
+          appendTo.appendChild(el);
+        } else {
+          document.body.appendChild(el);
+        }
         document.body.appendChild(el);
       }
       else {
@@ -1143,7 +1153,11 @@
           appendToBody = function() {
             document.removeEventListener('DOMContentLoaded', appendToBody);
             window.removeEventListener('load', appendToBody);
-
+            if (appendTo){
+              appendTo.appendChild(el);
+            } else {
+              document.body.appendChild(el);
+            }
             document.body.appendChild(el);
           };
 
@@ -1155,6 +1169,11 @@
             if (document.readyState === 'complete') {
               document.detachEvent('onreadystatechange', appendToBody);
               window.detachEvent('onload', appendToBody);
+              if (appendTo){
+                appendTo.appendChild(el);
+              } else {
+                document.body.appendChild(el);
+              }
               document.body.appendChild(el);
             }
           };
@@ -1855,7 +1874,7 @@
       // loadTour if we are calling startTour directly. (When we call startTour
       // from window onLoad handler, we'll use currTour)
       if (!currTour) {
-        
+
         // Sanity check! Is there a tour?
         if(!tour){
           throw new Error('Tour data is required for startTour.');
