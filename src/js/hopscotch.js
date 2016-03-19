@@ -1452,6 +1452,7 @@
           scrollTimeout,
           scrollTimeoutFn;
 
+
       // Target and bubble are both visible in viewport
       if (targetTop >= windowTop && (targetTop <= windowTop + getOption('scrollTopMargin') || targetBottom <= windowBottom)) {
         if (cb) { cb(); } // HopscotchBubble.show
@@ -1472,6 +1473,7 @@
             typeof YAHOO.env.ua      !== undefinedStr &&
             typeof YAHOO.util        !== undefinedStr &&
             typeof YAHOO.util.Scroll !== undefinedStr) {
+          // TODO: appendTo.
           scrollEl = YAHOO.env.ua.webkit ? document.body : document.documentElement;
           yuiEase = YAHOO.util.Easing ? YAHOO.util.Easing.easeOut : undefined;
           yuiAnim = new YAHOO.util.Scroll(scrollEl, {
@@ -1483,11 +1485,20 @@
 
         // Use jQuery if it exists
         else if (hasJquery) {
-          jQuery('body, html').animate({ scrollTop: scrollToVal }, getOption('scrollDuration'), cb);
+          console.log(bubble);
+          if (bubble.opt.appendTo) {
+            appendTo = utils.getStepTargetHelper(this.opt.appendTo);
+            if (appendTo) {
+              appendTo.animate({ scrollTop: scrollToVal }, getOption('scrollDuration'), cb);
+            }
+          } else {
+            jQuery('body, html').animate({ scrollTop: scrollToVal }, getOption('scrollDuration'), cb);
+          }
         }
 
         // Use my crummy setInterval scroll solution if we're using plain, vanilla Javascript.
         else {
+          // TODO: appendTo.
           if (scrollToVal < 0) {
             scrollToVal = 0;
           }
