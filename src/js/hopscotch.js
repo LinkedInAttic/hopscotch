@@ -2126,7 +2126,7 @@
           len;
 
       for (i = 0, len = evtCallbacks.length; i < len; ++i) {
-        if (evtCallbacks[i] === cb) {
+        if (evtCallbacks[i].cb === cb) {
           evtCallbacks.splice(i, 1);
         }
       }
