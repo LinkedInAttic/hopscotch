@@ -728,6 +728,7 @@
           totalStepsI18n,
           nextBtnText,
           isLast,
+          i,
           opts;
 
       // Cache current step information.
