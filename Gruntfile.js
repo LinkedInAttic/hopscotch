@@ -303,12 +303,12 @@ module.exports = function (grunt) {
     },
     eslint: {
       options: {
-        configFile: 'eslint.json'
+        configFile: '.eslintrc.json'
       },
       target: ['<%=paths.source%>/es/**/*.js', '<%=paths.source%>/es/**/*.js']
     }
   });
-  
+
   //external tasks
   grunt.loadNpmTasks('grunt-bump');
   grunt.loadNpmTasks('grunt-contrib-clean');
@@ -328,7 +328,7 @@ module.exports = function (grunt) {
   grunt.registerMultiTask('log', 'Print some messages', function () {
     grunt.log.ok(this.data.options.message);
   });
-  
+
   //temporary tasks for ES6 rewrite with Babel and Browserify
   grunt.registerTask(
     'buildES',
@@ -377,7 +377,7 @@ module.exports = function (grunt) {
     'coverage',
     'log:coverage',
     ['build', 'jasmine:coverage', 'log:coverage']);
-    
+
   //release tasks
   grunt.registerTask(
     'buildRelease',
