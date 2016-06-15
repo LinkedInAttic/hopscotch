@@ -102,6 +102,19 @@ export default class Hopscotch {
   }
 
   /**
+   * Skips to a given step in the tour
+   *
+   * @param {Number} stepNumber - Zero-based step number
+   * @return {Hopscotch} - Returns itself to allow chaining method calls 
+   */
+  showStep(stepNumber) {
+    if (currentTour) {
+      currentTour.showStep(stepNumber);
+    }
+    return this;
+  }
+
+  /**
     * Returns the current zero-based step number. Returns null if there is no active tour.
     *
     * @return {Number} - The current zero-based step number. Returns null if there is no active tour.
@@ -194,11 +207,7 @@ if (typeof module !== 'undefined' && typeof module.exports === 'object') {
   module.exports = hs;
 } 
 
-//Browser globals
-if (typeof window !== 'undefined') {
-  var namespace = 'hopscotch';
-  //Create browser global if hopscotch does not already exist.
-  if (!window[namespace]) {
-    window[namespace] = hs;
-  }
+//Create browser global if hopscotch does not already exist.
+if (typeof window !== 'undefined' && typeof window.hopscotch === 'undefined') {
+  window.hopscotch = hs;
 }

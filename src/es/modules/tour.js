@@ -172,6 +172,16 @@ export default class Tour {
     goToStep(this, this.getCurrStepNum() + DIRECTION.PREV, DIRECTION.PREV);
   }
 
+ /**
+   * Skips to a given step in the tour
+   *
+   * @param {Number} stepNumber - Zero-based step number
+ 
+   */
+  showStep(stepNumber) {
+    goToStep(this, stepNumber, DIRECTION.NEXT);
+  }
+
   /**
    * End this tour and destroy all of the callouts that were created as part of this tour.
    */
