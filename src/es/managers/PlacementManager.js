@@ -1,39 +1,69 @@
 import * as Utils from '../modules/utils.js';
 
-/*
+/* PUBLIC INTERFACE AND EXPORT STATEMENT FOR THIS MODULE */
+
+/**
   PlacementManager handles evertyhing related to callout positioning,
   including arrow position, placement of the callout, respositioning of the callout
   for responsive designs, etc.
 */
+export default class PlacementManager {
+  /**
+   * Sets the callout's position on the page, using the configuration state
+   * of the callout provided.
+   *
+   * @param {Callout} callout - The callout to place.
+   */
+  static setCalloutPosition(callout) {
+    //make sure that placement is set to a valid value
+    let placementStrategy = placementStrategies[callout.config.get('placement')];
+    if (!placementStrategy) {
+      throw new Error('Bubble placement failed because placement is invalid or undefined!');
+    }
 
+    //if callout is RTL enabled we need to adjust
+    //placement and xOffset values
+    placementStrategy = adjustPlacementForRtl(callout, placementStrategy);
+
+    //update callout's arrow to point
+    //in the direction of the target element
+    positionArrow(callout, placementStrategy);
+
+    //adjust position of the callout element
+    //to be placed next to the target 
+    positionCallout(callout, placementStrategy);
+  }
+}
+
+/* END PUBLIC INTERFACE AND EXPORT STATEMENT FOR THIS MODULE */
 /* PRIVATE FUNCTIONS AND VARIABLES FOR THIS MODULE */
 
 function setArrowPositionVertical(arrowEl, calloutEl, horizontalProp, arrowOffset) {
-  arrowEl.style.top = '';
   if (arrowOffset == 'center') {
-    arrowEl.style[horizontalProp] = Math.floor((calloutEl.offsetWidth / 2) - arrowEl.offsetWidth / 2) + 'px';
+    //reset to baseline, so we can accurately calculate border width
+    arrowEl.style[horizontalProp] = '0px';
+
+    let calloutElBox = calloutEl.getBoundingClientRect();
+    let arrowElBox = arrowEl.getBoundingClientRect();
+    let calloutBorderWidth = Math.abs(arrowElBox[horizontalProp] - calloutElBox[horizontalProp]);
+    arrowEl.style[horizontalProp] = Math.floor(calloutElBox.width / 2) - Math.floor(arrowElBox.width / 2) - calloutBorderWidth + 'px';
   } else {
-    arrowOffset = Utils.getPixelValue(arrowOffset);
-    if (arrowOffset) {
-      arrowEl.style[horizontalProp] = arrowOffset + 'px';
-    } else {
-      arrowEl.style[horizontalProp] = '';
-    }
+    //getPixelValue will return 0 if value is not a number
+    arrowEl.style[horizontalProp] = Utils.getPixelValue(arrowOffset) + 'px';
   }
 }
 
 function setArrowPositionHorizontal(arrowEl, calloutEl, horizontalProp, arrowOffset) {
-  arrowEl.style[horizontalProp] = '';
-
   if (arrowOffset == 'center') {
-    arrowEl.style.top = Math.floor((calloutEl.offsetHeight / 2) - arrowEl.offsetHeight / 2) + 'px';
+    //reset to baseline, so we can accurately calculate border width
+    arrowEl.style.top = '0px';
+
+    let calloutElBox = calloutEl.getBoundingClientRect();
+    let arrowElBox = arrowEl.getBoundingClientRect();
+    let calloutBorderWidth = Math.abs(arrowElBox.top - calloutElBox.top);
+    arrowEl.style.top = Math.floor(calloutElBox.height / 2) - Math.floor(arrowElBox.height / 2) - calloutBorderWidth + 'px';
   } else {
-    arrowOffset = Utils.getPixelValue(arrowOffset);
-    if (arrowOffset) {
-      arrowEl.style.top = arrowOffset + 'px';
-    } else {
-      arrowEl.style[horizontalProp] = '';
-    }
+    arrowEl.style.top = Utils.getPixelValue(arrowOffset) + 'px';
   }
 }
 
@@ -96,7 +126,7 @@ function adjustPlacementForRtl(callout, placementStrategy) {
     let rtlPlacement = placementStrategy.rtlPlacement;
 
     //flip xOffset
-    if (calloutXOffset) {
+    if (calloutXOffset && calloutXOffset !== 'center') {
       callout.config.set('xOffset', -1 * Utils.getPixelValue(calloutXOffset));
     }
     //flip placement for right and left placements only
@@ -130,29 +160,19 @@ function positionArrow(callout, placementStrategy) {
   placementStrategy.setArrowPosition(arrowEl, callout.el, horizontalProp, arrowOffset);
 }
 
-
 /**
  * This function sets callout's top and left coordinates as well as it's position (fixed vs absolute)
  * Top and left coordinates are calculated based on target element's position, page scroll as well
  * as xOffset and yOffset configuration options 
  */
 function positionCallout(callout, placementStrategy) {
-  //User can configure their own way of finding target element
-  //via hopscotch.configure. For example jQuery
-  // hopscotch.configure({
-  //  getTarget: function(target){
-  //    return jQUery(target);
-  //  }
-  // });
-  //If not specified getTarget defaults to Utils.getTargetEl
-  let getTarget = callout.config.get('getTarget');
-  if (typeof getTarget !== 'function') {
-    throw new Error('Can not find target element because \'getTarget\' is not a function');
-  }
+  let targetEl = callout.getTargetElement();
 
-  let targetEl = getTarget(callout.config.get('target'));
-  if (!targetEl) {
-    return;
+  //make sure that callout element is visible, so we can get arrow width and height
+  let isCalloutHidden = Utils.hasClass(callout.el, 'hide');
+  if (isCalloutHidden) {
+    callout.el.style.visibility = 'hidden';
+    Utils.removeClass(callout.el, 'hide');
   }
 
   let isTargetFixed = isFixedElement(targetEl);
@@ -175,7 +195,7 @@ function positionCallout(callout, placementStrategy) {
     if (placement === 'left' || placement === 'right') {
       Utils.logError('Can not use xOffset \'center\' with placement \'left\' or \'right\'. Callout will overlay the target.');
     } else {
-      calloutPosition.left = (targetElBox.left + targetEl.offsetWidth / 2) - (calloutElBox.width / 2);
+      calloutPosition.left = targetElBox.left + Math.floor(targetElBox.width / 2) - Math.floor(calloutElBox.width / 2);
     }
   }
   else {
@@ -187,7 +207,7 @@ function positionCallout(callout, placementStrategy) {
     if (placement === 'top' || placement === 'bottom') {
       Utils.logError('Can not use yOffset \'center\' with placement \'top\' or \'bottom\'. Callout will overlay the target.');
     } else {
-      calloutPosition.top = (targetElBox.top + targetEl.offsetHeight / 2) - (calloutElBox.height / 2);
+      calloutPosition.top = targetElBox.top + Math.floor(targetElBox.height / 2) - Math.floor(calloutElBox.height / 2);
     }
   }
   else {
@@ -207,6 +227,12 @@ function positionCallout(callout, placementStrategy) {
   callout.el.style.position = isTargetFixed ? 'fixed' : 'absolute';
   callout.el.style.top = calloutPosition.top + 'px';
   callout.el.style.left = calloutPosition.left + 'px';
+
+  //Restore original display of the callout element
+  if (isCalloutHidden) {
+    Utils.addClass(callout.el, 'hide');
+    callout.el.style.visibility = 'visible';
+  }
 }
 
 /**
@@ -230,7 +256,7 @@ function getScrollPosition() {
  * @private
  */
 function isFixedElement(el) {
-  if (!el.style) {
+  if (!el || !el.style) {
     return false;
   } else if (el.style.position === 'fixed') {
     return true;
@@ -240,28 +266,3 @@ function isFixedElement(el) {
   return false;
 }
 /* END PRIVATE FUNCTIONS AND VARIABLES FOR THIS MODULE */
-/* PUBLIC INTERFACE AND EXPORT STATEMENT FOR THIS MODULE */
-
-let PlacementManager = {
-  setCalloutPosition(callout) {
-    //make sure that placement is set to a valid value
-    let placementStrategy = placementStrategies[callout.config.get('placement')];
-    if (!placementStrategy) {
-      throw new Error('Bubble placement failed because placement is invalid or undefined!');
-    }
-
-    //if callout is RTL enabled we need to adjust
-    //placement and xOffset values
-    placementStrategy = adjustPlacementForRtl(callout, placementStrategy);
-
-    //update callout's arrow to point
-    //in the direction of the target element
-    positionArrow(callout, placementStrategy);
-
-    //adjust position of the callout element
-    //to be placed next to the target 
-    positionCallout(callout, placementStrategy);
-  }
-};
-export default PlacementManager;
-/* END PUBLIC INTERFACE AND EXPORT STATEMENT FOR THIS MODULE */

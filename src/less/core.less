@@ -7,31 +7,14 @@ div.hopscotch-bubble {
   font-size: 13px;
   position: absolute;
   z-index: @bubbleZindex;
-  .box-sizing(content-box);
+  box-sizing: content-box;
+  background-clip: padding-box;
 
   * {
-    .box-sizing(content-box);
+    box-sizing: content-box;
   }
 
-  .background-clip;
-
   &.animate {
-    -moz-transition-property: top, left;
-    -moz-transition-duration: @anim-duration;
-    -moz-transition-timing-function: @anim-timing;
-
-    -ms-transition-property: top, left;
-    -ms-transition-duration: @anim-duration;
-    -ms-transition-timing-function: @anim-timing;
-
-    -o-transition-property: top, left;
-    -o-transition-duration: @anim-duration;
-    -o-transition-timing-function: @anim-timing;
-
-    -webkit-transition-property: top, left;
-    -webkit-transition-duration: @anim-duration;
-    -webkit-transition-timing-function: @anim-timing;
-
     transition-property: top, left;
     transition-duration: @anim-duration;
     transition-timing-function: @anim-timing;
@@ -81,8 +64,6 @@ div.hopscotch-bubble {
   }
 
   .hopscotch-bubble-close {
-    -webkit-appearance: none;
-    -moz-appearance: none;
     appearance: none;
     border: 0;
     color: #000;
@@ -132,7 +113,6 @@ div.hopscotch-bubble {
 
     &.up {
       top: @arrowOffset;
-      left: @bubbleCornerRadius;
       width: @arrowWidth * 2;
       height: @arrowWidth;
 
@@ -152,7 +132,6 @@ div.hopscotch-bubble {
     }
     &.down {
       bottom: @arrowOffset;
-      left: @bubbleCornerRadius;
       width: @arrowWidth * 2;
       height: @arrowWidth;
 
@@ -171,7 +150,7 @@ div.hopscotch-bubble {
       }
     }
     &.left {
-      top: @bubbleCornerRadius;
+      top: 0;
       left: @arrowOffset;
       width: @arrowWidth;
       height: @arrowWidth * 2;
@@ -192,7 +171,7 @@ div.hopscotch-bubble {
       }
     }
     &.right {
-      top: @bubbleCornerRadius;
+      top: 0;
       right: @arrowOffset;
       width: @arrowWidth;
       height: @arrowWidth * 2;
