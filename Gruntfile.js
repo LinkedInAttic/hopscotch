@@ -356,7 +356,7 @@ module.exports = function (grunt) {
   grunt.registerTask(
     'buildES',
     'Build hopscotch for testing (jshint, minify js, process less to css)',
-    ['clean:build', 'copy:build', 'eslint', 'jst:compile', 'babel', 'browserify', 'includereplace:esSource', 'less', 'postcss']
+    ['clean:build', 'copy:build', 'eslint', 'jst:compile', 'babel', 'browserify', 'includereplace:esSource', 'less', 'postcss', 'esdoc']
     );
 
   grunt.registerTask(
