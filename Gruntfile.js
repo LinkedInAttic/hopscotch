@@ -305,7 +305,7 @@ module.exports = function (grunt) {
     },
     eslint: {
       options: {
-        configFile: 'eslint.json'
+        configFile: '.eslintrc.json'
       },
       target: ['<%=paths.source%>/es/**/*.js', '<%=paths.source%>/es/**/*.js']
     },
@@ -329,7 +329,7 @@ module.exports = function (grunt) {
       }
     }
   });
-  
+
   //external tasks
   grunt.loadNpmTasks('grunt-bump');
   grunt.loadNpmTasks('grunt-contrib-clean');
@@ -356,7 +356,7 @@ module.exports = function (grunt) {
   grunt.registerTask(
     'buildES',
     'Build hopscotch for testing (jshint, minify js, process less to css)',
-    ['clean:build', 'copy:build', 'eslint', 'jst:compile', 'babel', 'browserify', 'includereplace:esSource', 'less', 'esdoc', 'postcss']
+    ['clean:build', 'copy:build', 'eslint', 'jst:compile', 'babel', 'browserify', 'includereplace:esSource', 'less', 'postcss', 'esdoc']
     );
 
   grunt.registerTask(
@@ -400,7 +400,7 @@ module.exports = function (grunt) {
     'coverage',
     'log:coverage',
     ['build', 'jasmine:coverage', 'log:coverage']);
-    
+
   //release tasks
   grunt.registerTask(
     'buildRelease',
