@@ -4,3 +4,6 @@ tmp
 *.iml
 _SpecRunner.html
 .grunt
+.vscode
+jsconfig.json
+npm-debug.log
