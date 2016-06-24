@@ -1945,6 +1945,8 @@
     this.showStep = function(stepNum) {
       var step = currTour.steps[stepNum];
       if(!utils.getStepTarget(step)) {
+        currStepNum = stepNum;
+        utils.invokeEventCallbacks('error');
         return;
       }
 
