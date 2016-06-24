@@ -145,7 +145,7 @@
     steps: [
       {
         // MANDATORY
-        target: STRING/ELEMENT - id of the target DOM element or DOM element itself,
+        target: STRING/ELEMENT - id of the target DOM element or CSS selector of DOM element or DOM element itself,
         placement: STRING - ["top", "bottom", "right", "left"]
         // OPTIONAL
         title: STRING - step title,
@@ -196,7 +196,9 @@
       <h3>Mandatory</h3>
 
       <ul>
-      <li><p><code>target</code> [STRING/ELEMENT/ARRAY] - id of the target DOM element or DOM element itself. It is also possible to define an array of several targets. If an array is provided, Hopscotch will use the first target that exists on the page and disregard the rest.</p></li>
+      <li><p><code>target</code> [STRING/ELEMENT/ARRAY] - id of the target DOM element or CSS selector for target DOM element or DOM element itself. It is also possible to define an array of several targets. If an array is provided, Hopscotch will use the first target that exists on the page and disregard the rest.</p>
+      <p>If this parameter is given string, hopscotch will first try <code>document.getElementById</code> to test if it is an ID selector. If not it will in order try JQuery, Sizzle and finally <code>document.querySelector</code>. If target is not an ID selector, hopscotch will use the first element from the matched element list. </p>
+      </li>
       <li><p><code>placement</code> [STRING] - specifies where the bubble should appear in relation to the target. Valid values are "top", "bottom", "right", "left".</p></li>
       </ul>
 
