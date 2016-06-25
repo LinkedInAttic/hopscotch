@@ -1943,9 +1943,9 @@
      * @returns {Object} Hopscotch
      */
     this.showStep = function(stepNum) {
-      var step = currTour.steps[stepNum];
+      var step = currTour.steps[stepNum],
+          prevStepNum = currStepNum;
       if(!utils.getStepTarget(step)) {
-        var prevStepNum = currStepNum;
         currStepNum = stepNum;
         utils.invokeEventCallbacks('error');
         currStepNum = prevStepNum;
