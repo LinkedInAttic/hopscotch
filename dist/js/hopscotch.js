@@ -1,6 +1,6 @@
-/**! hopscotch - v0.2.5
+/**! hopscotch - v0.2.6
 *
-* Copyright 2015 LinkedIn Corp. All rights reserved.
+* Copyright 2016 LinkedIn Corp. All rights reserved.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -744,6 +744,7 @@
           totalStepsI18n,
           nextBtnText,
           isLast,
+          i,
           opts;
 
       // Cache current step information.
@@ -1958,8 +1959,12 @@
      * @returns {Object} Hopscotch
      */
     this.showStep = function(stepNum) {
-      var step = currTour.steps[stepNum];
+      var step = currTour.steps[stepNum],
+          prevStepNum = currStepNum;
       if(!utils.getStepTarget(step)) {
+        currStepNum = stepNum;
+        utils.invokeEventCallbacks('error');
+        currStepNum = prevStepNum;
         return;
       }
 
@@ -2142,7 +2147,7 @@
           len;
 
       for (i = 0, len = evtCallbacks.length; i < len; ++i) {
-        if (evtCallbacks[i] === cb) {
+        if (evtCallbacks[i].cb === cb) {
           evtCallbacks.splice(i, 1);
         }
       }
