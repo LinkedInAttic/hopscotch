@@ -1,5 +1,13 @@
 ## Change Log
 
+### v0.2.6 (2016/07/01)
+ * [#287](https://github.com/linkedin/hopscotch/pull/287) Add new items to .gitignore (ported over from gh72).
+ * [#275](https://github.com/linkedin/hopscotch/pull/275) Update jasmine version in package.json
+ * [#273](https://github.com/linkedin/hopscotch/pull/273) Fix unlisten method (wrong callback equals)
+ * [#253](https://github.com/linkedin/hopscotch/pull/253) Improve documentation of the target attribute of step elements.
+ * [#280](https://github.com/linkedin/hopscotch/pull/280) Miss a variable declaration
+ * [#291](https://github.com/linkedin/hopscotch/pull/291) Add error callback for showStep (Issue #274)
+
 ### v0.2.5 (2015/07/20)
  * [#188](https://github.com/linkedin/hopscotch/pull/188) [GH-188] No event called after tour is finished
  * [#193](https://github.com/linkedin/hopscotch/pull/193) [GH-190] Close button should be a button

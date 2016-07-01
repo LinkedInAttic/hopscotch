@@ -13,8 +13,11 @@
     "type": "git",
     "url": "git://github.com/linkedin/hopscotch.git"
   },
-  "author": "Gordon Koo",
-  "license": "Apache 2.0",
+  "author": {
+    "name": "Hopscotch's community of authors and contributors",
+    "url": "https://github.com/linkedin/hopscotch/graphs/contributors"
+  },
+  "license": "Apache-2.0",
   "readmeFilename": "README.md",
   "bugs": {
     "url": "https://github.com/linkedin/hopscotch/issues"
