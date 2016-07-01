@@ -94,10 +94,9 @@ init = function() {
       mgr.createCallout({
         id: calloutId,
         target: startBtnId,
-        placement: 'top',
+        placement: 'right',
         title: 'Take an example tour',
         content: 'Start by taking an example tour to see Hopscotch in action!',
-        xOffset: 'center',
         arrowOffset: 'center',
         width: 240
       });
