@@ -1888,6 +1888,34 @@ describe('HopscotchBubble', function() {
       hopscotch.endTour();
     });
 
+    it('should invoke onBeforeShow callback of current step when going to the next step', function() {
+      var onBeforeShowCallback = jasmine.createSpy('onBeforeShowCallback'),
+      tour = {
+        id: 'hopscotch-test-tour',
+        steps: [
+          {
+            target: 'shopping-list',
+            placement: 'left',
+            title: 'Shopping List',
+            content: 'It\'s a shopping list',
+            onBeforeShow: onBeforeShowCallback
+          },
+          {
+            target: 'jasmine',
+            placement: 'top',
+            title: 'Jasmine',
+            content: 'It\'s Jasmine'
+          }
+        ]
+      };
+
+      hopscotch.startTour(tour);
+      hopscotch.nextStep();
+      expect(onBeforeShowCallback).toHaveBeenCalled();
+
+      hopscotch.endTour();
+    });
+
     it('should invoke onNext callback of current step when going to the next step', function() {
       var onNextCallback = jasmine.createSpy('onNextCallback'),
       tour = {
