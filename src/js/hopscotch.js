@@ -609,11 +609,12 @@
     setPosition: function(step) {
       var bubbleBoundingHeight,
           bubbleBoundingWidth,
-          boundingRect,
+          position,
           top,
           left,
           arrowOffset,
           verticalLeftPosition,
+          appendToEl   = utils.getStepTargetHelper(this.opt.appendTo),
           targetEl     = utils.getStepTarget(step),
           el           = this.element,
           arrowEl      = this.arrowEl,
@@ -627,25 +628,34 @@
       utils.removeClass(el, 'fade-in-down fade-in-up fade-in-left fade-in-right');
 
       // SET POSITION
-      boundingRect = targetEl.getBoundingClientRect();
+      if (appendToEl) {
+        position = {
+          bottom: targetEl.offsetTop + targetEl.offsetHeight,
+          left: targetEl.offsetLeft,
+          right: targetEl.offsetLeft + targetEl.offsetWidth,
+          top: targetEl.offsetTop
+        };
+      } else {
+        position = targetEl.getBoundingClientRect();
+      }
 
-      verticalLeftPosition = step.isRtl ? boundingRect.right - bubbleBoundingWidth : boundingRect.left;
+      verticalLeftPosition = step.isRtl ? position.right - bubbleBoundingWidth : position.left;
 
       if (step.placement === 'top') {
-        top = (boundingRect.top - bubbleBoundingHeight) - this.opt.arrowWidth;
+        top = (position.top - bubbleBoundingHeight) - this.opt.arrowWidth;
         left = verticalLeftPosition;
       }
       else if (step.placement === 'bottom') {
-        top = boundingRect.bottom + this.opt.arrowWidth;
+        top = position.bottom + this.opt.arrowWidth;
         left = verticalLeftPosition;
       }
       else if (step.placement === 'left') {
-        top = boundingRect.top;
-        left = boundingRect.left - bubbleBoundingWidth - this.opt.arrowWidth;
+        top = position.top;
+        left = position.left - bubbleBoundingWidth - this.opt.arrowWidth;
       }
       else if (step.placement === 'right') {
-        top = boundingRect.top;
-        left = boundingRect.right + this.opt.arrowWidth;
+        top = position.top;
+        left = position.right + this.opt.arrowWidth;
       }
       else {
         throw new Error('Bubble placement failed because step.placement is invalid or undefined!');
@@ -685,14 +695,14 @@
 
       // HORIZONTAL OFFSET
       if (step.xOffset === 'center') {
-        left = (boundingRect.left + targetEl.offsetWidth/2) - (bubbleBoundingWidth / 2);
+        left = (position.left + targetEl.offsetWidth/2) - (bubbleBoundingWidth / 2);
       }
       else {
         left += utils.getPixelValue(step.xOffset);
       }
       // VERTICAL OFFSET
       if (step.yOffset === 'center') {
-        top = (boundingRect.top + targetEl.offsetHeight/2) - (bubbleBoundingHeight / 2);
+        top = (position.top + targetEl.offsetHeight/2) - (bubbleBoundingHeight / 2);
       }
       else {
         top += utils.getPixelValue(step.yOffset);
@@ -1927,7 +1937,7 @@
         bubble = getBubble();
         // TODO: do we still need this call to .hide()? No longer using opt.animate...
         // Leaving it in for now to play it safe
-        bubble.hide(false); // make invisible for boundingRect calculations when opt.animate == true
+        bubble.hide(false); // make invisible for position calculations when opt.animate == true
 
         self.isActive = true;
 
