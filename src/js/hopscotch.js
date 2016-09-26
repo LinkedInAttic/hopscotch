@@ -709,13 +709,13 @@
       }
 
       // ADJUST TOP FOR SCROLL POSITION
-      if (!step.fixedElement) {
+      if (!step.fixedElement && !appendToEl) {
         top += utils.getScrollTop();
         left += utils.getScrollLeft();
       }
 
       // ACCOUNT FOR FIXED POSITION ELEMENTS
-      el.style.position = (step.fixedElement ? 'fixed' : 'absolute');
+      el.style.position = (step.fixedElement && !appendToEl ? 'fixed' : 'absolute');
 
       el.style.top = top + 'px';
       el.style.left = left + 'px';
