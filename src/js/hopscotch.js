@@ -1064,7 +1064,7 @@
           self            = this,
           resizeCooldown  = false, // for updating after window resize
           onWinResize,
-          appendToBody,
+          appendOnLoad,
           children,
           numChildren,
           node,
@@ -1156,27 +1156,27 @@
       else {
         // Moz, webkit, Opera
         if (document.addEventListener) {
-          appendToBody = function() {
-            document.removeEventListener('DOMContentLoaded', appendToBody);
-            window.removeEventListener('load', appendToBody);
+          appendOnLoad = function() {
+            document.removeEventListener('DOMContentLoaded', appendOnLoad);
+            window.removeEventListener('load', appendOnLoad);
             appendEl(el);
           };
 
-          document.addEventListener('DOMContentLoaded', appendToBody, false);
+          document.addEventListener('DOMContentLoaded', appendOnLoad, false);
         }
         // IE
         else {
-          appendToBody = function() {
+          appendOnLoad = function() {
             if (document.readyState === 'complete') {
-              document.detachEvent('onreadystatechange', appendToBody);
-              window.detachEvent('onload', appendToBody);
+              document.detachEvent('onreadystatechange', appendOnLoad);
+              window.detachEvent('onload', appendOnLoad);
               appendEl(el);
             }
           };
 
-          document.attachEvent('onreadystatechange', appendToBody);
+          document.attachEvent('onreadystatechange', appendOnLoad);
         }
-        utils.addEvtListener(window, 'load', appendToBody);
+        utils.addEvtListener(window, 'load', appendOnLoad);
       }
     }
   };
