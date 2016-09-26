@@ -1064,7 +1064,6 @@
           self            = this,
           resizeCooldown  = false, // for updating after window resize
           onWinResize,
-          appendTo,
           appendToBody,
           children,
           numChildren,
@@ -1121,6 +1120,21 @@
         }, 100);
       };
 
+      /**
+       * Append Hopscotch callout to a specific element or the body
+       *
+       * @private
+       */
+      appendEl = function(el) {
+        var appendToEl = utils.getStepTargetHelper(opt.appendTo);
+
+        if (appendToEl) {
+          appendToEl.appendChild(el);
+        } else {
+          document.body.appendChild(el);
+        }
+      };
+
       //Add listener to reset bubble position on window resize
       utils.addEvtListener(window, 'resize', onWinResize);
 
@@ -1136,17 +1150,8 @@
 
       //Finally, append our new bubble to body once the DOM is ready.
 
-      // Check if appendTo option is on the page
-      if (this.opt.appendTo){
-        appendTo = utils.getStepTargetHelper(this.opt.appendTo);
-      }
-
       if (utils.documentIsReady()) {
-        if (appendTo){
-          appendTo.appendChild(el);
-        } else {
-          document.body.appendChild(el);
-        }
+        appendEl(el);
       }
       else {
         // Moz, webkit, Opera
@@ -1154,12 +1159,7 @@
           appendToBody = function() {
             document.removeEventListener('DOMContentLoaded', appendToBody);
             window.removeEventListener('load', appendToBody);
-
-            if (appendTo){
-              appendTo.appendChild(el);
-            } else {
-              document.body.appendChild(el);
-            }
+            appendEl(el);
           };
 
           document.addEventListener('DOMContentLoaded', appendToBody, false);
@@ -1170,11 +1170,7 @@
             if (document.readyState === 'complete') {
               document.detachEvent('onreadystatechange', appendToBody);
               window.detachEvent('onload', appendToBody);
-              if (appendTo){
-                appendTo.appendChild(el);
-              } else {
-                document.body.appendChild(el);
-              }
+              appendEl(el);
             }
           };
 
