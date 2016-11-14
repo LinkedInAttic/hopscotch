@@ -631,24 +631,30 @@
 
       verticalLeftPosition = step.isRtl ? boundingRect.right - bubbleBoundingWidth : boundingRect.left;
 
-      if (step.placement === 'top') {
-        top = (boundingRect.top - bubbleBoundingHeight) - this.opt.arrowWidth;
-        left = verticalLeftPosition;
-      }
-      else if (step.placement === 'bottom') {
-        top = boundingRect.bottom + this.opt.arrowWidth;
-        left = verticalLeftPosition;
-      }
-      else if (step.placement === 'left') {
-        top = boundingRect.top;
-        left = boundingRect.left - bubbleBoundingWidth - this.opt.arrowWidth;
-      }
-      else if (step.placement === 'right') {
-        top = boundingRect.top;
-        left = boundingRect.right + this.opt.arrowWidth;
-      }
-      else {
-        throw new Error('Bubble placement failed because step.placement is invalid or undefined!');
+      switch( step.placement.toLowerCase() ) {
+        case 'top':
+          top   = (boundingRect.top - bubbleBoundingHeight) - this.opt.arrowWidth;
+          left  = verticalLeftPosition;
+          break;
+
+        case 'bottom':
+          top   = boundingRect.bottom + this.opt.arrowWidth;
+          left  = verticalLeftPosition;
+          break;
+
+        case 'left':
+          top   = boundingRect.top;
+          left  = boundingRect.left - bubbleBoundingWidth - this.opt.arrowWidth;
+          break;
+
+        case 'right':
+          top   = boundingRect.top;
+          left  = boundingRect.right + this.opt.arrowWidth;
+          break;
+
+        default:
+          throw new Error('Bubble placement failed because step.placement is invalid or undefined!');
+          break;
       }
 
       // SET (OR RESET) ARROW OFFSETS
@@ -662,7 +668,7 @@
         arrowEl.style.top = '';
         arrowEl.style[arrowPos] = '';
       }
-      else if (step.placement === 'top' || step.placement === 'bottom') {
+      else if (step.placement.toLowerCase() === 'top' || step.placement.toLowerCase() === 'bottom') {
         arrowEl.style.top = '';
         if (arrowOffset === 'center') {
           arrowEl.style[arrowPos] = Math.floor((bubbleBoundingWidth / 2) - arrowEl.offsetWidth/2) + 'px';
@@ -672,7 +678,7 @@
           arrowEl.style[arrowPos] = arrowOffset + 'px';
         }
       }
-      else if (step.placement === 'left' || step.placement === 'right') {
+      else if (step.placement.toLowerCase() === 'left' || step.placement.toLowerCase() === 'right') {
         arrowEl.style[arrowPos] = '';
         if (arrowOffset === 'center') {
           arrowEl.style.top = Math.floor((bubbleBoundingHeight / 2) - arrowEl.offsetHeight/2) + 'px';
@@ -754,7 +760,7 @@
             isLast = (this._getStepNum(idx) === this._getStepNum(totalSteps - 1));
           }
         }
-      }else{
+      } else {
         customTourData = step.customData;
         tourSpecificRenderer = step.customRenderer;
         unsafe = step.unsafe;
@@ -762,7 +768,7 @@
       }
 
       // Determine label for next button
-      if(isLast){
+      if(isLast) {
         nextBtnText = utils.getI18NString('doneBtn');
       } else if(step.showSkip) {
         nextBtnText = utils.getI18NString('skipBtn');
@@ -773,7 +779,7 @@
       utils.flipPlacement(step);
       utils.normalizePlacement(step);
 
-      this.placement = step.placement;
+      this.placement = step.placement.toLowerCase();
 
       // Setup the configuration options we want to pass along to the template
       opts = {
@@ -797,7 +803,7 @@
           title: (step.title || ''),
           content: (step.content || ''),
           isRtl: step.isRtl,
-          placement: step.placement,
+          placement: step.placement.toLowerCase() || 'bottom',// let 'bottom' placement be the default
           padding: utils.valOrDefault(step.padding, this.opt.bubblePadding),
           width: utils.getPixelValue(step.width) || this.opt.bubbleWidth,
           customData: (step.customData || {})
@@ -844,7 +850,7 @@
 
       // Set z-index and arrow placement
       el.style.zIndex = (typeof step.zindex === 'number') ? step.zindex : '';
-      this._setArrow(step.placement);
+      this._setArrow(step.placement.toLowerCase());
 
       // Set bubble positioning
       // Make sure we're using visibility:hidden instead of display:none for height/width calculations.
@@ -905,17 +911,26 @@
       // Whatever the orientation is, we want to arrow to appear
       // "opposite" of the orientation. E.g., a top orientation
       // requires a bottom arrow.
-      if (placement === 'top') {
-        utils.addClass(this.arrowEl, 'down');
-      }
-      else if (placement === 'bottom') {
-        utils.addClass(this.arrowEl, 'up');
-      }
-      else if (placement === 'left') {
-        utils.addClass(this.arrowEl, 'right');
-      }
-      else if (placement === 'right') {
-        utils.addClass(this.arrowEl, 'left');
+      switch( placement.toLowerCase() ) {
+        case 'top':
+          utils.addClass(this.arrowEl, 'down');
+          break;
+
+        case 'bottom':
+          utils.addClass(this.arrowEl, 'up');
+          break;
+
+        case 'left':
+          utils.addClass(this.arrowEl, 'right');
+          break;
+
+        case 'right':
+          utils.addClass(this.arrowEl, 'left');
+          break;
+
+        default:
+          utils.addClass(this.arrowEl, 'up'); // let 'bottom' placement be the default
+          break;
       }
     },
 
@@ -923,17 +938,17 @@
      * @private
      */
     _getArrowDirection: function() {
-      if (this.placement === 'top') {
-        return 'down';
-      }
-      if (this.placement === 'bottom') {
-        return 'up';
-      }
-      if (this.placement === 'left') {
-        return 'right';
-      }
-      if (this.placement === 'right') {
-        return 'left';
+      switch( this.placement.toLowerCase() ) {
+        case 'top':
+          return 'down';
+        case 'bottom':
+          return 'up';
+        case 'left':
+          return 'right';
+        case 'right':
+          return 'left';
+        default:
+          return 'up';// let 'bottom' placement be the default
       }
     },
 
