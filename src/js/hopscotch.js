@@ -654,7 +654,6 @@
 
         default:
           throw new Error('Bubble placement failed because step.placement is invalid or undefined!');
-          break;
       }
 
       // SET (OR RESET) ARROW OFFSETS
