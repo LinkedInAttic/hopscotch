@@ -1589,6 +1589,7 @@
       doCallbacks = utils.valOrDefault(doCallbacks, true);
 
       step = getCurrStep();
+      if (typeof step == 'undefined') return;
 
       if (step.nextOnTargetClick) {
         // Detach the listener when tour is moving to a different step
