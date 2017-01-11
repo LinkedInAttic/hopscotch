@@ -1971,7 +1971,12 @@
      * @param {Boolean} doCallbacks Flag for invoking onPrev callback. Defaults to true.
      * @returns {Object} Hopscotch
      */
-    this.prevStep = function(doCallbacks) {
+    this.prevStep = function (doCallbacks) {
+
+      //forcing callback
+      var step = getCurrStep();
+      if (typeof step.onPrev == 'function') step.onPrev();
+
       changeStep.call(this, doCallbacks, -1);
       return this;
     };
@@ -1984,7 +1989,12 @@
      * @param {Boolean} doCallbacks Flag for invoking onNext callback. Defaults to true.
      * @returns {Object} Hopscotch
      */
-    this.nextStep = function(doCallbacks) {
+    this.nextStep = function (doCallbacks) {
+
+      //forcing callback
+      var step = getCurrStep();
+      if (typeof step.onNext == 'function') step.onNext();
+      
       changeStep.call(this, doCallbacks, 1);
       return this;
     };
