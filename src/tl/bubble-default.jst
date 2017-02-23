@@ -6,6 +6,12 @@
     return str;
   }
 %>
+<%
+var i18n = data.i18n;
+var buttons = data.buttons;
+var step = data.step;
+var tour = data.tour;
+%>
 <div class="hopscotch-bubble-container" style="width: <%= step.width %>px; padding: <%= step.padding %>px;">
   <% if(tour.isTour){ %><span class="hopscotch-bubble-number"><%= i18n.stepNum %></span><% } %>
   <div class="hopscotch-bubble-content">

@@ -121,6 +121,9 @@ module.exports = function(grunt) {
             var splitName = filename.split('/'),
                 sanitized = splitName[splitName.length - 1].replace('.jst', '').replace(new RegExp('-', 'g'), '_');
             return sanitized;
+          },
+          templateSettings: {
+            variable: 'data'
           }
         },
         files: {
