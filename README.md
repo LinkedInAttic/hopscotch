@@ -40,4 +40,6 @@ Depending on your use case, you might want to modify and/or rebuild some of the 
 
 I want to contribute! How can I help?
 -------------------------------------
+> Note: We're currently in the midst of refactoring Hopscotch into a newer module-based format that should help make readability and maintenance a lot easier. While this work is in progress, we'll be halting changes to the master branch of Hopscotch, apart from major maintenance fixes. Please feel free to continue submitting bug reports, though do keep in mind that they not be addressed in the current iteration of the library. Thanks!
+
 See CONTRIBUTING.md for details on how to contribute back to the public Hopscotch repository on GitHub.

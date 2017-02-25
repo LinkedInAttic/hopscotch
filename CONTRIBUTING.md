@@ -3,6 +3,8 @@ Contributing to Hopscotch
 
 Thanks for taking the time to contribute back to Hopscotch! Below are some guidelines for how you can contribute to the project, including some details about how we triage bug reports and pull requests.
 
+> Note: We're currently in the midst of refactoring Hopscotch into a newer module-based format that should help make readability and maintenance a lot easier. While this work is in progress, we'll be halting changes to the master branch of Hopscotch, apart from major maintenance fixes. Please feel free to continue submitting bug reports, though do keep in mind that they not be addressed in the current iteration of the library. Thanks!
+
 Yikes! I found a bug! What now?
 -------------------------------
 We use GitHub for triaging new bugs. To help the community better understand the issue you've run into, check for the following...
