@@ -1,5 +1,10 @@
 ## Change Log
 
+### v0.2.7 (2017/02/24)
+ * [#312](https://github.com/linkedin/hopscotch/pull/312) Generate templates without `with` keyword (now strict compatible)
+ * [#307](https://github.com/linkedin/hopscotch/pull/307) Avoid "Gradient has outdated syntax" error
+ * [#320](https://github.com/linkedin/hopscotch/pull/320) [Chore] Refactor notice; Bump year
+
 ### v0.2.6 (2016/07/01)
  * [#287](https://github.com/linkedin/hopscotch/pull/287) Add new items to .gitignore (ported over from gh72).
  * [#275](https://github.com/linkedin/hopscotch/pull/275) Update jasmine version in package.json
