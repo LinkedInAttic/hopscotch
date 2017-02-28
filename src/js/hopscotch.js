@@ -367,7 +367,11 @@
         return result;
       }
       if (hasJquery) {
-        result = jQuery(target);
+        var splittedChain = target.split('¤');
+        result = jQuery(splittedChain[0]);
+        for (var i = 1; i < splittedChain.length; i++){
+          result = result.contents().find(splittedChain[i]);
+        }
         return result.length ? result[0] : null;
       }
       if (Sizzle) {
