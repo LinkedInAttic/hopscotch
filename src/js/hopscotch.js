@@ -327,6 +327,7 @@
     evtPreventDefault: function(evt) {
       if (evt.preventDefault) {
         evt.preventDefault();
+        evt.stopPropagation();
       }
       else if (event) {
         event.returnValue = false;
