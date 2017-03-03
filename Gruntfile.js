@@ -148,21 +148,6 @@ module.exports = function(grunt) {
       }
     },
     compress: {
-      distTarBall: {
-        options: {
-          archive: '<%=paths.archive%>/<%=distName%>.tar.gz',
-          mode: 'tgz',
-          pretty: true
-        },
-        files: [
-          {
-            expand: true,
-            cwd: '<%=paths.dist%>',
-            src: ['**/*'],
-            dest: '<%=distName%>/'
-          }
-        ]
-      },
       distZip: {
         options: {
           archive: '<%=paths.archive%>/<%=distName%>.zip',
