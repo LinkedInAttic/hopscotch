@@ -730,7 +730,7 @@
       }
 
         // ABSOLUTE POSITION OF ELEMENT INSIDE IFRAME
-		var offset = utils.isTargetElmtOnRoot ? 0 : utils.calcIframeElmtAbsoluteOffset(step.target);
+		var offset = utils.isTargetElmtOnRoot ? undefined : utils.calcIframeElmtAbsoluteOffset(step.target);
 
         // HORIZONTAL OFFSET
       if (step.xOffset === 'center') {
