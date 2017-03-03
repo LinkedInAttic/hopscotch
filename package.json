@@ -11,16 +11,16 @@
   },
   "repository": {
     "type": "git",
-    "url": "git://github.com/ShortwaysSAS/hopscotch.git"
+    "url": "git://github.com/ShortwaysSAS/shortways-hopscotch.git"
   },
   "author": {
     "name": "Hopscotch's community of authors and contributors",
-    "url": "https://github.com/ShortwaysSAS/hopscotch/graphs/contributors"
+    "url": "https://github.com/ShortwaysSAS/shortways-hopscotch/graphs/contributors"
   },
   "license": "Apache-2.0",
   "readmeFilename": "README.md",
   "bugs": {
-    "url": "https://github.com/ShortwaysSAS/hopscotch/issues"
+    "url": "https://github.com/ShortwaysSAS/shortways-hopscotch/issues"
   },
   "devDependencies": {
     "grunt": "~0.4.1",
