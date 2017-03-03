@@ -11,7 +11,7 @@
     "linkedin"
   ],
   "license": "Apache License",
-  "homepage": "https://github.com/ShortwaysSAS/hopscotch",
+  "homepage": "https://github.com/ShortwaysSAS/shortways-hopscotch",
   "ignore": [
     "**/.*",
     "archives",
