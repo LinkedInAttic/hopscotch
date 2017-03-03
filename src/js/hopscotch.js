@@ -372,7 +372,7 @@
           for (var i = 1; i < splittedChain.length; i++) {
               result = result.contents().find(splittedChain[i]);
           }
-		  return result.length ? result[0] : null;
+          return result.length ? result[0] : null;
       }
       if (Sizzle) {
         result = new Sizzle(target);
@@ -731,7 +731,7 @@
       }
 
         // ABSOLUTE POSITION OF ELEMENT INSIDE IFRAME
-      var offset = utils.isTargetElmtOnRoot(targetEl) ? undefined : utils.calcIframeElmtAbsoluteOffset(step.target);
+		var offset = utils.isTargetElmtOnRoot(targetEl) ? undefined : utils.calcIframeElmtAbsoluteOffset(step.target);
 
         // HORIZONTAL OFFSET
       if (step.xOffset === 'center') {
