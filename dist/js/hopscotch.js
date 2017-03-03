@@ -1,4 +1,4 @@
-/**! hopscotch - v0.2.7
+/**! shortways-hopscotch - v0.2.7
 *
 * Copyright 2017 LinkedIn Corp. All rights reserved.
 *
@@ -83,7 +83,7 @@
     bubbleWidth:     280,
     bubblePadding:   15,
     arrowWidth:      20,
-    skipIfNoElement: true,
+    skipIfNoElement: false,
     isRtl:           false,
     cookieName:      'hopscotch.tour.state'
   };
@@ -383,8 +383,11 @@
         return result;
       }
       if (hasJquery) {
-        result = jQuery(target);
-        return result.length ? result[0] : null;
+          var splittedChain = this.splitTargetChain(target);
+          result = jQuery(splittedChain[0]);
+          for (var i = 1; i < splittedChain.length; i++) {
+              result = result.contents().find(splittedChain[i]);
+          }
       }
       if (Sizzle) {
         result = new Sizzle(target);
@@ -566,6 +569,48 @@
         }
         step._isFlipped = true;
       }
+    },
+
+    /**
+     * @private
+     */
+    actualOffset: function (element) {
+        var elOffset = element.offset();
+        if (element.is('iframe')) {
+            elOffset.top += parseInt(element.css('border-top'), 10) + parseInt(element.css('padding-top'), 10) - element.contents().scrollTop();
+            elOffset.left += parseInt(element.css('border-left'), 10) + parseInt(element.css('padding-left'), 10) - element.contents().scrollLeft();
+        }
+        return elOffset;
+    },
+
+    /**
+     * @private
+     */
+    calcIframeElmtAbsoluteOffset: function (targets) {
+        var splittedChain = this.splitTargetChain(targets);
+        var element = jQuery(splittedChain[0]);
+        var offset = this.actualOffset(element);
+        for (var i = 1; i < splittedChain.length; i++) {
+            element = element.contents().find(splittedChain[i]);
+            var partialOffset = this.actualOffset(element);
+            offset.top += partialOffset.top;
+            offset.left += partialOffset.left;
+        }
+        return offset;
+    },
+
+    /**
+     * @private
+     */
+    splitTargetChain: function (targets) {
+        return targets.split('//://');
+    },
+
+    /**
+     * @private
+     */
+    isTargetElmtOnRoot: function (targetElmt) {
+        return targetElmt.ownerDocument.defaultView.self === window.top;
     }
   };
 
@@ -643,28 +688,29 @@
       utils.removeClass(el, 'fade-in-down fade-in-up fade-in-left fade-in-right');
 
       // SET POSITION
-      boundingRect = targetEl.getBoundingClientRect();
+      boundingRect = utils.isTargetElmtOnRoot(targetEl) ? targetEl.getBoundingClientRect() : { top: 0, bottom: 0, left: 0, right: 0 };
 
       verticalLeftPosition = step.isRtl ? boundingRect.right - bubbleBoundingWidth : boundingRect.left;
 
-      if (step.placement === 'top') {
-        top = (boundingRect.top - bubbleBoundingHeight) - this.opt.arrowWidth;
-        left = verticalLeftPosition;
-      }
-      else if (step.placement === 'bottom') {
-        top = boundingRect.bottom + this.opt.arrowWidth;
-        left = verticalLeftPosition;
-      }
-      else if (step.placement === 'left') {
-        top = boundingRect.top;
-        left = boundingRect.left - bubbleBoundingWidth - this.opt.arrowWidth;
-      }
-      else if (step.placement === 'right') {
-        top = boundingRect.top;
-        left = boundingRect.right + this.opt.arrowWidth;
-      }
-      else {
-        throw new Error('Bubble placement failed because step.placement is invalid or undefined!');
+      switch (step.placement) {
+          case 'top':
+              top = (boundingRect.top - bubbleBoundingHeight) - this.opt.arrowWidth;
+              left = verticalLeftPosition;
+              break;
+          case 'bottom':
+              top = boundingRect.bottom + this.opt.arrowWidth;
+              left = verticalLeftPosition;
+              break;
+          case 'left':
+              top = boundingRect.top;
+              left = boundingRect.left - bubbleBoundingWidth - this.opt.arrowWidth;
+              break;
+          case 'right':
+              top = boundingRect.top;
+              left = boundingRect.right + this.opt.arrowWidth;
+              break;
+          default:
+              throw new Error('Bubble placement failed because step.placement is invalid or undefined!');
       }
 
       // SET (OR RESET) ARROW OFFSETS
@@ -699,28 +745,29 @@
         }
       }
 
-      // HORIZONTAL OFFSET
+        // ABSOLUTE POSITION OF ELEMENT INSIDE IFRAME
+		var offset = utils.isTargetElmtOnRoot ? 0 : utils.calcIframeElmtAbsoluteOffset(step.target);
+
+        // HORIZONTAL OFFSET
       if (step.xOffset === 'center') {
-        left = (boundingRect.left + targetEl.offsetWidth/2) - (bubbleBoundingWidth / 2);
+          left = (boundingRect.left + targetEl.offsetWidth / 2) - (bubbleBoundingWidth / 2);
+      } else {
+          left += utils.getPixelValue(step.xOffset) + offset ? offset.left : 0;
       }
-      else {
-        left += utils.getPixelValue(step.xOffset);
-      }
-      // VERTICAL OFFSET
+        // VERTICAL OFFSET
       if (step.yOffset === 'center') {
-        top = (boundingRect.top + targetEl.offsetHeight/2) - (bubbleBoundingHeight / 2);
-      }
-      else {
-        top += utils.getPixelValue(step.yOffset);
-      }
-
-      // ADJUST TOP FOR SCROLL POSITION
-      if (!step.fixedElement) {
-        top += utils.getScrollTop();
-        left += utils.getScrollLeft();
+          top = (boundingRect.top + targetEl.offsetHeight / 2) - (bubbleBoundingHeight / 2);
+      } else {
+          top += utils.getPixelValue(step.yOffset) + offset ? offset.top : 0;
       }
 
-      // ACCOUNT FOR FIXED POSITION ELEMENTS
+        // ADJUST TOP FOR SCROLL POSITION
+      if (!step.fixedElement && utils.isTargetElmtOnRoot(targetEl)) {
+          top += utils.getScrollTop();
+          left += utils.getScrollLeft();
+      }
+
+        // ACCOUNT FOR FIXED POSITION ELEMENTS
       el.style.position = (step.fixedElement ? 'fixed' : 'absolute');
 
       el.style.top = top + 'px';
@@ -1425,15 +1472,17 @@
           bubbleBottom   = bubbleTop + utils.getPixelValue(bubbleEl.offsetHeight),
 
           // Calculate the target element top and bottom position
-          targetEl       = utils.getStepTarget(getCurrStep()),
-          targetBounds   = targetEl.getBoundingClientRect(),
-          targetElTop    = targetBounds.top + utils.getScrollTop(),
+          targetEl = utils.getStepTarget(getCurrStep()),
+          targetElChain = utils.splitTargetChain(getCurrStep().target),
+          targetBounds = targetEl.getBoundingClientRect(),
+          targetElTop = targetBounds.top + utils.getScrollTop(),
           targetElBottom = targetBounds.bottom + utils.getScrollTop(),
 
           // The higher of the two: bubble or target
-          targetTop      = (bubbleTop < targetElTop) ? bubbleTop : targetElTop,
+          targetTop = targetElChain.length > 1 ? bubbleTop : (bubbleTop < targetElTop) ? bubbleTop : targetElTop,
+
           // The lower of the two: bubble or target
-          targetBottom   = (bubbleBottom > targetElBottom) ? bubbleBottom : targetElBottom,
+          targetBottom = targetElChain.length > 1 ? bubbleBottom : (bubbleBottom > targetElBottom) ? bubbleBottom : targetElBottom,
 
           // Calculate the current viewport top and bottom
           windowTop      = utils.getScrollTop(),
@@ -2343,7 +2392,7 @@
      *                               using your own custom CSS. Defaults to 20.
      * - skipIfNoElement  Boolean  - If a specified target element is not found,
      *                               should we skip to the next step? Defaults to
-     *                               TRUE.
+     *                               FALSE.
      * - onNext:          Function - A callback to be invoked after every click on
      *                               a "Next" button.
      * - isRtl:           Boolean  - Set to true when instantiating in a right-to-left

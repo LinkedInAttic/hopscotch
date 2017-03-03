@@ -561,8 +561,8 @@
     actualOffset: function (element) {
         var elOffset = element.offset();
         if (element.is('iframe')) {
-            elOffset.top += parseInt(element.css('border-top')) + parseInt(element.css('padding-top')) - element.contents().scrollTop();
-            elOffset.left += parseInt(element.css('border-left')) + parseInt(element.css('padding-left')) - element.contents().scrollLeft();
+            elOffset.top += parseInt(element.css('border-top'), 10) + parseInt(element.css('padding-top'), 10) - element.contents().scrollTop();
+            elOffset.left += parseInt(element.css('border-left'), 10) + parseInt(element.css('padding-left'), 10) - element.contents().scrollLeft();
         }
         return elOffset;
     },
@@ -695,7 +695,6 @@
               break;
           default:
               throw new Error('Bubble placement failed because step.placement is invalid or undefined!');
-              break;
       }
 
       // SET (OR RESET) ARROW OFFSETS
@@ -731,9 +730,7 @@
       }
 
         // ABSOLUTE POSITION OF ELEMENT INSIDE IFRAME
-      if (!utils.isTargetElmtOnRoot(targetEl)) {
-          var offset = utils.calcIframeElmtAbsoluteOffset(step.target);
-      }
+		var offset = utils.isTargetElmtOnRoot ? 0 : utils.calcIframeElmtAbsoluteOffset(step.target);
 
         // HORIZONTAL OFFSET
       if (step.xOffset === 'center') {

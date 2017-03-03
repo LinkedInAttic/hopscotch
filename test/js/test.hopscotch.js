@@ -278,25 +278,20 @@ describe('Hopscotch', function() {
       hopscotch.startTour({
         id: 'hopscotch-test-tour',
         steps: [{
-          target: ['shopping-list-other', 'shopping-list'], //finds the first existing target 'shopping-list'
+          target: 'shopping-list',
           placement: 'left',
           title: 'Shopping List',
           content: 'It\'s a shopping list'
         },
         {
-          target: ['chocolate', 'almond-milk'] //neither of the targets exist - skips this step
-        },
-        {
-          target: document.getElementById('lettuce'), //can pass in DOM element directly
+          target: 'lettuce',
           placement: 'left',
           title: 'Another Shopping List Item',
           content: 'It\'s lettuce'
         }]
       });
       expect(hopscotch.isActive).toBeTruthy();
-      //'shopping-list-other' does not exists, should find target 'shopping-list' instead
       expect(hopscotch.getCurrTarget().id).toEqual('shopping-list');
-      //go to next step with existing step target, should skip step 2
       hopscotch.nextStep();
       expect(hopscotch.getCurrTarget().id).toEqual('lettuce');
 
@@ -589,7 +584,8 @@ describe('Hopscotch', function() {
             title: 'Shopping List',
             content: 'It\'s a shopping list'
           }
-        ]
+        ],
+		skipIfNoElement: true
       });
       expect(hopscotch.isActive).toBeTruthy();
       expect(hopscotch.getCurrStepNum()).toBe(1);
@@ -613,7 +609,6 @@ describe('Hopscotch', function() {
             content: 'It\'s a shopping list'
           }
         ],
-        skipIfNoElement: false,
         onError: jasmine.createSpy('onErrorCallback')
       };
 
@@ -987,10 +982,11 @@ describe('Hopscotch', function() {
           title: 'Milk',
           content: 'Got milk?'
         }
-      ]};
+      ],
+	  skipIfNoElement: true};
 
       hopscotch.startTour(tourJson);
-
+	  
       //tour should be running and on the first step
       expect(hopscotch.isActive).toBeTruthy();
       expect(hopscotch.getCurrStepNum()).toEqual(0);
@@ -1176,6 +1172,7 @@ describe('Hopscotch', function() {
             content: 'Back to the shopping list'
           }
         ],
+		skipIfNoElement: true,
         i18n : {
           stepNums : ['one', 'two', 'three', 'four', 'five']
         }

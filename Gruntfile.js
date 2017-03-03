@@ -211,7 +211,7 @@ module.exports = function(grunt) {
             report: '<%=paths.build%>/coverage',
             thresholds: {
               lines: 80,
-              statements: 80,
+              statements: 75,
               branches: 65,
               functions: 80
             }
