@@ -747,19 +747,19 @@
       }
 
         // ABSOLUTE POSITION OF ELEMENT INSIDE IFRAME
-		var offset = utils.isTargetElmtOnRoot(targetEl) ? undefined : utils.calcIframeElmtAbsoluteOffset(step.target);
+		var offset = utils.isTargetElmtOnRoot(targetEl) ? { top: 0, bottom: 0, left: 0, right: 0 } : utils.calcIframeElmtAbsoluteOffset(step.target);
 
         // HORIZONTAL OFFSET
       if (step.xOffset === 'center') {
           left = (boundingRect.left + targetEl.offsetWidth / 2) - (bubbleBoundingWidth / 2);
       } else {
-          left += utils.getPixelValue(step.xOffset) + offset ? offset.left : 0;
+          left += utils.getPixelValue(step.xOffset) + offset.left;
       }
         // VERTICAL OFFSET
       if (step.yOffset === 'center') {
           top = (boundingRect.top + targetEl.offsetHeight / 2) - (bubbleBoundingHeight / 2);
       } else {
-          top += utils.getPixelValue(step.yOffset) + offset ? offset.top : 0;
+          top += utils.getPixelValue(step.yOffset) + offset.top;
       }
 
         // ADJUST TOP FOR SCROLL POSITION
