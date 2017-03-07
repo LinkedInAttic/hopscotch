@@ -687,11 +687,11 @@
               left = verticalLeftPosition;
               break;
           case 'left':
-              top = boundingRect.top;
+              top = utils.isTargetElmtOnRoot(targetEl) ? boundingRect.top : 0;
               left = boundingRect.left - bubbleBoundingWidth - this.opt.arrowWidth;
               break;
           case 'right':
-              top = boundingRect.top;
+              top = utils.isTargetElmtOnRoot(targetEl) ? boundingRect.top : 0;
               left = boundingRect.right + this.opt.arrowWidth;
               break;
           default:
