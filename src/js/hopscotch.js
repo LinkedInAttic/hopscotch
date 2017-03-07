@@ -575,7 +575,7 @@
         var splittedChain = this.splitTargetChain(targets);
         var element = jQuery(splittedChain[0]);
         var offset = this.actualOffset(element);
-        for (var i = 1; i < splittedChain.length; i++) {
+        for (var i = 1; i < splittedChain.length - 1; i++) {
             element = element.contents().find(splittedChain[i]);
             var partialOffset = this.actualOffset(element);
             offset.top += partialOffset.top;
@@ -673,7 +673,7 @@
       utils.removeClass(el, 'fade-in-down fade-in-up fade-in-left fade-in-right');
 
       // SET POSITION
-      boundingRect = utils.isTargetElmtOnRoot(targetEl) ? targetEl.getBoundingClientRect() : { top: 0, bottom: 0, left: 0, right: 0 };
+      boundingRect = targetEl.getBoundingClientRect();
 
       verticalLeftPosition = step.isRtl ? boundingRect.right - bubbleBoundingWidth : boundingRect.left;
 
