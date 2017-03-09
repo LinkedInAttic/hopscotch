@@ -1541,6 +1541,22 @@
             if(skippedSteps[currStepNum]) {
               delete skippedSteps[currStepNum];
             }
+
+            //is this the first visible step?
+            var isFirstVisibleStep = true;
+            for (var i = currStepNum - 1; i > 0; i--)
+            {
+              if (!skippedSteps[i]) {
+                // it's not a perfect list of steps to 0, a previous step exists
+                isFirstVisibleStep = false;
+                break;
+              }
+            }
+            // if first step, remove previous button
+            if (isFirstVisibleStep) {
+              step.showPrevButton = false;
+            }
+
             // We're done! Return the step number via the callback.
             cb(currStepNum);
           }
