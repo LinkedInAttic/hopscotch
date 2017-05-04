@@ -1,4 +1,4 @@
-/**! hopscotch - v0.2.7
+/**! hopscotch - v0.2.8
 *
 * Copyright 2017 LinkedIn Corp. All rights reserved.
 *
