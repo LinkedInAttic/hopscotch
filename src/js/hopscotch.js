@@ -1415,6 +1415,11 @@
              */
             destroyBubble = function() {
                 if(bubble){
+                    if(bubble.highlight){
+                        bubble.highlight.destroy();
+                        bubble.highlight = null;
+                    }
+
                     bubble.destroy();
                     bubble = null;
                 }
@@ -2090,6 +2095,11 @@
             cookieTourStep = undefined;
 
             bubble.hide();
+            if(bubble.highlight)
+            {
+                bubble.highlight.hide();
+            }
+
             if (clearState) {
                 utils.clearState(getOption('cookieName'));
             }
@@ -2743,6 +2753,11 @@
                 }
 
                 parentElm = parentElm.parentNode;
+            }
+        },
+        destroy: function() {
+            for (var e in this.element){
+                this.element[e].parentNode.removeChild(this.element[e]);
             }
         }
     };
