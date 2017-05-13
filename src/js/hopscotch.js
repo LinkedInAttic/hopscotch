@@ -828,7 +828,14 @@
         if(!winHopscotch.templates || (typeof winHopscotch.templates[templateToUse] !== 'function')){
           throw new Error('Bubble rendering failed - template "' + templateToUse + '" is not a function.');
         }
-        el.innerHTML = winHopscotch.templates[templateToUse](opts);
+        if(this.opt.compileTemplate)
+        {
+            this.opt.compileTemplate(el, winHopscotch.templates[templateToUse](opts));
+        }
+        else
+        {
+            el.innerHTML = winHopscotch.templates[templateToUse](opts);
+        }
       }
 
       // Find arrow among new child elements.
@@ -2343,6 +2350,8 @@
      *                               '&#x4e8c;', '&#x4e09;']) If there are more steps
      *                               than provided numbers, Arabic numerals
      *                               ('4', '5', '6', etc.) will be used as default.
+     * - compileTemplate: Function - Function to compile the template, this function take the element and the html of template.
+     *                               The function should remove all childs and add all dom element of the template
      * // =========
      * // CALLBACKS
      * // =========
