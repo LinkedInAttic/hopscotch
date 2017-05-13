@@ -2440,6 +2440,8 @@
          *                               Default {top:0, bottom:0, left:0, right: 0}
          * - highlight.helperBackground: String color of the helper layer
          *                               Default white
+         * - highlight.blinkHelper:      Blink the helper
+         *                               Default false
          * - highlight.helperClass: String add a specific class to the helper layer
          * - highlightMargin: Number   - Amount of margin around the selected element to show
          *                               Defaults to 0
@@ -2603,6 +2605,12 @@
                     utils.addClass(this.element.clicLayer, 'hopscotch-overlay-click-pointer');
                 }
             }
+            //blink
+            if(this.stepOpts.highlight && this.stepOpts.highlight.blinkHelper)
+            {
+                utils.addClass(this.element.helperLayer, 'blink');
+            }
+
             var helperColor = 'rgba(255,255,255,.9)';
             if(this.stepOpts.highlight && this.stepOpts.highlight.helperBackground)
             {
@@ -2640,6 +2648,7 @@
             {
                 utils.removeClass(this.element.helperLayer, this.stepOpts.highlight.helperClass);
             }
+            utils.removeClass(this.element.helperLayer, 'blink');
 
             var targetEl     = utils.getStepTarget(this.stepOpts);
             if(targetEl)

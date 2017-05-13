@@ -257,5 +257,17 @@ tr.hopscotch-overlay-force-display > td,
 tr.hopscotch-overlay-force-display > th {
   position: relative;
 }
+.hopscotch-overlay-helper-layer.blink {
+  transition: none;
+  animation: focus-fade 0.7s infinite alternate;
 
+  @keyframes focus-fade {
+    0% {
+      opacity: 1;
+    }
+    100% {
+      opacity: 0.2;
+    }
+  }
+}
 /* END HIGHLIGHT */
