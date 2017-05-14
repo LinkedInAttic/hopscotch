@@ -213,3 +213,61 @@ div.hopscotch-bubble {
     text-align: right;
   }
 }
+/* HIGHLIGHT */
+/* Overlay styles */
+div.hopscotch-overlay {
+  position: absolute;
+  background-color: rgba(0,0,0,.6);
+  z-index: 8000;
+}
+.hopscotch-hide {
+  //display: none;
+  visibility: hidden;
+}
+.hopscotch-overlay-helper-layer {
+  position: absolute;
+  z-index: 8010 !important;
+  background-color: #FFF;
+  background-color: rgba(255,255,255,.9);
+  border: 1px solid #777;
+  border: 1px solid rgba(0,0,0,.5);
+  border-radius: 4px;
+  box-shadow: 0 2px 15px rgba(0,0,0,.4);
+  transition: all .3s ease-out;
+}
+.hopscotch-overlay-force-display,
+tr.hopscotch-overlay-force-display > td,
+tr.hopscotch-overlay-force-display > th {
+  z-index: 8050 !important;
+}
+.hopscotch-overlay-click-layer {
+  position: absolute;
+  z-index: 8100 !important;
+}
+.hopscotch-overlay-click-pointer {
+  cursor: pointer;
+}
+.hopscotch-overlay-fixParent {
+  z-index: auto !important;
+  opacity: 1.0 !important;
+  transform: none !important;
+}
+.hopscotch-overlay-relativePosition,
+tr.hopscotch-overlay-force-display > td,
+tr.hopscotch-overlay-force-display > th {
+  position: relative;
+}
+.hopscotch-overlay-helper-layer.blink {
+  transition: none;
+  animation: focus-fade 0.7s infinite alternate;
+
+  @keyframes focus-fade {
+    0% {
+      opacity: 1;
+    }
+    100% {
+      opacity: 0.2;
+    }
+  }
+}
+/* END HIGHLIGHT */
