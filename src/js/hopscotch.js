@@ -2623,13 +2623,14 @@
                 utils.addClass(this.element.helperLayer, this.stepOpts.highlight.helperClass);
             }
 
-            var targetEl     = utils.getStepTarget(this.stepOpts);
-            if(targetEl)
+            if (this.stepOpts.highlight && !this.stepOpts.highlight.overlayPosition)
             {
-                this.addClassToForceDisplay(targetEl);
+                var targetEl = utils.getStepTarget(this.stepOpts);
+                if (targetEl)
+                {
+                    this.addClassToForceDisplay(targetEl);
+                }
             }
-
-
         },
         hide: function(){
             for (var e in this.element){
