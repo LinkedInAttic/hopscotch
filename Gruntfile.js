@@ -27,6 +27,14 @@ module.exports = function(grunt) {
       build: ['<%=paths.build%>'],
       dist: ['<%=paths.dist%>']
     },
+    connect: {
+      testServer: {
+        options: {
+          port: 3000,
+          keepalive: false
+        }
+      }
+    },
     copy: {
       dist: {
         files: [
@@ -174,6 +182,18 @@ module.exports = function(grunt) {
         }
       }
     },
+    log: {
+      dev: {
+        options: {
+          message: "Open http://localhost:<%= connect.testServer.options.port %>/_SpecRunner.html in a browser\nCtrl + C to stop the server."
+        }
+      },
+      coverage: {
+        options: {
+          message: 'Open <%=jasmine.coverage.options.templateOptions.report%>/index.html in a browser to view the coverage.'
+        }
+      }
+    },
     paths : {
       build: 'tmp',
       dist: 'dist',
@@ -190,9 +210,16 @@ module.exports = function(grunt) {
         dest: '<%=paths.build%>/js/hopscotch_umd.min.js'
       }
     },
+    watch: {
+      jsFiles: {
+        files: ['<%=paths.source%>/**/*', '<%=paths.test%>/**/*'],
+        tasks: ['test']
+      }
+    },
     webpack: {
       options: {
         entry: './src/js/hopscotch_instance.js',
+        keepalive: false,
         module: {
           rules: [
             {
@@ -230,6 +257,7 @@ module.exports = function(grunt) {
 
   //external tasks
   grunt.loadNpmTasks('grunt-contrib-clean');
+  grunt.loadNpmTasks('grunt-contrib-connect');
   grunt.loadNpmTasks('grunt-contrib-copy');
   grunt.loadNpmTasks('grunt-contrib-jasmine');
   grunt.loadNpmTasks('grunt-contrib-jshint');
@@ -239,10 +267,20 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-include-replace');
   grunt.loadNpmTasks('grunt-webpack');
 
+  grunt.registerMultiTask('log', 'Print some messages', function() {
+    grunt.log.ok(this.data.options.message);
+  });
+
   grunt.registerTask(
     'build',
     'Build hopscotch for testing (jshint, minify js, process less to css)',
     ['jshint:lib', 'clean', 'less', 'webpack', 'jst:compile', 'includereplace', 'uglify', 'copy:dist']
+  );
+
+  grunt.registerTask  (
+    'dev',
+    'Start test server to allow debugging unminified hopscotch code in a browser',
+    ['build', 'jasmine:testDev:build', 'log:dev', 'connect:testServer']
   );
 
   grunt.registerTask(
@@ -250,10 +288,14 @@ module.exports = function(grunt) {
     'Build hopscotch and run unit tests',
     ['build','jasmine:testProd', 'jasmine:coverage']
   );
+
+  grunt.registerTask(
+    'coverage',
+    'log:coverage',
+    ['build', 'jasmine:coverage', 'log:coverage']);
   /*
   grunt.loadNpmTasks('grunt-bump');
   grunt.loadNpmTasks('grunt-contrib-compress');
-  grunt.loadNpmTasks('grunt-contrib-connect');
   grunt.loadNpmTasks('grunt-contrib-watch');
   grunt.loadNpmTasks('grunt-shell');
 
