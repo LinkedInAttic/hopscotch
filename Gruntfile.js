@@ -1,6 +1,11 @@
+// var babel = require('rollup-plugin-babel');
+
+const path = require('path');
+
 module.exports = function(grunt) {
+  var HOPSCOTCH = 'hopscotch';
+  var packageName = HOPSCOTCH;
   grunt.initConfig({
-    pkg: grunt.file.readJSON('package.json'),
     banner : ['/**! <%=pkg.name%> - v<%=pkg.version%>',
         '*',
         '* Copyright 2017 LinkedIn Corp. All rights reserved.',
@@ -18,166 +23,65 @@ module.exports = function(grunt) {
         '* limitations under the License.',
         '*/\n'
     ].join('\n'),
-    distName:   '<%=pkg.name%>-<%=pkg.version%>',
-    paths : {
-      archive:  'archives',
-      dist:     'dist',
-      source:   'src',
-      jsSource: '<%=paths.source%>/js/hopscotch.js',
-      build:    'tmp',
-      test:     'test'
-    },
-    jshint: {
-      lib: {
-        src: ['<%=paths.jsSource%>']
-      },
-      gruntfile: {
-        src: ['Gruntfile.js']
-      },
-      options: {
-        curly:    true,
-        eqeqeq:   true,
-        eqnull:   true,
-        browser:  true,
-        jquery:   true,
-        yui:      true
-      }
-    },
     clean : {
       build: ['<%=paths.build%>'],
       dist: ['<%=paths.dist%>']
     },
     copy: {
-      build: {
-        files: [
-          {
-            expand: true,
-            cwd: '<%=paths.source%>/',
-            src: ['img/*'],
-            dest: '<%=paths.build%>/'
-          }
-        ]
-      },
-      releaseWithBanner : {
-        files: [
-          {
-            expand: true,
-            cwd: '<%=paths.build%>/',
-            src: ['js/hopscotch.js', 'js/hopscotch.min.js', 'css/*'],
-            dest: '<%=paths.dist%>/'
-          }
-        ],
-        options: {
-          process: function (content, srcpath) {
-            return grunt.template.process('<%=banner%>') + content;
-          }
-        }
-      },
-      release : {
+      dist: {
         files: [
           {
             src: 'LICENSE',
             dest: '<%=paths.dist%>/LICENSE'
           },
           {
+            cwd: '<%=paths.source%>',
+            dest: '<%=paths.dist%>',
             expand: true,
-            cwd: '<%=paths.build%>/',
-            src: ['img/*'],
-            dest: '<%=paths.dist%>/'
+            src: ['img/*']
+          },
+          {
+            cwd: '<%=paths.build%>',
+            dest: '<%=paths.dist%>',
+            expand: true,
+            options: {
+              process: function (content, srcpath) {
+                return grunt.template.process('<%=banner%>') + content;
+              }
+            },
+            rename: function(dest, src) {
+              return (src.indexOf('umd') >= 0) ?
+                path.join(dest, src.replace('_umd', '')) :
+                path.join(dest, src);
+            },
+            src: [
+              'css/*',
+              'js/hopscotch_amd.js',
+              'js/hopscotch_amd.min.js',
+              'js/hopscotch_umd.js',
+              'js/hopscotch_umd.min.js'
+            ]
           }
         ]
       }
     },
-    uglify: {
-      build: {
-        src:  '<%=paths.build%>/js/hopscotch.js',
-        dest: '<%=paths.build%>/js/hopscotch.min.js'
-      }
-    },
-    less: {
-      dev: {
-        options: {
-          paths: ['<%=paths.source%>/less']
-        },
-        files: {
-          '<%=paths.build%>/css/hopscotch.css': '<%=paths.source%>/less/hopscotch.less'
-        }
-      },
-      prod: {
-        options: {
-          cleancss: true,
-          paths: ['<%=paths.source%>/less']
-        },
-        files: {
-          '<%=paths.build%>/css/hopscotch.min.css': '<%=paths.source%>/less/hopscotch.less'
-        }
-      }
-    },
-    jst: {
-      compile: {
-        options: {
-          namespace: 'templates',
-          processName: function(filename){
-            var splitName = filename.split('/'),
-                sanitized = splitName[splitName.length - 1].replace('.jst', '').replace(new RegExp('-', 'g'), '_');
-            return sanitized;
-          },
-          templateSettings: {
-            variable: 'data'
-          }
-        },
-        files: {
-          '<%=paths.build%>/js/hopscotch_templates.js': ['<%=paths.source%>/tl/*.jst']
-        }
-      }
-    },
     includereplace: {
-      jsSource: {
+      jsSourceAmd: {
         options: {
           prefix: '// @@',
           suffix: ' //'
         },
-        src: '<%=paths.jsSource%>',
-        dest: '<%=paths.build%>/js/hopscotch.js'
-      }
-    },
-    watch: {
-      jsFiles: {
-        files: ['<%=paths.source%>/**/*', '<%=paths.test%>/**/*'],
-        tasks: ['test']
-      }
-    },
-    compress: {
-      distTarBall: {
-        options: {
-          archive: '<%=paths.archive%>/<%=distName%>.tar.gz',
-          mode: 'tgz',
-          pretty: true
-        },
-        files: [
-          {
-            expand: true,
-            cwd: '<%=paths.dist%>',
-            src: ['**/*'],
-            dest: '<%=distName%>/'
-          }
-        ]
+        src: '<%=paths.build%>/js/hopscotch_amd_tmp.js',
+        dest: '<%=paths.build%>/js/hopscotch_amd.js'
       },
-      distZip: {
+      jsSourceUmd: {
         options: {
-          archive: '<%=paths.archive%>/<%=distName%>.zip',
-            mode: 'zip',
-            pretty: true
+          prefix: '// @@',
+          suffix: ' //'
         },
-        files: [
-          {
-            expand: true,
-            cwd: '<%=paths.dist%>',
-            src: ['**/*'],
-            dest: '<%=distName%>/'
-          }
-        ]
-      }
+        src: '<%=paths.build%>/js/hopscotch_umd_tmp.js',
+        dest: '<%=paths.build%>/js/hopscotch_umd.js'
+      },
     },
     jasmine : {
       testProd: {
@@ -219,59 +123,138 @@ module.exports = function(grunt) {
         }
       }
     },
-    connect: {
-      testServer: {
-        options: {
-          port: 3000,
-          keepalive: true
-        }
-      }
-    },
-    shell: {
-      gitAddArchive: {
-        command: 'git add <%= paths.archive %>',
-        options: {
-          stdout: true
-        }
-      }
-    },
-    bump: {
+    jshint: {
+      lib: {
+        src: ['<%=paths.source%>/js']
+      },
       options: {
-        files: ['package.json'],
-        updateConfigs: ['pkg'],
-        push: false,
-        commit: true,
-        commitFiles: ['-a'],
-        createTag: true
+        browser: true,
+        curly: true,
+        eqeqeq: true,
+        eqnull: true,
+        esnext: true,
+        jquery: true,
+        yui: true
       }
     },
-    log: {
+    jst: {
+      compile: {
+        options: {
+          namespace: 'templates',
+          processName: function(filename){
+            var splitName = filename.split('/'),
+                sanitized = splitName[splitName.length - 1].replace('.jst', '').replace(new RegExp('-', 'g'), '_');
+            return sanitized;
+          },
+          templateSettings: {
+            variable: 'data'
+          }
+        },
+        files: {
+          '<%=paths.build%>/js/hopscotch_templates.js': ['<%=paths.source%>/tl/*.jst']
+        }
+      }
+    },
+    less: {
       dev: {
         options: {
-          message: "Open http://localhost:<%= connect.testServer.options.port %>/_SpecRunner.html in a browser\nCtrl + C to stop the server."
+          paths: ['<%=paths.source%>/less']
+        },
+        files: {
+          '<%=paths.build%>/css/hopscotch.css': '<%=paths.source%>/less/hopscotch.less'
         }
       },
-      coverage: {
+      prod: {
         options: {
-          message: 'Open <%=jasmine.coverage.options.templateOptions.report%>/index.html in a browser to view the coverage.'
+          cleancss: true,
+          paths: ['<%=paths.source%>/less']
+        },
+        files: {
+          '<%=paths.build%>/css/hopscotch.min.css': '<%=paths.source%>/less/hopscotch.less'
+        }
+      }
+    },
+    paths : {
+      build: 'tmp',
+      dist: 'dist',
+      source: 'src'
+    },
+    pkg: grunt.file.readJSON('package.json'),
+    uglify: {
+      amd: {
+        src:  '<%=paths.build%>/js/hopscotch_amd.js',
+        dest: '<%=paths.build%>/js/hopscotch_amd.min.js'
+      },
+      umd: {
+        src:  '<%=paths.build%>/js/hopscotch_umd.js',
+        dest: '<%=paths.build%>/js/hopscotch_umd.min.js'
+      }
+    },
+    webpack: {
+      options: {
+        entry: './src/js/hopscotch_instance.js',
+        module: {
+          rules: [
+            {
+              test: /\.js$/,
+              exclude: /(node_modules|bower_components)/,
+              use: {
+                loader: 'babel-loader',
+                options: {
+                  presets: ['env']
+                }
+              }
+            }
+          ]
+        },
+        stats: !process.env.NODE_ENV || process.env.NODE_ENV === 'development'
+      },
+      hopscotchAmd: {
+        output: {
+          filename: 'hopscotch_amd_tmp.js',
+          library: 'hopscotch',
+          libraryTarget: 'amd',
+          path: path.join(process.cwd(), 'tmp', 'js')
+        }
+      },
+      hopscotchUmd: {
+        output: {
+          filename: 'hopscotch_umd_tmp.js',
+          library: 'hopscotch',
+          libraryTarget: 'umd',
+          path: path.join(process.cwd(), 'tmp', 'js')
         }
       }
     }
   });
 
   //external tasks
-  grunt.loadNpmTasks('grunt-bump');
   grunt.loadNpmTasks('grunt-contrib-clean');
-  grunt.loadNpmTasks('grunt-contrib-compress');
-  grunt.loadNpmTasks('grunt-contrib-connect');
   grunt.loadNpmTasks('grunt-contrib-copy');
   grunt.loadNpmTasks('grunt-contrib-jasmine');
   grunt.loadNpmTasks('grunt-contrib-jshint');
   grunt.loadNpmTasks('grunt-contrib-jst');
   grunt.loadNpmTasks('grunt-contrib-less');
   grunt.loadNpmTasks('grunt-contrib-uglify');
-  grunt.loadNpmTasks('grunt-contrib-watch');
   grunt.loadNpmTasks('grunt-include-replace');
+  grunt.loadNpmTasks('grunt-webpack');
+
+  grunt.registerTask(
+    'build',
+    'Build hopscotch for testing (jshint, minify js, process less to css)',
+    ['jshint:lib', 'clean', 'less', 'webpack', 'jst:compile', 'includereplace', 'uglify', 'copy:dist']
+  );
+
+  grunt.registerTask(
+    'test',
+    'Build hopscotch and run unit tests',
+    ['build','jasmine:testProd', 'jasmine:coverage']
+  );
+  /*
+  grunt.loadNpmTasks('grunt-bump');
+  grunt.loadNpmTasks('grunt-contrib-compress');
+  grunt.loadNpmTasks('grunt-contrib-connect');
+  grunt.loadNpmTasks('grunt-contrib-watch');
   grunt.loadNpmTasks('grunt-shell');
 
   grunt.registerMultiTask('log', 'Print some messages', function() {
@@ -318,11 +301,12 @@ module.exports = function(grunt) {
     'Release minor update to hopscotch (bump minor version, update dist and archives folders, tag release and commit)',
     ['bump-only:minor', 'buildRelease', 'shell:gitAddArchive', 'bump-commit']
   );
+  */
 
   // Default task.
   grunt.registerTask(
     'default',
     'Build hopscotch and run unit tests',
-    ['test']
+    ['build']
   );
 };
