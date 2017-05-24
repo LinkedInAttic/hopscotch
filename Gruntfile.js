@@ -1,10 +1,7 @@
-// var babel = require('rollup-plugin-babel');
-
 const path = require('path');
 
 module.exports = function(grunt) {
   var HOPSCOTCH = 'hopscotch';
-  var packageName = HOPSCOTCH;
   grunt.initConfig({
     banner : ['/**! <%=pkg.name%> - v<%=pkg.version%>',
         '*',
@@ -185,7 +182,7 @@ module.exports = function(grunt) {
     log: {
       dev: {
         options: {
-          message: "Open http://localhost:<%= connect.testServer.options.port %>/_SpecRunner.html in a browser\nCtrl + C to stop the server."
+          message: "Open http://localhost:<%= shell.server.port %>/_SpecRunner.html in a browser\nCtrl + C to stop the server."
         }
       },
       coverage: {
@@ -239,7 +236,7 @@ module.exports = function(grunt) {
       hopscotchAmd: {
         output: {
           filename: 'hopscotch_amd_tmp.js',
-          library: 'hopscotch',
+          library: HOPSCOTCH,
           libraryTarget: 'amd',
           path: path.join(process.cwd(), 'tmp', 'js')
         }
@@ -247,7 +244,7 @@ module.exports = function(grunt) {
       hopscotchUmd: {
         output: {
           filename: 'hopscotch_umd_tmp.js',
-          library: 'hopscotch',
+          library: HOPSCOTCH,
           libraryTarget: 'umd',
           path: path.join(process.cwd(), 'tmp', 'js')
         }
@@ -280,7 +277,7 @@ module.exports = function(grunt) {
   grunt.registerTask  (
     'dev',
     'Start test server to allow debugging unminified hopscotch code in a browser',
-    ['build', 'jasmine:testDev:build', 'log:dev', 'connect:testServer']
+    ['build', 'jasmine:testDev:build', 'log:dev']
   );
 
   grunt.registerTask(
