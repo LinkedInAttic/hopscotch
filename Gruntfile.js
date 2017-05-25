@@ -34,6 +34,16 @@ module.exports = function(grunt) {
       }
     },
     copy: {
+      build: {
+        files: [
+          {
+            expand: true,
+            cwd: '<%=paths.source%>',
+            src: ['img/*'],
+            dest: '<%=paths.build%>'
+          }
+        ]
+      },
       dist: {
         files: [
           {
@@ -95,7 +105,7 @@ module.exports = function(grunt) {
     },
     jasmine : {
       testProd: {
-        src: '<%=paths.build%>/js/hopscotch.min.js',
+        src: '<%=paths.build%>/js/hopscotch_umd.min.js',
         options: {
           keepRunner: false,
           specs:  ['<%=paths.test%>/js/*.js'],
@@ -104,7 +114,7 @@ module.exports = function(grunt) {
         }
       },
       testDev: {
-        src: '<%=paths.build%>/js/hopscotch.js',
+        src: '<%=paths.build%>/js/hopscotch_umd.js',
         options: {
           keepRunner: false,
           specs:  ['<%=paths.test%>/js/*.js'],
@@ -113,7 +123,7 @@ module.exports = function(grunt) {
         }
       },
       coverage: {
-        src: '<%=paths.build%>/js/hopscotch.js',
+        src: '<%=paths.build%>/js/hopscotch_umd.js',
         options: {
           keepRunner: false,
           specs:  ['<%=paths.test%>/js/*.js'],
@@ -199,7 +209,8 @@ module.exports = function(grunt) {
     paths : {
       build: 'tmp',
       dist: 'dist',
-      source: 'src'
+      source: 'src',
+      test: 'test'
     },
     pkg: grunt.file.readJSON('package.json'),
     rollup: {
@@ -209,7 +220,7 @@ module.exports = function(grunt) {
           format: 'amd',
           moduleId: HOPSCOTCH
         },
-        src: 'src/js/hopscotch_instance.js'
+        src: 'src/js/hopscotch.js'
       },
       umd: {
         dest: 'tmp/js/hopscotch_umd_tmp.js',
@@ -217,7 +228,7 @@ module.exports = function(grunt) {
           format: 'umd',
           moduleName: HOPSCOTCH
         },
-        src: 'src/js/hopscotch_instance.js'
+        src: 'src/js/hopscotch.js'
       },
       options: {
         plugins: [
@@ -264,7 +275,7 @@ module.exports = function(grunt) {
   grunt.registerTask(
     'build',
     'Build hopscotch for testing (jshint, minify js, process less to css)',
-    ['jshint:lib', 'clean', 'less', 'rollup', 'jst:compile', 'includereplace', 'uglify', 'copy:dist', 'copy:distBanner']
+    ['jshint:lib', 'clean', 'copy:build', 'less', 'rollup', 'jst:compile', 'includereplace', 'uglify', 'copy:dist', 'copy:distBanner']
   );
 
   grunt.registerTask  (

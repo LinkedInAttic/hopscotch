@@ -1,6 +1,6 @@
-/* global jQuery, window */
+/* global document */
 
-let Hopscotch,
+var Hopscotch,
     HopscotchBubble,
     HopscotchCalloutManager,
     HopscotchI18N,
@@ -17,11 +17,10 @@ let Hopscotch,
     winHopscotch,
     undefinedStr      = 'undefined',
     waitingToStart    = false, // is a tour waiting for the document to finish
-                               // loading so that it can start?
+                                // loading so that it can start?
     hasJquery         = (typeof jQuery !== undefinedStr),
     hasSessionStorage = false,
     isStorageWritable = false,
-    doc               = window.document,
     validIdRegEx      = /^[a-zA-Z]+[a-zA-Z0-9_-]*$/,
     rtlMatches        = {
       left: 'right',
@@ -255,7 +254,7 @@ utils = {
     }
     else {
       // Most likely IE <=8, which doesn't support pageYOffset
-      scrollTop = doc.documentElement.scrollTop;
+      scrollTop = document.documentElement.scrollTop;
     }
     return scrollTop;
   },
@@ -270,7 +269,7 @@ utils = {
     }
     else {
       // Most likely IE <=8, which doesn't support pageXOffset
-      scrollLeft = doc.documentElement.scrollLeft;
+      scrollLeft = document.documentElement.scrollLeft;
     }
     return scrollLeft;
   },
@@ -279,7 +278,7 @@ utils = {
    * @private
    */
   getWindowHeight: function() {
-    return window.innerHeight || doc.documentElement.clientHeight;
+    return window.innerHeight || document.documentElement.clientHeight;
   },
 
   /**
@@ -301,7 +300,7 @@ utils = {
   },
 
   documentIsReady: function() {
-    return doc.readyState === 'complete';
+    return document.readyState === 'complete';
   },
 
   /**
@@ -332,18 +331,18 @@ utils = {
    * Helper function to get a single target DOM element. We will try to
    * locate the DOM element through several ways, in the following order:
    *
-   * 1) Passing the string into doc.querySelector
+   * 1) Passing the string into document.querySelector
    * 2) Passing the string to jQuery, if it exists
    * 3) Passing the string to Sizzle, if it exists
-   * 4) Calling doc.getElementById if it is a plain id
+   * 4) Calling document.getElementById if it is a plain id
    *
    * Default case is to assume the string is a plain id and call
-   * doc.getElementById on it.
+   * document.getElementById on it.
    *
    * @private
    */
   getStepTargetHelper: function(target){
-    var result = doc.getElementById(target);
+    var result = document.getElementById(target);
 
     //Backwards compatibility: assume the string is an id
     if (result) {
@@ -357,15 +356,15 @@ utils = {
       result = new Sizzle(target);
       return result.length ? result[0] : null;
     }
-    if (doc.querySelector) {
+    if (document.querySelector) {
       try {
-        return doc.querySelector(target);
+        return document.querySelector(target);
       } catch (err) {}
     }
     // Regex test for id. Following the HTML 4 spec for valid id formats.
     // (http://www.w3.org/TR/html4/types.html#type-id)
     if (/^#[a-zA-Z][\w-_:.]*$/.test(target)) {
-      return doc.getElementById(target.substring(1));
+      return document.getElementById(target.substring(1));
     }
 
     return null;
@@ -457,7 +456,7 @@ utils = {
         date.setTime(date.getTime()+(days*24*60*60*1000));
         expires = '; expires='+date.toGMTString();
       }
-      doc.cookie = name+'='+value+expires+'; path=/';
+      document.cookie = name+'='+value+expires+'; path=/';
     }
   },
 
@@ -466,7 +465,7 @@ utils = {
    */
   getState: function(name) {
     var nameEQ = name + '=',
-        ca = doc.cookie.split(';'),
+        ca = document.cookie.split(';'),
         i,
         c,
         state;
@@ -815,8 +814,9 @@ HopscotchBubble.prototype = {
     }
 
     // Find arrow among new child elements.
-    children = el.children;
-    numChildren = children.length;
+    var children = el.children;
+    var numChildren = children.length;
+    var node;
     for (i = 0; i < numChildren; i++){
       node = children[i];
 
@@ -981,19 +981,19 @@ HopscotchBubble.prototype = {
     //with one of the classes we're looking for, or the triggering element.
     function findMatchRecur(el){
       /* We're going to make the assumption that we're not binding
-       * multiple event classes to the same element.
-       * (next + previous = wait... err... what?)
-       *
-       * In the odd event we end up with an element with multiple
-       * possible matches, the following priority order is applied:
-       * hopscotch-cta, hopscotch-next, hopscotch-prev, hopscotch-close
-       */
-       if(el === evt.currentTarget){ return null; }
-       if(utils.hasClass(el, 'hopscotch-cta')){ return 'cta'; }
-       if(utils.hasClass(el, 'hopscotch-next')){ return 'next'; }
-       if(utils.hasClass(el, 'hopscotch-prev')){ return 'prev'; }
-       if(utils.hasClass(el, 'hopscotch-close')){ return 'close'; }
-       /*else*/ return findMatchRecur(el.parentElement);
+        * multiple event classes to the same element.
+        * (next + previous = wait... err... what?)
+        *
+        * In the odd event we end up with an element with multiple
+        * possible matches, the following priority order is applied:
+        * hopscotch-cta, hopscotch-next, hopscotch-prev, hopscotch-close
+        */
+        if(el === evt.currentTarget){ return null; }
+        if(utils.hasClass(el, 'hopscotch-cta')){ return 'cta'; }
+        if(utils.hasClass(el, 'hopscotch-next')){ return 'next'; }
+        if(utils.hasClass(el, 'hopscotch-prev')){ return 'prev'; }
+        if(utils.hasClass(el, 'hopscotch-close')){ return 'close'; }
+        /*else*/ return findMatchRecur(el.parentElement);
     }
 
     action = findMatchRecur(targetElement);
@@ -1044,7 +1044,7 @@ HopscotchBubble.prototype = {
   },
 
   init: function(initOpt) {
-    var el              = doc.createElement('div'),
+    var el              = document.createElement('div'),
         self            = this,
         resizeCooldown  = false, // for updating after window resize
         onWinResize,
@@ -1119,31 +1119,31 @@ HopscotchBubble.prototype = {
 
     //Finally, append our new bubble to body once the DOM is ready.
     if (utils.documentIsReady()) {
-      doc.body.appendChild(el);
+      document.body.appendChild(el);
     }
     else {
       // Moz, webkit, Opera
-      if (doc.addEventListener) {
+      if (document.addEventListener) {
         appendToBody = function() {
-          doc.removeEventListener('DOMContentLoaded', appendToBody);
+          document.removeEventListener('DOMContentLoaded', appendToBody);
           window.removeEventListener('load', appendToBody);
 
-          doc.body.appendChild(el);
+          document.body.appendChild(el);
         };
 
-        doc.addEventListener('DOMContentLoaded', appendToBody, false);
+        document.addEventListener('DOMContentLoaded', appendToBody, false);
       }
       // IE
       else {
         appendToBody = function() {
-          if (doc.readyState === 'complete') {
-            doc.detachEvent('onreadystatechange', appendToBody);
+          if (document.readyState === 'complete') {
+            document.detachEvent('onreadystatechange', appendToBody);
             window.detachEvent('onload', appendToBody);
-            doc.body.appendChild(el);
+            document.body.appendChild(el);
           }
         };
 
-        doc.attachEvent('onreadystatechange', appendToBody);
+        document.attachEvent('onreadystatechange', appendToBody);
       }
       utils.addEvtListener(window, 'load', appendToBody);
     }
@@ -1437,7 +1437,7 @@ Hopscotch = function(initOptions) {
           typeof YAHOO.env.ua      !== undefinedStr &&
           typeof YAHOO.util        !== undefinedStr &&
           typeof YAHOO.util.Scroll !== undefinedStr) {
-        scrollEl = YAHOO.env.ua.webkit ? doc.body : doc.documentElement;
+        scrollEl = YAHOO.env.ua.webkit ? document.body : document.documentElement;
         yuiEase = YAHOO.util.Easing ? YAHOO.util.Easing.easeOut : undefined;
         yuiAnim = new YAHOO.util.Scroll(scrollEl, {
           scroll: { to: [0, scrollToVal] }
@@ -1616,7 +1616,7 @@ Hopscotch = function(initOptions) {
 
       if (wasMultiPage) {
         // Update state for the next page
-         setStateHelper();
+          setStateHelper();
 
         // Next step is on a different page, so no need to attempt to render it.
         return;
@@ -1839,7 +1839,7 @@ Hopscotch = function(initOptions) {
     // loadTour if we are calling startTour directly. (When we call startTour
     // from window onLoad handler, we'll use currTour)
     if (!currTour) {
-
+      
       // Sanity check! Is there a tour?
       if(!tour){
         throw new Error('Tour data is required for startTour.');
@@ -2054,7 +2054,7 @@ Hopscotch = function(initOptions) {
    */
   this.getSkippedStepsIndexes = function() {
     var skippedStepsIdxArray = [],
-       stepIds;
+        stepIds;
 
     for(stepIds in skippedSteps){
       skippedStepsIdxArray.push(stepIds);
@@ -2412,4 +2412,13 @@ Hopscotch = function(initOptions) {
   init.call(this, initOptions);
 };
 
-export default Hopscotch;
+winHopscotch = new Hopscotch();
+
+// Template includes, placed inside a closure to ensure we don't
+// end up declaring our shim globally.
+(function(){
+// @@include('../../src/tl/_template_headers.js') //
+// @@include('../../tmp/js/hopscotch_templates.js') //
+}.call(winHopscotch));
+
+export default winHopscotch;
