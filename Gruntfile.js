@@ -282,6 +282,14 @@ module.exports = function(grunt) {
         ]
       }
     },
+    shell: {
+      gitAddArchive: {
+        command: 'git add <%= paths.archive %>',
+        options: {
+          stdout: true
+        }
+      }
+    },
     uglify: {
       amd: {
         src:  '<%=paths.build%>/js/hopscotch_amd.js',
@@ -314,6 +322,7 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-contrib-watch');
   grunt.loadNpmTasks('grunt-include-replace');
   grunt.loadNpmTasks('grunt-rollup');
+  grunt.loadNpmTasks('grunt-shell');
 
   grunt.registerMultiTask('log', 'Print some messages', function() {
     grunt.log.ok(this.data.options.message);
