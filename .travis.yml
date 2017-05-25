@@ -1,7 +1,7 @@
 language: node_js
 node_js:
   - "stable"
-  - "4""
+  - "4"
   - "6"
 notifications:
   email:
