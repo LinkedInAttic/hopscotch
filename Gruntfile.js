@@ -1,3 +1,4 @@
+const babel = require('rollup-plugin-babel');
 const path = require('path');
 
 module.exports = function(grunt) {
@@ -28,7 +29,7 @@ module.exports = function(grunt) {
       testServer: {
         options: {
           port: 3000,
-          keepalive: false
+          keepalive: true
         }
       }
     },
@@ -182,7 +183,7 @@ module.exports = function(grunt) {
     log: {
       dev: {
         options: {
-          message: "Open http://localhost:<%= shell.server.port %>/_SpecRunner.html in a browser\nCtrl + C to stop the server."
+          message: "Open http://localhost:<%= connect.testServer.options.port %>/_SpecRunner.html in a browser\nCtrl + C to stop the server."
         }
       },
       coverage: {
@@ -197,6 +198,31 @@ module.exports = function(grunt) {
       source: 'src'
     },
     pkg: grunt.file.readJSON('package.json'),
+    rollup: {
+      amd: {
+        dest: 'tmp/js/hopscotch_amd.js',
+        options: {
+          format: 'amd',
+          moduleId: HOPSCOTCH
+        },
+        src: 'src/js/hopscotch_instance.js'
+      },
+      umd: {
+        dest: 'tmp/js/hopscotch_umd_tmp.js',
+        options: {
+          format: 'umd',
+          moduleName: HOPSCOTCH
+        },
+        src: 'src/js/hopscotch_instance.js'
+      },
+      options: {
+        plugins: [
+          babel({
+            exclude: 'node_modules/**'
+          })
+        ]
+      }
+    },
     uglify: {
       amd: {
         src:  '<%=paths.build%>/js/hopscotch_amd.js',
@@ -212,43 +238,6 @@ module.exports = function(grunt) {
         files: ['<%=paths.source%>/**/*', '<%=paths.test%>/**/*'],
         tasks: ['test']
       }
-    },
-    webpack: {
-      options: {
-        entry: './src/js/hopscotch_instance.js',
-        keepalive: false,
-        module: {
-          rules: [
-            {
-              test: /\.js$/,
-              exclude: /(node_modules|bower_components)/,
-              use: {
-                loader: 'babel-loader',
-                options: {
-                  presets: ['env']
-                }
-              }
-            }
-          ]
-        },
-        stats: !process.env.NODE_ENV || process.env.NODE_ENV === 'development'
-      },
-      hopscotchAmd: {
-        output: {
-          filename: 'hopscotch_amd_tmp.js',
-          library: HOPSCOTCH,
-          libraryTarget: 'amd',
-          path: path.join(process.cwd(), 'tmp', 'js')
-        }
-      },
-      hopscotchUmd: {
-        output: {
-          filename: 'hopscotch_umd_tmp.js',
-          library: HOPSCOTCH,
-          libraryTarget: 'umd',
-          path: path.join(process.cwd(), 'tmp', 'js')
-        }
-      }
     }
   });
 
@@ -262,7 +251,7 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-contrib-less');
   grunt.loadNpmTasks('grunt-contrib-uglify');
   grunt.loadNpmTasks('grunt-include-replace');
-  grunt.loadNpmTasks('grunt-webpack');
+  grunt.loadNpmTasks('grunt-rollup');
 
   grunt.registerMultiTask('log', 'Print some messages', function() {
     grunt.log.ok(this.data.options.message);
@@ -271,13 +260,13 @@ module.exports = function(grunt) {
   grunt.registerTask(
     'build',
     'Build hopscotch for testing (jshint, minify js, process less to css)',
-    ['jshint:lib', 'clean', 'less', 'webpack', 'jst:compile', 'includereplace', 'uglify', 'copy:dist']
+    ['jshint:lib', 'clean', 'less', 'rollup', 'jst:compile', 'includereplace', 'uglify', 'copy:dist']
   );
 
   grunt.registerTask  (
     'dev',
     'Start test server to allow debugging unminified hopscotch code in a browser',
-    ['build', 'jasmine:testDev:build', 'log:dev']
+    ['build', 'jasmine:testDev:build', 'log:dev', 'connect:testServer']
   );
 
   grunt.registerTask(
