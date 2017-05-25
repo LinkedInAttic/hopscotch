@@ -45,16 +45,20 @@ module.exports = function(grunt) {
             dest: '<%=paths.dist%>',
             expand: true,
             src: ['img/*']
-          },
+          }
+        ]
+      },
+      distBanner: {
+        options: {
+          process: function (content, srcpath) {
+            return grunt.template.process('<%=banner%>') + content;
+          }
+        },
+        files: [
           {
             cwd: '<%=paths.build%>',
             dest: '<%=paths.dist%>',
             expand: true,
-            options: {
-              process: function (content, srcpath) {
-                return grunt.template.process('<%=banner%>') + content;
-              }
-            },
             rename: function(dest, src) {
               return (src.indexOf('umd') >= 0) ?
                 path.join(dest, src.replace('_umd', '')) :
@@ -260,7 +264,7 @@ module.exports = function(grunt) {
   grunt.registerTask(
     'build',
     'Build hopscotch for testing (jshint, minify js, process less to css)',
-    ['jshint:lib', 'clean', 'less', 'rollup', 'jst:compile', 'includereplace', 'uglify', 'copy:dist']
+    ['jshint:lib', 'clean', 'less', 'rollup', 'jst:compile', 'includereplace', 'uglify', 'copy:dist', 'copy:distBanner']
   );
 
   grunt.registerTask  (
