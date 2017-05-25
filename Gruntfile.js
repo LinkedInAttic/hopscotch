@@ -4,7 +4,7 @@ const path = require('path');
 module.exports = function(grunt) {
   var HOPSCOTCH = 'hopscotch';
   grunt.initConfig({
-    banner : ['/**! <%=pkg.name%> - v<%=pkg.version%>',
+    banner: ['/**! <%=pkg.name%> - v<%=pkg.version%>',
         '*',
         '* Copyright 2017 LinkedIn Corp. All rights reserved.',
         '*',
@@ -21,7 +21,17 @@ module.exports = function(grunt) {
         '* limitations under the License.',
         '*/\n'
     ].join('\n'),
-    clean : {
+    bump: {
+      options: {
+        files: ['package.json'],
+        updateConfigs: ['pkg'],
+        push: false,
+        commit: true,
+        commitFiles: ['-a'],
+        createTag: true
+      }
+    },
+    clean: {
       build: ['<%=paths.build%>'],
       dist: ['<%=paths.dist%>']
     },
@@ -31,6 +41,38 @@ module.exports = function(grunt) {
           port: 3000,
           keepalive: true
         }
+      }
+    },
+    compress: {
+      distTarBall: {
+        options: {
+          archive: '<%=paths.archive%>/<%=distName%>.tar.gz',
+          mode: 'tgz',
+          pretty: true
+        },
+        files: [
+          {
+            cwd: '<%=paths.dist%>',
+            dest: '<%=distName%>',
+            expand: true,
+            src: ['**/*']
+          }
+        ]
+      },
+      distZip: {
+        options: {
+          archive: '<%=paths.archive%>/<%=distName%>.zip',
+            mode: 'zip',
+            pretty: true
+        },
+        files: [
+          {
+            cwd: '<%=paths.dist%>',
+            dest: '<%=distName%>/',
+            expand: true,
+            src: ['**/*']
+          }
+        ]
       }
     },
     copy: {
@@ -85,6 +127,7 @@ module.exports = function(grunt) {
         ]
       }
     },
+    distName: '<%=pkg.name%>-<%=pkg.version%>',
     includereplace: {
       jsSourceAmd: {
         options: {
@@ -206,7 +249,8 @@ module.exports = function(grunt) {
         }
       }
     },
-    paths : {
+    paths: {
+      archive: 'archives',
       build: 'tmp',
       dist: 'dist',
       source: 'src',
@@ -257,7 +301,9 @@ module.exports = function(grunt) {
   });
 
   //external tasks
+  grunt.loadNpmTasks('grunt-bump');
   grunt.loadNpmTasks('grunt-contrib-clean');
+  grunt.loadNpmTasks('grunt-contrib-compress');
   grunt.loadNpmTasks('grunt-contrib-connect');
   grunt.loadNpmTasks('grunt-contrib-copy');
   grunt.loadNpmTasks('grunt-contrib-jasmine');
@@ -265,6 +311,7 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-contrib-jst');
   grunt.loadNpmTasks('grunt-contrib-less');
   grunt.loadNpmTasks('grunt-contrib-uglify');
+  grunt.loadNpmTasks('grunt-contrib-watch');
   grunt.loadNpmTasks('grunt-include-replace');
   grunt.loadNpmTasks('grunt-rollup');
 
@@ -287,40 +334,7 @@ module.exports = function(grunt) {
   grunt.registerTask(
     'test',
     'Build hopscotch and run unit tests',
-    ['build','jasmine:testProd', 'jasmine:coverage']
-  );
-
-  grunt.registerTask(
-    'coverage',
-    'log:coverage',
-    ['build', 'jasmine:coverage', 'log:coverage']);
-  /*
-  grunt.loadNpmTasks('grunt-bump');
-  grunt.loadNpmTasks('grunt-contrib-compress');
-  grunt.loadNpmTasks('grunt-contrib-watch');
-  grunt.loadNpmTasks('grunt-shell');
-
-  grunt.registerMultiTask('log', 'Print some messages', function() {
-    grunt.log.ok(this.data.options.message);
-  });
-
-  //grunt task aliases
-  grunt.registerTask(
-    'build',
-    'Build hopscotch for testing (jshint, minify js, process less to css)',
-    ['jshint:lib', 'clean:build', 'copy:build', 'jst:compile', 'includereplace:jsSource', 'uglify:build', 'less']
-  );
-
-  grunt.registerTask(
-    'test',
-    'Build hopscotch and run unit tests',
-    ['build','jasmine:testProd', 'jasmine:coverage']
-  );
-
-  grunt.registerTask  (
-    'dev',
-    'Start test server to allow debugging unminified hopscotch code in a browser',
-    ['build', 'jasmine:testDev:build', 'log:dev', 'connect:testServer']
+    ['build', 'jasmine:testProd', 'jasmine:coverage']
   );
 
   grunt.registerTask(
@@ -332,24 +346,25 @@ module.exports = function(grunt) {
   grunt.registerTask(
     'buildRelease',
     'Build hopscotch for release (update files in dist directory and create tar.gz and zip archives of the release)',
-    ['test', 'clean:dist', 'copy:releaseWithBanner', 'copy:release', 'compress']
+    ['test', 'compress']
   );
+
   grunt.registerTask(
     'releasePatch',
     'Release patch update to hopscotch (bump patch version, update dist and archives folders, tag release and commit)',
     ['bump-only:patch', 'buildRelease', 'shell:gitAddArchive', 'bump-commit']
   );
+
   grunt.registerTask(
     'releaseMinor',
     'Release minor update to hopscotch (bump minor version, update dist and archives folders, tag release and commit)',
     ['bump-only:minor', 'buildRelease', 'shell:gitAddArchive', 'bump-commit']
   );
-  */
 
   // Default task.
   grunt.registerTask(
     'default',
     'Build hopscotch and run unit tests',
-    ['build']
+    ['test']
   );
 };
