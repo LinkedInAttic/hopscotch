@@ -259,7 +259,7 @@ module.exports = function(grunt) {
     pkg: grunt.file.readJSON('package.json'),
     rollup: {
       amd: {
-        dest: 'tmp/js/hopscotch_amd.js',
+        dest: 'tmp/js/hopscotch_amd_tmp.js',
         options: {
           format: 'amd',
           moduleId: HOPSCOTCH
