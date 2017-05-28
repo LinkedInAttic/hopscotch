@@ -44,6 +44,7 @@
     "grunt-rollup": "^1.0.1",
     "grunt-shell": "~0.3.1",
     "grunt-template-jasmine-istanbul": "^0.3.0",
+    "grunt-template-jasmine-requirejs": "^0.2.3",
     "jquery": "~2.1.0",
     "rollup-plugin-babel": "^2.7.1",
     "webpack": "^2.6.1"

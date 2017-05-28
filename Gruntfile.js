@@ -146,12 +146,34 @@ module.exports = function(grunt) {
         dest: '<%=paths.build%>/js/hopscotch_umd.js'
       },
     },
-    jasmine : {
+    jasmine: {
+      testAmdProd: {
+        src: '<%=paths.build%>/js/hopscotch_amd.min.js',
+        options: {
+          keepRunner: false,
+          outfile: '_SpecRunner.amd.html',
+          specs:  ['<%=paths.test%>/js/test.hopscotch.amd.js'],
+          styles: ['<%=paths.build%>/css/hopscotch.min.css'],
+          template: require('grunt-template-jasmine-requirejs'),
+          vendor: ['node_modules/jquery/dist/jquery.min.js']
+        }
+      },
+      testAmdDev: {
+        src: '<%=paths.build%>/js/hopscotch_amd.js',
+        options: {
+          keepRunner: false,
+          outfile: '_SpecRunner.amd.html',
+          specs:  ['<%=paths.test%>/js/test.hopscotch.amd.js'],
+          styles: ['<%=paths.build%>/css/hopscotch.min.css'],
+          template: require('grunt-template-jasmine-requirejs'),
+          vendor: ['node_modules/jquery/dist/jquery.min.js']
+        }
+      },
       testProd: {
         src: '<%=paths.build%>/js/hopscotch_umd.min.js',
         options: {
           keepRunner: false,
-          specs:  ['<%=paths.test%>/js/*.js'],
+          specs:  ['<%=paths.test%>/js/test.hopscotch.js'],
           vendor: ['node_modules/jquery/dist/jquery.min.js'],
           styles: ['<%=paths.build%>/css/hopscotch.min.css']
         }
@@ -160,7 +182,7 @@ module.exports = function(grunt) {
         src: '<%=paths.build%>/js/hopscotch_umd.js',
         options: {
           keepRunner: false,
-          specs:  ['<%=paths.test%>/js/*.js'],
+          specs:  ['<%=paths.test%>/js/test.hopscotch.js'],
           vendor: ['node_modules/jquery/dist/jquery.min.js'],
           styles: ['<%=paths.build%>/css/hopscotch.css']
         }
@@ -337,13 +359,13 @@ module.exports = function(grunt) {
   grunt.registerTask  (
     'dev',
     'Start test server to allow debugging unminified hopscotch code in a browser',
-    ['build', 'jasmine:testDev:build', 'log:dev', 'connect:testServer']
+    ['build', 'jasmine:testAmdDev:build', 'jasmine:testDev:build', 'log:dev', 'connect:testServer']
   );
 
   grunt.registerTask(
     'test',
     'Build hopscotch and run unit tests',
-    ['build', 'jasmine:testProd', 'jasmine:coverage']
+    ['build', 'jasmine:testAmdProd', 'jasmine:testProd', 'jasmine:coverage']
   );
 
   grunt.registerTask(
