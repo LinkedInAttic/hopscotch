@@ -23,6 +23,11 @@
     "url": "https://github.com/linkedin/hopscotch/issues"
   },
   "devDependencies": {
+    "babel-core": "^6.24.1",
+    "babel-loader": "^7.0.0",
+    "babel-plugin-external-helpers": "^6.22.0",
+    "babel-preset-env": "^1.5.1",
+    "babel-preset-latest": "^6.24.1",
     "grunt": "~0.4.1",
     "grunt-bump": "~0.0.13",
     "grunt-contrib-clean": "~0.5.0",
@@ -36,8 +41,12 @@
     "grunt-contrib-uglify": "~0.2.2",
     "grunt-contrib-watch": "~0.5.1",
     "grunt-include-replace": "~1.2.0",
+    "grunt-rollup": "^1.0.1",
     "grunt-shell": "~0.3.1",
     "grunt-template-jasmine-istanbul": "^0.3.0",
-    "jquery": "~2.1.0"
+    "grunt-template-jasmine-requirejs": "^0.2.3",
+    "jquery": "~2.1.0",
+    "rollup-plugin-babel": "^2.7.1",
+    "webpack": "^2.6.1"
   }
 }
