@@ -1,5 +1,11 @@
 ## Change Log
 
+### v0.3.0 (2017/06/02)
+ * [#337](https://github.com/linkedin/hopscotch/pull/337) Refactor build to generate UMD and AMD artifacts
+
+### v0.2.8 (2017/05/04)
+ * [#323](https://github.com/linkedin/hopscotch/pull/323) Fix the rest of the deprecated gradient warnings
+
 ### v0.2.7 (2017/02/24)
  * [#312](https://github.com/linkedin/hopscotch/pull/312) Generate templates without `with` keyword (now strict compatible)
  * [#307](https://github.com/linkedin/hopscotch/pull/307) Avoid "Gradient has outdated syntax" error

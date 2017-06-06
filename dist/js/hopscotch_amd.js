@@ -14,11 +14,7 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 */
-(function (global, factory) {
-  typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory() :
-  typeof define === 'function' && define.amd ? define(factory) :
-  (global.hopscotch = factory());
-}(this, (function () { 'use strict';
+define('hopscotch', function () { 'use strict';
 
   var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) {
     return typeof obj;
@@ -2508,4 +2504,4 @@ return __p
 
   return winHopscotch$1;
 
-})));
+});

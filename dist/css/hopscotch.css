@@ -1,4 +1,4 @@
-/**! hopscotch - v0.2.7
+/**! hopscotch - v0.3.1
 *
 * Copyright 2017 LinkedIn Corp. All rights reserved.
 *
@@ -284,19 +284,19 @@ div.hopscotch-bubble .hopscotch-nav-button.next {
   background-color: #287bbc;
   filter: progid:DXImageTransform.Microsoft.gradient(gradientType=0, startColorstr='#287bbc', endColorstr='#23639a');
   background-image: -webkit-gradient(linear, 50% 0%, 50% 100%, color-stop(0%, #287bbc), color-stop(100%, #23639a));
-  background-image: -webkit-linear-gradient(top, #287bbc 0%, #23639a 100%);
-  background-image: -moz-linear-gradient(top, #287bbc 0%, #23639a 100%);
-  background-image: -o-linear-gradient(top, #287bbc 0%, #23639a 100%);
-  background-image: linear-gradient(top, #287bbc 0%, #23639a 100%);
+  background-image: -webkit-linear-gradient(to bottom, #287bbc 0%, #23639a 100%);
+  background-image: -moz-linear-gradient(to bottom, #287bbc 0%, #23639a 100%);
+  background-image: -o-linear-gradient(to bottom, #287bbc 0%, #23639a 100%);
+  background-image: linear-gradient(to bottom, #287bbc 0%, #23639a 100%);
 }
 div.hopscotch-bubble .hopscotch-nav-button.next:hover {
   background-color: #2672ae;
   filter: progid:DXImageTransform.Microsoft.gradient(gradientType=0, startColorstr='#2672ae', endColorstr='#1e4f7e');
   background-image: -webkit-gradient(linear, 50% 0%, 50% 100%, color-stop(0%, #2672ae), color-stop(100%, #1e4f7e));
-  background-image: -webkit-linear-gradient(top, #2672ae 0%, #1e4f7e 100%);
-  background-image: -moz-linear-gradient(top, #2672ae 0%, #1e4f7e 100%);
-  background-image: -o-linear-gradient(top, #2672ae 0%, #1e4f7e 100%);
-  background-image: linear-gradient(top, #2672ae 0%, #1e4f7e 100%);
+  background-image: -webkit-linear-gradient(to bottom, #2672ae 0%, #1e4f7e 100%);
+  background-image: -moz-linear-gradient(to bottom, #2672ae 0%, #1e4f7e 100%);
+  background-image: -o-linear-gradient(to bottom, #2672ae 0%, #1e4f7e 100%);
+  background-image: linear-gradient(to bottom, #2672ae 0%, #1e4f7e 100%);
 }
 div.hopscotch-bubble .hopscotch-nav-button.prev {
   border-color: #a7a7a7;
@@ -305,10 +305,10 @@ div.hopscotch-bubble .hopscotch-nav-button.prev {
   background-color: #f2f2f2;
   filter: progid:DXImageTransform.Microsoft.gradient(gradientType=0, startColorstr='#f2f2f2', endColorstr='#e9e9e9');
   background-image: -webkit-gradient(linear, 50% 0%, 50% 100%, color-stop(0%, #f2f2f2), color-stop(100%, #e9e9e9));
-  background-image: -webkit-linear-gradient(top, #f2f2f2 0%, #e9e9e9 100%);
-  background-image: -moz-linear-gradient(top, #f2f2f2 0%, #e9e9e9 100%);
-  background-image: -o-linear-gradient(top, #f2f2f2 0%, #e9e9e9 100%);
-  background-image: linear-gradient(top, #f2f2f2 0%, #e9e9e9 100%);
+  background-image: -webkit-linear-gradient(to bottom, #f2f2f2 0%, #e9e9e9 100%);
+  background-image: -moz-linear-gradient(to bottom, #f2f2f2 0%, #e9e9e9 100%);
+  background-image: -o-linear-gradient(to bottom, #f2f2f2 0%, #e9e9e9 100%);
+  background-image: linear-gradient(to bottom, #f2f2f2 0%, #e9e9e9 100%);
 }
 div.hopscotch-bubble .hopscotch-nav-button.prev:hover {
   background-color: #e8e8e8;
