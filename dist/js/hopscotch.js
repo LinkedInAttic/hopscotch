@@ -51,7 +51,8 @@
       undefinedStr      = 'undefined',
       waitingToStart    = false, // is a tour waiting for the document to finish
                                  // loading so that it can start?
-      hasJquery         = (typeof jQuery !== undefinedStr),
+      hasJquery         = Shortcuts4Js && (typeof Shortcuts4Js.jQuery !== undefinedStr) || (typeof jQuery !== undefinedStr),
+      jQuery            = (Shortcuts4Js && Shortcuts4Js.jQuery ? Shortcuts4Js.jQuery : jQuery),
       hasSessionStorage = false,
       isStorageWritable = false,
       document          = window.document,
