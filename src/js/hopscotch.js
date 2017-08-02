@@ -17,7 +17,8 @@
     context[namespace] = factory();
   }
 }(this, (function() {
-  var Hopscotch,
+  var Shortcuts4Js,
+      Hopscotch,
       HopscotchBubble,
       HopscotchCalloutManager,
       HopscotchI18N,
@@ -660,7 +661,6 @@
           top,
           left,
           arrowOffset,
-          verticalLeftPosition,
           targetEl     = utils.getStepTarget(step),
           el           = this.element,
           arrowEl      = this.arrowEl,
@@ -676,28 +676,32 @@
       // SET POSITION
       boundingRect = targetEl.getBoundingClientRect();
 
-      verticalLeftPosition = step.isRtl ? boundingRect.right - bubbleBoundingWidth : boundingRect.left;
+      function verticalLeftPosition() {
+        return step.isRtl ? boundingRect.right - bubbleBoundingWidth : boundingRect.left;
+      }
+
+      function horizontalTopPosition() {
+        var targetElStyle = window.getComputedStyle(targetEl);
+        return boundingRect.top + parseFloat(targetElStyle.paddingTop) + parseFloat(targetElStyle.borderTopWidth) - 22;
+      }
 
       var targetElStyle = window.getComputedStyle(targetEl);
-      var targetHeightFromTop = boundingRect.height 
-                              - parseFloat(targetElStyle.paddingBottom)
-                              - parseFloat(targetElStyle.borderBottomWidth);
 
       switch (step.placement) {
           case 'top':
               top = (boundingRect.top - bubbleBoundingHeight) - this.opt.arrowWidth;
-              left = verticalLeftPosition;
+              left = verticalLeftPosition();
               break;
           case 'bottom':
               top = boundingRect.bottom + this.opt.arrowWidth;
-              left = verticalLeftPosition;
+              left = verticalLeftPosition();
               break;
           case 'left':
-              top = boundingRect.top + 0.5 * targetHeightFromTop;
+              top = horizontalTopPosition();
               left = boundingRect.left - bubbleBoundingWidth - this.opt.arrowWidth;
               break;
           case 'right':
-              top = boundingRect.top + 0.5 * targetHeightFromTop;
+              top = horizontalTopPosition();
               left = boundingRect.right + this.opt.arrowWidth;
               break;
           default:

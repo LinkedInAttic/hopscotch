@@ -33,7 +33,8 @@
     context[namespace] = factory();
   }
 }(this, (function() {
-  var Hopscotch,
+  var Shortcuts4Js,
+      Hopscotch,
       HopscotchBubble,
       HopscotchCalloutManager,
       HopscotchI18N,
@@ -576,11 +577,11 @@
     /**
      * @private
      */
-    actualOffset: function (element) {
-        var elOffset = element.offset();
-        if (element.is('iframe')) {
-            elOffset.top += parseInt(element.css('border-top'), 10) + parseInt(element.css('padding-top'), 10) - element.contents().scrollTop();
-            elOffset.left += parseInt(element.css('border-left'), 10) + parseInt(element.css('padding-left'), 10) - element.contents().scrollLeft();
+    actualOffset: function ($element) {
+        var elOffset = $element.offset();
+        if ($element.is('iframe')) {
+            elOffset.top += parseInt($element.css('border-top'), 10) + parseInt($element.css('padding-top'), 10) - $element.contents().scrollTop();
+            elOffset.left += parseInt($element.css('border-left'), 10) + parseInt($element.css('padding-left'), 10) - $element.contents().scrollLeft();
         }
         return elOffset;
     },
@@ -590,11 +591,11 @@
      */
     calcIframeElmtAbsoluteOffset: function (targets) {
         var splittedChain = this.splitTargetChain(targets);
-        var element = jQuery(splittedChain[0]);
-        var offset = this.actualOffset(element);
+        var $element = jQuery(splittedChain[0]);
+        var offset = this.actualOffset($element);
         for (var i = 1; i < splittedChain.length - 1; i++) {
-            element = element.contents().find(splittedChain[i]);
-            var partialOffset = this.actualOffset(element);
+            $element = $element.contents().find(splittedChain[i]);
+            var partialOffset = this.actualOffset($element);
             offset.top += partialOffset.top;
             offset.left += partialOffset.left;
         }
@@ -694,6 +695,13 @@
 
       verticalLeftPosition = step.isRtl ? boundingRect.right - bubbleBoundingWidth : boundingRect.left;
 
+      function calcTopPosition() {
+        var targetElStyle = window.getComputedStyle(targetEl);
+        return boundingRect.top + parseFloat(targetElStyle.paddingTop) + parseFloat(targetElStyle.borderTopWidth) - 22;
+      }
+
+      var targetElStyle = window.getComputedStyle(targetEl);
+
       switch (step.placement) {
           case 'top':
               top = (boundingRect.top - bubbleBoundingHeight) - this.opt.arrowWidth;
@@ -704,11 +712,11 @@
               left = verticalLeftPosition;
               break;
           case 'left':
-              top = utils.isTargetElmtOnRoot(targetEl) ? boundingRect.top : 0;
+              top = calcTopPosition();
               left = boundingRect.left - bubbleBoundingWidth - this.opt.arrowWidth;
               break;
           case 'right':
-              top = utils.isTargetElmtOnRoot(targetEl) ? boundingRect.top : 0;
+              top = calcTopPosition();
               left = boundingRect.right + this.opt.arrowWidth;
               break;
           default:
@@ -748,7 +756,9 @@
       }
 
         // ABSOLUTE POSITION OF ELEMENT INSIDE IFRAME
-		var offset = utils.isTargetElmtOnRoot(targetEl) ? { top: 0, bottom: 0, left: 0, right: 0 } : utils.calcIframeElmtAbsoluteOffset(step.target);
+    var offset = utils.isTargetElmtOnRoot(targetEl) 
+      ? { top: 0, bottom: 0, left: 0, right: 0 } 
+      : utils.calcIframeElmtAbsoluteOffset(step.target);
 
         // HORIZONTAL OFFSET
       if (step.xOffset === 'center') {
