@@ -1478,8 +1478,33 @@ var Shortcuts4Js;
          * @param {Function} cb Callback to invoke after done scrolling.
          */
         adjustWindowScroll = function (cb) {
-          var bubble = getBubble(),
+          var doScroll = function (targetTop, targetBottom, windowTop, windowBottom, scrollToVal, isTargetToScrollAnIFrame, jQueryTargetToScroll) {
 
+              var direction,
+              scrollIncr,
+              scrollTimeout,
+              scrollTimeoutFn;
+
+              // Target and bubble are both visible in viewport
+              if (targetTop >= windowTop && (targetTop <= windowTop + getOption('scrollTopMargin') || targetBottom <= windowBottom)) {
+                if (cb) { cb(); } // HopscotchBubble.show
+              }
+
+              // Smooth scroll to scroll target
+              else {
+                // Use jQuery if it exists
+                if (hasJquery) {
+                  if(isTargetToScrollAnIFrame && jQueryTargetToScroll) {
+                    jQuery(jQueryTargetToScroll).contents().find('body, html').animate({ scrollTop: scrollToVal }, getOption('scrollDuration'), cb);
+                  }
+                  else{
+                    jQuery(jQueryTargetToScroll ? jQueryTargetToScroll : 'body, html').animate({ scrollTop: scrollToVal }, getOption('scrollDuration'), cb);
+                  }
+                }
+              }
+          };
+
+          var bubble = getBubble(),
             // Calculate the bubble element top and bottom position
             bubbleEl = bubble.element,
             bubbleTop = utils.getPixelValue(bubbleEl.style.top),
@@ -1490,104 +1515,38 @@ var Shortcuts4Js;
             targetElChain = utils.splitTargetChain(getCurrStep().target),
             targetBounds = targetEl.getBoundingClientRect(),
             targetElTop = targetBounds.top + utils.getScrollTop(),
-            targetElBottom = targetBounds.bottom + utils.getScrollTop(),
+            targetElBottom = targetBounds.bottom + utils.getScrollTop();
 
-            // The higher of the two: bubble or target
-            targetTop = targetElChain.length > 1 ? bubbleTop : (bubbleTop < targetElTop) ? bubbleTop : targetElTop,
+          var arrayLength = targetElChain.length,
+          i = 0,
+          jQueryTargetToScroll,
+          isTargetToScrollAnIFrame;
+          
 
-            // The lower of the two: bubble or target
-            targetBottom = targetElChain.length > 1 ? bubbleBottom : (bubbleBottom > targetElBottom) ? bubbleBottom : targetElBottom,
+          targetElChain.forEach(function(element) {
+              // The higher of the two: bubble or target
+              var targetTop = targetElChain.length > 1 ? bubbleTop : (bubbleTop < targetElTop) ? bubbleTop : targetElTop,
+              // The lower of the two: bubble or target
+              targetBottom = targetElChain.length > 1 ? bubbleBottom : (bubbleBottom > targetElBottom) ? bubbleBottom : targetElBottom,
+              // Calculate the current viewport top and bottom
+              windowTop = utils.getScrollTop(),
+              windowBottom = windowTop + utils.getWindowHeight(),
+              // This is our final target scroll value.
+              scrollToVal = targetTop - getOption('scrollTopMargin'),
+              // Call bubble.show for the last element only
+              callback = i !== arrayLength - 1 ? undefined : cb;
+              // For iFrames. Every target to scroll is an iframe except the first
+              isTargetToScrollAnIFrame = i!== 0;
 
-            // Calculate the current viewport top and bottom
-            windowTop = utils.getScrollTop(),
-            windowBottom = windowTop + utils.getWindowHeight(),
-
-            // This is our final target scroll value.
-            scrollToVal = targetTop - getOption('scrollTopMargin'),
-
-            scrollEl,
-            yuiAnim,
-            yuiEase,
-            direction,
-            scrollIncr,
-            scrollTimeout,
-            scrollTimeoutFn;
-
-          // Target and bubble are both visible in viewport
-          if (targetTop >= windowTop && (targetTop <= windowTop + getOption('scrollTopMargin') || targetBottom <= windowBottom)) {
-            if (cb) { cb(); } // HopscotchBubble.show
-          }
-
-          // Abrupt scroll to scroll target
-          else if (!getOption('smoothScroll')) {
-            window.scrollTo(0, scrollToVal);
-
-            if (cb) { cb(); } // HopscotchBubble.show
-          }
-
-          // Smooth scroll to scroll target
-          else {
-            // Use YUI if it exists
-            if (typeof YAHOO !== undefinedStr &&
-              typeof YAHOO.env !== undefinedStr &&
-              typeof YAHOO.env.ua !== undefinedStr &&
-              typeof YAHOO.util !== undefinedStr &&
-              typeof YAHOO.util.Scroll !== undefinedStr) {
-              scrollEl = YAHOO.env.ua.webkit ? document.body : document.documentElement;
-              yuiEase = YAHOO.util.Easing ? YAHOO.util.Easing.easeOut : undefined;
-              yuiAnim = new YAHOO.util.Scroll(scrollEl, {
-                scroll: { to: [0, scrollToVal] }
-              }, getOption('scrollDuration') / 1000, yuiEase);
-              yuiAnim.onComplete.subscribe(cb);
-              yuiAnim.animate();
-            }
-
-            // Use jQuery if it exists
-            else if (hasJquery) {
-              jQuery('body, html').animate({ scrollTop: scrollToVal }, getOption('scrollDuration'), cb);
-            }
-
-            // Use my crummy setInterval scroll solution if we're using plain, vanilla Javascript.
-            else {
-              if (scrollToVal < 0) {
-                scrollToVal = 0;
+              doScroll(targetTop, targetBottom, windowTop, windowBottom, scrollToVal, isTargetToScrollAnIFrame, jQueryTargetToScroll);
+              
+              if(arrayLength > i){
+                jQueryTargetToScroll = targetElChain[i];
               }
 
-              // 48 * 10 == 480ms scroll duration
-              // make it slightly less than CSS transition duration because of
-              // setInterval overhead.
-              // To increase or decrease duration, change the divisor of scrollIncr.
-              direction = (windowTop > targetTop) ? -1 : 1; // -1 means scrolling up, 1 means down
-              scrollIncr = Math.abs(windowTop - scrollToVal) / (getOption('scrollDuration') / 10);
-              scrollTimeoutFn = function () {
-                var scrollTop = utils.getScrollTop(),
-                  scrollTarget = scrollTop + (direction * scrollIncr);
-
-                if ((direction > 0 && scrollTarget >= scrollToVal) ||
-                  (direction < 0 && scrollTarget <= scrollToVal)) {
-                  // Overshot our target. Just manually set to equal the target
-                  // and clear the interval
-                  scrollTarget = scrollToVal;
-                  if (cb) { cb(); } // HopscotchBubble.show
-                  window.scrollTo(0, scrollTarget);
-                  return;
-                }
-
-                window.scrollTo(0, scrollTarget);
-
-                if (utils.getScrollTop() === scrollTop) {
-                  // Couldn't scroll any further.
-                  if (cb) { cb(); } // HopscotchBubble.show
-                  return;
-                }
-
-                // If we reached this point, that means there's still more to scroll.
-                setTimeout(scrollTimeoutFn, 10);
-              };
-
-              scrollTimeoutFn();
-            }
-          }
+              i++;
+              
+          }, this);
         },
 
         /**
