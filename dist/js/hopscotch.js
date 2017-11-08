@@ -299,6 +299,22 @@ var Shortcuts4Js;
       /**
        * @private
        */
+      getIframeScrollTop: function (targetEl) {
+        var scrollTop = 0, //utils.getScrollTop(),
+        targetElChain = utils.splitTargetChain(targetEl),
+        $element = jQuery(targetElChain[0]).contents().find('html, body');
+        scrollTop += $element.scrollTop();
+
+        for(var i = 1; i < targetElChain.length; i++) {
+          $element = $element.contents().find(targetElChain[i]);
+          scrollTop -= $element.scrollTop();
+        }
+        return scrollTop;
+      },
+
+      /**
+       * @private
+       */
       getScrollLeft: function () {
         var scrollLeft;
         if (typeof window.pageXOffset !== undefinedStr) {
@@ -778,7 +794,12 @@ var Shortcuts4Js;
         // ADJUST TOP FOR SCROLL POSITION
         if (!step.fixedElement && utils.isTargetElmtOnRoot(targetEl)) {
           top += utils.getScrollTop();
-          left += utils.getScrollLeft();
+          left += utils.getScrollLeft(); // PTI
+        }
+        else {
+          if(!step.fixedElement) {
+            top += utils.getIframeScrollTop(step.target);
+          }
         }
 
         // ACCOUNT FOR FIXED POSITION ELEMENTS
@@ -1497,7 +1518,7 @@ var Shortcuts4Js;
                   if(isTargetToScrollAnIFrame && jQueryTargetToScroll) {
                     jQuery(jQueryTargetToScroll).contents().find('body, html').animate({ scrollTop: scrollToVal }, getOption('scrollDuration'), cb);
                   }
-                  else{
+                  else {
                     jQuery(jQueryTargetToScroll ? jQueryTargetToScroll : 'body, html').animate({ scrollTop: scrollToVal }, getOption('scrollDuration'), cb);
                   }
                 }
@@ -1525,7 +1546,7 @@ var Shortcuts4Js;
 
           targetElChain.forEach(function(element) {
               // The higher of the two: bubble or target
-              var targetTop = targetElChain.length > 1 ? bubbleTop : (bubbleTop < targetElTop) ? bubbleTop : targetElTop,
+              var targetTop = targetElChain.length > 1 ? bubbleTop : (bubbleTop < targetElTop) ? bubbleTop : targetElTop, // ???????????
               // The lower of the two: bubble or target
               targetBottom = targetElChain.length > 1 ? bubbleBottom : (bubbleBottom > targetElBottom) ? bubbleBottom : targetElBottom,
               // Calculate the current viewport top and bottom
@@ -1540,7 +1561,7 @@ var Shortcuts4Js;
 
               doScroll(targetTop, targetBottom, windowTop, windowBottom, scrollToVal, isTargetToScrollAnIFrame, jQueryTargetToScroll);
               
-              if(arrayLength > i){
+              if(arrayLength > i) {
                 jQueryTargetToScroll = targetElChain[i];
               }
 

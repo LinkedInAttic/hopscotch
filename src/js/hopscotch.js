@@ -283,6 +283,22 @@ var Shortcuts4Js;
       /**
        * @private
        */
+      getIframeScrollTop: function (targetEl) {
+        var scrollTop = 0, //utils.getScrollTop(),
+        targetElChain = utils.splitTargetChain(targetEl),
+        $element = jQuery(targetElChain[0]).contents().find('html, body');
+        scrollTop += $element.scrollTop();
+
+        for(var i = 1; i < targetElChain.length; i++) {
+          $element = $element.contents().find(targetElChain[i]);
+          scrollTop -= $element.scrollTop();
+        }
+        return scrollTop;
+      },
+
+      /**
+       * @private
+       */
       getScrollLeft: function () {
         var scrollLeft;
         if (typeof window.pageXOffset !== undefinedStr) {
@@ -763,6 +779,11 @@ var Shortcuts4Js;
         if (!step.fixedElement && utils.isTargetElmtOnRoot(targetEl)) {
           top += utils.getScrollTop();
           left += utils.getScrollLeft();
+        }
+        else {
+          if(!step.fixedElement) {
+            top += utils.getIframeScrollTop(step.target);
+          }
         }
 
         // ACCOUNT FOR FIXED POSITION ELEMENTS
@@ -1524,7 +1545,7 @@ var Shortcuts4Js;
 
               doScroll(targetTop, targetBottom, windowTop, windowBottom, scrollToVal, isTargetToScrollAnIFrame, jQueryTargetToScroll);
               
-              if(arrayLength > i){
+              if(arrayLength > i) {
                 jQueryTargetToScroll = targetElChain[i];
               }
 
