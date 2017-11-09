@@ -1483,7 +1483,7 @@ var Shortcuts4Js;
          * @param {Function} cb Callback to invoke after done scrolling.
          */
         adjustWindowScroll = function (cb) {
-          var doScroll = function (targetTop, targetBottom, windowTop, windowBottom, scrollToVal, isTargetToScrollAnIFrame, jQueryTargetToScroll) {
+          var doScroll = function (targetTop, targetBottom, windowTop, windowBottom, scrollToVal, isTargetToScrollAnIFrame, jQueryTargetToScroll, previousIframe) {
 
               var scrollIncr,
               scrollTimeout,
@@ -1499,7 +1499,12 @@ var Shortcuts4Js;
                 // Use jQuery if it exists
                 if (hasJquery) {
                   if(isTargetToScrollAnIFrame && jQueryTargetToScroll) {
-                    jQuery(jQueryTargetToScroll).contents().find('body, html').animate({ scrollTop: scrollToVal }, getOption('scrollDuration'), cb);
+                    if(!previousIframe){
+                      jQuery(jQueryTargetToScroll).contents().find('body, html').animate({ scrollTop: scrollToVal }, getOption('scrollDuration'), cb);
+                    }
+                    else {
+                      previousIframe.contents().find(jQueryTargetToScroll).contents().find('body, html').animate({ scrollTop: scrollToVal }, getOption('scrollDuration'), cb);
+                    }
                   }
                   else {
                     jQuery(jQueryTargetToScroll ? jQueryTargetToScroll : 'body, html').animate({ scrollTop: scrollToVal }, getOption('scrollDuration'), cb);
@@ -1525,7 +1530,7 @@ var Shortcuts4Js;
           i = 0,
           jQueryTargetToScroll,
           isTargetToScrollAnIFrame;
-          var previousJQueryElement;
+          var previousJQueryElement, previousIframe = undefined;
           
 
           targetElChain.forEach(function(element) {
@@ -1535,26 +1540,25 @@ var Shortcuts4Js;
               //var targetBottom = (bubbleBottom > targetElBottom) ? bubbleBottom : targetElBottom;
               // Calculate the current viewport top and bottom
               var targetTop = 0;
-              
-
               var windowTop = utils.getScrollTop();
               var windowBottom = windowTop + utils.getWindowHeight();
               
               // Call bubble.show for the last element only
               var callback = i !== arrayLength - 1 ? undefined : cb;
 
-
               // First element only
               if(i === 0) {
                 targetTop = jQuery(element).offset().top - getOption('scrollTopMargin');
               }
               else { // Iframes
-                if(!previousJQueryElement){
+                if(!previousJQueryElement){ //First iframe
                   previousJQueryElement = jQuery(jQueryTargetToScroll).contents().find(element)[0];
-                } else {
-                  previousJQueryElement = jQuery(previousJQueryElement).contents().find(element)[0];
+                  
+                } else { // Other iframes
+                  previousJQueryElement = previousJQueryElement.contents().find(element)[0];
                 }
                 targetTop = previousJQueryElement.offsetTop;
+                previousJQueryElement = jQuery(previousJQueryElement);
               }
 
               // This is our final target scroll value.
@@ -1562,13 +1566,15 @@ var Shortcuts4Js;
               
               var targetBottom = targetTop; //wip
 
-
-
               // For iFrames. Every target to scroll is an iframe except the first
               isTargetToScrollAnIFrame = i!== 0;
               console.log("Scroll "+ jQueryTargetToScroll + " to " + scrollToVal + " ( "+ (arrayLength > i ? targetElChain[i] : undefined) + " )");
-              doScroll(targetTop, targetBottom, windowTop, windowBottom, scrollToVal, isTargetToScrollAnIFrame, jQueryTargetToScroll);
+              doScroll(targetTop, targetBottom, windowTop, windowBottom, scrollToVal, isTargetToScrollAnIFrame, jQueryTargetToScroll, previousIframe);
               
+              if(i > 0){
+                previousIframe = jQuery(jQueryTargetToScroll);
+              }
+
               if(arrayLength > i) {
                 jQueryTargetToScroll = targetElChain[i];
               }

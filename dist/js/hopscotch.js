@@ -1499,7 +1499,7 @@ var Shortcuts4Js;
          * @param {Function} cb Callback to invoke after done scrolling.
          */
         adjustWindowScroll = function (cb) {
-          var doScroll = function (targetTop, targetBottom, windowTop, windowBottom, scrollToVal, isTargetToScrollAnIFrame, jQueryTargetToScroll) {
+          var doScroll = function (targetTop, targetBottom, windowTop, windowBottom, scrollToVal, isTargetToScrollAnIFrame, jQueryTargetToScroll, previousJQueryElement) {
 
               var scrollIncr,
               scrollTimeout,
@@ -1515,7 +1515,12 @@ var Shortcuts4Js;
                 // Use jQuery if it exists
                 if (hasJquery) {
                   if(isTargetToScrollAnIFrame && jQueryTargetToScroll) {
-                    jQuery(jQueryTargetToScroll).contents().find('body, html').animate({ scrollTop: scrollToVal }, getOption('scrollDuration'), cb);
+                    if(!previousJQueryElement){
+                      jQuery(jQueryTargetToScroll).contents().find('body, html').animate({ scrollTop: scrollToVal }, getOption('scrollDuration'), cb);
+                    }
+                    else {
+                      previousJQueryElement.contents().find(jQueryTargetToScroll).contents().find('body, html').animate({ scrollTop: scrollToVal }, getOption('scrollDuration'), cb);
+                    }
                   }
                   else {
                     jQuery(jQueryTargetToScroll ? jQueryTargetToScroll : 'body, html').animate({ scrollTop: scrollToVal }, getOption('scrollDuration'), cb);
@@ -1541,7 +1546,7 @@ var Shortcuts4Js;
           i = 0,
           jQueryTargetToScroll,
           isTargetToScrollAnIFrame;
-          var previousJQueryElement;
+          var previousJQueryElement, toto = undefined;
           
 
           targetElChain.forEach(function(element) {
@@ -1559,7 +1564,6 @@ var Shortcuts4Js;
               // Call bubble.show for the last element only
               var callback = i !== arrayLength - 1 ? undefined : cb;
 
-
               // First element only
               if(i === 0) {
                 targetTop = jQuery(element).offset().top - getOption('scrollTopMargin');
@@ -1567,10 +1571,12 @@ var Shortcuts4Js;
               else { // Iframes
                 if(!previousJQueryElement){
                   previousJQueryElement = jQuery(jQueryTargetToScroll).contents().find(element)[0];
+                  
                 } else {
-                  previousJQueryElement = jQuery(previousJQueryElement).contents().find(element)[0];
+                  previousJQueryElement = previousJQueryElement.contents().find(element)[0];
                 }
                 targetTop = previousJQueryElement.offsetTop;
+                previousJQueryElement = jQuery(previousJQueryElement);
               }
 
               // This is our final target scroll value.
@@ -1578,13 +1584,16 @@ var Shortcuts4Js;
               
               var targetBottom = targetTop; //wip
 
-
-
               // For iFrames. Every target to scroll is an iframe except the first
               isTargetToScrollAnIFrame = i!== 0;
               console.log("Scroll "+ jQueryTargetToScroll + " to " + scrollToVal + " ( "+ (arrayLength > i ? targetElChain[i] : undefined) + " )");
-              doScroll(targetTop, targetBottom, windowTop, windowBottom, scrollToVal, isTargetToScrollAnIFrame, jQueryTargetToScroll);
+              doScroll(targetTop, targetBottom, windowTop, windowBottom, scrollToVal, isTargetToScrollAnIFrame, jQueryTargetToScroll, toto);
               
+              if(i > 0){
+                toto = jQuery(jQueryTargetToScroll);
+              }
+              
+
               if(arrayLength > i) {
                 jQueryTargetToScroll = targetElChain[i];
               }
