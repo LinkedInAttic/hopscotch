@@ -1499,34 +1499,25 @@ var Shortcuts4Js;
          * @param {Function} cb Callback to invoke after done scrolling.
          */
         adjustWindowScroll = function (cb) {
-          var doScroll = function (targetTop, targetBottom, windowTop, windowBottom, scrollToVal, isTargetToScrollAnIFrame, jQueryTargetToScroll, previousJQueryElement) {
+          var doScroll = function (targetTop, targetBottom, windowTop, windowBottom, scrollToVal, isTargetToScrollAnIFrame, jQueryTargetToScroll, previousIframe) {
 
               var scrollIncr,
               scrollTimeout,
               scrollTimeoutFn;
-
-              // Target and bubble are both visible in viewport
-              /*if (targetTop >= windowTop && (targetTop <= windowTop + getOption('scrollTopMargin') || targetBottom <= windowBottom)) {
-                if (cb) { cb(); } // HopscotchBubble.show
-              }*/
-
-              // Smooth scroll to scroll target
-              //else {
                 // Use jQuery if it exists
-                if (hasJquery) {
-                  if(isTargetToScrollAnIFrame && jQueryTargetToScroll) {
-                    if(!previousJQueryElement){
-                      jQuery(jQueryTargetToScroll).contents().find('body, html').animate({ scrollTop: scrollToVal }, getOption('scrollDuration'), cb);
-                    }
-                    else {
-                      previousJQueryElement.contents().find(jQueryTargetToScroll).contents().find('body, html').animate({ scrollTop: scrollToVal }, getOption('scrollDuration'), cb);
-                    }
+              if (hasJquery) {
+                if(isTargetToScrollAnIFrame && jQueryTargetToScroll) {
+                  if(!previousIframe){
+                    jQuery(jQueryTargetToScroll).contents().find('body, html').animate({ scrollTop: scrollToVal }, getOption('scrollDuration'), cb);
                   }
                   else {
-                    jQuery(jQueryTargetToScroll ? jQueryTargetToScroll : 'body, html').animate({ scrollTop: scrollToVal }, getOption('scrollDuration'), cb);
+                    previousIframe.contents().find(jQueryTargetToScroll).contents().find('body, html').animate({ scrollTop: scrollToVal }, getOption('scrollDuration'), cb);
                   }
                 }
-              //}
+                else {
+                  jQuery(jQueryTargetToScroll ? jQueryTargetToScroll : 'body, html').animate({ scrollTop: scrollToVal }, getOption('scrollDuration'), cb);
+                }
+              }
           };
 
           var bubble = getBubble(),
@@ -1546,18 +1537,12 @@ var Shortcuts4Js;
           i = 0,
           jQueryTargetToScroll,
           isTargetToScrollAnIFrame;
-          var previousJQueryElement, toto = undefined;
+          var previousJQueryElement, previousIframe = undefined;
           
 
           targetElChain.forEach(function(element) {
-              // The higher of the two: bubble or target
-              //var targetTop = (bubbleTop < targetElTop) ? bubbleTop : targetElTop;
-              // The lower of the two: bubble or target
-              //var targetBottom = (bubbleBottom > targetElBottom) ? bubbleBottom : targetElBottom;
               // Calculate the current viewport top and bottom
               var targetTop = 0;
-              
-
               var windowTop = utils.getScrollTop();
               var windowBottom = windowTop + utils.getWindowHeight();
               
@@ -1569,10 +1554,10 @@ var Shortcuts4Js;
                 targetTop = jQuery(element).offset().top - getOption('scrollTopMargin');
               }
               else { // Iframes
-                if(!previousJQueryElement){
+                if(!previousJQueryElement){ //First iframe
                   previousJQueryElement = jQuery(jQueryTargetToScroll).contents().find(element)[0];
                   
-                } else {
+                } else { // Other iframes
                   previousJQueryElement = previousJQueryElement.contents().find(element)[0];
                 }
                 targetTop = previousJQueryElement.offsetTop;
@@ -1586,13 +1571,11 @@ var Shortcuts4Js;
 
               // For iFrames. Every target to scroll is an iframe except the first
               isTargetToScrollAnIFrame = i!== 0;
-              console.log("Scroll "+ jQueryTargetToScroll + " to " + scrollToVal + " ( "+ (arrayLength > i ? targetElChain[i] : undefined) + " )");
-              doScroll(targetTop, targetBottom, windowTop, windowBottom, scrollToVal, isTargetToScrollAnIFrame, jQueryTargetToScroll, toto);
+              doScroll(targetTop, targetBottom, windowTop, windowBottom, scrollToVal, isTargetToScrollAnIFrame, jQueryTargetToScroll, previousIframe);
               
               if(i > 0){
-                toto = jQuery(jQueryTargetToScroll);
+                previousIframe = jQuery(jQueryTargetToScroll);
               }
-              
 
               if(arrayLength > i) {
                 jQueryTargetToScroll = targetElChain[i];

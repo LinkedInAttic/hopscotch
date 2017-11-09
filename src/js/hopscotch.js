@@ -1488,29 +1488,20 @@ var Shortcuts4Js;
               var scrollIncr,
               scrollTimeout,
               scrollTimeoutFn;
-
-              // Target and bubble are both visible in viewport
-              /*if (targetTop >= windowTop && (targetTop <= windowTop + getOption('scrollTopMargin') || targetBottom <= windowBottom)) {
-                if (cb) { cb(); } // HopscotchBubble.show
-              }*/
-
-              // Smooth scroll to scroll target
-              //else {
                 // Use jQuery if it exists
-                if (hasJquery) {
-                  if(isTargetToScrollAnIFrame && jQueryTargetToScroll) {
-                    if(!previousIframe){
-                      jQuery(jQueryTargetToScroll).contents().find('body, html').animate({ scrollTop: scrollToVal }, getOption('scrollDuration'), cb);
-                    }
-                    else {
-                      previousIframe.contents().find(jQueryTargetToScroll).contents().find('body, html').animate({ scrollTop: scrollToVal }, getOption('scrollDuration'), cb);
-                    }
+              if (hasJquery) {
+                if(isTargetToScrollAnIFrame && jQueryTargetToScroll) {
+                  if(!previousIframe){
+                    jQuery(jQueryTargetToScroll).contents().find('body, html').animate({ scrollTop: scrollToVal }, getOption('scrollDuration'), cb);
                   }
                   else {
-                    jQuery(jQueryTargetToScroll ? jQueryTargetToScroll : 'body, html').animate({ scrollTop: scrollToVal }, getOption('scrollDuration'), cb);
+                    previousIframe.contents().find(jQueryTargetToScroll).contents().find('body, html').animate({ scrollTop: scrollToVal }, getOption('scrollDuration'), cb);
                   }
                 }
-              //}
+                else {
+                  jQuery(jQueryTargetToScroll ? jQueryTargetToScroll : 'body, html').animate({ scrollTop: scrollToVal }, getOption('scrollDuration'), cb);
+                }
+              }
           };
 
           var bubble = getBubble(),
@@ -1534,10 +1525,6 @@ var Shortcuts4Js;
           
 
           targetElChain.forEach(function(element) {
-              // The higher of the two: bubble or target
-              //var targetTop = (bubbleTop < targetElTop) ? bubbleTop : targetElTop;
-              // The lower of the two: bubble or target
-              //var targetBottom = (bubbleBottom > targetElBottom) ? bubbleBottom : targetElBottom;
               // Calculate the current viewport top and bottom
               var targetTop = 0;
               var windowTop = utils.getScrollTop();
@@ -1568,7 +1555,6 @@ var Shortcuts4Js;
 
               // For iFrames. Every target to scroll is an iframe except the first
               isTargetToScrollAnIFrame = i!== 0;
-              console.log("Scroll "+ jQueryTargetToScroll + " to " + scrollToVal + " ( "+ (arrayLength > i ? targetElChain[i] : undefined) + " )");
               doScroll(targetTop, targetBottom, windowTop, windowBottom, scrollToVal, isTargetToScrollAnIFrame, jQueryTargetToScroll, previousIframe);
               
               if(i > 0){
