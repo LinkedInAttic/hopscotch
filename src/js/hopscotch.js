@@ -1552,7 +1552,7 @@ var Shortcuts4Js;
                 if(!previousJQueryElement){
                   previousJQueryElement = jQuery(jQueryTargetToScroll).contents().find(element)[0];
                 } else {
-                  previousJQueryElement = previousJQueryElement.contents().find(element)[0];
+                  previousJQueryElement = jQuery(previousJQueryElement).contents().find(element)[0];
                 }
                 targetTop = previousJQueryElement.offsetTop;
               }
