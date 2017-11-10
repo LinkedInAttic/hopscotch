@@ -1514,7 +1514,7 @@ var Shortcuts4Js;
           i = 0,
           jQueryTargetToScroll,
           isTargetToScrollAnIFrame;
-          var previousJQueryElement, previousIframe = undefined;
+          var previousJQueryElement, previousIframe;
           
 
           targetElChain.forEach(function(element) {
