@@ -306,8 +306,8 @@ var Shortcuts4Js;
         scrollTop += $element.scrollTop();
 
         //for(var i = 1; i < targetElChain.length; i++) {
-          $element = $element.contents().find(targetElChain[targetElChain.length -1]);
-          scrollTop -= $element.scrollTop();
+          //$element = $element.contents().find(targetElChain[targetElChain.length -1]);
+          //scrollTop -= $element.scrollTop();
         //}
         return scrollTop;
       },

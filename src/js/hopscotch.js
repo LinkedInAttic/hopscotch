@@ -284,15 +284,10 @@ var Shortcuts4Js;
        * @private
        */
       getIframeScrollTop: function (targetEl) {
-        var scrollTop = 0, //utils.getScrollTop(),
+        var scrollTop = 0,
         targetElChain = utils.splitTargetChain(targetEl),
         $element = jQuery(targetElChain[0]).contents().find('html, body');
         scrollTop += $element.scrollTop();
-
-        //for(var i = 1; i < targetElChain.length; i++) {
-          $element = $element.contents().find(targetElChain[targetElChain.length -1]);
-          scrollTop -= $element.scrollTop();
-        //}
         return scrollTop;
       },
 
