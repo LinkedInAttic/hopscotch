@@ -1492,6 +1492,9 @@ var Shortcuts4Js;
          * @param {Function} cb Callback to invoke after done scrolling.
          */
         adjustWindowScroll = function (cb) {
+          if(!hasJquery){
+            return;
+          }
           var doScroll = function (targetTop, targetBottom, windowTop, windowBottom, scrollToVal, isTargetToScrollAnIFrame, jQueryTargetToScroll, previousIframe) {
 
               var scrollIncr,
