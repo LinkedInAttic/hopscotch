@@ -284,11 +284,9 @@ var Shortcuts4Js;
        * @private
        */
       getIframeScrollTop: function (targetEl) {
-        var scrollTop = 0,
-        targetElChain = utils.splitTargetChain(targetEl),
+        var targetElChain = utils.splitTargetChain(targetEl),
         $element = jQuery(targetElChain[0]).contents().find('html, body');
-        scrollTop += $element.scrollTop();
-        return scrollTop;
+        return $element.scrollTop();
       },
 
       /**
@@ -576,8 +574,8 @@ var Shortcuts4Js;
       actualOffset: function ($element) {
         var elOffset = $element.offset();
         if ($element.is('iframe')) {
-          elOffset.top += parseInt($element.css('border-top'), 10) + parseInt($element.css('padding-top'), 10) - $element.contents().scrollTop();
-          elOffset.left += parseInt($element.css('border-left'), 10) + parseInt($element.css('padding-left'), 10) - $element.contents().scrollLeft();
+          elOffset.top += (parseInt($element.css('border-top'), 10) || 0) + (parseInt($element.css('padding-top'), 10) || 0) - $element.contents().scrollTop();
+          elOffset.left += (parseInt($element.css('border-left'), 10) || 0) + (parseInt($element.css('padding-left'), 10) || 0) - $element.contents().scrollLeft();
         }
         return elOffset;
       },
@@ -1546,7 +1544,7 @@ var Shortcuts4Js;
               // This is our final target scroll value.
               var scrollToVal = targetTop;
               
-              var targetBottom = targetTop; //wip
+              var targetBottom = targetTop;
 
               // For iFrames. Every target to scroll is an iframe except the first
               isTargetToScrollAnIFrame = i!== 0;
