@@ -1492,6 +1492,7 @@ var Shortcuts4Js;
          * @param {Function} cb Callback to invoke after done scrolling.
          */
         adjustWindowScroll = function (cb) {
+          // jQuery is required
           if(!hasJquery){
             return;
           }
@@ -1500,19 +1501,16 @@ var Shortcuts4Js;
               var scrollIncr,
               scrollTimeout,
               scrollTimeoutFn;
-                // Use jQuery if it exists
-              if (hasJquery) {
-                if(isTargetToScrollAnIFrame && jQueryTargetToScroll) {
-                  if(!previousIframe){
-                    jQuery(jQueryTargetToScroll).contents().find('body, html').animate({ scrollTop: scrollToVal }, getOption('scrollDuration'), cb);
-                  }
-                  else {
-                    previousIframe.contents().find(jQueryTargetToScroll).contents().find('body, html').animate({ scrollTop: scrollToVal }, getOption('scrollDuration'), cb);
-                  }
+              if(isTargetToScrollAnIFrame && jQueryTargetToScroll) {
+                if(!previousIframe){
+                  jQuery(jQueryTargetToScroll).contents().find('body, html').animate({ scrollTop: scrollToVal }, getOption('scrollDuration'), cb);
                 }
                 else {
-                  jQuery(jQueryTargetToScroll ? jQueryTargetToScroll : 'body, html').animate({ scrollTop: scrollToVal }, getOption('scrollDuration'), cb);
+                  previousIframe.contents().find(jQueryTargetToScroll).contents().find('body, html').animate({ scrollTop: scrollToVal }, getOption('scrollDuration'), cb);
                 }
+              }
+              else {
+                jQuery(jQueryTargetToScroll ? jQueryTargetToScroll : 'body, html').animate({ scrollTop: scrollToVal }, getOption('scrollDuration'), cb);
               }
           };
 
