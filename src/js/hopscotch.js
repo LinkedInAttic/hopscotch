@@ -1494,7 +1494,7 @@ var Shortcuts4Js;
                 }
               }
               else {
-                jQuery(jQueryTargetToScroll ? jQueryTargetToScroll : 'body, html').animate({ scrollTop: scrollToVal }, getOption('scrollDuration'), cb);
+                jQuery(jQueryTargetToScroll || 'body, html').animate({ scrollTop: scrollToVal }, getOption('scrollDuration'), cb);
               }
           };
 
@@ -1514,8 +1514,9 @@ var Shortcuts4Js;
           var arrayLength = targetElChain.length,
           i = 0,
           jQueryTargetToScroll,
-          isTargetToScrollAnIFrame;
-          var previousJQueryElement, previousIframe;
+          isTargetToScrollAnIFrame,
+          previousJQueryElement, 
+          previousIframe;
           
 
           targetElChain.forEach(function(element) {
@@ -1554,10 +1555,7 @@ var Shortcuts4Js;
               if(i > 0){
                 previousIframe = jQuery(jQueryTargetToScroll);
               }
-
-              if(arrayLength > i) {
-                jQueryTargetToScroll = targetElChain[i];
-              }
+              jQueryTargetToScroll = targetElChain[i];
 
               i++;
               
