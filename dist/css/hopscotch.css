@@ -383,7 +383,6 @@ div.hopscotch-bubble .hopscotch-bubble-container {
   padding: 15px;
   position: relative;
   text-align: left;
-  -webkit-font-smoothing: antialiased;
   /* to fix text flickering */
 }
 div.hopscotch-bubble .hopscotch-content {
