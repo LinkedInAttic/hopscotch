@@ -1496,7 +1496,7 @@ var Shortcuts4Js;
           if(!hasJquery){
             return;
           }
-          var doScroll = function (targetTop, targetBottom, windowTop, windowBottom, scrollToVal, isTargetToScrollAnIFrame, jQueryTargetToScroll, previousIframe) {
+          var doScroll = function (targetTop, targetBottom, windowTop, windowBottom, scrollToVal, isTargetToScrollAnIFrame, jQueryTargetToScroll, previousIframe, cb) {
 
             var scrollIncr,
             scrollTimeout,
@@ -1575,7 +1575,7 @@ var Shortcuts4Js;
 
               // For iFrames. Every target to scroll is an iframe except the first
               isTargetToScrollAnIFrame = i!== 0;
-              doScroll(targetTop, targetBottom, windowTop, windowBottom, scrollToVal, isTargetToScrollAnIFrame, jQueryTargetToScroll, previousIframe);
+              doScroll(targetTop, targetBottom, windowTop, windowBottom, scrollToVal, isTargetToScrollAnIFrame, jQueryTargetToScroll, previousIframe, callback);
               
               if(i > 0){
                 previousIframe = jQuery(jQueryTargetToScroll);
