@@ -1498,20 +1498,29 @@ var Shortcuts4Js;
           }
           var doScroll = function (targetTop, targetBottom, windowTop, windowBottom, scrollToVal, isTargetToScrollAnIFrame, jQueryTargetToScroll, previousIframe) {
 
-              var scrollIncr,
-              scrollTimeout,
-              scrollTimeoutFn;
-              if(isTargetToScrollAnIFrame && jQueryTargetToScroll) {
-                if(!previousIframe){
-                  jQuery(jQueryTargetToScroll).contents().find('body, html').animate({ scrollTop: scrollToVal }, getOption('scrollDuration'), cb);
-                }
-                else {
-                  previousIframe.contents().find(jQueryTargetToScroll).contents().find('body, html').animate({ scrollTop: scrollToVal }, getOption('scrollDuration'), cb);
-                }
+            var scrollIncr,
+            scrollTimeout,
+            scrollTimeoutFn;
+            var $target;
+            if(isTargetToScrollAnIFrame && jQueryTargetToScroll) {
+              if(!previousIframe){
+                $target = jQuery(jQueryTargetToScroll).contents().find('body, html');
               }
               else {
-                jQuery(jQueryTargetToScroll || 'body, html').animate({ scrollTop: scrollToVal }, getOption('scrollDuration'), cb);
+                $target = previousIframe.contents().find(jQueryTargetToScroll).contents().find('body, html');
               }
+            }
+            else {
+              $target = jQuery(jQueryTargetToScroll || 'body, html');
+            }
+
+            $target
+            .animate({ scrollTop: scrollToVal }, getOption('scrollDuration'))
+            .promise()
+            .then(function() {
+              if(typeof cb === "function")
+                cb();
+            });
           };
 
           var bubble = getBubble(),
