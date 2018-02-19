@@ -3,6 +3,16 @@ const path = require('path');
 
 module.exports = function(grunt) {
   var HOPSCOTCH = 'hopscotch';
+
+  const requireTemplateOptions = {
+    requireConfig: {
+      baseUrl: '<%=paths.build%>/js',
+      paths: {
+        hopscotch: 'hopscotch_amd'
+      }
+    }
+  };
+
   grunt.initConfig({
     banner: ['/**! <%=pkg.name%> - v<%=pkg.version%>',
         '*',
@@ -155,6 +165,7 @@ module.exports = function(grunt) {
           specs:  ['<%=paths.test%>/js/test.hopscotch.amd.js'],
           styles: ['<%=paths.build%>/css/hopscotch.min.css'],
           template: require('grunt-template-jasmine-requirejs'),
+          templateOptions: requireTemplateOptions,
           vendor: ['node_modules/jquery/dist/jquery.min.js']
         }
       },
@@ -166,6 +177,7 @@ module.exports = function(grunt) {
           specs:  ['<%=paths.test%>/js/test.hopscotch.amd.js'],
           styles: ['<%=paths.build%>/css/hopscotch.min.css'],
           template: require('grunt-template-jasmine-requirejs'),
+          templateOptions: requireTemplateOptions,
           vendor: ['node_modules/jquery/dist/jquery.min.js']
         }
       },
@@ -191,7 +203,7 @@ module.exports = function(grunt) {
         src: '<%=paths.build%>/js/hopscotch_umd.js',
         options: {
           keepRunner: false,
-          specs:  ['<%=paths.test%>/js/*.js'],
+          specs:  ['<%=paths.test%>/js/test.hopscotch.js'],
           vendor: ['node_modules/jquery/dist/jquery.min.js'],
           styles: ['<%=paths.build%>/css/hopscotch.css'],
           template: require('grunt-template-jasmine-istanbul'),
