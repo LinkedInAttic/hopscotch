@@ -629,12 +629,18 @@
           arrowEl = this.arrowEl,
           arrowPos = step.isRtl ? 'right' : 'left';
 
+      if (step.bubbleInCenter) {
+        this.setWindowCenterPosition(step);
+        return;
+      }
+
       utils.flipPlacement(step);
       utils.normalizePlacement(step);
 
       bubbleBoundingWidth = el.offsetWidth;
       bubbleBoundingHeight = el.offsetHeight;
-      utils.removeClass(el, 'fade-in-down fade-in-up fade-in-left fade-in-right');
+      utils.removeClass(el, 'fade-in-down fade-in-up fade-in-left fade-in-right fade-in-left-pct fade-in-right-pct windowCenter');
+      utils.removeClass(arrowEl, 'hide');
 
       // SET POSITION
       boundingRect = targetEl.getBoundingClientRect();
@@ -708,6 +714,19 @@
 
       el.style.top = top + 'px';
       el.style.left = left + 'px';
+    },
+
+    setWindowCenterPosition: function setWindowCenterPosition(step) {
+      var el = this.element,
+          arrowEl = this.arrowEl;
+
+      utils.flipPlacement(step);
+      utils.normalizePlacement(step);
+
+      utils.removeClass(el, 'fade-in-down fade-in-up fade-in-left fade-in-right fade-in-left-pct fade-in-right-pct windowCenter');
+
+      utils.addClass(el, 'windowCenter');
+      utils.addClass(arrowEl, 'hide');
     },
 
     /**
@@ -932,6 +951,10 @@
       var self = this,
           fadeClass = 'fade-in-' + this._getArrowDirection(),
           fadeDur = 1000;
+
+      if (utils.hasClass(this.element, 'windowCenter')) {
+        fadeClass += '-pct';
+      }
 
       utils.removeClass(this.element, 'hide');
       utils.addClass(this.element, fadeClass);
@@ -1459,119 +1482,126 @@
         } // HopscotchBubble.show
       }
 
-      // Abrupt scroll to scroll target
-      else if (!getOption('smoothScroll')) {
-          window.scrollTo(scrollToXVal, scrollToYVal);
-
+      // If bubble is drawn in window's center position then no scrolling needed
+      else if (utils.hasClass(bubbleEl, 'windowCenter')) {
           if (cb) {
             cb();
-          } // HopscotchBubble.show
+          }
         }
 
-        // Smooth scroll to scroll target
-        else {
-            // Use YUI if it exists
-            if ((typeof YAHOO === 'undefined' ? 'undefined' : _typeof(YAHOO)) !== undefinedStr && _typeof(YAHOO.env) !== undefinedStr && _typeof(YAHOO.env.ua) !== undefinedStr && _typeof(YAHOO.util) !== undefinedStr && _typeof(YAHOO.util.Scroll) !== undefinedStr) {
-              scrollEl = YAHOO.env.ua.webkit ? document.body : document.documentElement;
-              yuiEase = YAHOO.util.Easing ? YAHOO.util.Easing.easeOut : undefined;
-              yuiAnim = new YAHOO.util.Scroll(scrollEl, {
-                scroll: { to: [scrollToXVal, scrollToYVal] }
-              }, getOption('scrollDuration') / 1000, yuiEase);
-              yuiAnim.onComplete.subscribe(cb);
-              yuiAnim.animate();
-            }
+        // Abrupt scroll to scroll target
+        else if (!getOption('smoothScroll')) {
+            window.scrollTo(scrollToXVal, scrollToYVal);
 
-            // Use jQuery if it exists
-            else if (hasJquery) {
-                jQuery('body, html').animate({ scrollTop: scrollToYVal, scrollLeft: scrollToXVal }, getOption('scrollDuration'), cb);
+            if (cb) {
+              cb();
+            } // HopscotchBubble.show
+          }
+
+          // Smooth scroll to scroll target
+          else {
+              // Use YUI if it exists
+              if ((typeof YAHOO === 'undefined' ? 'undefined' : _typeof(YAHOO)) !== undefinedStr && _typeof(YAHOO.env) !== undefinedStr && _typeof(YAHOO.env.ua) !== undefinedStr && _typeof(YAHOO.util) !== undefinedStr && _typeof(YAHOO.util.Scroll) !== undefinedStr) {
+                scrollEl = YAHOO.env.ua.webkit ? document.body : document.documentElement;
+                yuiEase = YAHOO.util.Easing ? YAHOO.util.Easing.easeOut : undefined;
+                yuiAnim = new YAHOO.util.Scroll(scrollEl, {
+                  scroll: { to: [scrollToXVal, scrollToYVal] }
+                }, getOption('scrollDuration') / 1000, yuiEase);
+                yuiAnim.onComplete.subscribe(cb);
+                yuiAnim.animate();
               }
 
-              // Use D3 if it exitst - patch from Pyaton Quackenbush
-              else if (d3) {
-                  var scrollTween = function scrollTween(xOffset, yOffset) {
-                    return function () {
-                      var x = d3.interpolateNumber(window.pageXOffset || document.documentElement.scrollLeft, xOffset);
-                      var y = d3.interpolateNumber(window.pageYOffset || document.documentElement.scrollTop, yOffset);
-                      return function (t) {
-                        scrollTo(x(t), y(t));
-                      };
-                    };
-                  };
-
-                  var scrollDuration = getOption('scrollDuration');
-                  d3.transition().duration(scrollDuration).tween("scroll", scrollTween(scrollToXVal, scrollToYVal)).each("end", function () {
-                    if (cb) {
-                      cb();
-                    }
-                  });
+              // Use jQuery if it exists
+              else if (hasJquery) {
+                  jQuery('body, html').animate({ scrollTop: scrollToYVal, scrollLeft: scrollToXVal }, getOption('scrollDuration'), cb);
                 }
 
-                // Use my crummy setInterval scroll solution if we're using plain, vanilla Javascript.
-                else {
-                    if (scrollToXVal < 0) {
-                      scrollToXVal = 0;
-                    }
-
-                    if (scrollToYVal < 0) {
-                      scrollToYVal = 0;
-                    }
-
-                    // 48 * 10 == 480ms scroll duration
-                    // make it slightly less than CSS transition duration because of
-                    // setInterval overhead.
-                    // To increase or decrease duration, change the divisor of scrollYIncr.
-                    directionX = windowLeft > targetLeft ? -1 : 1; // -1 means scrolling left, 1 means right
-                    directionY = windowTop > targetTop ? -1 : 1; // -1 means scrolling up, 1 means down
-                    scrollXIncr = Math.abs(windowLeft - scrollToXVal) / (getOption('scrollDuration') / 10);
-                    scrollYIncr = Math.abs(windowTop - scrollToYVal) / (getOption('scrollDuration') / 10);
-                    _scrollTimeoutFn = function scrollTimeoutFn() {
-                      var scrollTop = utils.getScrollTop(),
-                          scrollLeft = utils.getScrollLeft(),
-                          scrollXNeeded = true,
-                          scrollYNeeded = true,
-                          scrollXTarget = scrollLeft + directionX * scrollXIncr,
-                          scrollYTarget = scrollTop + directionY * scrollYIncr;
-
-                      if (directionX > 0 && scrollXTarget >= scrollToXVal || directionX < 0 && scrollXTarget <= scrollToXVal) {
-                        // Overshot our target. Just manually set to equal the target
-                        // and clear the interval
-                        scrollXTarget = scrollToXVal;
-                        scrollXNeeded = false;
-                      }
-
-                      if (directionY > 0 && scrollYTarget >= scrollToYVal || directionY < 0 && scrollYTarget <= scrollToYVal) {
-                        // Overshot our target. Just manually set to equal the target
-                        // and clear the interval
-                        scrollYTarget = scrollToYVal;
-                        scrollYNeeded = false;
-                      }
-
-                      if (scrollXNeeded || scrollYNeeded) {
-                        window.scrollTo(scrollXTarget, scrollYTarget);
-                      } else {
-                        if (cb) {
-                          cb();
-                        } // HopscotchBubble.show
-                        // One last scroll adjustment
-                        window.scrollTo(scrollXTarget, scrollYTarget);
-                        return;
-                      }
-
-                      if (utils.getScrollTop() === scrollTop && utils.getScrollLeft() === scrollLeft) {
-                        // Couldn't scroll any further.
-                        if (cb) {
-                          cb();
-                        } // HopscotchBubble.show
-                        return;
-                      }
-
-                      // If we reached this point, that means there's still more to scroll.
-                      setTimeout(_scrollTimeoutFn, 10);
+                // Use D3 if it exitst - patch from Pyaton Quackenbush
+                else if (d3) {
+                    var scrollTween = function scrollTween(xOffset, yOffset) {
+                      return function () {
+                        var x = d3.interpolateNumber(window.pageXOffset || document.documentElement.scrollLeft, xOffset);
+                        var y = d3.interpolateNumber(window.pageYOffset || document.documentElement.scrollTop, yOffset);
+                        return function (t) {
+                          scrollTo(x(t), y(t));
+                        };
+                      };
                     };
 
-                    _scrollTimeoutFn();
+                    var scrollDuration = getOption('scrollDuration');
+                    d3.transition().duration(scrollDuration).tween("scroll", scrollTween(scrollToXVal, scrollToYVal)).each("end", function () {
+                      if (cb) {
+                        cb();
+                      }
+                    });
                   }
-          }
+
+                  // Use my crummy setInterval scroll solution if we're using plain, vanilla Javascript.
+                  else {
+                      if (scrollToXVal < 0) {
+                        scrollToXVal = 0;
+                      }
+
+                      if (scrollToYVal < 0) {
+                        scrollToYVal = 0;
+                      }
+
+                      // 48 * 10 == 480ms scroll duration
+                      // make it slightly less than CSS transition duration because of
+                      // setInterval overhead.
+                      // To increase or decrease duration, change the divisor of scrollYIncr.
+                      directionX = windowLeft > targetLeft ? -1 : 1; // -1 means scrolling left, 1 means right
+                      directionY = windowTop > targetTop ? -1 : 1; // -1 means scrolling up, 1 means down
+                      scrollXIncr = Math.abs(windowLeft - scrollToXVal) / (getOption('scrollDuration') / 10);
+                      scrollYIncr = Math.abs(windowTop - scrollToYVal) / (getOption('scrollDuration') / 10);
+                      _scrollTimeoutFn = function scrollTimeoutFn() {
+                        var scrollTop = utils.getScrollTop(),
+                            scrollLeft = utils.getScrollLeft(),
+                            scrollXNeeded = true,
+                            scrollYNeeded = true,
+                            scrollXTarget = scrollLeft + directionX * scrollXIncr,
+                            scrollYTarget = scrollTop + directionY * scrollYIncr;
+
+                        if (directionX > 0 && scrollXTarget >= scrollToXVal || directionX < 0 && scrollXTarget <= scrollToXVal) {
+                          // Overshot our target. Just manually set to equal the target
+                          // and clear the interval
+                          scrollXTarget = scrollToXVal;
+                          scrollXNeeded = false;
+                        }
+
+                        if (directionY > 0 && scrollYTarget >= scrollToYVal || directionY < 0 && scrollYTarget <= scrollToYVal) {
+                          // Overshot our target. Just manually set to equal the target
+                          // and clear the interval
+                          scrollYTarget = scrollToYVal;
+                          scrollYNeeded = false;
+                        }
+
+                        if (scrollXNeeded || scrollYNeeded) {
+                          window.scrollTo(scrollXTarget, scrollYTarget);
+                        } else {
+                          if (cb) {
+                            cb();
+                          } // HopscotchBubble.show
+                          // One last scroll adjustment
+                          window.scrollTo(scrollXTarget, scrollYTarget);
+                          return;
+                        }
+
+                        if (utils.getScrollTop() === scrollTop && utils.getScrollLeft() === scrollLeft) {
+                          // Couldn't scroll any further.
+                          if (cb) {
+                            cb();
+                          } // HopscotchBubble.show
+                          return;
+                        }
+
+                        // If we reached this point, that means there's still more to scroll.
+                        setTimeout(_scrollTimeoutFn, 10);
+                      };
+
+                      _scrollTimeoutFn();
+                    }
+            }
     },
 
 

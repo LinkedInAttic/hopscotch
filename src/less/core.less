@@ -47,6 +47,14 @@ div.hopscotch-bubble {
     display: none;
   }
 
+  &.windowCenter {
+    left: 50%;
+    top: 50%;
+    position: fixed;
+    -webkit-transform: translate(-50%, -50%);
+    transform: translate(-50%, -50%);
+  }
+
   h3 {
     color: #000;
     font-family: @bubbleFontFamily;
@@ -205,6 +213,10 @@ div.hopscotch-bubble {
         border-bottom: @arrowWidth solid transparent;
         border-top:    @arrowWidth solid transparent;
       }
+    }
+
+    &.hide {
+      display: none;
     }
   }
 

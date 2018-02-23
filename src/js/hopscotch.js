@@ -609,12 +609,18 @@ HopscotchBubble.prototype = {
         arrowEl      = this.arrowEl,
         arrowPos     = step.isRtl ? 'right' : 'left';
 
+    if (step.bubbleInCenter) {
+      this.setWindowCenterPosition(step);
+      return;
+    }
+
     utils.flipPlacement(step);
     utils.normalizePlacement(step);
 
     bubbleBoundingWidth = el.offsetWidth;
     bubbleBoundingHeight = el.offsetHeight;
-    utils.removeClass(el, 'fade-in-down fade-in-up fade-in-left fade-in-right');
+    utils.removeClass(el, 'fade-in-down fade-in-up fade-in-left fade-in-right fade-in-left-pct fade-in-right-pct windowCenter');
+    utils.removeClass(arrowEl, 'hide');
 
     // SET POSITION
     boundingRect = targetEl.getBoundingClientRect();
@@ -699,6 +705,19 @@ HopscotchBubble.prototype = {
 
     el.style.top = top + 'px';
     el.style.left = left + 'px';
+  },
+
+  setWindowCenterPosition: function(step) {
+    var el           = this.element,
+        arrowEl      = this.arrowEl;
+
+    utils.flipPlacement(step);
+    utils.normalizePlacement(step);
+
+    utils.removeClass(el, 'fade-in-down fade-in-up fade-in-left fade-in-right fade-in-left-pct fade-in-right-pct windowCenter');
+
+    utils.addClass(el, 'windowCenter');
+    utils.addClass(arrowEl, 'hide');
   },
 
   /**
@@ -932,6 +951,10 @@ HopscotchBubble.prototype = {
     var self      = this,
         fadeClass = 'fade-in-' + this._getArrowDirection(),
         fadeDur   = 1000;
+
+    if (utils.hasClass(this.element, 'windowCenter')) {
+      fadeClass += '-pct';
+    }
 
     utils.removeClass(this.element, 'hide');
     utils.addClass(this.element, fadeClass);
@@ -1440,6 +1463,11 @@ Hopscotch = function(initOptions) {
     if (targetTop >= windowTop && (targetTop <= windowTop + getOption('scrollTopMargin') || targetBottom <= windowBottom) &&
         targetLeft >= windowLeft && (targetLeft <= windowLeft + getOption('scrollLeftMargin') || targetRight <= windowRight)) {
       if (cb) { cb(); } // HopscotchBubble.show
+    }
+
+    // If bubble is drawn in window's center position then no scrolling needed
+    else if (utils.hasClass(bubbleEl, 'windowCenter')) {
+      if (cb) { cb(); }
     }
 
     // Abrupt scroll to scroll target
