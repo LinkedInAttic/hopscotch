@@ -1436,7 +1436,7 @@
       windowTop = utils.getScrollTop(),
           windowBottom = windowTop + utils.getWindowHeight(),
           windowLeft = utils.getScrollLeft(),
-          windowRight = windowRight + utils.getWindowWidth(),
+          windowRight = windowLeft + utils.getWindowWidth(),
 
 
       // This is our final target scroll value.
@@ -1486,71 +1486,91 @@
                 jQuery('body, html').animate({ scrollTop: scrollToYVal, scrollLeft: scrollToXVal }, getOption('scrollDuration'), cb);
               }
 
-              // Use my crummy setInterval scroll solution if we're using plain, vanilla Javascript.
-              else {
-                  if (scrollToXVal < 0) {
-                    scrollToXVal = 0;
-                  }
-
-                  if (scrollToYVal < 0) {
-                    scrollToYVal = 0;
-                  }
-
-                  // 48 * 10 == 480ms scroll duration
-                  // make it slightly less than CSS transition duration because of
-                  // setInterval overhead.
-                  // To increase or decrease duration, change the divisor of scrollYIncr.
-                  directionX = windowLeft > targetLeft ? -1 : 1; // -1 means scrolling left, 1 means right
-                  directionY = windowTop > targetTop ? -1 : 1; // -1 means scrolling up, 1 means down
-                  scrollXIncr = Math.abs(windowLeft - scrollToXVal) / (getOption('scrollDuration') / 10);
-                  scrollYIncr = Math.abs(windowTop - scrollToYVal) / (getOption('scrollDuration') / 10);
-                  _scrollTimeoutFn = function scrollTimeoutFn() {
-                    var scrollTop = utils.getScrollTop(),
-                        scrollLeft = utils.getScrollLeft(),
-                        scrollXNeeded = true,
-                        scrollYNeeded = true,
-                        scrollXTarget = scrollLeft + directionX * scrollXIncr,
-                        scrollYTarget = scrollTop + directionY * scrollYIncr;
-
-                    if (directionX > 0 && scrollXTarget >= scrollToXVal || directionX < 0 && scrollXTarget <= scrollToXVal) {
-                      // Overshot our target. Just manually set to equal the target
-                      // and clear the interval
-                      scrollXTarget = scrollToXVal;
-                      scrollXNeeded = false;
-                    }
-
-                    if (directionY > 0 && scrollYTarget >= scrollToYVal || directionY < 0 && scrollYTarget <= scrollToYVal) {
-                      // Overshot our target. Just manually set to equal the target
-                      // and clear the interval
-                      scrollYTarget = scrollToYVal;
-                      scrollYNeeded = false;
-                    }
-
-                    if (scrollXNeeded || scrollYNeeded) {
-                      window.scrollTo(scrollXTarget, scrollYTarget);
-                    } else {
-                      if (cb) {
-                        cb();
-                      } // HopscotchBubble.show
-                      // One last scroll adjustment
-                      window.scrollTo(scrollXTarget, scrollYTarget);
-                      return;
-                    }
-
-                    if (utils.getScrollTop() === scrollTop && utils.getScrollLeft() === scrollLeft) {
-                      // Couldn't scroll any further.
-                      if (cb) {
-                        cb();
-                      } // HopscotchBubble.show
-                      return;
-                    }
-
-                    // If we reached this point, that means there's still more to scroll.
-                    setTimeout(_scrollTimeoutFn, 10);
+              // Use D3 if it exitst - patch from Pyaton Quackenbush
+              else if (d3) {
+                  var scrollTween = function scrollTween(xOffset, yOffset) {
+                    return function () {
+                      var x = d3.interpolateNumber(window.pageXOffset || document.documentElement.scrollLeft, xOffset);
+                      var y = d3.interpolateNumber(window.pageYOffset || document.documentElement.scrollTop, yOffset);
+                      return function (t) {
+                        scrollTo(x(t), y(t));
+                      };
+                    };
                   };
 
-                  _scrollTimeoutFn();
+                  var scrollDuration = getOption('scrollDuration');
+                  d3.transition().duration(scrollDuration).tween("scroll", scrollTween(scrollToXVal, scrollToYVal)).each("end", function () {
+                    if (cb) {
+                      cb();
+                    }
+                  });
                 }
+
+                // Use my crummy setInterval scroll solution if we're using plain, vanilla Javascript.
+                else {
+                    if (scrollToXVal < 0) {
+                      scrollToXVal = 0;
+                    }
+
+                    if (scrollToYVal < 0) {
+                      scrollToYVal = 0;
+                    }
+
+                    // 48 * 10 == 480ms scroll duration
+                    // make it slightly less than CSS transition duration because of
+                    // setInterval overhead.
+                    // To increase or decrease duration, change the divisor of scrollYIncr.
+                    directionX = windowLeft > targetLeft ? -1 : 1; // -1 means scrolling left, 1 means right
+                    directionY = windowTop > targetTop ? -1 : 1; // -1 means scrolling up, 1 means down
+                    scrollXIncr = Math.abs(windowLeft - scrollToXVal) / (getOption('scrollDuration') / 10);
+                    scrollYIncr = Math.abs(windowTop - scrollToYVal) / (getOption('scrollDuration') / 10);
+                    _scrollTimeoutFn = function scrollTimeoutFn() {
+                      var scrollTop = utils.getScrollTop(),
+                          scrollLeft = utils.getScrollLeft(),
+                          scrollXNeeded = true,
+                          scrollYNeeded = true,
+                          scrollXTarget = scrollLeft + directionX * scrollXIncr,
+                          scrollYTarget = scrollTop + directionY * scrollYIncr;
+
+                      if (directionX > 0 && scrollXTarget >= scrollToXVal || directionX < 0 && scrollXTarget <= scrollToXVal) {
+                        // Overshot our target. Just manually set to equal the target
+                        // and clear the interval
+                        scrollXTarget = scrollToXVal;
+                        scrollXNeeded = false;
+                      }
+
+                      if (directionY > 0 && scrollYTarget >= scrollToYVal || directionY < 0 && scrollYTarget <= scrollToYVal) {
+                        // Overshot our target. Just manually set to equal the target
+                        // and clear the interval
+                        scrollYTarget = scrollToYVal;
+                        scrollYNeeded = false;
+                      }
+
+                      if (scrollXNeeded || scrollYNeeded) {
+                        window.scrollTo(scrollXTarget, scrollYTarget);
+                      } else {
+                        if (cb) {
+                          cb();
+                        } // HopscotchBubble.show
+                        // One last scroll adjustment
+                        window.scrollTo(scrollXTarget, scrollYTarget);
+                        return;
+                      }
+
+                      if (utils.getScrollTop() === scrollTop && utils.getScrollLeft() === scrollLeft) {
+                        // Couldn't scroll any further.
+                        if (cb) {
+                          cb();
+                        } // HopscotchBubble.show
+                        return;
+                      }
+
+                      // If we reached this point, that means there's still more to scroll.
+                      setTimeout(_scrollTimeoutFn, 10);
+                    };
+
+                    _scrollTimeoutFn();
+                  }
           }
     },
 

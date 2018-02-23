@@ -1420,7 +1420,7 @@ Hopscotch = function(initOptions) {
         windowTop      = utils.getScrollTop(),
         windowBottom   = windowTop + utils.getWindowHeight(),
         windowLeft     = utils.getScrollLeft(),
-        windowRight    = windowRight + utils.getWindowWidth(),
+        windowRight    = windowLeft + utils.getWindowWidth(),
 
         // This is our final target scroll value.
         scrollToXVal   = targetLeft - getOption('scrollLeftMargin'),
@@ -1469,6 +1469,28 @@ Hopscotch = function(initOptions) {
       // Use jQuery if it exists
       else if (hasJquery) {
         jQuery('body, html').animate({ scrollTop: scrollToYVal, scrollLeft: scrollToXVal }, getOption('scrollDuration'), cb);
+      }
+
+      // Use D3 if it exitst - patch from Pyaton Quackenbush
+      else if (d3) {
+        let scrollTween = function(xOffset, yOffset) {
+          return function() {
+            var x = d3.interpolateNumber(window.pageXOffset || document.documentElement.scrollLeft, xOffset);
+            var y = d3.interpolateNumber(window.pageYOffset || document.documentElement.scrollTop, yOffset);
+            return function(t) { scrollTo(x(t), y(t)); };
+          };
+        };
+
+        var scrollDuration = getOption('scrollDuration');
+        d3.transition()
+        .duration(scrollDuration)
+        .tween("scroll", scrollTween(scrollToXVal, scrollToYVal))
+        .each("end", function() {
+          if (cb) {
+            cb();
+          }
+        });
+
       }
 
       // Use my crummy setInterval scroll solution if we're using plain, vanilla Javascript.
