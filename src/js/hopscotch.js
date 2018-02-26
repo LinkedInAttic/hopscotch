@@ -1982,6 +1982,7 @@ Hopscotch = function(initOptions) {
         // Should we trigger onEnd callback? Let's err on the side of caution
         // and not trigger it. Don't want weird stuff happening on a page that
         // wasn't meant for the tour. Up to the developer to fix their tour.
+        utils.invokeEventCallbacks('error');
         self.endTour(false, false);
         return;
       }
@@ -2111,6 +2112,15 @@ Hopscotch = function(initOptions) {
     currTour = null;
 
     return this;
+  };
+
+  /**
+   * clearState
+   *
+   * Clear the cookie stored by hopscotch
+   */
+  this.clearState = function() {
+    utils.clearState(getOption('cookieName'));
   };
 
   /**
