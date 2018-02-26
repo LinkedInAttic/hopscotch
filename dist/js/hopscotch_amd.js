@@ -801,7 +801,7 @@ define(function () { 'use strict';
           showNext: utils.valOrDefault(step.showNextButton, this.opt.showNextButton),
           showCTA: utils.valOrDefault(step.showCTAButton && step.ctaLabel, false),
           ctaLabel: step.ctaLabel,
-          showClose: utils.valOrDefault(this.opt.showCloseButton, true)
+          showClose: utils.valOrDefault(step.showCloseButton, this.opt.showCloseButton)
         },
         step: {
           num: idx,
@@ -1097,6 +1097,7 @@ define(function () { 'use strict';
       opt = {
         showPrevButton: defaultOpts.showPrevButton,
         showNextButton: defaultOpts.showNextButton,
+        showCloseButton: defaultOpts.showCloseButton,
         bubbleWidth: defaultOpts.bubbleWidth,
         bubblePadding: defaultOpts.bubblePadding,
         arrowWidth: defaultOpts.arrowWidth,

@@ -798,7 +798,7 @@ HopscotchBubble.prototype = {
         showNext: utils.valOrDefault(step.showNextButton, this.opt.showNextButton),
         showCTA: utils.valOrDefault((step.showCTAButton && step.ctaLabel), false),
         ctaLabel: step.ctaLabel,
-        showClose: utils.valOrDefault(this.opt.showCloseButton, true)
+        showClose: utils.valOrDefault(step.showCloseButton, this.opt.showCloseButton)
       },
       step:{
         num: idx,
@@ -1092,14 +1092,15 @@ HopscotchBubble.prototype = {
 
     //Merge bubble options with defaults.
     opt = {
-      showPrevButton: defaultOpts.showPrevButton,
-      showNextButton: defaultOpts.showNextButton,
-      bubbleWidth:    defaultOpts.bubbleWidth,
-      bubblePadding:  defaultOpts.bubblePadding,
-      arrowWidth:     defaultOpts.arrowWidth,
-      isRtl:          defaultOpts.isRtl,
-      showNumber:     true,
-      isTourBubble:   true
+      showPrevButton:  defaultOpts.showPrevButton,
+      showNextButton:  defaultOpts.showNextButton,
+      showCloseButton: defaultOpts.showCloseButton,
+      bubbleWidth:     defaultOpts.bubbleWidth,
+      bubblePadding:   defaultOpts.bubblePadding,
+      arrowWidth:      defaultOpts.arrowWidth,
+      isRtl:           defaultOpts.isRtl,
+      showNumber:      true,
+      isTourBubble:    true
     };
     initOpt = (typeof initOpt === undefinedStr ? {} : initOpt);
     utils.extend(opt, initOpt);
