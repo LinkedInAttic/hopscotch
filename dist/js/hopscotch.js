@@ -1473,15 +1473,6 @@ var Shortcuts4Js;
         },
 
         /**
-         * Used for nextOnTargetClick
-         *
-         * @private
-         */
-        targetClickNextFn = function () {
-          self.nextStep();
-        },
-
-        /**
          * adjustWindowScroll
          *
          * Checks if the bubble or target element is partially or completely
@@ -1666,11 +1657,6 @@ var Shortcuts4Js;
 
           step = getCurrStep();
 
-          if (step.nextOnTargetClick) {
-            // Detach the listener when tour is moving to a different step
-            utils.removeEvtListener(utils.getStepTarget(step), 'click', targetClickNextFn);
-          }
-
           origStep = step;
           if (direction > 0) {
             wasMultiPage = origStep.multipage;
@@ -1844,11 +1830,6 @@ var Shortcuts4Js;
             utils.invokeEventCallbacks('show', step.onShow);
           }
 
-          if (currStepNum !== stepNum && getCurrStep().nextOnTargetClick) {
-            // Detach the listener when tour is moving to a different step
-            utils.removeEvtListener(utils.getStepTarget(getCurrStep()), 'click', targetClickNextFn);
-          }
-
           // Update bubble for current step
           currStepNum = stepNum;
 
@@ -1861,11 +1842,6 @@ var Shortcuts4Js;
             }
             else {
               showBubble();
-            }
-
-            // If we want to advance to next step when user clicks on target.
-            if (step.nextOnTargetClick) {
-              utils.addEvtListener(targetEl, 'click', targetClickNextFn);
             }
           });
 
@@ -2075,19 +2051,10 @@ var Shortcuts4Js;
        * @returns {Object} Hopscotch
        */
       this.endTour = function (clearState, doCallbacks) {
-        var bubble = getBubble(),
-          currentStep;
+        var bubble = getBubble()
 
         clearState = utils.valOrDefault(clearState, true);
         doCallbacks = utils.valOrDefault(doCallbacks, true);
-
-        //remove event listener if current step had it added
-        if (currTour) {
-          currentStep = getCurrStep();
-          if (currentStep && currentStep.nextOnTargetClick) {
-            utils.removeEvtListener(utils.getStepTarget(currentStep), 'click', targetClickNextFn);
-          }
-        }
 
         currStepNum = 0;
         cookieTourStep = undefined;
