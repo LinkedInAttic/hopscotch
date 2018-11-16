@@ -14,7 +14,7 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 */
-define('hopscotch', function () { 'use strict';
+define(function () { 'use strict';
 
   var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) {
     return typeof obj;
@@ -319,7 +319,7 @@ define('hopscotch', function () { 'use strict';
     },
 
     documentIsReady: function documentIsReady() {
-      return document.readyState === 'complete';
+      return document.readyState === 'interactive';
     },
 
     /**
@@ -1139,7 +1139,7 @@ define('hopscotch', function () { 'use strict';
         // IE
         else {
             _appendToBody2 = function _appendToBody() {
-              if (document.readyState === 'complete') {
+              if (document.readyState === 'interactive') {
                 document.detachEvent('onreadystatechange', _appendToBody2);
                 window.detachEvent('onload', _appendToBody2);
                 document.body.appendChild(el);

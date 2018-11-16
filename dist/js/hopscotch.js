@@ -323,7 +323,7 @@
     },
 
     documentIsReady: function documentIsReady() {
-      return document.readyState === 'complete';
+      return document.readyState === 'interactive';
     },
 
     /**
@@ -1143,7 +1143,7 @@
         // IE
         else {
             _appendToBody2 = function _appendToBody() {
-              if (document.readyState === 'complete') {
+              if (document.readyState === 'interactive') {
                 document.detachEvent('onreadystatechange', _appendToBody2);
                 window.detachEvent('onload', _appendToBody2);
                 document.body.appendChild(el);

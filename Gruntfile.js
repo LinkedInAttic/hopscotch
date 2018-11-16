@@ -284,7 +284,7 @@ module.exports = function(grunt) {
         dest: 'tmp/js/hopscotch_amd_tmp.js',
         options: {
           format: 'amd',
-          moduleId: HOPSCOTCH
+          id: HOPSCOTCH,
         },
         src: 'src/js/hopscotch.js'
       },

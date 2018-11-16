@@ -300,7 +300,7 @@ utils = {
   },
 
   documentIsReady: function() {
-    return document.readyState === 'complete';
+    return document.readyState === 'interactive';
   },
 
   /**
@@ -1136,7 +1136,7 @@ HopscotchBubble.prototype = {
       // IE
       else {
         appendToBody = function() {
-          if (document.readyState === 'complete') {
+          if (document.readyState === 'interactive') {
             document.detachEvent('onreadystatechange', appendToBody);
             window.detachEvent('onload', appendToBody);
             document.body.appendChild(el);
