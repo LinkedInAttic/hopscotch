@@ -1190,6 +1190,8 @@ HopscotchCalloutManager = function() {
       calloutOpts[opt.id] = opt;
       callout.render(opt, null, function() {
         callout.show();
+        utils.invokeEventCallbacks('start');
+        utils.invokeEventCallbacks('show');
         if (opt.onShow) {
           utils.invokeCallback(opt.onShow);
         }
@@ -1211,6 +1213,21 @@ HopscotchCalloutManager = function() {
    */
   this.getCallout = function(id) {
     return callouts[id];
+  };
+
+  /**
+   * getActiveCallout
+   * 
+   * Returns the active callout (if multiple are open first is returned)
+   * 
+   * @returns {Object} HopscotchBubble
+   * 
+   */
+  this.getActiveCallout = function() {
+    var active =  Object.keys(callouts).filter(function(id) {
+      return callouts[id].isShowing;
+    });
+    return (active.length) ? callouts[active[0]] : null; 
   };
 
   /**
@@ -1243,6 +1260,8 @@ HopscotchCalloutManager = function() {
     if (!callout) { return; }
 
     callout.destroy();
+    utils.invokeEventCallbacks('close');
+    utils.invokeEventCallbacks('end');
   };
 
   /**
