@@ -1127,7 +1127,20 @@
 
       //Finally, append our new bubble to body once the DOM is ready.
       if (utils.documentIsReady()) {
-        document.body.appendChild(el);
+        if (document.querySelector('nd-brand-bar')) {
+          document.querySelector('[slot=main]').appendChild(el);
+          window.setTimeout(function () {
+            if (el.style.position !== 'fixed') {
+              var atlasAppContainerScrollTop = document.querySelector('nd-brand-bar').shadowRoot.querySelector('.atlas-app-container').scrollTop;
+              // console.log("atlasAppContainerScrollTop ", atlasAppContainerScrollTop);
+              // console.log("el.style.position ", el.style.position);
+              var newBubbleTop = parseInt(el.style.top) + atlasAppContainerScrollTop;
+              el.style.top = newBubbleTop + 'px';
+            }
+          }.bind(this), 100);
+        } else {
+          document.body.appendChild(el);
+        }
       } else {
         // Moz, webkit, Opera
         if (document.addEventListener) {
