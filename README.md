@@ -1,10 +1,17 @@
-![Example Hopscotch tour](/demo/img/screenshot.png)
+# 🚨 UNMAINTAINED 🚨 
+
+This project is no longer used by LinkedIn and is currently unmaintained.
+
+If you would like to maintain this project, please send an email to
+oss@linkedin.com.
 
 Hopscotch [![Build Status](https://api.travis-ci.org/linkedin/hopscotch.png)](http://travis-ci.org/linkedin/hopscotch)
 =========
 Hopscotch is a framework to make it easy for developers to add product tours to their pages. Hopscotch accepts a tour JSON object as input and provides an API for the developer to control rendering the tour display and managing the tour progress.
 
 To learn more about Hopscotch and the API, check out [linkedin.github.io/hopscotch](http://linkedin.github.io/hopscotch/).
+
+![Example Hopscotch tour](/demo/img/screenshot.png)
 
 What's Here?
 ------------
