@@ -14,7 +14,7 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 */
-define('hopscotch', function () { 'use strict';
+define(function () { 'use strict';
 
   var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) {
     return typeof obj;
@@ -30,7 +30,6 @@ define('hopscotch', function () { 'use strict';
   var HopscotchI18N;
   var customI18N;
   var customRenderer;
-  var customEscape;
   var templateToUse = 'bubble_default';
   var Sizzle = window.Sizzle || null;
   var utils;
@@ -959,7 +958,7 @@ define('hopscotch', function () { 'use strict';
     destroy: function destroy() {
       var el = this.element;
 
-      if (el) {
+      if (el && el.parentNode) {
         el.parentNode.removeChild(el);
       }
       utils.removeEvtListener(el, 'click', this.clickCb);
@@ -2396,9 +2395,6 @@ define('hopscotch', function () { 'use strict';
      * @returns {Object} The Hopscotch object (for chaining).
      */
     this.setEscaper = function (esc) {
-      if (typeof esc === 'function') {
-        customEscape = esc;
-      }
       return this;
     };
 
