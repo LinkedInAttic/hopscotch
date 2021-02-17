@@ -647,7 +647,7 @@ HopscotchBubble.prototype = {
     else if (step.placement === 'top' || step.placement === 'bottom') {
       arrowEl.style.top = '';
       if (arrowOffset === 'center') {
-        arrowEl.style[arrowPos] = Math.floor((bubbleBoundingWidth / 2) - arrowEl.offsetWidth/2) + 'px';
+        arrowEl.style[arrowPos] = Math.floor((el.clientWidth / 2) - arrowEl.offsetWidth/2) + 'px';
       }
       else {
         // Numeric pixel value
@@ -657,7 +657,7 @@ HopscotchBubble.prototype = {
     else if (step.placement === 'left' || step.placement === 'right') {
       arrowEl.style[arrowPos] = '';
       if (arrowOffset === 'center') {
-        arrowEl.style.top = Math.floor((bubbleBoundingHeight / 2) - arrowEl.offsetHeight/2) + 'px';
+        arrowEl.style.top = Math.floor((el.clientHeight / 2) - arrowEl.offsetHeight/2) + 'px';
       }
       else {
         // Numeric pixel value
