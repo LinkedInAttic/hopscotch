@@ -1,4 +1,4 @@
-/**! hopscotch - v0.3.1
+/**! hopscotch - v0.3.2
 *
 * Copyright 2017 LinkedIn Corp. All rights reserved.
 *
@@ -34,7 +34,6 @@
   var HopscotchI18N;
   var customI18N;
   var customRenderer;
-  var customEscape;
   var templateToUse = 'bubble_default';
   var Sizzle = window.Sizzle || null;
   var utils;
@@ -70,6 +69,7 @@
     smoothScroll: true,
     scrollDuration: 1000,
     scrollTopMargin: 200,
+    scrollLeftMargin: 200,
     showCloseButton: true,
     showPrevButton: false,
     showNextButton: true,
@@ -302,6 +302,13 @@
      */
     getWindowHeight: function getWindowHeight() {
       return window.innerHeight || document.documentElement.clientHeight;
+    },
+
+    /**
+     * @private
+     */
+    getWindowWidth: function getWindowWidth() {
+      return window.innerWidth || document.documentElement.clientWidth;
     },
 
     /**
@@ -622,12 +629,18 @@
           arrowEl = this.arrowEl,
           arrowPos = step.isRtl ? 'right' : 'left';
 
+      if (step.bubbleInCenter) {
+        this.setWindowCenterPosition(step);
+        return;
+      }
+
       utils.flipPlacement(step);
       utils.normalizePlacement(step);
 
       bubbleBoundingWidth = el.offsetWidth;
       bubbleBoundingHeight = el.offsetHeight;
-      utils.removeClass(el, 'fade-in-down fade-in-up fade-in-left fade-in-right');
+      utils.removeClass(el, 'fade-in-down fade-in-up fade-in-left fade-in-right fade-in-left-pct fade-in-right-pct windowCenter');
+      utils.removeClass(arrowEl, 'hide');
 
       // SET POSITION
       boundingRect = targetEl.getBoundingClientRect();
@@ -701,6 +714,19 @@
 
       el.style.top = top + 'px';
       el.style.left = left + 'px';
+    },
+
+    setWindowCenterPosition: function setWindowCenterPosition(step) {
+      var el = this.element,
+          arrowEl = this.arrowEl;
+
+      utils.flipPlacement(step);
+      utils.normalizePlacement(step);
+
+      utils.removeClass(el, 'fade-in-down fade-in-up fade-in-left fade-in-right fade-in-left-pct fade-in-right-pct windowCenter');
+
+      utils.addClass(el, 'windowCenter');
+      utils.addClass(arrowEl, 'hide');
     },
 
     /**
@@ -779,7 +805,7 @@
           showNext: utils.valOrDefault(step.showNextButton, this.opt.showNextButton),
           showCTA: utils.valOrDefault(step.showCTAButton && step.ctaLabel, false),
           ctaLabel: step.ctaLabel,
-          showClose: utils.valOrDefault(this.opt.showCloseButton, true)
+          showClose: utils.valOrDefault(step.showCloseButton, this.opt.showCloseButton)
         },
         step: {
           num: idx,
@@ -926,6 +952,10 @@
           fadeClass = 'fade-in-' + this._getArrowDirection(),
           fadeDur = 1000;
 
+      if (utils.hasClass(this.element, 'windowCenter')) {
+        fadeClass += '-pct';
+      }
+
       utils.removeClass(this.element, 'hide');
       utils.addClass(this.element, fadeClass);
       setTimeout(function () {
@@ -1071,6 +1101,7 @@
       opt = {
         showPrevButton: defaultOpts.showPrevButton,
         showNextButton: defaultOpts.showNextButton,
+        showCloseButton: defaultOpts.showCloseButton,
         bubbleWidth: defaultOpts.bubbleWidth,
         bubblePadding: defaultOpts.bubblePadding,
         arrowWidth: defaultOpts.arrowWidth,
@@ -1403,6 +1434,8 @@
       bubbleEl = bubble.element,
           bubbleTop = utils.getPixelValue(bubbleEl.style.top),
           bubbleBottom = bubbleTop + utils.getPixelValue(bubbleEl.offsetHeight),
+          bubbleLeft = utils.getPixelValue(bubbleEl.style.left),
+          bubbleRight = bubbleLeft + utils.getPixelValue(bubbleEl.offsetWidth),
 
 
       // Calculate the target element top and bottom position
@@ -1410,108 +1443,166 @@
           targetBounds = targetEl.getBoundingClientRect(),
           targetElTop = targetBounds.top + utils.getScrollTop(),
           targetElBottom = targetBounds.bottom + utils.getScrollTop(),
+          targetElLeft = targetBounds.left + utils.getScrollLeft(),
+          targetElRight = targetBounds.right + utils.getScrollLeft(),
 
 
       // The higher of the two: bubble or target
       targetTop = bubbleTop < targetElTop ? bubbleTop : targetElTop,
+          targetLeft = bubbleLeft < targetElLeft ? bubbleLeft : targetElLeft,
 
       // The lower of the two: bubble or target
       targetBottom = bubbleBottom > targetElBottom ? bubbleBottom : targetElBottom,
+          targetRight = bubbleRight > targetElRight ? bubbleRight : targetElRight,
 
 
       // Calculate the current viewport top and bottom
       windowTop = utils.getScrollTop(),
           windowBottom = windowTop + utils.getWindowHeight(),
+          windowLeft = utils.getScrollLeft(),
+          windowRight = windowLeft + utils.getWindowWidth(),
 
 
       // This is our final target scroll value.
-      scrollToVal = targetTop - getOption('scrollTopMargin'),
+      scrollToXVal = targetLeft - getOption('scrollLeftMargin'),
+          scrollToYVal = targetTop - getOption('scrollTopMargin'),
           scrollEl,
           yuiAnim,
           yuiEase,
-          direction,
-          scrollIncr,
+          directionX,
+          directionY,
+          scrollXIncr,
+          scrollYIncr,
           scrollTimeout,
           _scrollTimeoutFn;
 
       // Target and bubble are both visible in viewport
-      if (targetTop >= windowTop && (targetTop <= windowTop + getOption('scrollTopMargin') || targetBottom <= windowBottom)) {
+      if (targetTop >= windowTop && (targetTop <= windowTop + getOption('scrollTopMargin') || targetBottom <= windowBottom) && targetLeft >= windowLeft && (targetLeft <= windowLeft + getOption('scrollLeftMargin') || targetRight <= windowRight)) {
         if (cb) {
           cb();
         } // HopscotchBubble.show
       }
 
-      // Abrupt scroll to scroll target
-      else if (!getOption('smoothScroll')) {
-          window.scrollTo(0, scrollToVal);
-
+      // If bubble is drawn in window's center position then no scrolling needed
+      else if (utils.hasClass(bubbleEl, 'windowCenter')) {
           if (cb) {
             cb();
-          } // HopscotchBubble.show
+          }
         }
 
-        // Smooth scroll to scroll target
-        else {
-            // Use YUI if it exists
-            if ((typeof YAHOO === 'undefined' ? 'undefined' : _typeof(YAHOO)) !== undefinedStr && _typeof(YAHOO.env) !== undefinedStr && _typeof(YAHOO.env.ua) !== undefinedStr && _typeof(YAHOO.util) !== undefinedStr && _typeof(YAHOO.util.Scroll) !== undefinedStr) {
-              scrollEl = YAHOO.env.ua.webkit ? document.body : document.documentElement;
-              yuiEase = YAHOO.util.Easing ? YAHOO.util.Easing.easeOut : undefined;
-              yuiAnim = new YAHOO.util.Scroll(scrollEl, {
-                scroll: { to: [0, scrollToVal] }
-              }, getOption('scrollDuration') / 1000, yuiEase);
-              yuiAnim.onComplete.subscribe(cb);
-              yuiAnim.animate();
-            }
+        // Abrupt scroll to scroll target
+        else if (!getOption('smoothScroll')) {
+            window.scrollTo(scrollToXVal, scrollToYVal);
 
-            // Use jQuery if it exists
-            else if (hasJquery) {
-                jQuery('body, html').animate({ scrollTop: scrollToVal }, getOption('scrollDuration'), cb);
+            if (cb) {
+              cb();
+            } // HopscotchBubble.show
+          }
+
+          // Smooth scroll to scroll target
+          else {
+              // Use YUI if it exists
+              if ((typeof YAHOO === 'undefined' ? 'undefined' : _typeof(YAHOO)) !== undefinedStr && _typeof(YAHOO.env) !== undefinedStr && _typeof(YAHOO.env.ua) !== undefinedStr && _typeof(YAHOO.util) !== undefinedStr && _typeof(YAHOO.util.Scroll) !== undefinedStr) {
+                scrollEl = YAHOO.env.ua.webkit ? document.body : document.documentElement;
+                yuiEase = YAHOO.util.Easing ? YAHOO.util.Easing.easeOut : undefined;
+                yuiAnim = new YAHOO.util.Scroll(scrollEl, {
+                  scroll: { to: [scrollToXVal, scrollToYVal] }
+                }, getOption('scrollDuration') / 1000, yuiEase);
+                yuiAnim.onComplete.subscribe(cb);
+                yuiAnim.animate();
               }
 
-              // Use my crummy setInterval scroll solution if we're using plain, vanilla Javascript.
-              else {
-                  if (scrollToVal < 0) {
-                    scrollToVal = 0;
+              // Use jQuery if it exists
+              else if (hasJquery) {
+                  jQuery('body, html').animate({ scrollTop: scrollToYVal, scrollLeft: scrollToXVal }, getOption('scrollDuration'), cb);
+                }
+
+                // Use D3 if it exitst - patch from Pyaton Quackenbush
+                else if (d3) {
+                    var scrollTween = function scrollTween(xOffset, yOffset) {
+                      return function () {
+                        var x = d3.interpolateNumber(window.pageXOffset || document.documentElement.scrollLeft, xOffset);
+                        var y = d3.interpolateNumber(window.pageYOffset || document.documentElement.scrollTop, yOffset);
+                        return function (t) {
+                          scrollTo(x(t), y(t));
+                        };
+                      };
+                    };
+
+                    var scrollDuration = getOption('scrollDuration');
+                    d3.transition().duration(scrollDuration).tween("scroll", scrollTween(scrollToXVal, scrollToYVal)).each("end", function () {
+                      if (cb) {
+                        cb();
+                      }
+                    });
                   }
 
-                  // 48 * 10 == 480ms scroll duration
-                  // make it slightly less than CSS transition duration because of
-                  // setInterval overhead.
-                  // To increase or decrease duration, change the divisor of scrollIncr.
-                  direction = windowTop > targetTop ? -1 : 1; // -1 means scrolling up, 1 means down
-                  scrollIncr = Math.abs(windowTop - scrollToVal) / (getOption('scrollDuration') / 10);
-                  _scrollTimeoutFn = function scrollTimeoutFn() {
-                    var scrollTop = utils.getScrollTop(),
-                        scrollTarget = scrollTop + direction * scrollIncr;
+                  // Use my crummy setInterval scroll solution if we're using plain, vanilla Javascript.
+                  else {
+                      if (scrollToXVal < 0) {
+                        scrollToXVal = 0;
+                      }
 
-                    if (direction > 0 && scrollTarget >= scrollToVal || direction < 0 && scrollTarget <= scrollToVal) {
-                      // Overshot our target. Just manually set to equal the target
-                      // and clear the interval
-                      scrollTarget = scrollToVal;
-                      if (cb) {
-                        cb();
-                      } // HopscotchBubble.show
-                      window.scrollTo(0, scrollTarget);
-                      return;
+                      if (scrollToYVal < 0) {
+                        scrollToYVal = 0;
+                      }
+
+                      // 48 * 10 == 480ms scroll duration
+                      // make it slightly less than CSS transition duration because of
+                      // setInterval overhead.
+                      // To increase or decrease duration, change the divisor of scrollYIncr.
+                      directionX = windowLeft > targetLeft ? -1 : 1; // -1 means scrolling left, 1 means right
+                      directionY = windowTop > targetTop ? -1 : 1; // -1 means scrolling up, 1 means down
+                      scrollXIncr = Math.abs(windowLeft - scrollToXVal) / (getOption('scrollDuration') / 10);
+                      scrollYIncr = Math.abs(windowTop - scrollToYVal) / (getOption('scrollDuration') / 10);
+                      _scrollTimeoutFn = function scrollTimeoutFn() {
+                        var scrollTop = utils.getScrollTop(),
+                            scrollLeft = utils.getScrollLeft(),
+                            scrollXNeeded = true,
+                            scrollYNeeded = true,
+                            scrollXTarget = scrollLeft + directionX * scrollXIncr,
+                            scrollYTarget = scrollTop + directionY * scrollYIncr;
+
+                        if (directionX > 0 && scrollXTarget >= scrollToXVal || directionX < 0 && scrollXTarget <= scrollToXVal) {
+                          // Overshot our target. Just manually set to equal the target
+                          // and clear the interval
+                          scrollXTarget = scrollToXVal;
+                          scrollXNeeded = false;
+                        }
+
+                        if (directionY > 0 && scrollYTarget >= scrollToYVal || directionY < 0 && scrollYTarget <= scrollToYVal) {
+                          // Overshot our target. Just manually set to equal the target
+                          // and clear the interval
+                          scrollYTarget = scrollToYVal;
+                          scrollYNeeded = false;
+                        }
+
+                        if (scrollXNeeded || scrollYNeeded) {
+                          window.scrollTo(scrollXTarget, scrollYTarget);
+                        } else {
+                          if (cb) {
+                            cb();
+                          } // HopscotchBubble.show
+                          // One last scroll adjustment
+                          window.scrollTo(scrollXTarget, scrollYTarget);
+                          return;
+                        }
+
+                        if (utils.getScrollTop() === scrollTop && utils.getScrollLeft() === scrollLeft) {
+                          // Couldn't scroll any further.
+                          if (cb) {
+                            cb();
+                          } // HopscotchBubble.show
+                          return;
+                        }
+
+                        // If we reached this point, that means there's still more to scroll.
+                        setTimeout(_scrollTimeoutFn, 10);
+                      };
+
+                      _scrollTimeoutFn();
                     }
-
-                    window.scrollTo(0, scrollTarget);
-
-                    if (utils.getScrollTop() === scrollTop) {
-                      // Couldn't scroll any further.
-                      if (cb) {
-                        cb();
-                      } // HopscotchBubble.show
-                      return;
-                    }
-
-                    // If we reached this point, that means there's still more to scroll.
-                    setTimeout(_scrollTimeoutFn, 10);
-                  };
-
-                  _scrollTimeoutFn();
-                }
-          }
+            }
     },
 
 
@@ -1895,6 +1986,7 @@
           // Should we trigger onEnd callback? Let's err on the side of caution
           // and not trigger it. Don't want weird stuff happening on a page that
           // wasn't meant for the tour. Up to the developer to fix their tour.
+          utils.invokeEventCallbacks('error');
           self.endTour(false, false);
           return;
         }
@@ -2022,6 +2114,15 @@
       currTour = null;
 
       return this;
+    };
+
+    /**
+     * clearState
+     *
+     * Clear the cookie stored by hopscotch
+     */
+    this.clearState = function () {
+      utils.clearState(getOption('cookieName'));
     };
 
     /**
@@ -2400,9 +2501,6 @@
      * @returns {Object} The Hopscotch object (for chaining).
      */
     this.setEscaper = function (esc) {
-      if (typeof esc === 'function') {
-        customEscape = esc;
-      }
       return this;
     };
 
